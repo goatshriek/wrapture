@@ -1,0 +1,5 @@
+*         text eol=lf
+
+*.gemspec text eol=lf
+*.md      text eol=lf
+*.rb      text eol=lf
