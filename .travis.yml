@@ -1,15 +1,26 @@
 language: ruby
+
+os:
+  - linux
+  - osx
+
+matrix:
+  include:
+    - os: linux
+      dist: trusty
+
 rvm:
-  - 1.9.3
-  - 2.0
-  - 2.1
-  - 2.2
-  - 2.3
-  - 2.4
-  - 2.5
+#  - 1.9.3
+#  - 2.0
+#  - 2.1
+#  - 2.2
+#  - 2.3
+#  - 2.4
+#  - 2.5
   - 2.6
   - jruby
   - truffleruby
+  - rbx-3
 
 script:
   - gem build wrapture.gemspec
