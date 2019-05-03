@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.2.0] - 2019-05-03
 ### Added
  - Additional project information to gemspec.
+ - Integration with Travis CI.
 
 ## [0.1.0] - 2019-05-02
 ### Added
