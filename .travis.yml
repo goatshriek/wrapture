@@ -13,16 +13,13 @@ rvm:
 #  - 2.4
 #  - 2.5
   - 2.6
-  - jruby
-  - truffleruby
+#  - jruby
+#  - truffleruby
 
 matrix:
   include:
     - os: linux
       dist: trusty
-      rvm: rbx-3
-    - os: osx
-      osx_image: xcode8
       rvm: rbx-3
 
 script:
