@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Python class generation.
  - Perl class generation.
 
+## [0.2.0] - 2019-05-03
+### Added
+ - Additional project information to gemspec.
+
 ## [0.1.0] - 2019-05-02
 ### Added
  - C++ class generation with member functions and constants.
