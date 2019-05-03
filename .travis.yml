@@ -24,3 +24,4 @@ rvm:
 
 script:
   - gem build wrapture.gemspec
+  - gem install wrapture
