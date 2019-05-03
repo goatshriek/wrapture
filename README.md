@@ -1,5 +1,7 @@
 # Wrapture
 
+[![Travis Build Status](https://travis-ci.org/goatshriek/wrapture.svg?branch=master)](https://github.com/goatshriek/wrapture)
+
 A tool for generating object-oriented language wrappers for C code.
 
 Wrapture uses YAML files that describe the C code being wrapped and the output
