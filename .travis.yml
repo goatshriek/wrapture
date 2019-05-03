@@ -17,7 +17,7 @@ rvm:
 #  - 2.6
 #  - jruby
   - truffleruby
-  - rbx-3.10
+  - rbx-3
 
 script:
   - gem build wrapture.gemspec
