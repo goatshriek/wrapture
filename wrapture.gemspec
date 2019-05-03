@@ -1,7 +1,5 @@
 require File.expand_path('../lib/wrapture/version', __FILE__)
 
-asdfasdf adsfa sd adsf asdfasdfasdf asdfasdf
-
 Gem::Specification.new do |spec|
   spec.name        =  'wrapture'
   spec.version     =  Wrapture::VERSION
