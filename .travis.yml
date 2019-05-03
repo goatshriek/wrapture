@@ -4,8 +4,6 @@ os:
   - linux
   - osx
 
-dist: trusty
-
 rvm:
 #  - 1.9.3
 #  - 2.0
@@ -14,10 +12,18 @@ rvm:
 #  - 2.3
 #  - 2.4
 #  - 2.5
-#  - 2.6
-#  - jruby
+  - 2.6
+  - jruby
   - truffleruby
-  - rbx-3
+
+matrix:
+  include:
+    - os: linux
+      dist: trusty
+      rvm: rbx-3
+    - os: osx
+      osx_image: xcode8
+      rvm: rbx-3
 
 script:
   - gem build wrapture.gemspec
