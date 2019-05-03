@@ -17,7 +17,7 @@ Gem::Specification.new do |spec|
     spec.metadata = {
       "bug_tracker_uri" => "https://github.com/goatshriek/wrapture/issues",
       "changelog_uri" => "https://github.com/goatshriek/wrapture/blob/master/ChangeLog.md",
-      "source_code_uri" => "https://github.com/goatshriek/wrapture/",
+      "source_code_uri" => "https://github.com/goatshriek/wrapture/"
     }
   end
 end
