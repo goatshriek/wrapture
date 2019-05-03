@@ -12,4 +12,12 @@ Gem::Specification.new do |spec|
   spec.executables << 'wrapture'
   spec.homepage    =  'http://rubygems.org/gems/wrapture'
   spec.license     =  'Apache-2.0'
+
+  if spec.respond_to?(:metadata)
+    spec.metadata = {
+      "bug_tracker_uri" => "https://github.com/goatshriek/wrapture/issues",
+      "changelog_uri" => "https://github.com/goatshriek/wrapture/blob/master/ChangeLog.md",
+      "source_code_uri" => "https://github.com/goatshriek/wrapture/",
+    }
+  end
 end
