@@ -25,5 +25,6 @@ matrix:
       rvm: rbx-3
 
 script:
+  - rake test
   - gem build wrapture.gemspec
   - gem install wrapture
