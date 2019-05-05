@@ -93,6 +93,56 @@ module Wrapture
       end
     end
 
+    def equivalent_struct
+      if pointer_wrapper?
+        '*(this->equivalent)'
+      else
+        'this->equivalent'
+      end
+    end
+
+    def equivalent_struct_pointer
+      if pointer_wrapper?
+        'this->equivalent'
+      else
+        '&this->equivalent'
+      end
+    end
+
+    def function_param_list(function_spec)
+      params = []
+      function_spec['params'].each do |param|
+        params << "#{param['type']} #{param['name']}"
+      end
+      params.join ', '
+    end
+
+    def wrapped_constructor_signature(index)
+      function_spec = @spec['constructors'][index]['wrapped-function']
+
+      "#{@spec['name']}( #{function_param_list(function_spec)} )"
+    end
+
+    def wrapped_constructor_definition(index)
+      constructor_spec = @spec['constructors'][index]
+      wrapped_function = constructor_spec['wrapped-function']
+
+      "#{@spec['name']}::#{wrapped_constructor_signature}{"
+      yield
+
+      result = case wrapped_function['return']['type']
+      when 'equivalent-struct'
+        equivalent_struct
+      when 'equivalent-struct-pointer'
+        equivalent_struct_pointer
+      end
+
+      "  #{result} = #{wrapped_function['name']}( #{function_param_list(wrapped_function)} );"
+      yield
+
+      '}'
+    end
+
     def generate_declaration_file
       file = File.open("#{@spec['name']}.hpp", 'w')
 
@@ -114,7 +164,11 @@ module Wrapture
       end
 
       file.puts
-      file.puts "    struct #{@spec['equivalent-struct']['name']} #{equivalent_name}"
+      file.puts "    struct #{@spec['equivalent-struct']['name']} #{equivalent_name};"
+
+      @spec['constructors'].each_index do |constructor|
+        file.puts "    #{wrapped_constructor_signature(constructor)};"
+      end
 
       file.puts '  };' # end of class
       file.puts '}' # end of namespace
@@ -123,6 +177,9 @@ module Wrapture
     end
 
     def generate_definition_file
+      file = File.open("#{@spec['name']}.cpp", 'w')
+      file.puts
+      file.close
     end
   end
 end
