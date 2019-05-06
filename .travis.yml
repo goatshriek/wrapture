@@ -18,6 +18,10 @@ matrix:
       dist: trusty
       rvm: rbx-3
 
+before_install:
+  - gem update --system
+  - gem install bundler --no-document
+
 script:
   - rake test
   - gem build wrapture.gemspec
