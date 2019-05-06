@@ -3,11 +3,16 @@ require 'wrapture'
 
 class ClassSpecTest < Minitest::Test
   def test_normalize
-    test_spec = {}
+    test_spec = {
+      'name' => 'TestClass',
+      'equivalent-struct' => {
+        'name' => 'test_struct'
+      }
+    }
 
     normalized_spec = Wrapture::ClassSpec.normalize_spec_hash test_spec
 
-    normalized_spec.wont_be_nil
+    assert normalized_spec != nil
   end
 
 
