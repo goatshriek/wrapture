@@ -1,5 +1,10 @@
+PATH
+  remote: .
+  specs:
+    wrapture (0.2.0)
+
 GEM
-  remote: https://rubygems.org/
+  remote: http://rubygems.org/
   specs:
     minitest (5.11.3)
     rake (12.3.2)
@@ -10,9 +15,7 @@ PLATFORMS
 DEPENDENCIES
   minitest (>= 5.9)
   rake (>= 0.9.2)
-
-RUBY VERSION
-   ruby 2.6.0p0
+  wrapture!
 
 BUNDLED WITH
    2.0.1
