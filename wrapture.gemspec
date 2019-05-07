@@ -13,6 +13,8 @@ Gem::Specification.new do |spec|
   spec.homepage    =  'http://rubygems.org/gems/wrapture'
   spec.license     =  'Apache-2.0'
 
+  spec.required_ruby_version = '>= 2.3'
+
   if spec.respond_to?(:metadata)
     spec.metadata = {
       "bug_tracker_uri" => "https://github.com/goatshriek/wrapture/issues",
