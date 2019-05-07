@@ -8,8 +8,8 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  minitest
-  rake
+  minitest (>= 5.9)
+  rake (>= 0.9.2)
 
 RUBY VERSION
    ruby 2.6.0p0

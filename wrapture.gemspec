@@ -14,8 +14,8 @@ Gem::Specification.new do |spec|
   spec.license     =  'Apache-2.0'
 
   spec.required_ruby_version = '>= 2.3'
-  spec.add_development_dependency 'minitest'
-  spec.add_development_dependency 'rake'
+  spec.add_development_dependency 'minitest', '>= 5.9'
+  spec.add_development_dependency 'rake', '>= 0.9.2'
 
   if spec.respond_to?(:metadata)
     spec.metadata = {
