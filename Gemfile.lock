@@ -2,12 +2,14 @@ GEM
   remote: https://rubygems.org/
   specs:
     minitest (5.11.3)
+    rake (12.3.2)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
   minitest
+  rake
 
 RUBY VERSION
    ruby 2.6.0p0
