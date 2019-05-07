@@ -20,7 +20,7 @@ matrix:
 
 before_install:
   - gem update --system
-  - bundle update --bundler
+  - gem install bundler
 
 script:
   - rake test
