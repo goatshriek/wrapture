@@ -23,6 +23,6 @@ before_install:
   - if [[ $TRAVIS_RUBY_VERSION =~ "jruby" ]] || [[ $TRAVIS_RUBY_VERSION =~ "truffle" ]]; then gem install bundler -v 1.17.3 --no-document; else gem install bundler --no-document; fi
 
 script:
-  - bundle exec rake test
+  - rake test
   - gem build wrapture.gemspec
   - gem install wrapture
