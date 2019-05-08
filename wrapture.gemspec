@@ -14,6 +14,7 @@ Gem::Specification.new do |spec|
   spec.license     =  'Apache-2.0'
 
   spec.required_ruby_version = '>= 2.3'
+  spec.add_development_dependency 'bundler', '>= 1.0.0'
   spec.add_development_dependency 'minitest', '>= 5.9'
 #  spec.add_development_dependency 'rake', '>= 0.9.2'
 

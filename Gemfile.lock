@@ -12,6 +12,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  bundler (>= 1.0.0)
   minitest (>= 5.9)
   wrapture!
 
