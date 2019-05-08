@@ -23,6 +23,6 @@ before_install:
   - gem install bundler
 
 script:
-  - bundle exec rake test
+  - rake test
   - gem build wrapture.gemspec
   - gem install wrapture
