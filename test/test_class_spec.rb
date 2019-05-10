@@ -14,6 +14,4 @@ class ClassSpecTest < Minitest::Test
 
     assert normalized_spec != nil
   end
-
-
 end

@@ -77,12 +77,12 @@ module Wrapture
 
     def pointer_wrapper?
       @spec['constructors'].each do |constructor_spec|
-        if constructor_spec['wrapped-function']['return']['type'] == 'equivalent-struct-pointer'
-          return true
-        end
+        return_type = constructor_spec['wrapped-function']['return']['type']
+
+        return true if return_type == 'equivalent-struct-pointer'
       end
 
-      return false
+      false
     end
 
     def equivalent_name
@@ -127,20 +127,19 @@ module Wrapture
       constructor_spec = @spec['constructors'][index]
       wrapped_function = constructor_spec['wrapped-function']
 
-      "#{@spec['name']}::#{wrapped_constructor_signature}{"
-      yield
+      yield "#{@spec['name']}::#{wrapped_constructor_signature}{"
 
       result = case wrapped_function['return']['type']
-      when 'equivalent-struct'
-        equivalent_struct
-      when 'equivalent-struct-pointer'
-        equivalent_struct_pointer
-      end
+               when 'equivalent-struct'
+                 equivalent_struct
+               when 'equivalent-struct-pointer'
+                 equivalent_struct_pointer
+               end
 
-      "  #{result} = #{wrapped_function['name']}( #{function_param_list(wrapped_function)} );"
-      yield
+      param_list = function_param_list(wrapped_function)
+      yield "  #{result} = #{wrapped_function['name']}( #{param_list} );"
 
-      '}'
+      yield '}'
     end
 
     def generate_declaration_file
@@ -159,12 +158,13 @@ module Wrapture
       file.puts '  public:'
 
       file.puts unless @spec['constants'].empty?
-      @spec['constants'].each do |constant_spec|
-        file.puts "    static const #{constant_spec['type']} #{constant_spec['name']}"
+      @spec['constants'].each do |spec|
+        file.puts "    static const #{cspec['type']} #{spec['name']}"
       end
 
       file.puts
-      file.puts "    struct #{@spec['equivalent-struct']['name']} #{equivalent_name};"
+      struct_name = @spec['equivalent-struct']['name']
+      file.puts "    struct #{struct_name} #{equivalent_name};"
 
       @spec['constructors'].each_index do |constructor|
         file.puts "    #{wrapped_constructor_signature(constructor)};"
