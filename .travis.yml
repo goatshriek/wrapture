@@ -20,7 +20,7 @@ matrix:
 
 before_install:
   - gem update --system
-  - if [[ $TRAVIS_RUBY_VERSION =~ "jruby" ]] || [[ $TRAVIS_RUBY_VERSION =~ "truffle" ]]; then gem install bundler -v 1.17.3 --no-document; else gem install bundler --no-document; fi
+  - if [[ $TRAVIS_RUBY_VERSION =~ "truffle" ]]; then gem install bundler -v 1.17.3 --no-document; else gem install bundler --no-document; fi
 
 script:
   - rake test
