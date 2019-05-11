@@ -123,6 +123,12 @@ module Wrapture
       "#{@spec['name']}( #{function_param_list(function_spec)} )"
     end
 
+    def wrapped_function_signature(index)
+      spec = @spec['functions'][index]
+
+      "#{spec['name']}( #{function_param_list(spec)} )"
+    end
+
     def wrapped_constructor_definition(index)
       constructor_spec = @spec['constructors'][index]
       wrapped_function = constructor_spec['wrapped-function']
@@ -150,24 +156,35 @@ module Wrapture
 
       file.puts unless declaration_includes.empty?
       declaration_includes.each do |include_file|
-        file.puts "#include <#{include_file}"
+        file.puts "#include <#{include_file}>"
       end
 
+      file.puts
       file.puts "namespace #{@spec['namespace']} {"
+      file.puts
       file.puts "  class #{@spec['name']} {"
       file.puts '  public:'
 
       file.puts unless @spec['constants'].empty?
       @spec['constants'].each do |spec|
-        file.puts "    static const #{cspec['type']} #{spec['name']}"
+        file.puts "    static const #{spec['type']} #{spec['name']}"
       end
 
       file.puts
       struct_name = @spec['equivalent-struct']['name']
       file.puts "    struct #{struct_name} #{equivalent_name};"
+      file.puts
 
       @spec['constructors'].each_index do |constructor|
         file.puts "    #{wrapped_constructor_signature(constructor)};"
+      end
+
+      unless @spec['destructor'].nil?
+        file.puts "    ~#{@spec['name']}( void );"
+      end
+
+      @spec['functions'].each_index do |func|
+        file.puts "    #{wrapped_function_signature(func)};"
       end
 
       file.puts '  };' # end of class
