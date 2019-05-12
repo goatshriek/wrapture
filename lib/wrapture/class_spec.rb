@@ -83,6 +83,10 @@ module Wrapture
         includes.concat function_spec['wrapped-function']['includes']
       end
 
+      @spec['constants'].each do |constant_spec|
+        includes.concat constant_spec['includes']
+      end
+
       includes.uniq 
     end
 
@@ -94,6 +98,22 @@ module Wrapture
       end
 
       false
+    end
+
+    def typed_variable(type, name)
+      if type.end_with? '*'
+        "#{type}#{name}"
+      else
+        "#{type} #{name}"
+      end
+    end
+
+    def equivalent_member(member)
+      if pointer_wrapper?
+        "this->equivalent->#{member}"
+      else
+        "this->equivalent.#{member}"
+      end
     end
 
     def equivalent_name
@@ -120,18 +140,53 @@ module Wrapture
       end
     end
 
+    def function_signature_prefix(func_spec)
+      modifier_prefix = if func_spec['static']
+                          'static '
+                        else
+                          ''
+                        end
+
+      "#{modifier_prefix}#{func_spec['return']['type']}"
+    end
+
     def function_param_list(function_spec)
+      return 'void' if function_spec['params'].empty?
+
       params = []
+
       function_spec['params'].each do |param|
-        params << "#{param['type']} #{param['name']}"
+        params << typed_variable( param['type'], param['name'])
       end
+
       params.join ', '
+    end
+
+    def wrapped_function_call(function_spec)
+      params = []
+
+      function_spec['params'].each do |param|
+        params << case param['name']
+                  when 'equivalent-struct'
+                    equivalent_struct
+                  when 'equivalent-struct-pointer'
+                    equivalent_struct_pointer
+                  else
+                    param['name']
+                  end
+      end
+
+      "#{function_spec['name']}( #{params.join ', '} )"
     end
 
     def wrapped_constructor_signature(index)
       function_spec = @spec['constructors'][index]['wrapped-function']
 
       "#{@spec['name']}( #{function_param_list(function_spec)} )"
+    end
+
+    def destructor_signature
+      "~#{@spec['name']}( void )"
     end
 
     def wrapped_function_signature(index)
@@ -144,7 +199,7 @@ module Wrapture
       constructor_spec = @spec['constructors'][index]
       wrapped_function = constructor_spec['wrapped-function']
 
-      yield "#{@spec['name']}::#{wrapped_constructor_signature}{"
+      yield "#{@spec['name']}::#{wrapped_constructor_signature(index)}{"
 
       result = case wrapped_function['return']['type']
                when 'equivalent-struct'
@@ -154,9 +209,27 @@ module Wrapture
                end
 
       param_list = function_param_list(wrapped_function)
-      yield "  #{result} = #{wrapped_function['name']}( #{param_list} );"
+      yield "  #{result} = #{wrapped_function_call wrapped_function};"
 
       yield '}'
+    end
+
+    def member_constructor_signature
+      params = []
+
+      @spec['equivalent-struct']['members'].each do |member|
+        params << typed_variable(member['type'], member['name'])
+      end
+
+      "#{@spec['name']}( #{params.join ', '} )"
+    end
+
+    def struct_constructor_signature
+      "#{@spec['name']}( struct #{@spec['equivalent-struct']['name']} equivalent )"
+    end
+
+    def pointer_constructor_signature
+      "#{@spec['name']}( struct #{@spec['equivalent-struct']['name']} *equivalent )"
     end
 
     def generate_declaration_file
@@ -178,7 +251,7 @@ module Wrapture
 
       file.puts unless @spec['constants'].empty?
       @spec['constants'].each do |spec|
-        file.puts "    static const #{spec['type']} #{spec['name']}"
+        file.puts "    static const #{typed_variable(spec['type'], spec['name'])};"
       end
 
       file.puts
@@ -186,20 +259,33 @@ module Wrapture
       file.puts "    struct #{struct_name} #{equivalent_name};"
       file.puts
 
+      unless @spec['equivalent-struct']['members'].empty?
+        file.puts "    #{member_constructor_signature};"
+      end
+
+      unless pointer_wrapper?
+        file.puts "    #{struct_constructor_signature};"
+        file.puts "    #{pointer_constructor_signature};"
+      end
+
       @spec['constructors'].each_index do |constructor|
-        file.puts "    #{wrapped_constructor_signature(constructor)};"
+        file.puts "    #{wrapped_constructor_signature constructor};"
       end
 
       unless @spec['destructor'].nil?
-        file.puts "    ~#{@spec['name']}( void );"
+        file.puts "    #{destructor_signature};"
       end
 
       @spec['functions'].each_index do |func|
-        file.puts "    #{wrapped_function_signature(func)};"
+        func_spec = @spec['functions'][func]
+        file.puts "    #{function_signature_prefix func_spec} #{wrapped_function_signature func};"
       end
 
       file.puts '  };' # end of class
+      file.puts
       file.puts '}' # end of namespace
+      file.puts
+      file.puts '#endif' # end of header guard
 
       file.close
     end
@@ -207,10 +293,88 @@ module Wrapture
     def generate_definition_file
       file = File.open("#{@spec['name']}.cpp", 'w')
 
-      file.puts unless definition_includes.empty?
       definition_includes.each do |include_file|
         file.puts "#include <#{include_file}>"
       end
+
+      file.puts
+      file.puts "namespace #{@spec['namespace']} {"
+
+      file.puts unless @spec['constants'].empty?
+      @spec['constants'].each do |spec|
+        file.puts "  const #{spec['type']} #{@spec['name']}::#{spec['name']} = #{spec['value']};"
+      end
+
+      unless @spec['equivalent-struct']['members'].empty?
+        file.puts
+        file.puts "  #{@spec['name']}::#{member_constructor_signature} {"
+
+        @spec['equivalent-struct']['members'].each do |member|
+          file.puts "    #{equivalent_member member['name']} = #{member['name']};"
+        end
+
+        file.puts '  }'
+      end
+
+      unless pointer_wrapper?
+        file.puts
+        file.puts "  #{@spec['name']}::#{struct_constructor_signature} {"
+
+        @spec['equivalent-struct']['members'].each do |member|
+          file.puts "    #{equivalent_member member['name']} = equivalent.#{member['name']};"
+        end
+
+        file.puts '  }'
+
+        file.puts
+        file.puts "  #{@spec['name']}::#{pointer_constructor_signature} {"
+
+        @spec['equivalent-struct']['members'].each do |member|
+          file.puts "    #{equivalent_member member['name']} = equivalent->#{member['name']};"
+        end
+
+        file.puts '  }'
+      end
+
+      @spec['constructors'].each_index do |constructor|
+        file.puts
+        wrapped_constructor_definition(constructor) do |line|
+          file.puts "  #{line}"
+        end
+      end
+
+      unless @spec['destructor'].nil?
+        file.puts
+        file.puts "  #{@spec['name']}::#{destructor_signature} {"
+        file.puts "    #{wrapped_function_call @spec['destructor']['wrapped-function']};"
+        file.puts '  }'
+      end
+
+      @spec['functions'].each_index do |func|
+        func_spec = @spec['functions'][func]
+
+        file.puts
+
+        return_type = func_spec['return']['type']
+        file.puts "  #{return_type} #{@spec['name']}::#{wrapped_function_signature func} {"
+
+        wrapped_call = '    '
+
+        unless return_type == 'void'
+          wrapped_call << "return #{return_type} ( "
+        end
+
+        wrapped_call << "#{wrapped_function_call func_spec['wrapped-function']}"
+
+        wrapped_call << ' )' unless return_type == 'void'
+        wrapped_call << ';'
+
+        file.puts wrapped_call
+        file.puts '  }'
+      end
+
+      file.puts
+      file.puts '}' # end of namespace
 
       file.close
     end
