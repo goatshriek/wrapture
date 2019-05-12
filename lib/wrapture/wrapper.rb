@@ -1,9 +1,8 @@
 module Wrapture
 
-  def self.wrap_class( class_spec )
+  def self.wrap_class( spec_hash )
 
-    spec = ClassSpec.new class_spec
-    spec.generate_wrappers
+    class_spec = ClassSpec.normalize_spec_hash spec_hash
 
     class_name = class_spec['name']
     struct_name = class_spec['equivalent-struct']['name']
