@@ -75,6 +75,17 @@ module Wrapture
       includes.uniq
     end
 
+    def definition_includes
+      includes = ["#{@spec['name']}.hpp"]
+
+      @spec['functions'].each do |function_spec|
+        includes.concat function_spec['return']['includes']
+        includes.concat function_spec['wrapped-function']['includes']
+      end
+
+      includes.uniq 
+    end
+
     def pointer_wrapper?
       @spec['constructors'].each do |constructor_spec|
         return_type = constructor_spec['wrapped-function']['return']['type']
@@ -195,7 +206,12 @@ module Wrapture
 
     def generate_definition_file
       file = File.open("#{@spec['name']}.cpp", 'w')
-      file.puts
+
+      file.puts unless definition_includes.empty?
+      definition_includes.each do |include_file|
+        file.puts "#include <#{include_file}>"
+      end
+
       file.close
     end
   end
