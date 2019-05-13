@@ -13,45 +13,32 @@ module Wrapture
       normalized_spec = spec.dup
       normalized_spec.default = []
 
-      if normalized_spec['constructors'].nil?
-        normalized_spec['constructors'] = []
-      end
-
       if normalized_spec['equivalent-struct']['members'].nil?
         normalized_spec['equivalent-struct']['members'] = []
       end
 
-      if normalized_spec['functions'].nil?
-        normalized_spec['functions'] = []
-      else
-        normalized_spec['functions'].each do |function_spec|
-          if function_spec['params'].nil?
-            function_spec['params'] = []
-          end
+      normalized_spec['functions'].each do |function_spec|
+        if function_spec['params'].nil?
+          function_spec['params'] = []
+        end
 
-          if function_spec['wrapped-function']['params'].nil?
-            function_spec['wrapped-function']['params'] = []
-          end
+        if function_spec['wrapped-function']['params'].nil?
+          function_spec['wrapped-function']['params'] = []
+        end
 
-          if function_spec['return'].nil?
-            function_spec['return'] = {}
-            function_spec['return']['type'] = 'void'
-          end
+        if function_spec['return'].nil?
+          function_spec['return'] = {}
+          function_spec['return']['type'] = 'void'
+        end
 
-          if function_spec['return']['includes'].nil?
-            function_spec['return']['includes'] = []
-          end
+        if function_spec['return']['includes'].nil?
+          function_spec['return']['includes'] = []
         end
       end
 
-      if normalized_spec['constants'].nil?
-        normalized_spec['constants'] = []
-
-      else
-        normalized_spec['constants'].each do |constant_spec|
-          if constant_spec['includes'].nil?
-            constant_spec['includes'] = []
-          end
+      normalized_spec['constants'].each do |constant_spec|
+        if constant_spec['includes'].nil?
+          constant_spec['includes'] = []
         end
       end
 
@@ -275,7 +262,7 @@ module Wrapture
         file.puts "    #{wrapped_constructor_signature constructor};"
       end
 
-      unless @spec['destructor'].nil?
+      if @spec.has_key? 'destructor'
         file.puts "    #{destructor_signature};"
       end
 
@@ -352,7 +339,7 @@ module Wrapture
         end
       end
 
-      unless @spec['destructor'].nil?
+      if @spec.has_key? 'destructor'
         file.puts
         file.puts "  #{@spec['name']}::#{destructor_signature} {"
         func_spec = @spec['destructor']['wrapped-function']
