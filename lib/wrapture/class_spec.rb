@@ -262,7 +262,7 @@ module Wrapture
         file.puts "    #{wrapped_constructor_signature constructor};"
       end
 
-      if @spec.has_key? 'destructor'
+      if @spec.key? 'destructor'
         file.puts "    #{destructor_signature};"
       end
 
@@ -339,7 +339,7 @@ module Wrapture
         end
       end
 
-      if @spec.has_key? 'destructor'
+      if @spec.key? 'destructor'
         file.puts
         file.puts "  #{@spec['name']}::#{destructor_signature} {"
         func_spec = @spec['destructor']['wrapped-function']
