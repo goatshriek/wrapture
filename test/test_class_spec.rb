@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'minitest/autorun'
 require 'wrapture'
 
@@ -26,13 +28,13 @@ class ClassSpecTest < Minitest::Test
       },
       'functions' => [{
         'name' => 'TestFunction1',
-        'params' => [{'name'=>'app_name','type'=>'const char *'}],
+        'params' => [{ 'name' => 'app_name', 'type' => 'const char *' }],
         'wrapped-function' => {
           'name' => 'test_native_function',
           'includes' => ['folder/include_file_2.h'],
           'params' => [
-            {'name' => 'equivalent-struct-pointer'},
-            {'name' => 'app_name'}
+            { 'name' => 'equivalent-struct-pointer' },
+            { 'name' => 'app_name' }
           ]
         }
       }]
