@@ -48,6 +48,6 @@ class ClassSpecTest < Minitest::Test
     assert classes.include? "#{class_name}.cpp"
     assert classes.include? "#{class_name}.hpp"
 
-    File.delete *classes
+    File.delete(*classes)
   end
 end
