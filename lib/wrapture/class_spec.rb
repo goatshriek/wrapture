@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 module Wrapture
-
   ##
   # A description of a class, including its constants, functions, and other
   # details.
