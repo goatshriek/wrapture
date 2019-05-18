@@ -5,44 +5,35 @@ module Wrapture
     end
 
     def generate_wrappers
-      generate_declaration_file
-      generate_definition_file
+      files = []
+
+      files << generate_declaration_file
+      files << generate_definition_file
     end
 
     def self.normalize_spec_hash(spec)
       normalized_spec = spec.dup
       normalized_spec.default = []
 
-      if normalized_spec['equivalent-struct']['members'].nil?
-        normalized_spec['equivalent-struct']['members'] = []
-      end
+      normalized_spec['equivalent-struct']['members'] ||= []
 
       normalized_spec['functions'].each do |function_spec|
-        if function_spec['params'].nil?
-          function_spec['params'] = []
-        end
-
-        if function_spec['wrapped-function']['params'].nil?
-          function_spec['wrapped-function']['params'] = []
-        end
+        function_spec['params'] ||= []
+        function_spec['wrapped-function']['params'] ||= []
 
         if function_spec['return'].nil?
           function_spec['return'] = {}
           function_spec['return']['type'] = 'void'
         end
 
-        if function_spec['return']['includes'].nil?
-          function_spec['return']['includes'] = []
-        end
+        function_spec['return']['includes'] ||= []
       end
 
       normalized_spec['constants'].each do |constant_spec|
-        if constant_spec['includes'].nil?
-          constant_spec['includes'] = []
-        end
+        constant_spec['includes'] ||= []
       end
 
-      normalized_spec
+      return normalized_spec
     end
 
     private
@@ -222,7 +213,9 @@ module Wrapture
     end
 
     def generate_declaration_file
-      file = File.open("#{@spec['name']}.hpp", 'w')
+      filename = "#{@spec['name']}.hpp"
+
+      file = File.open(filename, 'w')
 
       file.puts "#ifndef #{header_guard}"
       file.puts "#define #{header_guard}"
@@ -280,10 +273,14 @@ module Wrapture
       file.puts '#endif' # end of header guard
 
       file.close
+
+      return filename
     end
 
     def generate_definition_file
-      file = File.open("#{@spec['name']}.cpp", 'w')
+      filename = "#{@spec['name']}.cpp"
+
+      file = File.open(filename, 'w')
 
       definition_includes.each do |include_file|
         file.puts "#include <#{include_file}>"
@@ -373,6 +370,8 @@ module Wrapture
       file.puts '}' # end of namespace
 
       file.close
+
+      return filename
     end
   end
 end

@@ -12,12 +12,14 @@ class ClassSpecTest < Minitest::Test
 
     normalized_spec = Wrapture::ClassSpec.normalize_spec_hash test_spec
 
-    assert normalized_spec != nil
+    refute_nil normalized_spec
   end
 
   def test_generate_wrappers
+    class_name = 'TestClass'
+
     test_spec = {
-      'name' => "TestClass",
+      'name' => class_name,
       'equivalent-struct' => {
         'name' => 'test_struct',
         'includes' => ['folder/include_file_1.h']
@@ -38,6 +40,12 @@ class ClassSpecTest < Minitest::Test
 
     spec = Wrapture::ClassSpec.new test_spec
 
-    spec.generate_wrappers
+    classes = spec.generate_wrappers
+
+    refute_nil classes
+    refute_empty classes
+    assert classes.length == 2
+    assert classes.include? "#{class_name}.cpp"
+    assert classes.include? "#{class_name}.hpp"
   end
 end
