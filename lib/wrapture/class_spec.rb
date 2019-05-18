@@ -1,4 +1,10 @@
+# frozen_string_literal: true
+
 module Wrapture
+
+  ##
+  # A description of a class, including its constants, functions, and other
+  # details.
   class ClassSpec
     def initialize(spec)
       @spec = ClassSpec.normalize_spec_hash(spec)
@@ -33,7 +39,7 @@ module Wrapture
         constant_spec['includes'] ||= []
       end
 
-      return normalized_spec
+      normalized_spec
     end
 
     private
@@ -255,9 +261,7 @@ module Wrapture
         file.puts "    #{wrapped_constructor_signature constructor};"
       end
 
-      if @spec.key? 'destructor'
-        file.puts "    #{destructor_signature};"
-      end
+      file.puts "    #{destructor_signature};" if @spec.key? 'destructor'
 
       @spec['functions'].each_index do |func|
         func_spec = @spec['functions'][func]
@@ -274,7 +278,7 @@ module Wrapture
 
       file.close
 
-      return filename
+      filename
     end
 
     def generate_definition_file
@@ -353,12 +357,10 @@ module Wrapture
         signature = wrapped_function_signature func
         file.puts "  #{return_type} #{@spec['name']}::#{signature} {"
 
-        wrapped_call = '    '
-
+        wrapped_call = String.new
+        wrapped_call << '    '
         wrapped_call << "return #{return_type} ( " unless return_type == 'void'
-
         wrapped_call << wrapped_function_call(func_spec['wrapped-function'])
-
         wrapped_call << ' )' unless return_type == 'void'
         wrapped_call << ';'
 
@@ -371,7 +373,7 @@ module Wrapture
 
       file.close
 
-      return filename
+      filename
     end
   end
 end
