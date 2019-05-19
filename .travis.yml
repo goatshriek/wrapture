@@ -10,10 +10,16 @@ rvm:
 #  - 2.5
   - 2.6
 #  - jruby
-  - truffleruby
+#  - truffleruby
 
 matrix:
   include:
+    - os: linux
+      dist: trusty
+      rvm: truffleruby
+    - os: osx
+      rvm: truffleruby
+      gemspec: gemfiles/osx_truffle.gemfile
     - os: linux
       dist: trusty
       rvm: rbx-3

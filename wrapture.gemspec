@@ -10,8 +10,8 @@ Gem::Specification.new do |spec|
   spec.description =  'Wraps C code in C++.'
   spec.authors     =  ['Joel Anderson']
   spec.email       =  'joelanderson333@gmail.com'
-  spec.files       =  Dir.glob('{lib,bin}/**/*').reject do |f|
-    File.directory? f
+  spec.files       =  Dir.glob('{lib,bin}/**/*').reject do |file|
+    File.directory? file
   end
   spec.executables << 'wrapture'
   spec.homepage    =  'http://rubygems.org/gems/wrapture'
