@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'wrapture/function_spec'
 
 module Wrapture
@@ -293,7 +294,7 @@ module Wrapture
         file.puts
         file.puts "  #{@spec['name']}::#{destructor_signature} {"
         func_spec = @spec['destructor']['wrapped-function']
-        file.puts "    #{FunctionSpec.function_call(func_spec, equivalent_struct, equivalent_struct_pointer)};"
+        file.puts "    #{function_call func_spec['name'], func_spec['params']};"
         file.puts '  }'
       end
 
