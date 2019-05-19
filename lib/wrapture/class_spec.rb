@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'wrapture/function_spec'
 
 module Wrapture
   ##
@@ -7,13 +8,38 @@ module Wrapture
   class ClassSpec
     def initialize(spec)
       @spec = ClassSpec.normalize_spec_hash(spec)
+      @functions = []
+
+      @spec['functions'].each do |function_spec|
+        @functions << FunctionSpec.new(function_spec, self)
+      end
     end
 
     def generate_wrappers
       files = []
-
       files << generate_declaration_file
       files << generate_definition_file
+    end
+
+    def resolve_param(param)
+      case param
+      when 'equivalent-struct'
+        equivalent_struct
+      when 'equivalent-struct-pointer'
+        equivalent_struct_pointer
+      else
+        param
+      end
+    end
+
+    def function_call(name, params)
+      resolved_params = []
+
+      params.each do |param|
+        resolved_params << resolve_param(param['name'])
+      end
+
+      "#{name}( #{resolved_params.join ', '} )"
     end
 
     def self.normalize_spec_hash(spec)
@@ -21,18 +47,6 @@ module Wrapture
       normalized_spec.default = []
 
       normalized_spec['equivalent-struct']['members'] ||= []
-
-      normalized_spec['functions'].each do |function_spec|
-        function_spec['params'] ||= []
-        function_spec['wrapped-function']['params'] ||= []
-
-        if function_spec['return'].nil?
-          function_spec['return'] = {}
-          function_spec['return']['type'] = 'void'
-        end
-
-        function_spec['return']['includes'] ||= []
-      end
 
       normalized_spec['constants'].each do |constant_spec|
         constant_spec['includes'] ||= []
@@ -48,12 +62,10 @@ module Wrapture
     end
 
     def declaration_includes
-      includes = []
+      includes = @spec['equivalent-struct']['includes'].dup
 
-      includes.concat @spec['equivalent-struct']['includes']
-
-      @spec['functions'].each do |function_spec|
-        includes.concat function_spec['return']['includes']
+      @functions.each do |func|
+        includes.concat func.declaration_includes
       end
 
       includes.uniq
@@ -62,9 +74,8 @@ module Wrapture
     def definition_includes
       includes = ["#{@spec['name']}.hpp"]
 
-      @spec['functions'].each do |function_spec|
-        includes.concat function_spec['return']['includes']
-        includes.concat function_spec['wrapped-function']['includes']
+      @functions.each do |func|
+        includes.concat func.definition_includes
       end
 
       @spec['constants'].each do |constant_spec|
@@ -82,14 +93,6 @@ module Wrapture
       end
 
       false
-    end
-
-    def typed_variable(type, name)
-      if type.end_with? '*'
-        "#{type}#{name}"
-      else
-        "#{type} #{name}"
-      end
     end
 
     def equivalent_member(member)
@@ -124,45 +127,6 @@ module Wrapture
       end
     end
 
-    def function_signature_prefix(func_spec)
-      modifier_prefix = if func_spec['static']
-                          'static '
-                        else
-                          ''
-                        end
-
-      "#{modifier_prefix}#{func_spec['return']['type']}"
-    end
-
-    def function_param_list(function_spec)
-      return 'void' if function_spec['params'].empty?
-
-      params = []
-
-      function_spec['params'].each do |param|
-        params << typed_variable(param['type'], param['name'])
-      end
-
-      params.join ', '
-    end
-
-    def wrapped_function_call(function_spec)
-      params = []
-
-      function_spec['params'].each do |param|
-        params << case param['name']
-                  when 'equivalent-struct'
-                    equivalent_struct
-                  when 'equivalent-struct-pointer'
-                    equivalent_struct_pointer
-                  else
-                    param['name']
-                  end
-      end
-
-      "#{function_spec['name']}( #{params.join ', '} )"
-    end
-
     def wrapped_constructor_signature(index)
       function_spec = @spec['constructors'][index]['wrapped-function']
 
@@ -173,26 +137,15 @@ module Wrapture
       "~#{@spec['name']}( void )"
     end
 
-    def wrapped_function_signature(index)
-      spec = @spec['functions'][index]
-
-      "#{spec['name']}( #{function_param_list(spec)} )"
-    end
-
     def wrapped_constructor_definition(index)
       constructor_spec = @spec['constructors'][index]
       wrapped_function = constructor_spec['wrapped-function']
 
       yield "#{@spec['name']}::#{wrapped_constructor_signature(index)}{"
 
-      result = case wrapped_function['return']['type']
-               when 'equivalent-struct'
-                 equivalent_struct
-               when 'equivalent-struct-pointer'
-                 equivalent_struct_pointer
-               end
+      result = resolve_param wrapped_function['return']['type']
 
-      yield "  #{result} = #{wrapped_function_call wrapped_function};"
+      yield "  #{result} = #{FunctionSpec.function_call wrapped_function};"
 
       yield '}'
     end
@@ -262,11 +215,8 @@ module Wrapture
 
       file.puts "    #{destructor_signature};" if @spec.key? 'destructor'
 
-      @spec['functions'].each_index do |func|
-        func_spec = @spec['functions'][func]
-        prefix = function_signature_prefix func_spec
-        signature = wrapped_function_signature func
-        file.puts "    #{prefix} #{signature};"
+      @functions.each do |func|
+        file.puts "    #{func.signature};"
       end
 
       file.puts '  };' # end of class
@@ -343,28 +293,16 @@ module Wrapture
         file.puts
         file.puts "  #{@spec['name']}::#{destructor_signature} {"
         func_spec = @spec['destructor']['wrapped-function']
-        file.puts "    #{wrapped_function_call func_spec};"
+        file.puts "    #{FunctionSpec.function_call(func_spec, equivalent_struct, equivalent_struct_pointer)};"
         file.puts '  }'
       end
 
-      @spec['functions'].each_index do |func|
-        func_spec = @spec['functions'][func]
-
+      @functions.each do |func|
         file.puts
 
-        return_type = func_spec['return']['type']
-        signature = wrapped_function_signature func
-        file.puts "  #{return_type} #{@spec['name']}::#{signature} {"
-
-        wrapped_call = String.new
-        wrapped_call << '    '
-        wrapped_call << "return #{return_type} ( " unless return_type == 'void'
-        wrapped_call << wrapped_function_call(func_spec['wrapped-function'])
-        wrapped_call << ' )' unless return_type == 'void'
-        wrapped_call << ';'
-
-        file.puts wrapped_call
-        file.puts '  }'
+        func.definition(@spec['name']) do |def_line|
+          file.puts "  #{def_line}"
+        end
       end
 
       file.puts
