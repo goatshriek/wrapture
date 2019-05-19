@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'wrapture/constant_spec'
 require 'wrapture/function_spec'
 
 module Wrapture
@@ -7,12 +8,25 @@ module Wrapture
   # A description of a class, including its constants, functions, and other
   # details.
   class ClassSpec
+    def self.typed_variable(type, name)
+      if type.end_with? '*'
+        "#{type}#{name}"
+      else
+        "#{type} #{name}"
+      end
+    end
+
     def initialize(spec)
       @spec = ClassSpec.normalize_spec_hash(spec)
-      @functions = []
 
+      @functions = []
       @spec['functions'].each do |function_spec|
         @functions << FunctionSpec.new(function_spec, self)
+      end
+
+      @constants = []
+      @spec['constants'].each do |constant_spec|
+        @constants << ConstantSpec.new(constant_spec)
       end
     end
 
@@ -49,10 +63,6 @@ module Wrapture
 
       normalized_spec['equivalent-struct']['members'] ||= []
 
-      normalized_spec['constants'].each do |constant_spec|
-        constant_spec['includes'] ||= []
-      end
-
       normalized_spec
     end
 
@@ -69,6 +79,10 @@ module Wrapture
         includes.concat func.declaration_includes
       end
 
+      @constants.each do |const|
+        includes.concat const.definition_includes
+      end
+
       includes.uniq
     end
 
@@ -79,8 +93,8 @@ module Wrapture
         includes.concat func.definition_includes
       end
 
-      @spec['constants'].each do |constant_spec|
-        includes.concat constant_spec['includes']
+      @constants.each do |const|
+        includes.concat const.definition_includes
       end
 
       includes.uniq
@@ -190,10 +204,9 @@ module Wrapture
       file.puts "  class #{@spec['name']} {"
       file.puts '  public:'
 
-      file.puts unless @spec['constants'].empty?
-      @spec['constants'].each do |spec|
-        type_and_name = typed_variable(spec['type'], spec['name'])
-        file.puts "    static const #{type_and_name};"
+      file.puts unless @constants.empty?
+      @constants.each do |const|
+        file.puts "  #{const.declaration};"
       end
 
       file.puts
@@ -243,10 +256,9 @@ module Wrapture
       file.puts
       file.puts "namespace #{@spec['namespace']} {"
 
-      file.puts unless @spec['constants'].empty?
-      @spec['constants'].each do |spec|
-        const_decl = "const #{spec['type']} #{@spec['name']}::#{spec['name']}"
-        file.puts "  #{const_decl} = #{spec['value']};"
+      file.puts unless @constants.empty?
+      @constants.each do |const|
+        file.puts "  #{const.definition};"
       end
 
       unless @spec['equivalent-struct']['members'].empty?

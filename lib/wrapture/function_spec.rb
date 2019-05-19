@@ -5,11 +5,6 @@ module Wrapture
   # A description of a function to be generated, including details about the
   # underlying implementation.
   class FunctionSpec
-    def initialize(spec, owner)
-      @owner = owner
-      @spec = FunctionSpec.normalize_spec_hash(spec)
-    end
-
     def self.normalize_spec_hash(spec)
       normalized_spec = spec.dup
 
@@ -24,6 +19,11 @@ module Wrapture
       normalized_spec['return']['includes'] ||= []
 
       normalized_spec
+    end
+
+    def initialize(spec, owner)
+      @owner = owner
+      @spec = FunctionSpec.normalize_spec_hash(spec)
     end
 
     def declaration_includes
@@ -70,18 +70,10 @@ module Wrapture
       params = []
 
       @spec['params'].each do |param|
-        params << typed_variable(param['type'], param['name'])
+        params << ClassSpec.typed_variable(param['type'], param['name'])
       end
 
       params.join ', '
-    end
-
-    def typed_variable(type, name)
-      if type.end_with? '*'
-        "#{type}#{name}"
-      else
-        "#{type} #{name}"
-      end
     end
   end
 end
