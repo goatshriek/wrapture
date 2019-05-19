@@ -188,60 +188,64 @@ module Wrapture
     def generate_declaration_file
       filename = "#{@spec['name']}.hpp"
 
-      file = File.open(filename, 'w')
+      File.open(filename, 'w') do |file|
+        declaration_contents do |line|
+          file.puts line
+        end
+      end
 
-      file.puts "#ifndef #{header_guard}"
-      file.puts "#define #{header_guard}"
+      filename
+    end
 
-      file.puts unless declaration_includes.empty?
+    def declaration_contents
+      yield "#ifndef #{header_guard}"
+      yield "#define #{header_guard}"
+
+      yield unless declaration_includes.empty?
       declaration_includes.each do |include_file|
-        file.puts "#include <#{include_file}>"
+        yield "#include <#{include_file}>"
       end
 
-      file.puts
-      file.puts "namespace #{@spec['namespace']} {"
-      file.puts
-      file.puts "  class #{@spec['name']} {"
-      file.puts '  public:'
+      yield
+      yield "namespace #{@spec['namespace']} {"
+      yield
+      yield "  class #{@spec['name']} {"
+      yield '  public:'
 
-      file.puts unless @constants.empty?
+      yield unless @constants.empty?
       @constants.each do |const|
-        file.puts "  #{const.declaration};"
+        yield "  #{const.declaration};"
       end
 
-      file.puts
+      yield
       struct_name = @spec['equivalent-struct']['name']
-      file.puts "    struct #{struct_name} #{equivalent_name};"
-      file.puts
+      yield "    struct #{struct_name} #{equivalent_name};"
+      yield
 
       unless @spec['equivalent-struct']['members'].empty?
-        file.puts "    #{member_constructor_signature};"
+        yield "    #{member_constructor_signature};"
       end
 
       unless pointer_wrapper?
-        file.puts "    #{struct_constructor_signature};"
-        file.puts "    #{pointer_constructor_signature};"
+        yield "    #{struct_constructor_signature};"
+        yield "    #{pointer_constructor_signature};"
       end
 
       @spec['constructors'].each_index do |constructor|
-        file.puts "    #{wrapped_constructor_signature constructor};"
+        yield "    #{wrapped_constructor_signature constructor};"
       end
 
-      file.puts "    #{destructor_signature};" if @spec.key? 'destructor'
+      yield "    #{destructor_signature};" if @spec.key? 'destructor'
 
       @functions.each do |func|
-        file.puts "    #{func.signature};"
+        yield "    #{func.signature};"
       end
 
-      file.puts '  };' # end of class
-      file.puts
-      file.puts '}' # end of namespace
-      file.puts
-      file.puts '#endif' # end of header guard
-
-      file.close
-
-      filename
+      yield '  };' # end of class
+      yield
+      yield '}' # end of namespace
+      yield
+      yield '#endif' # end of header guard
     end
 
     def generate_definition_file
