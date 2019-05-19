@@ -5,11 +5,11 @@ os:
   - osx
 
 rvm:
-  - 2.3
-  - 2.4
-  - 2.5
+#  - 2.3
+#  - 2.4
+#  - 2.5
   - 2.6
-  - jruby
+#  - jruby
   - truffleruby
 
 matrix:
@@ -23,7 +23,7 @@ before_install:
   - if [[ $TRAVIS_RUBY_VERSION =~ "truffle" ]]; then gem install bundler -v 1.17.3 --no-document; else gem install bundler --no-document; fi
 
 script:
-  - if [[ $TRAVIS_RUBY_VERSION =~ "truffle" ]] || [[ $TRAVIS_RUBY_VERSION =~ "jruby" ]] || [[ $TRAVIS_RUBY_VERSION =~ "rbx" ]]; then echo 'skipping rubocop'; else bundle exec rubocop; fi
+  - if [[ $TRAVIS_RUBY_VERSION =~ "2.6" ]]; then bundle exec rubocop; fi
   - rake test
   - gem build wrapture.gemspec
   - gem install wrapture
