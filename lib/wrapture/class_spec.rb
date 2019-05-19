@@ -47,14 +47,14 @@ module Wrapture
       end
     end
 
-    def function_call(name, params)
+    def function_call(spec)
       resolved_params = []
 
-      params.each do |param|
+      spec['params'].each do |param|
         resolved_params << resolve_param(param['name'])
       end
 
-      "#{name}( #{resolved_params.join ', '} )"
+      "#{spec['name']}( #{resolved_params.join ', '} )"
     end
 
     def self.normalize_spec_hash(spec)
@@ -80,7 +80,7 @@ module Wrapture
       end
 
       @constants.each do |const|
-        includes.concat const.definition_includes
+        includes.concat const.declaration_includes
       end
 
       includes.uniq
@@ -145,7 +145,7 @@ module Wrapture
     def wrapped_constructor_signature(index)
       function_spec = @spec['constructors'][index]['wrapped-function']
 
-      "#{@spec['name']}( #{function_param_list(function_spec)} )"
+      "#{@spec['name']}( #{FunctionSpec.param_list function_spec} )"
     end
 
     def destructor_signature
@@ -160,7 +160,7 @@ module Wrapture
 
       result = resolve_param wrapped_function['return']['type']
 
-      yield "  #{result} = #{FunctionSpec.function_call wrapped_function};"
+      yield "  #{result} = #{function_call wrapped_function};"
 
       yield '}'
     end
@@ -169,7 +169,7 @@ module Wrapture
       params = []
 
       @spec['equivalent-struct']['members'].each do |member|
-        params << typed_variable(member['type'], member['name'])
+        params << ClassSpec.typed_variable(member['type'], member['name'])
       end
 
       "#{@spec['name']}( #{params.join ', '} )"
@@ -247,83 +247,87 @@ module Wrapture
     def generate_definition_file
       filename = "#{@spec['name']}.cpp"
 
-      file = File.open(filename, 'w')
-
-      definition_includes.each do |include_file|
-        file.puts "#include <#{include_file}>"
+      File.open(filename, 'w') do |file|
+        definition_contents do |line|
+          file.puts line
+        end
       end
 
-      file.puts
-      file.puts "namespace #{@spec['namespace']} {"
+      filename
+    end
 
-      file.puts unless @constants.empty?
+    def definition_contents
+      definition_includes.each do |include_file|
+        yield "#include <#{include_file}>"
+      end
+
+      yield ''
+      yield "namespace #{@spec['namespace']} {"
+
+      yield '' unless @constants.empty?
       @constants.each do |const|
-        file.puts "  #{const.definition};"
+        yield "  #{const.definition @spec['name']};"
       end
 
       unless @spec['equivalent-struct']['members'].empty?
-        file.puts
-        file.puts "  #{@spec['name']}::#{member_constructor_signature} {"
+        yield ''
+        yield "  #{@spec['name']}::#{member_constructor_signature} {"
 
         @spec['equivalent-struct']['members'].each do |member|
           member_decl = equivalent_member member['name']
-          file.puts "    #{member_decl} = #{member['name']};"
+          yield "    #{member_decl} = #{member['name']};"
         end
 
-        file.puts '  }'
+        yield '  }'
       end
 
       unless pointer_wrapper?
-        file.puts
-        file.puts "  #{@spec['name']}::#{struct_constructor_signature} {"
+        yield
+        yield "  #{@spec['name']}::#{struct_constructor_signature} {"
 
         @spec['equivalent-struct']['members'].each do |member|
           member_decl = equivalent_member member['name']
-          file.puts "    #{member_decl} = equivalent.#{member['name']};"
+          yield "    #{member_decl} = equivalent.#{member['name']};"
         end
 
-        file.puts '  }'
+        yield '  }'
 
-        file.puts
-        file.puts "  #{@spec['name']}::#{pointer_constructor_signature} {"
+        yield
+        yield "  #{@spec['name']}::#{pointer_constructor_signature} {"
 
         @spec['equivalent-struct']['members'].each do |member|
           member_decl = equivalent_member member['name']
-          file.puts "    #{member_decl} = equivalent->#{member['name']};"
+          yield "    #{member_decl} = equivalent->#{member['name']};"
         end
 
-        file.puts '  }'
+        yield '  }'
       end
 
       @spec['constructors'].each_index do |constructor|
-        file.puts
+        yield ''
         wrapped_constructor_definition(constructor) do |line|
-          file.puts "  #{line}"
+          yield "  #{line}"
         end
       end
 
       if @spec.key? 'destructor'
-        file.puts
-        file.puts "  #{@spec['name']}::#{destructor_signature} {"
+        yield ''
+        yield "  #{@spec['name']}::#{destructor_signature} {"
         func_spec = @spec['destructor']['wrapped-function']
-        file.puts "    #{function_call func_spec['name'], func_spec['params']};"
-        file.puts '  }'
+        yield "    #{function_call func_spec};"
+        yield '  }'
       end
 
       @functions.each do |func|
-        file.puts
+        yield ''
 
         func.definition(@spec['name']) do |def_line|
-          file.puts "  #{def_line}"
+          yield "  #{def_line}"
         end
       end
 
-      file.puts
-      file.puts '}' # end of namespace
-
-      file.close
-
-      filename
+      yield ''
+      yield '}' # end of namespace
     end
   end
 end

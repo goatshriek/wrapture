@@ -21,6 +21,18 @@ module Wrapture
       normalized_spec
     end
 
+    def self.param_list(spec)
+      return 'void' if spec['params'].empty?
+
+      params = []
+
+      spec['params'].each do |param|
+        params << ClassSpec.typed_variable(param['type'], param['name'])
+      end
+
+      params.join ', '
+    end
+
     def initialize(spec, owner)
       @owner = owner
       @spec = FunctionSpec.normalize_spec_hash(spec)
@@ -38,7 +50,7 @@ module Wrapture
     end
 
     def signature
-      "#{@spec['name']}( #{param_list} )"
+      "#{@spec['name']}( #{FunctionSpec.param_list @spec} )"
     end
 
     def declaration
@@ -52,28 +64,10 @@ module Wrapture
 
       wrapped_call = String.new
       wrapped_call << "return #{return_type} ( " unless return_type == 'void'
-
-      name = @spec['wrapped-function']['name']
-      params = @spec['wrapped-function']['params']
-      wrapped_call << @owner.function_call(name, params)
-
+      wrapped_call << @owner.function_call(@spec['wrapped-function'])
       wrapped_call << ' )' unless return_type == 'void'
       yield "  #{wrapped_call};"
       yield '}'
-    end
-
-    private
-
-    def param_list
-      return 'void' if @spec['params'].empty?
-
-      params = []
-
-      @spec['params'].each do |param|
-        params << ClassSpec.typed_variable(param['type'], param['name'])
-      end
-
-      params.join ', '
     end
   end
 end

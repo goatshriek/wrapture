@@ -8,8 +8,9 @@ module Wrapture
       normalized_spec = spec.dup
 
       normalized_spec['includes'] ||= []
+      normalized_spec['includes'].uniq!
 
-      normalized_spec.uniq
+      normalized_spec
     end
 
     def initialize(spec)
