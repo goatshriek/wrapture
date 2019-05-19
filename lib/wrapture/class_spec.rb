@@ -261,16 +261,16 @@ module Wrapture
         yield "#include <#{include_file}>"
       end
 
-      yield ''
+      yield
       yield "namespace #{@spec['namespace']} {"
 
-      yield '' unless @constants.empty?
+      yield unless @constants.empty?
       @constants.each do |const|
         yield "  #{const.definition @spec['name']};"
       end
 
       unless @spec['equivalent-struct']['members'].empty?
-        yield ''
+        yield
         yield "  #{@spec['name']}::#{member_constructor_signature} {"
 
         @spec['equivalent-struct']['members'].each do |member|
@@ -304,14 +304,14 @@ module Wrapture
       end
 
       @spec['constructors'].each_index do |constructor|
-        yield ''
+        yield
         wrapped_constructor_definition(constructor) do |line|
           yield "  #{line}"
         end
       end
 
       if @spec.key? 'destructor'
-        yield ''
+        yield
         yield "  #{@spec['name']}::#{destructor_signature} {"
         func_spec = @spec['destructor']['wrapped-function']
         yield "    #{function_call func_spec};"
@@ -319,14 +319,14 @@ module Wrapture
       end
 
       @functions.each do |func|
-        yield ''
+        yield
 
         func.definition(@spec['name']) do |def_line|
           yield "  #{def_line}"
         end
       end
 
-      yield ''
+      yield
       yield '}' # end of namespace
     end
   end
