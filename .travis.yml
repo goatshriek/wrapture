@@ -18,7 +18,7 @@ matrix:
       rvm: truffleruby
     - os: osx
       rvm: truffleruby
-      gemspec: gemfiles/osx_truffle.gemfile
+      gemfile: gemfiles/osx_truffle.gemfile
     - os: linux
       dist: trusty
       rvm: rbx-3
