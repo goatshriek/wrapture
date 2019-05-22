@@ -15,6 +15,12 @@ matrix:
   include:
     - os: linux
       dist: trusty
+      rvm: 2.6
+      addons:
+        sonarcloud:
+          organization: "goatshriek-github"
+    - os: linux
+      dist: trusty
       rvm: truffleruby
     - os: osx
       rvm: truffleruby
@@ -32,3 +38,6 @@ script:
   - rake test
   - gem build wrapture.gemspec
   - gem install wrapture
+
+after_success:
+  - sonar-scanner
