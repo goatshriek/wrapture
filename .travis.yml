@@ -29,6 +29,6 @@ before_install:
 
 script:
   - if [[ $TRAVIS_RUBY_VERSION =~ "2.6" ]]; then bundle exec rubocop; fi
-  - rake test
+  - bundle exec rake test
   - gem build wrapture.gemspec
   - gem install wrapture

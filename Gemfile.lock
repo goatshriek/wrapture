@@ -20,6 +20,7 @@ GEM
     parser (2.6.3.0)
       ast (~> 2.4.0)
     rainbow (3.0.0)
+    rake (12.3.2)
     rubocop (0.70.0)
       jaro_winkler (~> 1.5.1)
       parallel (~> 1.10)
@@ -42,6 +43,7 @@ PLATFORMS
 DEPENDENCIES
   codecov
   minitest
+  rake (>= 0.9.2)
   rubocop
   simplecov
   wrapture!
