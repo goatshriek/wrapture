@@ -19,8 +19,6 @@ Gem::Specification.new do |spec|
 
   spec.required_ruby_version = '>= 2.3'
   spec.add_runtime_dependency 'bundler', '>= 1.6.4'
-#  spec.add_development_dependency 'minitest', '>= 5.9'
-#  spec.add_development_dependency 'rubocop', '>= 0.69'
    # this breaks jruby builds on Travis CI
   spec.add_development_dependency 'rake', '>= 0.9.2'
 
