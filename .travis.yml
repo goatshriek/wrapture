@@ -9,10 +9,16 @@ rvm:
   - 2.4
   - 2.5
   - 2.6
-  - jruby
 
 matrix:
   include:
+    - os: linux
+      dist: trusty
+      rvm: jruby
+      gemfile: gemfiles/jruby.gemfile
+    - os: osx
+      rvm: jruby
+      gemfile: gemfiles/jruby.gemfile
     - os: linux
       dist: trusty
       rvm: truffleruby

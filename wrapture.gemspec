@@ -19,7 +19,6 @@ Gem::Specification.new do |spec|
 
   spec.required_ruby_version = '>= 2.3'
   spec.add_runtime_dependency 'bundler', '>= 1.6.4'
-  spec.add_development_dependency 'rake', '>= 0.9.2'
 
   if spec.respond_to?(:metadata)
     spec.metadata = {
