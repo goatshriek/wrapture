@@ -39,6 +39,10 @@ matrix:
       dist: trusty
       rvm: rbx-3
       gemfile: gemfiles/minimal.gemfile
+    - os: linux
+      dist: trusty
+      rvm: rbx-4
+      gemfile: gemfiles/minimal.gemfile
 
 before_install:
   - gem update --system
