@@ -2,7 +2,9 @@
 
 begin
   require 'simplecov'
-  SimpleCov.start
+  SimpleCov.start do
+    add_filter '/test/'
+  end
 
   require 'codecov'
   SimpleCov.formatter = SimpleCov::Formatter::Codecov
