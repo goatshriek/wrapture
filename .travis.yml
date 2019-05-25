@@ -24,10 +24,11 @@ matrix:
       rvm: truffleruby
     - os: osx
       rvm: truffleruby
-      gemfile: gemfiles/osx_truffle.gemfile
+      gemfile: gemfiles/minimal.gemfile
     - os: linux
       dist: trusty
       rvm: rbx-3
+      gemfile: gemfiles/minimal.gemfile
 
 before_install:
   - gem update --system
