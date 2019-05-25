@@ -1,6 +1,7 @@
 # Wrapture
 
 [![Travis Build Status](https://travis-ci.org/goatshriek/wrapture.svg?branch=master)](https://travis-ci.org/goatshriek/wrapture)
+[![Coverage Report](https://codecov.io/gh/goatshriek/wrapture/branch/master/graph/badge.svg)](https://codecov.io/gh/goatshriek/wrapture)
 [![SonarCloud Status](https://sonarcloud.io/api/project_badges/measure?project=wrapture&metric=alert_status)](https://sonarcloud.io/dashboard?id=wrapture)
 
 A tool for generating object-oriented language wrappers for C code.

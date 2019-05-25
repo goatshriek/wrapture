@@ -8,8 +8,6 @@ rvm:
   - 2.3
   - 2.4
   - 2.5
-  - 2.6
-  - jruby
 
 matrix:
   include:
@@ -19,15 +17,28 @@ matrix:
       addons:
         sonarcloud:
           organization: "goatshriek-github"
+    - os: osx
+      rvm: 2.6
+      addons:
+        sonarcloud:
+          organization: "goatshriek-github"
+    - os: linux
+      dist: trusty
+      rvm: jruby
+      gemfile: gemfiles/jruby.gemfile
+    - os: osx
+      rvm: jruby
+      gemfile: gemfiles/jruby.gemfile
     - os: linux
       dist: trusty
       rvm: truffleruby
     - os: osx
       rvm: truffleruby
-      gemfile: gemfiles/osx_truffle.gemfile
+      gemfile: gemfiles/minimal.gemfile
     - os: linux
       dist: trusty
       rvm: rbx-3
+      gemfile: gemfiles/minimal.gemfile
 
 before_install:
   - gem update --system
@@ -35,7 +46,7 @@ before_install:
 
 script:
   - if [[ $TRAVIS_RUBY_VERSION =~ "2.6" ]]; then bundle exec rubocop; fi
-  - rake test
+  - if [[ $TRAVIS_RUBY_VERSION =~ "jruby" ]]; then rake test; else bundle exec rake test; fi
   - gem build wrapture.gemspec
   - gem install wrapture
 
