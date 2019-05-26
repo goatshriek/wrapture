@@ -1,17 +1,13 @@
 # frozen_string_literal: true
 
+require 'fixture'
 require 'minitest/autorun'
 require 'helper'
 require 'wrapture'
 
 class ClassSpecTest < Minitest::Test
   def test_normalize
-    test_spec = {
-      'name' => 'TestClass',
-      'equivalent-struct' => {
-        'name' => 'test_struct'
-      }
-    }
+    test_spec = load_fixture('minimal_class')
 
     normalized_spec = Wrapture::ClassSpec.normalize_spec_hash test_spec
 
