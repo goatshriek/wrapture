@@ -29,4 +29,20 @@ class ClassSpecTest < Minitest::Test
 
     File.delete(*classes)
   end
+
+  def test_class_with_constructor
+    test_spec = load_fixture('constructor_class')
+
+    spec = Wrapture::ClassSpec.new test_spec
+
+    classes = spec.generate_wrappers
+
+    refute_nil classes
+    refute_empty classes
+    assert classes.length == 2
+    assert classes.include? "#{test_spec['name']}.cpp"
+    assert classes.include? "#{test_spec['name']}.hpp"
+
+    File.delete(*classes)
+  end
 end

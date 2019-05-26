@@ -1,0 +1,22 @@
+name: "ClassWithConstructor"
+equivalent-struct:
+  name: "constructed_struct"
+  includes:
+    - "constructed.h"
+constructors:
+  - wrapped-function:
+      name: "build_a_struct"
+      params:
+        - name: "new_name"
+          type: "const char *"
+      return:
+        type: "equivalent-struct-pointer"
+      includes:
+        - "constructed.h"
+destructor:
+  wrapped-function:
+    name: "destroy_a_struct"
+    params:
+      - name: "equivalent-struct-pointer"
+    includes:
+      - "constructed.h"
