@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
+require 'helper'
+
 require 'fixture'
 require 'minitest/autorun'
-require 'helper'
 require 'wrapture'
 
 class ClassSpecTest < Minitest::Test

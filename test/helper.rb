@@ -6,8 +6,10 @@ begin
     add_filter '/test/'
   end
 
-  require 'codecov'
-  SimpleCov.formatter = SimpleCov::Formatter::Codecov
+  if ENV['CI']
+    require 'codecov'
+    SimpleCov.formatter = SimpleCov::Formatter::Codecov
+  end
 rescue LoadError
   puts 'could not load code coverage tools'
 end
