@@ -62,6 +62,7 @@ module Wrapture
       normalized_spec.default = []
 
       normalized_spec['equivalent-struct']['members'] ||= []
+      normalized_spec['equivalent-struct']['includes'] ||= []
 
       normalized_spec
     end
