@@ -1,3 +1,3 @@
-name: "TestClass"
+name: "MinimalClass"
 equivalent-struct:
-  name: "test-struct"
+  name: "minimal_struct"
