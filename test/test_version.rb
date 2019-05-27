@@ -7,6 +7,6 @@ require 'wrapture'
 
 class VersionTest < Minitest::Test
   def test_version_syntax
-    assert_match /\d+\.\d+\.\d+/, Wrapture::VERSION
+    assert_match(/\d+\.\d+\.\d+/, Wrapture::VERSION)
   end
 end
