@@ -1,0 +1,51 @@
+name: "ClassWithConstructor"
+equivalent-struct:
+  name: "constructed_struct"
+  members:
+    - name: "member_1"
+      type: "int"
+  includes:
+    - "constructed.h"
+constructors:
+  - wrapped-function:
+      name: "build_a_struct"
+      params:
+        - name: "new_name"
+          type: "const char *"
+      return:
+        type: "equivalent-struct-pointer"
+      includes:
+        - "constructed.h"
+  - wrapped-function:
+      name: "copy_struct"
+      params:
+        - name: "original_struct"
+          type: "equivalent-struct"
+      return:
+        type: "equivalent-struct-pointer"
+  - wrapped-function:
+      name: "copy_struct_pointer"
+      params:
+        - name: "original_struct_pointer"
+          type: "equivalent-struct-pointer"
+      return:
+        type: "equivalent-struct-pointer"
+destructor:
+  wrapped-function:
+    name: "destroy_a_struct"
+    params:
+      - name: "equivalent-struct-pointer"
+    includes:
+      - "constructed.h"
+functions:
+  - name: "CompareToStruct"
+    params:
+      - name: "compare_to"
+        type: "equivalent-struct"
+    wrapped-function:
+      name: "compare_structs"
+      params:
+        - name: "equivalent-struct"
+        - name: "compare_to"
+    return:
+      type: "int"

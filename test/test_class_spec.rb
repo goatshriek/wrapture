@@ -1,17 +1,14 @@
 # frozen_string_literal: true
 
-require 'minitest/autorun'
 require 'helper'
+
+require 'fixture'
+require 'minitest/autorun'
 require 'wrapture'
 
 class ClassSpecTest < Minitest::Test
   def test_normalize
-    test_spec = {
-      'name' => 'TestClass',
-      'equivalent-struct' => {
-        'name' => 'test_struct'
-      }
-    }
+    test_spec = load_fixture('minimal_class')
 
     normalized_spec = Wrapture::ClassSpec.normalize_spec_hash test_spec
 
@@ -19,37 +16,62 @@ class ClassSpecTest < Minitest::Test
   end
 
   def test_generate_wrappers
-    class_name = 'TestClass'
-
-    test_spec = {
-      'name' => class_name,
-      'equivalent-struct' => {
-        'name' => 'test_struct',
-        'includes' => ['folder/include_file_1.h']
-      },
-      'functions' => [{
-        'name' => 'TestFunction1',
-        'params' => [{ 'name' => 'app_name', 'type' => 'const char *' }],
-        'wrapped-function' => {
-          'name' => 'test_native_function',
-          'includes' => ['folder/include_file_2.h'],
-          'params' => [
-            { 'name' => 'equivalent-struct-pointer' },
-            { 'name' => 'app_name' }
-          ]
-        }
-      }]
-    }
+    test_spec = load_fixture('basic_class')
 
     spec = Wrapture::ClassSpec.new test_spec
 
     classes = spec.generate_wrappers
+    validate_wrapper_results(test_spec, classes)
 
-    refute_nil classes
-    refute_empty classes
-    assert classes.length == 2
-    assert classes.include? "#{class_name}.cpp"
-    assert classes.include? "#{class_name}.hpp"
+    File.delete(*classes)
+  end
+
+  def test_class_with_constructor
+    test_spec = load_fixture('constructor_class')
+
+    spec = Wrapture::ClassSpec.new test_spec
+
+    classes = spec.generate_wrappers
+    validate_wrapper_results(test_spec, classes)
+
+    File.delete(*classes)
+  end
+
+  def test_class_with_constant
+    test_spec = load_fixture('constant_class')
+
+    spec = Wrapture::ClassSpec.new test_spec
+
+    classes = spec.generate_wrappers
+    validate_wrapper_results(test_spec, classes)
+
+    File.delete(*classes)
+  end
+
+  def test_class_with_static_function
+    test_spec = load_fixture('static_function_class')
+
+    spec = Wrapture::ClassSpec.new test_spec
+
+    classes = spec.generate_wrappers
+    validate_wrapper_results(test_spec, classes)
+
+    static_function_found = false
+    File.open("#{test_spec['name']}.hpp", 'r').each do |line|
+      static_function_found = true if line.include? 'static'
+    end
+    assert static_function_found, 'No static function defined.'
+
+    File.delete(*classes)
+  end
+
+  def test_wrapper_class
+    test_spec = load_fixture('struct_wrapper_class')
+
+    spec = Wrapture::ClassSpec.new test_spec
+
+    classes = spec.generate_wrappers
+    validate_wrapper_results(test_spec, classes)
 
     File.delete(*classes)
   end
