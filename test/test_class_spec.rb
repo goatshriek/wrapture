@@ -21,12 +21,7 @@ class ClassSpecTest < Minitest::Test
     spec = Wrapture::ClassSpec.new test_spec
 
     classes = spec.generate_wrappers
-
-    refute_nil classes
-    refute_empty classes
-    assert classes.length == 2
-    assert classes.include? "#{test_spec['name']}.cpp"
-    assert classes.include? "#{test_spec['name']}.hpp"
+    validate_wrapper_results(test_spec, classes)
 
     File.delete(*classes)
   end
@@ -37,12 +32,7 @@ class ClassSpecTest < Minitest::Test
     spec = Wrapture::ClassSpec.new test_spec
 
     classes = spec.generate_wrappers
-
-    refute_nil classes
-    refute_empty classes
-    assert classes.length == 2
-    assert classes.include? "#{test_spec['name']}.cpp"
-    assert classes.include? "#{test_spec['name']}.hpp"
+    validate_wrapper_results(test_spec, classes)
 
     File.delete(*classes)
   end
@@ -53,12 +43,7 @@ class ClassSpecTest < Minitest::Test
     spec = Wrapture::ClassSpec.new test_spec
 
     classes = spec.generate_wrappers
-
-    refute_nil classes
-    refute_empty classes
-    assert classes.length == 2
-    assert classes.include? "#{test_spec['name']}.cpp"
-    assert classes.include? "#{test_spec['name']}.hpp"
+    validate_wrapper_results(test_spec, classes)
 
     File.delete(*classes)
   end
@@ -69,12 +54,7 @@ class ClassSpecTest < Minitest::Test
     spec = Wrapture::ClassSpec.new test_spec
 
     classes = spec.generate_wrappers
-
-    refute_nil classes
-    refute_empty classes
-    assert classes.length == 2
-    assert classes.include? "#{test_spec['name']}.cpp"
-    assert classes.include? "#{test_spec['name']}.hpp"
+    validate_wrapper_results(test_spec, classes)
 
     static_function_found = false
     File.open("#{test_spec['name']}.hpp", 'r').each do |line|
@@ -91,12 +71,7 @@ class ClassSpecTest < Minitest::Test
     spec = Wrapture::ClassSpec.new test_spec
 
     classes = spec.generate_wrappers
-
-    refute_nil classes
-    refute_empty classes
-    assert classes.length == 2
-    assert classes.include? "#{test_spec['name']}.cpp"
-    assert classes.include? "#{test_spec['name']}.hpp"
+    validate_wrapper_results(test_spec, classes)
 
     File.delete(*classes)
   end
