@@ -1,6 +1,9 @@
 name: "ClassWithConstructor"
 equivalent-struct:
   name: "constructed_struct"
+  members:
+    - name: "member_1"
+      type: "int"
   includes:
     - "constructed.h"
 constructors:
