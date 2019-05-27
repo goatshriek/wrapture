@@ -1,0 +1,13 @@
+name: "ClassWithStaticFunction"
+equivalent-struct:
+  name: "basic_struct"
+functions:
+  - name: "StaticFunction"
+    static: true
+    params:
+      - name: "my_param"
+        type: "int"
+    wrapped-function:
+      name: "underlying_basic_function"
+      params:
+        - name: "equivalent-struct"

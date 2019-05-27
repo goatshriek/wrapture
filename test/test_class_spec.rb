@@ -62,4 +62,20 @@ class ClassSpecTest < Minitest::Test
 
     File.delete(*classes)
   end
+
+  def test_class_with_static_function
+    test_spec = load_fixture('static_function_class')
+
+    spec = Wrapture::ClassSpec.new test_spec
+
+    classes = spec.generate_wrappers
+
+    refute_nil classes
+    refute_empty classes
+    assert classes.length == 2
+    assert classes.include? "#{test_spec['name']}.cpp"
+    assert classes.include? "#{test_spec['name']}.hpp"
+
+    File.delete(*classes)
+  end
 end

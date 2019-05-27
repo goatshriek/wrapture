@@ -10,6 +10,7 @@ module Wrapture
 
       normalized_spec['params'] ||= []
       normalized_spec['wrapped-function']['params'] ||= []
+      normalized_spec['wrapped-function']['includes'] ||= []
 
       if normalized_spec['return'].nil?
         normalized_spec['return'] = {}
