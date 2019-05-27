@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'minitest/autorun'
-
 begin
   require 'simplecov'
   SimpleCov.start do
@@ -15,6 +13,8 @@ begin
 rescue LoadError
   puts 'could not load code coverage tools'
 end
+
+require 'minitest/autorun'
 
 def validate_wrapper_results(spec, file_list)
   refute_nil file_list
