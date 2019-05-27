@@ -55,7 +55,7 @@ module Wrapture
     end
 
     def declaration
-      modifier_prefix = @spec['static'] ? 'static' : ''
+      modifier_prefix = @spec['static'] ? 'static ' : ''
       "#{modifier_prefix}#{@spec['return']['type']} #{signature}"
     end
 

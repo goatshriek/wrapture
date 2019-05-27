@@ -17,3 +17,5 @@ functions:
       type: "StructWrapperClass"
     wrapped-function:
       name: "native_function"
+      params:
+        - name: "equivalent-struct"

@@ -76,6 +76,12 @@ class ClassSpecTest < Minitest::Test
     assert classes.include? "#{test_spec['name']}.cpp"
     assert classes.include? "#{test_spec['name']}.hpp"
 
+    static_function_found = false
+    File.open("#{test_spec['name']}.hpp", 'r').each do |line|
+      static_function_found = true if line.include? 'static'
+    end
+    assert static_function_found, 'No static function defined.'
+
     File.delete(*classes)
   end
 

@@ -239,7 +239,7 @@ module Wrapture
       yield "    #{destructor_signature};" if @spec.key? 'destructor'
 
       @functions.each do |func|
-        yield "    #{func.signature};"
+        yield "    #{func.declaration};"
       end
 
       yield '  };' # end of class
