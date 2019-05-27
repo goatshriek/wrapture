@@ -1,12 +1,13 @@
 #!/usr/bin/env ruby
 
+# frozen_string_literal: true
+
 require 'yaml'
 require 'wrapture'
 
 spec = YAML.load_file ARGV[0]
 
-normalized_spec = Wrapture.normalize_spec spec
-
-normalized_spec['classes'].each do |class_spec|
-  Wrapture.wrap_class class_spec
+spec['classes'].each do |spec_hash|
+  class_spec = Wrapture::ClassSpec.new spec_hash
+  class_spec.generate_wrappers
 end
