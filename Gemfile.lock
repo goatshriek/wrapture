@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    wrapture (0.2.0)
+    wrapture (0.3.0)
       bundler (>= 1.6.4)
 
 GEM
