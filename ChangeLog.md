@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Python class generation.
  - Perl class generation.
 
+## [0.3.0] - 2019-05-27
+### Fixed
+ - `bin/wrapture` is now executable.
+
 ## [0.2.0] - 2019-05-27
 ### Added
  - Additional project information to gemspec.
