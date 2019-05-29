@@ -1,11 +1,9 @@
 # frozen_string_literal: true
 
-require File.expand_path('lib/wrapture/version', __dir__)
-
 Gem::Specification.new do |spec|
   spec.name        =  'wrapture'
-  spec.version     =  Wrapture::VERSION
-  spec.date        =  '2019-04-01'
+  spec.version     =  '0.3.0'
+  spec.date        =  '2019-05-27'
   spec.summary     =  'wrap C in C++'
   spec.description =  'Wraps C code in C++.'
   spec.authors     =  ['Joel Anderson']
