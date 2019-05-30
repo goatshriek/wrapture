@@ -9,8 +9,8 @@ group :development do
 end
 
 group :test do
-  gem 'codecov', require: false
+  gem 'codecov', '>= 0.1.14', require: false
   gem 'minitest', '>= 5.9'
   gem 'rubocop', '>= 0.69', require: false
-  gem 'simplecov', require: false
+  gem 'simplecov', '>= 0.16.1', require: false
 end
