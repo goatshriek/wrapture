@@ -50,6 +50,7 @@ before_install:
 
 script:
   - if [[ $TRAVIS_RUBY_VERSION =~ "2.6" ]]; then bundle exec rubocop; fi
+  - if [[ $TRAVIS_RUBY_VERSION =~ "jruby" ]]; then rake rdoc; else bundle exec rake rdoc; fi
   - if [[ $TRAVIS_RUBY_VERSION =~ "jruby" ]]; then rake test; else bundle exec rake test; fi
   - gem build wrapture.gemspec
   - gem install wrapture
