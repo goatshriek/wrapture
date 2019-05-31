@@ -14,5 +14,6 @@ desc 'Run tests'
 task default: :test
 
 RDoc::Task.new do |rdoc|
-  rdoc.rdoc_files.include('lib')
+  rdoc.rdoc_files = ['lib']
+  rdoc.rdoc_dir = 'docs/html'
 end
