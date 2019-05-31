@@ -4,7 +4,6 @@ require 'wrapture/constant_spec'
 require 'wrapture/function_spec'
 
 module Wrapture
-  ##
   # A description of a class, including its constants, functions, and other
   # details.
   class ClassSpec

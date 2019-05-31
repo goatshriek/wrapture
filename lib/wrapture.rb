@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-##
 # Classes and functions for generating language wrappers
 module Wrapture
   require 'wrapture/constant_spec'

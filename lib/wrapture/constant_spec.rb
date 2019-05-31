@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 module Wrapture
-  ##
   # A description of a constant.
   class ConstantSpec
     def self.normalize_spec_hash(spec)
