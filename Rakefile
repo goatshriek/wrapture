@@ -2,6 +2,7 @@
 
 require 'bundler'
 require 'rake/testtask'
+require 'rdoc/task'
 
 Bundler::GemHelper.install_tasks
 
@@ -11,3 +12,7 @@ end
 
 desc 'Run tests'
 task default: :test
+
+RDoc::Task.new do |rdoc|
+  rdoc.rdoc_files.include('lib')
+end
