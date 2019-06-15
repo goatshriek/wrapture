@@ -6,7 +6,7 @@ module Wrapture
     # Normalizes a hash specification of a constant. Normalization will check
     # for things like invalid keys, duplicate entries in include lists, and
     # will set missing keys to their default value (for example, an empty list
-    # if no includes are needed).
+    # if no includes are given).
     def self.normalize_spec_hash(spec)
       normalized_spec = spec.dup
 

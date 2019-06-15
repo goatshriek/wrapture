@@ -7,6 +7,22 @@ module Wrapture
   # A description of a class, including its constants, functions, and other
   # details.
   class ClassSpec
+    # Normalizes a hash specification of a class. Normalization will check for
+    # things like invalid keys, duplicate entries in include lists, and will set
+    # missing keys to their default values (for example, an empty list if no
+    # includes are given).
+    def self.normalize_spec_hash(spec)
+      normalized_spec = spec.dup
+      normalized_spec.default = []
+
+      normalized_spec['equivalent-struct']['members'] ||= []
+      normalized_spec['equivalent-struct']['includes'] ||= []
+      normalized_spec['equivalent-struct']['includes'].uniq!
+
+      normalized_spec
+    end
+
+    # Returns a string of the variable with it's type, properly formatted.
     def self.typed_variable(type, name)
       if type.end_with? '*'
         "#{type}#{name}"
@@ -15,6 +31,18 @@ module Wrapture
       end
     end
 
+    # Creates a class spec based on the provided hash spec.
+    #
+    # The hash must have the following keys:
+    # name:: the name of the class
+    # namespace:: the namespace to put the class into
+    # equivalent-struct:: a hash describing the struct this class wraps
+    #
+    # The following keys are optional:
+    # constructors:: a list of function specs that can create this class
+    # destructor:: a function spec for the destructor of the class
+    # functions:: a list of function specs
+    # constants:: a list of constant specs
     def initialize(spec)
       @spec = ClassSpec.normalize_spec_hash(spec)
 
@@ -29,12 +57,15 @@ module Wrapture
       end
     end
 
+    # Generates the wrapper class declaration and definition files.
     def generate_wrappers
       files = []
       files << generate_declaration_file
       files << generate_definition_file
     end
 
+    # Returns a string for the provided parameter that can be used within the
+    # class's code.
     def resolve_param(param)
       case param
       when 'equivalent-struct'
@@ -46,6 +77,7 @@ module Wrapture
       end
     end
 
+    # A string calling the wrapped function spec, with resolved parameters.
     def function_call(spec)
       resolved_params = []
 
@@ -56,22 +88,14 @@ module Wrapture
       "#{spec['name']}( #{resolved_params.join ', '} )"
     end
 
-    def self.normalize_spec_hash(spec)
-      normalized_spec = spec.dup
-      normalized_spec.default = []
-
-      normalized_spec['equivalent-struct']['members'] ||= []
-      normalized_spec['equivalent-struct']['includes'] ||= []
-
-      normalized_spec
-    end
-
     private
 
+    # The header guard for the class.
     def header_guard
       "__#{@spec['name'].upcase}_HPP"
     end
 
+    # A list of includes needed for the declaration of the class.
     def declaration_includes
       includes = @spec['equivalent-struct']['includes'].dup
 
@@ -86,6 +110,7 @@ module Wrapture
       includes.uniq
     end
 
+    # A list of includes needed for the definition of the class.
     def definition_includes
       includes = ["#{@spec['name']}.hpp"]
 
@@ -100,6 +125,7 @@ module Wrapture
       includes.uniq
     end
 
+    # Determines if this class is a wrapper for a struct pointer or not.
     def pointer_wrapper?
       @spec['constructors'].each do |constructor_spec|
         return_type = constructor_spec['wrapped-function']['return']['type']
@@ -110,6 +136,7 @@ module Wrapture
       false
     end
 
+    # Gives a code snippet that accesses a member of the class.
     def equivalent_member(member)
       if pointer_wrapper?
         "this->equivalent->#{member}"
@@ -118,6 +145,7 @@ module Wrapture
       end
     end
 
+    # Gives the name of the equivalent struct.
     def equivalent_name
       if pointer_wrapper?
         '*equivalent'
@@ -126,6 +154,7 @@ module Wrapture
       end
     end
 
+    # Gives a code snippet that accesses the equivalent struct.
     def equivalent_struct
       if pointer_wrapper?
         '*(this->equivalent)'
@@ -134,6 +163,7 @@ module Wrapture
       end
     end
 
+    # Gives a code snippet that accesses the equivalent struct pointer.
     def equivalent_struct_pointer
       if pointer_wrapper?
         'this->equivalent'
@@ -142,16 +172,21 @@ module Wrapture
       end
     end
 
+    # Gives the signature of a constructor, based on its index in the class
+    # specification.
     def wrapped_constructor_signature(index)
       function_spec = @spec['constructors'][index]['wrapped-function']
 
       "#{@spec['name']}( #{FunctionSpec.param_list function_spec} )"
     end
 
+    # The signature of the destructor.
     def destructor_signature
       "~#{@spec['name']}( void )"
     end
 
+    # The definition of a constructor, based on its index in the class
+    # specification.
     def wrapped_constructor_definition(index)
       constructor_spec = @spec['constructors'][index]
       wrapped_function = constructor_spec['wrapped-function']
@@ -165,6 +200,8 @@ module Wrapture
       yield '}'
     end
 
+    # The definition of the member constructor for a class. This is only valid
+    # when the class is not a pointer wrapper.
     def member_constructor_signature
       params = []
 
@@ -175,16 +212,19 @@ module Wrapture
       "#{@spec['name']}( #{params.join ', '} )"
     end
 
+    # The signature of the constructor given an equivalent struct type.
     def struct_constructor_signature
       struct_name = @spec['equivalent-struct']['name']
       "#{@spec['name']}( struct #{struct_name} equivalent )"
     end
 
+    # The signature of the constructor given an equivalent strucct pointer.
     def pointer_constructor_signature
       struct_name = @spec['equivalent-struct']['name']
       "#{@spec['name']}( struct #{struct_name} *equivalent )"
     end
 
+    # Generates the declaration of the class.
     def generate_declaration_file
       filename = "#{@spec['name']}.hpp"
 
@@ -197,6 +237,7 @@ module Wrapture
       filename
     end
 
+    # Gives the content of the class declaration to a block, line by line.
     def declaration_contents
       yield "#ifndef #{header_guard}"
       yield "#define #{header_guard}"
@@ -248,6 +289,7 @@ module Wrapture
       yield '#endif' # end of header guard
     end
 
+    # Generates the definition of the class.
     def generate_definition_file
       filename = "#{@spec['name']}.cpp"
 
@@ -260,6 +302,7 @@ module Wrapture
       filename
     end
 
+    # Gives the content of the class definition to a block, line by line.
     def definition_contents
       definition_includes.each do |include_file|
         yield "#include <#{include_file}>"
