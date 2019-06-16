@@ -1,18 +1,21 @@
 #include <stddef.h>
 #include <stdlib.h>
-#include "stove.h"
+#include <stdio.h>
+#include <stove.h>
 
 struct stove *new_stove( int burner_count ){
   struct stove *result;
+  size_t levels_size;
   int i;
 
-  result = malloc( sizeof( *result ) );
+  result = ( struct stove * ) malloc( sizeof( *result ) );
   if( !result ) {
     return NULL;
   }
 
-  result->burners = malloc( sizeof( *result->burners ) * burner_count );
-  if( !result->burners ) {
+  levels_size = sizeof( *result->burner_levels) * burner_count;
+  result->burner_levels = ( int * ) malloc( levels_size );
+  if( !result->burner_levels ) {
     return NULL;
   }
 
@@ -22,6 +25,10 @@ struct stove *new_stove( int burner_count ){
 
   result->burner_count = burner_count;
   result->oven_temp = 0;
+
+  printf( "created a new stove with %d burners\n", burner_count );
+
+  return result;
 }
 
 int get_burner_count( struct stove *s ) {
@@ -34,6 +41,8 @@ int get_burner_level( struct stove *s, int burner ) {
 
 void set_burner_level( struct stove *s, int burner, int level ) {
   s->burner_levels[burner] = level;
+
+  printf( "set burner %d to %d\n", burner, level );
 }
 
 int get_oven_temp( struct stove *s ) {
@@ -42,11 +51,13 @@ int get_oven_temp( struct stove *s ) {
 
 void set_oven_temp( struct stove *s, int new_temp) {
   s->oven_temp = new_temp;
+
+  printf( "set oven temp to %d\n", new_temp );
 }
 
 void destroy_stove( struct stove *s ) {
-  free( s->burners );
+  printf( "destroyed a stove" );
+
+  free( s->burner_levels );
   free( s );
 }
-
-#endif

@@ -72,7 +72,7 @@ classes:
           - name: "new_level"
             type: "int"
         wrapped-function:
-          name: "get_burner_level"
+          name: "set_burner_level"
           includes:
             - "stove.h"
           params:

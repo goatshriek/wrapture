@@ -148,7 +148,7 @@ We can define the remaining two functions in the same way:
           - name: "new_level"
             type: "int"
         wrapped-function:
-          name: "get_burner_level"
+          name: "set_burner_level"
           includes:
             - "stove.h"
           params:

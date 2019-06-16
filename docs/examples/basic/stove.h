@@ -1,5 +1,5 @@
-#ifndef STOVE_H
-#define STOVE_H
+#ifndef __STOVE_H
+#define __STOVE_H
 
 struct stove {
   int burner_count;
