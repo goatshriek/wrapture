@@ -80,6 +80,8 @@ for working with the stove. We'll start with the two simplest:
 ```yaml
     functions:
       - name: "GetBurnerCount"
+        return:
+          type: "int"
         wrapped-function:
           name: "get_burner_count"
           includes:
@@ -87,6 +89,8 @@ for working with the stove. We'll start with the two simplest:
           params:
             - name: "equivalent-struct-pointer"
       - name: "GetOvenTemp"
+        return:
+          type: "int"
         wrapped-function:
           name: "get_oven_temp"
           includes:
@@ -128,6 +132,8 @@ We can define the remaining two functions in the same way:
         params:
           - name: "burner_index"
             type: "int"
+        return:
+          type: "int"
         wrapped-function:
           name: "get_burner_level"
           includes:

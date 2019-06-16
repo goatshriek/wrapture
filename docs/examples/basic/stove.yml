@@ -24,6 +24,8 @@ classes:
           - name: "equivalent-struct-pointer"
     functions:
       - name: "GetBurnerCount"
+        return:
+          type: "int"
         wrapped-function:
           name: "get_burner_count"
           includes:
@@ -31,6 +33,8 @@ classes:
           params:
             - name: "equivalent-struct-pointer"
       - name: "GetOvenTemp"
+        return:
+          type: "int"
         wrapped-function:
           name: "get_oven_temp"
           includes:
@@ -52,6 +56,8 @@ classes:
         params:
           - name: "burner_index"
             type: "int"
+        return:
+          type: "int"
         wrapped-function:
           name: "get_burner_level"
           includes:
