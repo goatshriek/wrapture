@@ -20,6 +20,7 @@ GEM
       ast (~> 2.4.0)
     rainbow (3.0.0)
     rake (12.3.2)
+    rdoc (6.1.1)
     rubocop (0.71.0)
       jaro_winkler (~> 1.5.1)
       parallel (~> 1.10)
@@ -44,6 +45,7 @@ DEPENDENCIES
   codecov (>= 0.1.14)
   minitest (>= 5.9)
   rake (>= 0.9.2)
+  rdoc (~> 6.0)
   rubocop (>= 0.69)
   simplecov (>= 0.16.1)
   wrapture!
