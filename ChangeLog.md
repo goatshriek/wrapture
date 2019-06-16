@@ -9,9 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Python class generation.
  - Perl class generation.
 
-## [0.3.0] - 2019-05-27
+## [0.3.0] - 2019-06-16
 ### Fixed
  - `bin/wrapture` is now executable.
+
+## [0.2.1] - 2019-06-16
+### Fixed
+ - Add `--no-document` to CI scripts due to missing Darkfish support on
+   TruffleRuby.
 
 ## [0.2.0] - 2019-05-27
 ### Added
