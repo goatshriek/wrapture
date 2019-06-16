@@ -44,7 +44,12 @@ module Wrapture
     # The hash must have the following keys:
     # name:: the name of the function
     # params:: a list of parameter specifications
-    # wrapped-function:: a description of the function to be wrapped.
+    # wrapped-function:: a hash describing the function to be wrapped
+    #
+    # The wrapped-function must have a 'name' key with the name of the function,
+    # and a 'params' key with a list of parameters (each a hash with a 'name'
+    # and 'type' key). Optionally, it may also include an 'includes' key with a
+    # list of includes that are needed for this function to compile.
     #
     # The following keys are optional:
     # static:: set to true if this is a static function.
