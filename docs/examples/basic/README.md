@@ -164,3 +164,31 @@ we need to do is run Wrapture against it to get the C++ files:
 ```sh
 wrapture stove.yml
 ```
+
+Now you can use the Stove class just like you would any other library:
+
+```cpp
+#include <Stove.hpp>
+
+// ...
+
+Stove my_stove (4); // create a stove with four burners
+
+cout << "burner count is: " << my_stove.GetBurnerCount() << endl;
+
+my_stove.SetOvenTemp( 350 );
+cout << "current oven temp is: " << my_stove.GetOvenTemp() << endl;
+
+my_stove.SetBurnerLevel( 2, 9 );
+cout << "burner 2 level is: " << my_stove.GetBurnerLevel( 2 ) << endl;
+```
+
+If you want to run this example, all that remains after using wrapture to
+generate the sources is to compile the various sources and run the `stove_usage`
+program to see the output:
+
+```sh
+# assuming that you're using sh and have g++
+g++ -I . stove.c Stove.cpp stove_usage.cpp -o stove_usage_example
+./stove_usage_example
+```
