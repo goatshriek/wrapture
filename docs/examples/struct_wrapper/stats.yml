@@ -1,0 +1,22 @@
+classes:
+  - name: "PlayerStats"
+    namespace: "soccer"
+    equivalent-struct:
+      name: "player_stats"
+      includes:
+        - "stats.h"
+      members:
+        - name: "goals_scored"
+          type: "int"
+        - name: "yellow_cards"
+          type: "int"
+        - name: "red_cards"
+          type: "int"
+    functions:
+      - name: "Print"
+        wrapped-function:
+          name: "print_player_stats"
+          params:
+            - name: "equivalent-struct-pointer"
+          includes:
+            - "stats.h"
