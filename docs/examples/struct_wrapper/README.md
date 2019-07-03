@@ -1,10 +1,10 @@
 # Struct Wrapping Example
 
 In some cases, you may have a struct that is a simple container for data, and
-doesn't have a constructor or destructor associated with it. In this case, you
-can save some work by simply defining the members of the struct. This will
-create a default constructor for the wrapping class, and allow you to define
-functions using the struct as a class.
+doesn't have a constructor or destructor associated with it. In this case you
+can save yourself some work by simply defining the members of the struct. This
+will create a default constructor for the wrapping class, and allow you to
+define functions using the struct as a class.
 
 Let's use the following C struct, which is a simple container for a set of
 statistics describing a soccer player:
@@ -37,7 +37,7 @@ classes:
           type: "int"
 ```
 
-Note the `members`field, which contains a description of the fields that should
+Note the `members` field, which contains a description of the fields that should
 be handled by the default constructor and destructor. The new class will have a
 simple constructor with three parameters, each corresponding to the listed
 members.
@@ -61,6 +61,28 @@ function called `Print`:
             - name: "equivalent-struct-pointer"
           includes:
             - "stats.h"
+```
+
+All of this will result in a C++ class with the following signature. Note that
+there are also two constructors that accept the equivalent struct and a pointer
+to it. These will copy the fields out of the provided struct into the new class
+instance.
+
+```cpp
+namespace soccer {
+
+  class PlayerStats {
+  public:
+
+    struct player_stats equivalent;
+
+    PlayerStats( int goals_scored, int yellow_cards, int red_cards );
+    PlayerStats( struct player_stats equivalent );
+    PlayerStats( struct player_stats *equivalent );
+    void Print( void );
+  };
+
+}
 ```
 
 If you want to run this example, all that remains after using wrapture to
