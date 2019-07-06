@@ -15,4 +15,6 @@ int get_oven_temp( struct stove *s );
 void set_oven_temp( struct stove *s, int new_temp);
 void destroy_stove( struct stove *s );
 
+int is_model_supported( int model );
+
 #endif

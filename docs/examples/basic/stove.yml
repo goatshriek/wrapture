@@ -79,3 +79,16 @@ classes:
             - name: "equivalent-struct-pointer"
             - name: "burner_index"
             - name: "new_level"
+      - name: "IsModelSupported"
+        static: true
+        return:
+          type: "bool"
+        params:
+          - name: "model"
+            type: "int"
+        wrapped-function:
+          name: "is_model_supported"
+          includes:
+            - "stove.h"
+          params:
+            - name: "model"

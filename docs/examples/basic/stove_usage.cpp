@@ -6,6 +6,10 @@ using namespace std;
 using namespace kitchen;
 
 int main( int argc, char **argv ) {
+  if( Stove::IsModelSupported( 4 ) ) {
+    cout << "model 4 stoves are supported" << endl;
+  }
+
   Stove my_stove (4);
 
   cout << "burner count is: " << my_stove.GetBurnerCount() << endl;

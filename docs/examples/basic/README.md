@@ -18,6 +18,8 @@ void set_burner_level( struct stove *s, int burner, int level );
 int get_oven_temp( struct stove *s );
 void set_oven_temp( struct stove *s, int new_temp);
 void destroy_stove( struct stove s );
+
+int is_model_supported( int model );
 ```
 
 We would like to create a Stove class that mimics the functionality of this C
@@ -157,6 +159,25 @@ We can define the remaining two functions in the same way:
             - name: "new_level"
 ```
 
+Static functions are defined in the same manner, but with one additional field
+named `static` set to true.
+
+```yaml
+      - name: "IsModelSupported"
+        static: true
+        return:
+          type: "bool"
+        params:
+          - name: "model"
+            type: "int"
+        wrapped-function:
+          name: "is_model_supported"
+          includes:
+            - "stove.h"
+          params:
+            - name: "model"
+```
+
 This specification will generate a Stove class with all of the functions
 describe in the namespace that we've defined. To get the resulting output, all
 we need to do is run Wrapture against it to get the C++ files:
@@ -171,6 +192,10 @@ Now you can use the Stove class just like you would any other library:
 #include <Stove.hpp>
 
 // ...
+
+if( Stove::IsModelSupported( 4 ) ) {
+  cout << "model 4 stoves are supported" << endl;
+}
 
 Stove my_stove (4); // create a stove with four burners
 

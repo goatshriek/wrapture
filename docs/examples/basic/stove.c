@@ -61,3 +61,7 @@ void destroy_stove( struct stove *s ) {
   free( s->burner_levels );
   free( s );
 }
+
+int is_model_supported( int model ) {
+  return model > 2 && model <= 5;
+}
