@@ -10,9 +10,6 @@ rvm:
   - 2.5
 
 matrix:
-  allow_failures:
-    - os: osx
-      rvm: jruby
   include:
     - os: linux
       dist: trusty
@@ -27,9 +24,6 @@ matrix:
           organization: "goatshriek-github"
     - os: linux
       dist: trusty
-      rvm: jruby
-      gemfile: gemfiles/jruby.gemfile
-    - os: osx
       rvm: jruby
       gemfile: gemfiles/jruby.gemfile
     - os: linux
