@@ -30,7 +30,7 @@ end
 
 def validate_declaration_file(spec)
   filename = "#{spec['name']}.hpp"
-  class_includes =  Wrapture::ClassSpec.normalize_spec_hash(spec)['includes']
+  class_includes = Wrapture::ClassSpec.normalize_spec_hash(spec)['includes']
 
   includes = get_include_list filename
 
@@ -43,7 +43,7 @@ end
 
 def validate_definition_file(spec)
   filename = "#{spec['name']}.cpp"
-  class_includes =  Wrapture::ClassSpec.normalize_spec_hash(spec)['includes']
+  class_includes = Wrapture::ClassSpec.normalize_spec_hash(spec)['includes']
 
   includes = get_include_list filename
 
