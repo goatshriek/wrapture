@@ -15,7 +15,10 @@ module Wrapture
       normalized_spec = spec.dup
       normalized_spec.default = []
 
-      normalized_spec['includes'] ||= []
+      if spec['includes'].is_a? String
+        normalized_spec['includes'] = [spec['includes']]
+      end
+
       normalized_spec['includes'].uniq!
 
       normalized_spec['equivalent-struct']['members'] ||= []
