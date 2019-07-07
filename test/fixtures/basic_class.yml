@@ -1,4 +1,6 @@
 name: "BasicClass"
+includes:
+  - "class_include.h"
 equivalent-struct:
   name: "basic_struct"
   includes:
