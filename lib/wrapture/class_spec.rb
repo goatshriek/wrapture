@@ -15,6 +15,9 @@ module Wrapture
       normalized_spec = spec.dup
       normalized_spec.default = []
 
+      normalized_spec['includes'] ||= []
+      normalized_spec['includes'].uniq!
+
       normalized_spec['equivalent-struct']['members'] ||= []
       normalized_spec['equivalent-struct']['includes'] ||= []
       normalized_spec['equivalent-struct']['includes'].uniq!
@@ -99,6 +102,8 @@ module Wrapture
     def declaration_includes
       includes = @spec['equivalent-struct']['includes'].dup
 
+      includes.concat @spec['includes']
+
       @functions.each do |func|
         includes.concat func.declaration_includes
       end
@@ -113,6 +118,8 @@ module Wrapture
     # A list of includes needed for the definition of the class.
     def definition_includes
       includes = ["#{@spec['name']}.hpp"]
+
+      includes.concat @spec['includes']
 
       @functions.each do |func|
         includes.concat func.definition_includes

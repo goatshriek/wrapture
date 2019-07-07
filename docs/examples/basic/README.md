@@ -23,33 +23,37 @@ int is_model_supported( int model );
 ```
 
 We would like to create a Stove class that mimics the functionality of this C
-code in our output language (C++). First, we add the class to the classes list:
+code in our output language (C++). First, we add the class to the classes list
+with a few basic attributes:
 
 ```yaml
 classes:
   - name: "Stove"
     namespace: "kitchen"
+    includes:
+      - "stove.h"
 ```
 
-We describe the underlying struct by giving its name and the include that it is
-declared in:
+We describe the underlying struct by simply giving its name:
 
 ```yaml
     equivalent-struct:
       name: "stove"
-      includes:
-        - "stove.h"
 ```
 
+For most elements within Wrapture, you may also specify an `includes` list of
+header files necessary for the element, in this case the struct. Doing this for
+each element will result in more efficient header lists and compilation times in
+some cases, but this can be tedious. Specifying this at the class level, as we
+do above, is easier and less verbose.
+
 Next, we describe our only constructor function. We'll do this by specifying
-its name, parameters, the include file it is declared in, and its return type:
+its name, parameters, and return type:
 
 ```yaml
     constructors:
       - wrapped-function:
           name: "new_stove"
-          includes:
-            - "stove.h"
           params:
             - name: "burner_count"
               type: "int"
@@ -67,8 +71,6 @@ Next, we describe the destructor function in a similar way:
     destructor:
       wrapped-function:
         name: "destroy_stove"
-        includes:
-          - "stove.h"
         params:
           - name: "equivalent-struct-pointer"
 ```
@@ -86,8 +88,6 @@ for working with the stove. Let's start with the two simplest:
           type: "int"
         wrapped-function:
           name: "get_burner_count"
-          includes:
-            - "stove.h"
           params:
             - name: "equivalent-struct-pointer"
       - name: "GetOvenTemp"
@@ -95,8 +95,6 @@ for working with the stove. Let's start with the two simplest:
           type: "int"
         wrapped-function:
           name: "get_oven_temp"
-          includes:
-            - "stove.h"
           params:
             - name: "equivalent-struct-pointer"
 ```
@@ -115,8 +113,6 @@ needed:
             type: "int"
         wrapped-function:
           name: "set_oven_temp"
-          includes:
-            - "stove.h"
           params:
             - name: "equivalent-struct-pointer"
             - name: "new_temp"
@@ -138,8 +134,6 @@ We can define the remaining two functions in the same way:
           type: "int"
         wrapped-function:
           name: "get_burner_level"
-          includes:
-            - "stove.h"
           params:
             - name: "equivalent-struct-pointer"
             - name: "burner_index"
@@ -151,8 +145,6 @@ We can define the remaining two functions in the same way:
             type: "int"
         wrapped-function:
           name: "set_burner_level"
-          includes:
-            - "stove.h"
           params:
             - name: "equivalent-struct-pointer"
             - name: "burner_index"
@@ -172,8 +164,6 @@ named `static` set to true.
             type: "int"
         wrapped-function:
           name: "is_model_supported"
-          includes:
-            - "stove.h"
           params:
             - name: "model"
 ```
