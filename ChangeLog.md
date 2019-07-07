@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.3.0] - 2019-07-07
 ### Added
  - Examples of basic usage and features.
+ - Option to give a class-level include list.
 
 ### Fixed
  - `bin/wrapture` is now executable.
