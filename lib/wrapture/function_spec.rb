@@ -9,20 +9,24 @@ module Wrapture
     # set missing keys to their default values (for example, an empty list if no
     # includes are given).
     def self.normalize_spec_hash(spec)
-      normalized_spec = spec.dup
+      normalized = spec.dup
 
-      normalized_spec['params'] ||= []
-      normalized_spec['wrapped-function']['params'] ||= []
-      normalized_spec['wrapped-function']['includes'] ||= []
+      normalized['params'] ||= []
+      normalized['wrapped-function']['params'] ||= []
 
-      if normalized_spec['return'].nil?
-        normalized_spec['return'] = {}
-        normalized_spec['return']['type'] = 'void'
+      original_includes = spec['wrapped-function']['includes']
+      includes = Wrapture.normalize_includes original_includes
+      normalized['wrapped-function']['includes'] = includes
+      if normalized['return'].nil?
+        normalized['return'] = {}
+        normalized['return']['type'] = 'void'
+        normalized['return']['includes'] = []
+      else
+        includes = Wrapture.normalize_includes spec['return']['includes']
+        normalized['return']['includes'] = includes
       end
 
-      normalized_spec['return']['includes'] ||= []
-
-      normalized_spec
+      normalized
     end
 
     # A comma-separated string of each parameter with its type, suitable for use

@@ -12,20 +12,18 @@ module Wrapture
     # missing keys to their default values (for example, an empty list if no
     # includes are given).
     def self.normalize_spec_hash(spec)
-      normalized_spec = spec.dup
-      normalized_spec.default = []
+      normalized = spec.dup
+      normalized.default = []
 
-      if spec['includes'].is_a? String
-        normalized_spec['includes'] = [spec['includes']]
-      end
+      normalized['includes'] = Wrapture.normalize_includes spec['includes']
 
-      normalized_spec['includes'].uniq!
+      normalized['equivalent-struct']['members'] ||= []
 
-      normalized_spec['equivalent-struct']['members'] ||= []
-      normalized_spec['equivalent-struct']['includes'] ||= []
-      normalized_spec['equivalent-struct']['includes'].uniq!
+      original_includes = spec['equivalent-struct']['includes']
+      includes = Wrapture.normalize_includes original_includes
+      normalized['equivalent-struct']['includes'] = includes
 
-      normalized_spec
+      normalized
     end
 
     # Returns a string of the variable with it's type, properly formatted.
