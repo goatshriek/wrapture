@@ -26,8 +26,7 @@ classes:
     namespace: "soccer"
     equivalent-struct:
       name: "player_stats"
-      includes:
-        - "stats.h"
+      includes: "stats.h"
       members:
         - name: "goals_scored"
           type: "int"
@@ -60,8 +59,7 @@ function called `Print`:
           name: "print_player_stats"
           params:
             - name: "equivalent-struct-pointer"
-          includes:
-            - "stats.h"
+          includes: "stats.h"
 ```
 
 All of this results in a C++ class with the following signature.

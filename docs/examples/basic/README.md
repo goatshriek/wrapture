@@ -30,8 +30,7 @@ with a few basic attributes:
 classes:
   - name: "Stove"
     namespace: "kitchen"
-    includes:
-      - "stove.h"
+    includes: "stove.h"
 ```
 
 We describe the underlying struct by simply giving its name:
@@ -42,10 +41,11 @@ We describe the underlying struct by simply giving its name:
 ```
 
 For most elements within Wrapture, you may also specify an `includes` list of
-header files necessary for the element, in this case the struct. Doing this for
-each element will result in more efficient header lists and compilation times in
-some cases, but this can be tedious. Specifying this at the class level, as we
-do above, is easier and less verbose.
+header files necessary for the element, in this case the struct. You can make
+this field a list of files if you need more than one for a given element. Doing
+this for each element will result in more efficient header lists and compilation
+times in some cases, but this can be tedious. Specifying this at the class
+level, as we do above, is easier and less verbose.
 
 Next, we describe our only constructor function. We'll do this by specifying
 its name, parameters, and return type:
