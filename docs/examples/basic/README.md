@@ -45,7 +45,7 @@ For most elements within Wrapture, you may also specify an `includes` list of
 header files necessary for the element, in this case the struct. Doing this for
 each element will result in more efficient header lists and compilation times in
 some cases, but this can be tedious. Specifying this at the class level, as we
-do here, is easier and less verbose.
+do above, is easier and less verbose.
 
 Next, we describe our only constructor function. We'll do this by specifying
 its name, parameters, and return type:
