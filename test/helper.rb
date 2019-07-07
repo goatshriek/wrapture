@@ -41,13 +41,16 @@ def validate_declaration_file(spec)
 end
 
 def validate_definition_file(spec)
+  filename = "#{spec['name']}.cpp"
   class_includes = spec['includes'] || []
 
-  includes = get_include_list "#{spec['name']}.cpp"
+  includes = get_include_list filename
 
   class_includes.each do |class_include|
     assert_includes(includes, class_include)
   end
+
+  validate_indentation filename
 end
 
 def validate_indentation(filename)
