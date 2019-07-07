@@ -16,6 +16,37 @@ end
 
 require 'minitest/autorun'
 
+def get_include_list(filename)
+  includes = []
+  File.open(filename).each do |line|
+    if (m = line.match(/#\s*include\s*["<](.*)[">]/))
+      includes << m[1]
+    end
+  end
+
+  includes
+end
+
+def validate_declaration_file(spec)
+  class_includes = spec['includes'] || []
+
+  includes = get_include_list "#{spec['name']}.hpp"
+
+  class_includes.each do |class_include|
+    assert_includes(includes, class_include)
+  end
+end
+
+def validate_definition_file(spec)
+  class_includes = spec['includes'] || []
+
+  includes = get_include_list "#{spec['name']}.cpp"
+
+  class_includes.each do |class_include|
+    assert_includes(includes, class_include)
+  end
+end
+
 def validate_wrapper_results(spec, file_list)
   refute_nil file_list
   refute_empty file_list
@@ -23,27 +54,6 @@ def validate_wrapper_results(spec, file_list)
   assert file_list.include? "#{spec['name']}.cpp"
   assert file_list.include? "#{spec['name']}.hpp"
 
-  class_includes = spec['includes'] || []
-
-  header_includes = []
-  File.open("#{spec['name']}.hpp").each do |line|
-    if (m = line.match(/#\s*include\s*["<](.*)[">]/))
-      header_includes << m[1]
-    end
-  end
-
-  class_includes.each do |class_include|
-    assert_includes(header_includes, class_include)
-  end
-
-  source_includes = []
-  File.open("#{spec['name']}.hpp").each do |line|
-    if (m = line.match(/#\s*include\s*["<](.*)[">]/))
-      source_includes << m[1]
-    end
-  end
-
-  class_includes.each do |class_include|
-    assert_includes(source_includes, class_include)
-  end
+  validate_declaration_file(spec)
+  validate_definition_file(spec)
 end
