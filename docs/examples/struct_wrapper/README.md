@@ -1,12 +1,12 @@
 # Struct Wrapping Example
 
-In some cases, you may have a struct that is a simple container for data, and
+In some cases you may have a struct that is a simple container for data, and
 doesn't have a constructor or destructor associated with it. In this case you
-can save yourself some work by simply defining the members of the struct. This
-will create a default constructor for the wrapping class, and allow you to
+can save yourself some work by defining the members of the struct. This will
+create a few default constructors for the wrapping class, and allow you to
 define functions using the struct as a class.
 
-Let's use the following C struct, which is a simple container for a set of
+Consider the following C struct, which is a simple container for a set of
 statistics describing a soccer player:
 
 ```c
@@ -37,10 +37,11 @@ classes:
           type: "int"
 ```
 
-Note the `members` field, which contains a description of the fields that should
-be handled by the default constructor and destructor. The new class will have a
-simple constructor with three parameters, each corresponding to the listed
-members.
+Note the `members` field, which contains the description of the fields that
+should be handled by the default constructors. The new class will have a simple
+constructor with three parameters, each corresponding to the listed members.
+There will also be two other constructors which accept either a struct, or a
+struct pointer, and copy all members to the class instantiation.
 
 Adding a function to our PlayerStats class is the same as with any other
 Wrapture class. For example, if we have a simple print function for the stats:
@@ -63,10 +64,7 @@ function called `Print`:
             - "stats.h"
 ```
 
-All of this will result in a C++ class with the following signature. Note that
-there are also two constructors that accept the equivalent struct and a pointer
-to it. These will copy the fields out of the provided struct into the new class
-instance.
+All of this results in a C++ class with the following signature.
 
 ```cpp
 namespace soccer {

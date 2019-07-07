@@ -2,8 +2,8 @@
 
 Most libraries have some constant values that are required or make usage easier.
 In C code, this can be a `#define` or some `const` value. Most higher level
-languages handle constants in some way or another, and the C code can be
-translated to this easily using Wrapture.
+languages handle constants in some way or another, and Wrapture cand translate
+the C code to fit.
 
 Consider the following simple library, which sends a command to a VCR (man,
 remember those?) to perform a given action.
@@ -57,7 +57,7 @@ classes:
 
 Constants are given a name, type, and value which describe how they are defined
 in the wrapped language. The descriptions above will result in the following
-constant definitions inside of the resulting C++ class:
+constant definitions inside of the C++ class:
 
 ```cpp
 namespace mediacenter {

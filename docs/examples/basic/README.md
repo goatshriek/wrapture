@@ -41,8 +41,8 @@ declared in:
         - "stove.h"
 ```
 
-Next, we'll describe our only constructor function. We'll do this by specifying
-its name, parameters, the include it is declared in, and its return type:
+Next, we describe our only constructor function. We'll do this by specifying
+its name, parameters, the include file it is declared in, and its return type:
 
 ```yaml
     constructors:
@@ -61,7 +61,7 @@ Note the use of the special return type of `equivalent-struct-pointer`, which
 tells Wrapture that the output of the function is a pointer to a struct that
 is the underlying type.
 
-Next, we'll describe the destructor function in a similar way:
+Next, we describe the destructor function in a similar way:
 
 ```yaml
     destructor:
@@ -77,7 +77,7 @@ Using `equivalent-struct-pointer` as a parameter passes the pointer created
 by the constructor into the function.
 
 Finally, we just need to describe the four functions that our class will have
-for working with the stove. We'll start with the two simplest:
+for working with the stove. Let's start with the two simplest:
 
 ```yaml
     functions:
