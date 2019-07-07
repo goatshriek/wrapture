@@ -27,7 +27,7 @@ def validate_wrapper_results(spec, file_list)
 
   header_includes = []
   File.open("#{spec['name']}.hpp").each do |line|
-    if(m=line.match(/#\s*include\s*["<](.*)[">]/))
+    if (m = line.match(/#\s*include\s*["<](.*)[">]/))
       header_includes << m[1]
     end
   end
@@ -38,7 +38,7 @@ def validate_wrapper_results(spec, file_list)
 
   source_includes = []
   File.open("#{spec['name']}.hpp").each do |line|
-    if(m=line.match(/#\s*include\s*["<](.*)[">]/))
+    if (m = line.match(/#\s*include\s*["<](.*)[">]/))
       source_includes << m[1]
     end
   end
