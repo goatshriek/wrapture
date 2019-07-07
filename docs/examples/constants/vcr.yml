@@ -1,0 +1,41 @@
+classes:
+  - name: "VCR"
+    namespace: "mediacenter"
+    equivalent-struct:
+      name: "vcr"
+      members:
+        - name: "channel"
+          type: "int"
+      includes:
+        - "vcr.h"
+    constants:
+      - name: "PLAY_COMMAND"
+        type: "int"
+        value: "PLAY"
+        includes:
+          - "vcr.h"
+      - name: "PAUSE_COMMAND"
+        type: "int"
+        value: "PAUSE"
+      - name: "FAST_FORWARD_COMMAND"
+        type: "int"
+        value: "FAST_FORWARD"
+      - name: "REWIND_COMMAND"
+        type: "int"
+        value: "REWIND"
+      - name: "VOLUME_UP_COMMAND"
+        type: "int"
+        value: "VOLUME_UP"
+      - name: "VOLUME_DOWN_COMMAND"
+        type: "int"
+        value: "VOLUME_DOWN"
+    functions:
+      - name: "SendCommand"
+        params:
+          - name: "command"
+            type: "int"
+        wrapped-function:
+          name: "send_command"
+          params:
+            - name: "equivalent-struct-pointer"
+            - name: "command"

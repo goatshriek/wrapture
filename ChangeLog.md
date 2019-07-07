@@ -9,9 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Python class generation.
  - Perl class generation.
 
-## [0.3.0] - 2019-06-16
+## [0.3.0] - 2019-07-07
+### Added
+ - Examples of basic usage and features.
+
 ### Fixed
  - `bin/wrapture` is now executable.
+
+## [0.2.2] - 2019-07-06
+### Fixed
+ - Allow failures of Mac OSX JRuby CI builds due to RVM problems.
 
 ## [0.2.1] - 2019-06-16
 ### Fixed

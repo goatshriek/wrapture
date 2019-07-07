@@ -1,0 +1,94 @@
+classes:
+  - name: "Stove"
+    namespace: "kitchen"
+    equivalent-struct:
+      name: "stove"
+      includes:
+        - "stove.h"
+    constructors:
+      - wrapped-function:
+          name: "new_stove"
+          includes:
+            - "stove.h"
+          params:
+            - name: "burner_count"
+              type: "int"
+          return:
+            type: "equivalent-struct-pointer"
+    destructor:
+      wrapped-function:
+        name: "destroy_stove"
+        includes:
+          - "stove.h"
+        params:
+          - name: "equivalent-struct-pointer"
+    functions:
+      - name: "GetBurnerCount"
+        return:
+          type: "int"
+        wrapped-function:
+          name: "get_burner_count"
+          includes:
+            - "stove.h"
+          params:
+            - name: "equivalent-struct-pointer"
+      - name: "GetOvenTemp"
+        return:
+          type: "int"
+        wrapped-function:
+          name: "get_oven_temp"
+          includes:
+            - "stove.h"
+          params:
+            - name: "equivalent-struct-pointer"
+      - name: "SetOvenTemp"
+        params:
+          - name: "new_temp"
+            type: "int"
+        wrapped-function:
+          name: "set_oven_temp"
+          includes:
+            - "stove.h"
+          params:
+            - name: "equivalent-struct-pointer"
+            - name: "new_temp"
+      - name: "GetBurnerLevel"
+        params:
+          - name: "burner_index"
+            type: "int"
+        return:
+          type: "int"
+        wrapped-function:
+          name: "get_burner_level"
+          includes:
+            - "stove.h"
+          params:
+            - name: "equivalent-struct-pointer"
+            - name: "burner_index"
+      - name: "SetBurnerLevel"
+        params:
+          - name: "burner_index"
+            type: "int"
+          - name: "new_level"
+            type: "int"
+        wrapped-function:
+          name: "set_burner_level"
+          includes:
+            - "stove.h"
+          params:
+            - name: "equivalent-struct-pointer"
+            - name: "burner_index"
+            - name: "new_level"
+      - name: "IsModelSupported"
+        static: true
+        return:
+          type: "bool"
+        params:
+          - name: "model"
+            type: "int"
+        wrapped-function:
+          name: "is_model_supported"
+          includes:
+            - "stove.h"
+          params:
+            - name: "model"
