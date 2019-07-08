@@ -8,12 +8,11 @@ module Wrapture
     # will set missing keys to their default value (for example, an empty list
     # if no includes are given).
     def self.normalize_spec_hash(spec)
-      normalized_spec = spec.dup
+      normalized = spec.dup
 
-      normalized_spec['includes'] ||= []
-      normalized_spec['includes'].uniq!
+      normalized['includes'] = Wrapture.normalize_includes spec['includes']
 
-      normalized_spec
+      normalized
     end
 
     # Creates a constant spec based on the provided hash spec

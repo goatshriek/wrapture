@@ -1,8 +1,7 @@
 classes:
   - name: "Stove"
     namespace: "kitchen"
-    includes:
-      - "stove.h"
+    includes: "stove.h"
     equivalent-struct:
       name: "stove"
     constructors:

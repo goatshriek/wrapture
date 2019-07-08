@@ -3,8 +3,7 @@ classes:
     namespace: "soccer"
     equivalent-struct:
       name: "player_stats"
-      includes:
-        - "stats.h"
+      includes: "stats.h"
       members:
         - name: "goals_scored"
           type: "int"
@@ -18,5 +17,4 @@ classes:
           name: "print_player_stats"
           params:
             - name: "equivalent-struct-pointer"
-          includes:
-            - "stats.h"
+          includes: "stats.h"
