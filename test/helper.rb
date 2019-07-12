@@ -17,6 +17,14 @@ end
 require 'minitest/autorun'
 require 'wrapture'
 
+def file_contains_match(filename, regex)
+  File.open(filename).each do |line|
+    return true if line.match(regex)
+  end
+
+  false
+end
+
 def get_include_list(filename)
   includes = []
   File.open(filename).each do |line|
@@ -39,6 +47,13 @@ def validate_declaration_file(spec)
   end
 
   validate_indentation filename
+
+  if spec['equivalent-struct']['members']
+    first_member_name = spec['equivalent-struct']['members'][0]['name']
+
+    fail_msg = "no constructor for struct members generated"
+    assert file_contains_match(filename, "#{first_member_name}"), fail_msg
+  end
 end
 
 def validate_definition_file(spec)

@@ -9,11 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Python class generation.
  - Perl class generation.
 
-## [0.3.0] - 2019-07-08
+## [0.3.0] - 2019-07-12
 ### Added
  - Examples of basic usage and features.
  - Option to give a class-level include list.
  - Include lists may now be either a single string or a list.
+ - Structs are now described in the StructSpec class.
 
 ### Fixed
  - `bin/wrapture` is now executable.
