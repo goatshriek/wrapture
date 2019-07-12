@@ -48,12 +48,7 @@ def validate_declaration_file(spec)
 
   validate_indentation filename
 
-  if spec['equivalent-struct']['members']
-    first_member_name = spec['equivalent-struct']['members'][0]['name']
-
-    fail_msg = "no constructor for struct members generated"
-    assert file_contains_match(filename, "#{first_member_name}"), fail_msg
-  end
+  validate_members(spec, filename)
 end
 
 def validate_definition_file(spec)
@@ -94,6 +89,15 @@ def validate_indentation(filename)
 
     indent_level += 1 if line.end_with? '{'
   end
+end
+
+def validate_members(spec, filename)
+  return unless spec['equivalent-struct']['members']
+
+  first_member_name = spec['equivalent-struct']['members'][0]['name']
+
+  fail_msg = 'no constructor for struct members generated'
+  assert file_contains_match(filename, first_member_name), fail_msg
 end
 
 def validate_wrapper_results(spec, file_list)

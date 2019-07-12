@@ -59,7 +59,7 @@ module Wrapture
 
     # True if there are members included in the struct specification.
     def members?
-      not @spec['members'].empty?
+      !@spec['members'].empty?
     end
 
     # A declaration of a pointer to the struct with the given variable name.
