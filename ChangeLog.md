@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Option to give a class-level include list.
  - Include lists may now be either a single string or a list.
  - Structs are now described in the StructSpec class.
+ - Installation and dependency notes to README.
 
 ### Fixed
  - `bin/wrapture` is now executable.
