@@ -23,8 +23,8 @@ you can get all dependencies with a simple `bundle install`.
 
 Running the examples will require an environment that supports the target
 language, for example a compiler like `g++`for the C++ examples. You will need
-to install this on your own, as there is currently nothing in Wrapture to
-manage all of the target languages supported.
+to install these on your own, as there is currently nothing in Wrapture to
+manage all of the target language environments.
 
 ## What about SWIG?
 
