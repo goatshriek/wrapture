@@ -12,7 +12,7 @@ module Wrapture
     # missing keys to their default values (for example, an empty list if no
     # includes are given).
     def self.normalize_spec_hash(spec)
-      raise NoNamespace if !spec.key?('namespace')
+      raise NoNamespace unless spec.key?('namespace')
 
       normalized = spec.dup
       normalized.default = []

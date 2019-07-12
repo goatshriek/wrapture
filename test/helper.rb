@@ -102,7 +102,7 @@ def validate_members(spec, filename)
 end
 
 def validate_namespace(spec, filename)
-  assert file_contains_match(filename, "namespace \w+"), "namespace was invalid"
+  assert file_contains_match(filename, /namespace \w+/), 'namespace was invalid'
   assert file_contains_match(filename, "namespace #{spec['namespace']}")
 end
 
