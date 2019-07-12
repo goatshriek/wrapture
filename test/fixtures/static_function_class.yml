@@ -1,4 +1,5 @@
 name: "ClassWithStaticFunction"
+namespace: "wrapture_test"
 equivalent-struct:
   name: "basic_struct"
 functions:

@@ -1,4 +1,5 @@
 name: "BasicClass"
+namespace: "wrapture_test"
 includes: "class_include.h"
 equivalent-struct:
   name: "basic_struct"

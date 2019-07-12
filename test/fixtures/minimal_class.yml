@@ -1,3 +1,4 @@
 name: "MinimalClass"
+namespace: "wrapture_test"
 equivalent-struct:
   name: "minimal_struct"

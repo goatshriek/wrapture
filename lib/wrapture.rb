@@ -4,6 +4,7 @@
 module Wrapture
   require 'wrapture/constant_spec'
   require 'wrapture/class_spec'
+  require 'wrapture/errors'
   require 'wrapture/function_spec'
   require 'wrapture/normalize'
   require 'wrapture/struct_spec'
