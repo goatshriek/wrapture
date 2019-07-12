@@ -1,0 +1,4 @@
+name: "NoNamespace"
+equivalent-struct:
+  name: "struct_name"
+  includes: "struct_file.h"
