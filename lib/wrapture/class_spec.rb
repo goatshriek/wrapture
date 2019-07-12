@@ -17,12 +17,6 @@ module Wrapture
 
       normalized['includes'] = Wrapture.normalize_includes spec['includes']
 
-      normalized['equivalent-struct']['members'] ||= []
-
-      original_includes = spec['equivalent-struct']['includes']
-      includes = Wrapture.normalize_includes original_includes
-      normalized['equivalent-struct']['includes'] = includes
-
       normalized
     end
 
@@ -48,7 +42,9 @@ module Wrapture
     # functions:: a list of function specs
     # constants:: a list of constant specs
     def initialize(spec)
-      @spec = ClassSpec.normalize_spec_hash(spec)
+      @spec = ClassSpec.normalize_spec_hash spec
+
+      @struct = StructSpec.new @spec['equivalent-struct']
 
       @functions = []
       @spec['functions'].each do |function_spec|
@@ -101,9 +97,9 @@ module Wrapture
 
     # A list of includes needed for the declaration of the class.
     def declaration_includes
-      includes = @spec['equivalent-struct']['includes'].dup
+      includes = @spec['includes'].dup
 
-      includes.concat @spec['includes']
+      includes.concat @struct.includes
 
       @functions.each do |func|
         includes.concat func.declaration_includes
@@ -211,25 +207,17 @@ module Wrapture
     # The definition of the member constructor for a class. This is only valid
     # when the class is not a pointer wrapper.
     def member_constructor_signature
-      params = []
-
-      @spec['equivalent-struct']['members'].each do |member|
-        params << ClassSpec.typed_variable(member['type'], member['name'])
-      end
-
-      "#{@spec['name']}( #{params.join ', '} )"
+      "#{@spec['name']}( #{@struct.member_list} )"
     end
 
     # The signature of the constructor given an equivalent struct type.
     def struct_constructor_signature
-      struct_name = @spec['equivalent-struct']['name']
-      "#{@spec['name']}( struct #{struct_name} equivalent )"
+      "#{@spec['name']}( #{@struct.declaration 'equivalent'} )"
     end
 
     # The signature of the constructor given an equivalent strucct pointer.
     def pointer_constructor_signature
-      struct_name = @spec['equivalent-struct']['name']
-      "#{@spec['name']}( struct #{struct_name} *equivalent )"
+      "#{@spec['name']}( #{@struct.pointer_declaration 'equivalent'} )"
     end
 
     # Generates the declaration of the class.
@@ -267,13 +255,10 @@ module Wrapture
       end
 
       yield
-      struct_name = @spec['equivalent-struct']['name']
-      yield "    struct #{struct_name} #{equivalent_name};"
+      yield "    #{@struct.declaration equivalent_name};"
       yield
 
-      unless @spec['equivalent-struct']['members'].empty?
-        yield "    #{member_constructor_signature};"
-      end
+      yield "    #{member_constructor_signature};" if @struct.members?
 
       unless pointer_wrapper?
         yield "    #{struct_constructor_signature};"
@@ -324,11 +309,11 @@ module Wrapture
         yield "  #{const.definition @spec['name']};"
       end
 
-      unless @spec['equivalent-struct']['members'].empty?
+      if @struct.members?
         yield
         yield "  #{@spec['name']}::#{member_constructor_signature} {"
 
-        @spec['equivalent-struct']['members'].each do |member|
+        @struct.members.each do |member|
           member_decl = equivalent_member member['name']
           yield "    #{member_decl} = #{member['name']};"
         end
@@ -340,7 +325,7 @@ module Wrapture
         yield
         yield "  #{@spec['name']}::#{struct_constructor_signature} {"
 
-        @spec['equivalent-struct']['members'].each do |member|
+        @struct.members.each do |member|
           member_decl = equivalent_member member['name']
           yield "    #{member_decl} = equivalent.#{member['name']};"
         end
@@ -350,7 +335,7 @@ module Wrapture
         yield
         yield "  #{@spec['name']}::#{pointer_constructor_signature} {"
 
-        @spec['equivalent-struct']['members'].each do |member|
+        @struct.members.each do |member|
           member_decl = equivalent_member member['name']
           yield "    #{member_decl} = equivalent->#{member['name']};"
         end
