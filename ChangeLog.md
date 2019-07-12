@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
  - `bin/wrapture` is now executable.
  - Class constants are indented properly.
+ - Missing namespaces are caught before code generation.
 
 ## [0.2.2] - 2019-07-06
 ### Fixed
