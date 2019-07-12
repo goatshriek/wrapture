@@ -6,5 +6,6 @@ module Wrapture
   require 'wrapture/class_spec'
   require 'wrapture/function_spec'
   require 'wrapture/normalize'
+  require 'wrapture/struct_spec'
   require 'wrapture/version'
 end
