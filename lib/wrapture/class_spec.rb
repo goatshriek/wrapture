@@ -66,6 +66,11 @@ module Wrapture
       files << generate_definition_file
     end
 
+    # The name of the class
+    def name
+      @spec['name']
+    end
+
     # Returns a string for the provided parameter that can be used within the
     # class's code.
     def resolve_param(param)
