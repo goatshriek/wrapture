@@ -19,6 +19,11 @@ module Wrapture
       @classes.push(spec) if spec.is_a ClassSpec
     end
 
+    # A list of the ClassSpecs included in this scope.
+    def classes
+      @classes
+    end
+
     # Returns true if the scope contains the given type.
     def type?(type)
       @classes.each do |class_spec|
