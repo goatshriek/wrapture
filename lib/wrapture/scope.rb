@@ -16,11 +16,6 @@ module Wrapture
       end
     end
 
-    # Adds a spec to the scope.
-    def add(spec)
-      @classes.push(spec) if spec.is_a? ClassSpec
-    end
-
     # Generates the wrapper class files for all classes in the scope.
     def generate_wrappers
       files = []
