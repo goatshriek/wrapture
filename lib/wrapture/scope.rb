@@ -12,7 +12,7 @@ module Wrapture
       return if spec.nil? || !spec.key?('classes')
 
       spec['classes'].each do |class_hash|
-        @classes << ClassSpec.new(class_hash, self)
+        @classes << ClassSpec.new(class_hash, scope: self)
       end
     end
 
