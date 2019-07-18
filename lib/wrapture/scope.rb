@@ -21,6 +21,17 @@ module Wrapture
       @classes.push(spec) if spec.is_a? ClassSpec
     end
 
+    # Generates the wrapper class files for all classes in the scope.
+    def generate_wrappers
+      files = []
+
+      @classes.each do |class_spec|
+        files.concat(class_spec.generate_wrappers)
+      end
+
+      files
+    end
+
     # Returns a ClassSpec for the given type if it is in the scope.
     def type?(type)
       @classes.each do |class_spec|
