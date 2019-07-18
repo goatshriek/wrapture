@@ -33,6 +33,8 @@ module Wrapture
 
     # Creates a class spec based on the provided hash spec.
     #
+    # The scope can be provided if available.
+    #
     # The hash must have the following keys:
     # name:: the name of the class
     # namespace:: the namespace to put the class into
@@ -43,7 +45,7 @@ module Wrapture
     # destructor:: a function spec for the destructor of the class
     # functions:: a list of function specs
     # constants:: a list of constant specs
-    def initialize(spec)
+    def initialize(spec, scope = nil)
       @spec = ClassSpec.normalize_spec_hash spec
 
       @struct = StructSpec.new @spec['equivalent-struct']
@@ -57,6 +59,8 @@ module Wrapture
       @spec['constants'].each do |constant_spec|
         @constants << ConstantSpec.new(constant_spec)
       end
+
+      @scope = scope if scope.is_a? Scope
     end
 
     # Generates the wrapper class declaration and definition files.

@@ -3,6 +3,8 @@
 module Wrapture
   # Describes a scope of one or more class specifications.
   class Scope
+    attr_reader :classes
+
     # Creates an empty scope with no classes in it.
     def initialize(spec = nil)
       @classes = []
@@ -10,21 +12,16 @@ module Wrapture
       return if spec.nil? || !spec.key?('classes')
 
       spec['classes'].each do |class_hash|
-        @classes << ClassSpec.new(class_hash)
+        @classes << ClassSpec.new(class_hash, self)
       end
     end
 
     # Adds a spec to the scope.
     def add(spec)
-      @classes.push(spec) if spec.is_a ClassSpec
+      @classes.push(spec) if spec.is_a? ClassSpec
     end
 
-    # A list of the ClassSpecs included in this scope.
-    def classes
-      @classes
-    end
-
-    # Returns true if the scope contains the given type.
+    # Returns a ClassSpec for the given type if it is in the scope.
     def type?(type)
       @classes.each do |class_spec|
         return class_spec if class_spec.name == type
