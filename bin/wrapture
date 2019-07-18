@@ -8,7 +8,4 @@ require 'wrapture'
 spec = YAML.load_file ARGV[0]
 
 scope = Wrapture::Scope.new(spec)
-
-scope.classes.each do |class_spec|
-  class_spec.generate_wrappers
-end
+scope.generate_wrappers
