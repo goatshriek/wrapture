@@ -27,10 +27,15 @@ module Wrapture
       files
     end
 
-    # Returns a ClassSpec for the given type if it is in the scope.
+    # Returns the ClassSpec for the given type in the scope.
+    def type(type)
+      @classes.select { |class_spec| class_spec.name == type }
+    end
+
+    # Returns true if the given type is in the scope.
     def type?(type)
       @classes.each do |class_spec|
-        return class_spec if class_spec.name == type
+        return true if class_spec.name == type
       end
 
       false

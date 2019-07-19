@@ -45,7 +45,7 @@ module Wrapture
     # destructor:: a function spec for the destructor of the class
     # functions:: a list of function specs
     # constants:: a list of constant specs
-    def initialize(spec, scope: nil)
+    def initialize(spec, scope: Scope.new)
       @spec = ClassSpec.normalize_spec_hash spec
 
       @struct = StructSpec.new @spec['equivalent-struct']
@@ -60,7 +60,7 @@ module Wrapture
         @constants << ConstantSpec.new(constant_spec)
       end
 
-      @scope = scope if scope.is_a? Scope
+      @scope = scope
     end
 
     # Generates the wrapper class declaration and definition files.
