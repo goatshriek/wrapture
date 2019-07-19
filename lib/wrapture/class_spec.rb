@@ -65,7 +65,7 @@ module Wrapture
 
     # True if this class is equivalent to the given type.
     def equivalent?(type)
-      type == "struct #{this.name}" || type == "struct #{this.name} *"
+      ["struct #{this.name}", "struct #{this.name} *"].include?(type)
     end
 
     # Generates the wrapper class declaration and definition files.
