@@ -63,6 +63,11 @@ module Wrapture
       @scope = scope
     end
 
+    # True if this class is equivalent to the given type.
+    def equivalent?(type)
+      type == "struct #{this.name}" || type == "struct #{this.name} *"
+    end
+
     # Generates the wrapper class declaration and definition files.
     def generate_wrappers
       files = []
