@@ -12,8 +12,13 @@ module Wrapture
       return if spec.nil? || !spec.key?('classes')
 
       spec['classes'].each do |class_hash|
-        @classes << ClassSpec.new(class_hash, scope: self)
+        ClassSpec.new(class_hash, scope: self)
       end
+    end
+
+    # Adds a class specification to the scope.
+    def <<(spec)
+      @classes << spec if spec.is_a?(ClassSpec)
     end
 
     # Generates the wrapper class files for all classes in the scope.

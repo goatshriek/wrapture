@@ -10,9 +10,25 @@ module Wrapture
     # includes are given).
     def self.normalize_spec_hash(spec)
       normalized = spec.dup
+      param_types = {}
 
       normalized['params'] ||= []
+      normalized['params'].each do |param_spec|
+        param_types[param_spec['name']] = param_spec['type']
+      end
+
       normalized['wrapped-function']['params'] ||= []
+      normalized['wrapped-function']['params'].each do |param_spec|
+        next unless param_spec['type'].nil?
+
+        name = param_spec['name']
+
+        if %w[equivalent-struct equivalent-struct-pointer].include?(name)
+          param_spec['type'] = name
+        elsif param_types.key?(name)
+          param_spec['type'] = param_types[name]
+        end
+      end
 
       original_includes = spec['wrapped-function']['includes']
       includes = Wrapture.normalize_includes original_includes
@@ -93,10 +109,38 @@ module Wrapture
 
       wrapped_call = String.new
       wrapped_call << "return #{return_type} ( " unless return_type == 'void'
-      wrapped_call << @owner.function_call(@spec['wrapped-function'])
+      wrapped_call << wrapped_function_call
       wrapped_call << ' )' unless return_type == 'void'
       yield "  #{wrapped_call};"
       yield '}'
+    end
+
+    private
+
+    # Returns a call to the wrapped function
+    def wrapped_function_call
+      resolved_params = []
+
+      @spec['wrapped-function']['params'].each do |param|
+        resolved_params << resolve_wrapped_param(param)
+      end
+
+      "#{@spec['wrapped-function']['name']}( #{resolved_params.join(', ')} )"
+    end
+
+    def resolve_wrapped_param(param_spec)
+      used_param = @spec['params'].find { |p| p['name'] == param_spec['value'] }
+
+      if param_spec['value'] == 'equivalent-struct'
+        @owner.this_struct
+      elsif param_spec['value'] == 'equivalent-struct-pointer'
+        @owner.this_struct_pointer
+      elsif used_param && @owner.type?(used_param['type'])
+        param_spec = @owner.type(used_param['type'])
+        param_spec.cast_to(used_param['name'], param_spec['type'])
+      else
+        param_spec['value']
+      end
     end
   end
 end

@@ -60,12 +60,42 @@ module Wrapture
         @constants << ConstantSpec.new(constant_spec)
       end
 
+      scope << self
       @scope = scope
+    end
+
+    # Returns a cast of an instance of this class to the provided type.
+    def cast_to(name, type)
+      if type == 'equivalent-struct'
+        equivalent_struct(name)
+      elsif type == 'equivalent-struct-pointer'
+        equivalent_struct_pointer(name)
+      else
+        "static_cast<#{type}>(#{name})"
+      end
     end
 
     # True if this class is equivalent to the given type.
     def equivalent?(type)
-      ["struct #{this.name}", "struct #{this.name} *"].include?(type)
+      ["struct #{name}", "struct #{name} *"].include?(type)
+    end
+
+    # The equivalent struct of this class from an instance of it.
+    def equivalent_struct(instance_name)
+      if pointer_wrapper?
+        "*#{instance_name}.equivalent"
+      else
+        "#{instance_name}.equivalent"
+      end
+    end
+
+    # A pointer to the equivalent struct of this class from an instance of it.
+    def equivalent_struct_pointer(instance_name)
+      if pointer_wrapper?
+        "#{instance_name}.equivalent"
+      else
+        "&#{instance_name}.equivalent"
+      end
     end
 
     # Generates the wrapper class declaration and definition files.
@@ -85,12 +115,42 @@ module Wrapture
     def resolve_param(param)
       case param
       when 'equivalent-struct'
-        equivalent_struct
+        this_struct
       when 'equivalent-struct-pointer'
-        equivalent_struct_pointer
+        this_struct_pointer
       else
         param
       end
+    end
+
+    # Gives a code snippet that accesses the equivalent struct from within the
+    # class using the 'this' keyword.
+    def this_struct
+      if pointer_wrapper?
+        '*(this->equivalent)'
+      else
+        'this->equivalent'
+      end
+    end
+
+    # Gives a code snippet that accesses the equivalent struct pointer from
+    # within the class using the 'this' keyword.
+    def this_struct_pointer
+      if pointer_wrapper?
+        'this->equivalent'
+      else
+        '&this->equivalent'
+      end
+    end
+
+    # Returns the ClassSpec for the given type in this class's scope.
+    def type(type)
+      @scope.type(type)
+    end
+
+    # Returns true if the given type exists in this class's scope.
+    def type?(type)
+      @scope.type?(type)
     end
 
     # A string calling the wrapped function spec, with resolved parameters.
@@ -156,15 +216,6 @@ module Wrapture
       false
     end
 
-    # Gives a code snippet that accesses a member of the class.
-    def equivalent_member(member)
-      if pointer_wrapper?
-        "this->equivalent->#{member}"
-      else
-        "this->equivalent.#{member}"
-      end
-    end
-
     # Gives the name of the equivalent struct.
     def equivalent_name
       if pointer_wrapper?
@@ -174,21 +225,13 @@ module Wrapture
       end
     end
 
-    # Gives a code snippet that accesses the equivalent struct.
-    def equivalent_struct
+    # Gives a code snippet that accesses a member of the equivalent struct for
+    # this class within the class using the 'this' keyword.
+    def this_member(member)
       if pointer_wrapper?
-        '*(this->equivalent)'
+        "this->equivalent->#{member}"
       else
-        'this->equivalent'
-      end
-    end
-
-    # Gives a code snippet that accesses the equivalent struct pointer.
-    def equivalent_struct_pointer
-      if pointer_wrapper?
-        'this->equivalent'
-      else
-        '&this->equivalent'
+        "this->equivalent.#{member}"
       end
     end
 
@@ -330,7 +373,7 @@ module Wrapture
         yield "  #{@spec['name']}::#{member_constructor_signature} {"
 
         @struct.members.each do |member|
-          member_decl = equivalent_member member['name']
+          member_decl = this_member(member['name'])
           yield "    #{member_decl} = #{member['name']};"
         end
 
@@ -342,7 +385,7 @@ module Wrapture
         yield "  #{@spec['name']}::#{struct_constructor_signature} {"
 
         @struct.members.each do |member|
-          member_decl = equivalent_member member['name']
+          member_decl = this_member(member['name'])
           yield "    #{member_decl} = equivalent.#{member['name']};"
         end
 
@@ -352,7 +395,7 @@ module Wrapture
         yield "  #{@spec['name']}::#{pointer_constructor_signature} {"
 
         @struct.members.each do |member|
-          member_decl = equivalent_member member['name']
+          member_decl = this_member(member['name'])
           yield "    #{member_decl} = equivalent->#{member['name']};"
         end
 
