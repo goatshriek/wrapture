@@ -1,0 +1,23 @@
+classes:
+  - name: "Gym"
+    namespace: "wrapture_test"
+    equivalent-struct:
+      name: "gym"
+    functions:
+      - name: "AddPool"
+        params:
+          - name: "new_pool"
+            type: "Pool"
+        wrapped-function:
+          name: "add_pool_to_gym"
+          params:
+            - name: "new_pool"
+              type: "struct gym_pool *"
+  - name: "Pool"
+    namespace: "wrapture_test"
+    equivalent-struct:
+      name: "gym_pool"
+  - name: "Track"
+    namespace: "wrapture_test"
+    equivalent-struct:
+      name: "gym_track"
