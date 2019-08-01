@@ -3,6 +3,7 @@
 module Wrapture
   # Describes a scope of one or more class specifications.
   class Scope
+    # A list of classes currently in the scope.
     attr_reader :classes
 
     # Creates an empty scope with no classes in it.
