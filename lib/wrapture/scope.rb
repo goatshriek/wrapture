@@ -35,7 +35,7 @@ module Wrapture
 
     # Returns the ClassSpec for the given type in the scope.
     def type(type)
-      @classes.select { |class_spec| class_spec.name == type }
+      @classes.find { |class_spec| class_spec.name == type }
     end
 
     # Returns true if the given type is in the scope.

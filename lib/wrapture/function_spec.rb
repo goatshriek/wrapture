@@ -147,8 +147,8 @@ module Wrapture
       elsif param_spec['value'] == 'equivalent-struct-pointer'
         @owner.this_struct_pointer
       elsif used_param && @owner.type?(used_param['type'])
-        param_spec = @owner.type(used_param['type'])
-        param_spec.cast_to(used_param['name'], param_spec['type'])
+        param_class = @owner.type(used_param['type'])
+        param_class.cast_to(used_param['name'], param_spec['type'])
       else
         param_spec['value']
       end
