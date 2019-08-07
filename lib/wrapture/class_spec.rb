@@ -64,14 +64,13 @@ module Wrapture
       @scope = scope
     end
 
-    # Returns a cast of an instance of this class to the provided type.
+    # Returns a cast of an instance of this class to the provided type, if
+    # possible.
     def cast_to(name, type)
       if ['equivalent-struct', "struct #{@struct.name}"].include?(type)
         equivalent_struct(name)
       elsif ['equivalent-struct-pointer', "struct #{@struct.name} *"].include?(type)
         equivalent_struct_pointer(name)
-      else
-        "static_cast<#{type}>(#{name})"
       end
     end
 
