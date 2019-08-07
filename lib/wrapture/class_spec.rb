@@ -66,9 +66,10 @@ module Wrapture
 
     # Returns a cast of an instance of this class to the provided type.
     def cast_to(name, type)
-      if type == 'equivalent-struct'
+      print("class #{self.name} (#{@struct.name}): casting #{name} to #{type}\n")
+      if ['equivalent-struct', "struct #{@struct.name}"].include?(type)
         equivalent_struct(name)
-      elsif type == 'equivalent-struct-pointer'
+      elsif ['equivalent-struct-pointer', "struct #{@struct.name} *"].include?(type)
         equivalent_struct_pointer(name)
       else
         "static_cast<#{type}>(#{name})"

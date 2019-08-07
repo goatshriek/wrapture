@@ -62,6 +62,11 @@ module Wrapture
       !@spec['members'].empty?
     end
 
+    # The name of this struct
+    def name
+      @spec['name']
+    end
+
     # A declaration of a pointer to the struct with the given variable name.
     def pointer_declaration(name)
       "struct #{@spec['name']} *#{name}"
