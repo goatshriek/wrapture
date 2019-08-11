@@ -50,13 +50,13 @@ and the components second, either order will work.
     equivalent-struct:
       name: "fridge"
     constructors:
-      wrapped-function:
-        name: "new_fridge"
-        params:
-          name: "temperature"
-          type: "int"
-        return:
-          type: "equivalent-struct-pointer"
+      - wrapped-function:
+          name: "new_fridge"
+          params:
+            - name: "temperature"
+              type: "int"
+          return:
+            type: "equivalent-struct-pointer"
     functions:
       - name: "AddIceMaker"
         params:
@@ -65,6 +65,51 @@ and the components second, either order will work.
         wrapped-function:
           name: "add_ice_maker_to_fridge"
           params:
+            - name: "equivalent-struct-pointer"
             - name: "new_ice_maker"
               type: "struct ice_maker *"
+      - name: "AddWaterFilter"
+        params:
+          - name: "new_filter"
+            type: "WaterFilter"
+        wrapped-function:
+          name: "add_water_filter_to_fridge"
+          params:
+            - name: "equivalent-struct-pointer"
+            - name: "new_filter"
+              type: "struct water_filter *"
+      - name: "AddFreezer"
+        params:
+          - name: "new_freezer"
+            type: "Freezer"
+        wrapped-function:
+          name: "add_freezer_to_fridge"
+          params:
+            - name: "equivalent-struct-pointer"
+            - name: "new_freezer"
+              type: "struct freezer *"
+```
+
+Wrapture detects that the type of the params in the wrapped functions are
+derivatives of the C++ parameters, and performs the appropriate cast on them
+when the wrapper is called. For example, in the `AddFreezer` function the
+`new_freezer` parameter will be converted to the underlying pointer of the
+freezer class using `new_freezer.equivalent`, as we can see in the generated
+definition here:
+
+```cpp
+
+```
+
+If you want to run this example, all that remains after using wrapture to
+generate the sources is to compile them and run the `fridge_usage` program
+to see the output:
+
+```sh
+# generating the wrapped sources
+wrapture fridge.yml
+
+# compiling (assumes that you're using sh and have g++)
+g++ -I . fridge.c Fridge.cpp fridge_usage.cpp -o fridge_usage_example
+./fridge_usage_example
 ```
