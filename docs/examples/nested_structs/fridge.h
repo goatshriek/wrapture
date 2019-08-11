@@ -25,6 +25,15 @@ struct fridge {
 struct fridge *
 new_fridge( int temperature );
 
+struct ice_maker *
+new_ice_maker( int size, int can_crush_ice );
+
+struct water_filter *
+new_water_filter( int purity_level );
+
+struct freezer *
+new_freezer( int minimum_temp, int set_temp );
+
 void
 add_ice_maker_to_fridge( struct fridge *fridge, struct ice_maker *maker );
 

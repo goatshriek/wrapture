@@ -4,19 +4,51 @@ classes:
     includes: "fridge.h"
     equivalent-struct:
       name: "ice_maker"
+    constructors:
+      - wrapped-function:
+          name: "new_ice_maker"
+          params:
+            - name: "size"
+              type: "int"
+            - name: "can_crush_ice"
+              type: "int"
+          return:
+            type: "equivalent-struct-pointer"
   - name: "WaterFilter"
     namespace: "kitchen"
     includes: "fridge.h"
     equivalent-struct:
       name: "water_filter"
+    constructors:
+      - wrapped-function:
+          name: "new_water_filter"
+          params:
+            - name: "purity_level"
+              type: "int"
+          return:
+            type: "equivalent-struct-pointer"
   - name: "Freezer"
     namespace: "kitchen"
     includes: "fridge.h"
     equivalent-struct:
       name: "freezer"
+    constructors:
+      - wrapped-function:
+          name: "new_freezer"
+          params:
+            - name: "minimum_temp"
+              type: "int"
+            - name: "set_temp"
+              type: "int"
+          return:
+            type: "equivalent-struct-pointer"
   - name: "Fridge"
     namespace: "kitchen"
-    includes: "fridge.h"
+    includes:
+      - "fridge.h"
+      - "Freezer.hpp"
+      - "IceMaker.hpp"
+      - "WaterFilter.hpp"
     equivalent-struct:
       name: "fridge"
     constructors:

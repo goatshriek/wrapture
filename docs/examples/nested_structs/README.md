@@ -27,16 +27,19 @@ classes:
     includes: "fridge.h"
     equivalent-struct:
       name: "ice_maker"
+    # constructors and functions...
   - name: "WaterFilter"
     namespace: "kitchen"
     includes: "fridge.h"
     equivalent-struct:
       name: "water_filter"
+    # constructors and functions...
   - name: "Freezer"
     namespace: "kitchen"
     includes: "fridge.h"
     equivalent-struct:
       name: "freezer"
+    # constructors and functions...
 ```
 
 Next we define the top level class, which makes use of these three types in its
@@ -46,7 +49,12 @@ and the components second, either order will work.
 ```yaml
   - name: "Fridge"
     namespace: "kitchen"
-    includes: "fridge.h"
+    # we must include the headers for the other classes here
+    includes:
+      - "fridge.h"
+      - "Freezer.hpp"
+      - "IceMaker.hpp"
+      - "WaterFilter.hpp"
     equivalent-struct:
       name: "fridge"
     constructors:
@@ -98,7 +106,16 @@ freezer class using `new_freezer.equivalent`, as we can see in the generated
 definition here:
 
 ```cpp
+class Fridge {
+public:
 
+  struct fridge *equivalent;
+
+  Fridge( int temperature );
+  void AddIceMaker( IceMaker new_ice_maker );
+  void AddWaterFilter( WaterFilter new_filter );
+  void AddFreezer( Freezer new_freezer );
+};
 ```
 
 If you want to run this example, all that remains after using wrapture to
