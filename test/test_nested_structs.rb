@@ -17,6 +17,10 @@ class NestedStructsTest < Minitest::Test
     generated_files = scope.generate_wrappers
     validate_wrapper_results(test_spec, generated_files)
 
+    includes = get_include_list('Gym.hpp')
+    assert_includes(includes, 'Pool.hpp')
+    assert_includes(includes, 'Track.hpp')
+
     includes = get_include_list('Gym.cpp')
     assert_includes(includes, 'Pool.hpp')
     assert_includes(includes, 'Track.hpp')
