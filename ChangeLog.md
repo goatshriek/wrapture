@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Installation and dependency notes to README.
  - Scope class to describe a collection of classes.
  - `includes` property for function parameters.
+ - The binary can accept multiple input files.
 
 ### Fixed
  - `bin/wrapture` is now executable.
