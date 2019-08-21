@@ -36,6 +36,17 @@ def get_include_list(filename)
   includes
 end
 
+def validate_class_wrapper(spec, file_list)
+  refute_nil(file_list)
+  refute_empty(file_list)
+
+  assert(file_list.include?("#{spec['name']}.cpp"))
+  assert(file_list.include?("#{spec['name']}.hpp"))
+
+  validate_declaration_file(spec)
+  validate_definition_file(spec)
+end
+
 def validate_declaration_file(spec)
   filename = "#{spec['name']}.hpp"
   class_includes = Wrapture::ClassSpec.normalize_spec_hash(spec)['includes']
@@ -107,12 +118,12 @@ def validate_namespace(spec, filename)
 end
 
 def validate_wrapper_results(spec, file_list)
-  refute_nil file_list
-  refute_empty file_list
-  assert file_list.length == 2
-  assert file_list.include? "#{spec['name']}.cpp"
-  assert file_list.include? "#{spec['name']}.hpp"
-
-  validate_declaration_file(spec)
-  validate_definition_file(spec)
+  if spec.key?('classes')
+    spec['classes'].each do |class_spec|
+      validate_class_wrapper(class_spec, file_list)
+    end
+  else
+    assert(file_list.length == 2, msg: 'only 2 files expected per class')
+    validate_class_wrapper(spec, file_list)
+  end
 end
