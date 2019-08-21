@@ -40,8 +40,8 @@ def validate_class_wrapper(spec, file_list)
   refute_nil(file_list)
   refute_empty(file_list)
 
-  assert(file_list.include? "#{spec['name']}.cpp")
-  assert(file_list.include? "#{spec['name']}.hpp")
+  assert(file_list.include?("#{spec['name']}.cpp"))
+  assert(file_list.include?("#{spec['name']}.hpp"))
 
   validate_declaration_file(spec)
   validate_definition_file(spec)
