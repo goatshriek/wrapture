@@ -19,6 +19,9 @@ module Wrapture
     end
 
     # Adds a class specification to the scope.
+    #
+    # This does not set the scope as the owner of the class. This must be done
+    # during the construction of the class spec.
     def <<(spec)
       @classes << spec if spec.is_a?(ClassSpec)
     end
