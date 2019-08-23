@@ -10,7 +10,7 @@ class ConstantSpecTest < Minitest::Test
   def test_basic_new
     test_spec = load_fixture('basic_constant')
 
-    constant = Wrapture::ConstantSpec.new(test_spec)
+    Wrapture::ConstantSpec.new(test_spec)
   end
 
   def test_future_spec_version
@@ -24,6 +24,6 @@ class ConstantSpecTest < Minitest::Test
   def test_versioned_constant
     test_spec = load_fixture('basic_constant')
 
-    constant = Wrapture::ConstantSpec.new(test_spec)
+    Wrapture::ConstantSpec.new(test_spec)
   end
 end
