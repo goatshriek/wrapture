@@ -19,7 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Scope class to describe a collection of classes.
  - `includes` property for function parameters.
  - `bin/wapture` now accepts multiple input files.
- - Version field in specs for backwards compatibility.
+ - `version` field in specs for explicit support checks.
 
 ### Fixed
  - `bin/wrapture` is now executable.
