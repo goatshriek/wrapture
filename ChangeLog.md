@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Python class generation.
  - Perl class generation.
 
-## [0.3.0] - 2019-08-12
+## [0.3.0] - 2019-08-24
 ### Added
  - Examples of basic usage and features.
  - Option to give a class-level include list.
@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Structs are now described in the StructSpec class.
  - Installation and dependency notes to README.
  - Scope class to describe a collection of classes.
+ - `includes` property for function parameters.
+ - `bin/wapture` now accepts multiple input files.
  - Version field in specs for backwards compatibility.
 
 ### Fixed
