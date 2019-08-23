@@ -1,6 +1,25 @@
 # frozen_string_literal: true
 
+require 'wrapture/version'
+
 module Wrapture
+  # Returns the spec version for the provided spec. If the version is not
+  # provided in the spec, the newest version that the spec is compliant with
+  # will be returned instead. If this spec uses a version unsupported by this
+  # version of Wrapture or the spec is otherwise invalid, an exception is
+  # raised.
+  def self.get_spec_version(spec)
+    if spec.key?('version') && !Wrapture.supports_version?(spec['version'])
+      raise UnsupportedSpecVersion
+    end
+
+    if spec.key?('version')
+      spec['version']
+    else
+      Wrapture::VERSION
+    end
+  end
+
   # Normalizes an include list for an element. A single string will be converted
   # into an array containing the single string, and a nil will be converted to
   # an empty array.

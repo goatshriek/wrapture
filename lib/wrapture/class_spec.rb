@@ -2,7 +2,7 @@
 
 require 'wrapture/constant_spec'
 require 'wrapture/function_spec'
-require 'wrapture/version'
+require 'wrapture/normalize'
 
 module Wrapture
   # A description of a class, including its constants, functions, and other
@@ -18,19 +18,10 @@ module Wrapture
     def self.normalize_spec_hash(spec)
       raise NoNamespace unless spec.key?('namespace')
 
-      if spec.key?('version') && !Wrapture.supports_version?(spec['version'])
-        raise UnsupportedSpecVersion
-      end
-
       normalized = spec.dup
       normalized.default = []
 
-      normalized['version'] = if spec.key?('version')
-                                spec['version']
-                              else
-                                Wrapture::VERSION
-                              end
-
+      normalized['version'] = Wrapture.get_spec_version(spec)
       normalized['includes'] = Wrapture.normalize_includes(spec['includes'])
 
       normalized
