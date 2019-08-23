@@ -2,6 +2,7 @@
 
 require 'wrapture/constant_spec'
 require 'wrapture/function_spec'
+require 'wrapture/version'
 
 module Wrapture
   # A description of a class, including its constants, functions, and other
@@ -11,13 +12,26 @@ module Wrapture
     # things like invalid keys, duplicate entries in include lists, and will set
     # missing keys to their default values (for example, an empty list if no
     # includes are given).
+    #
+    # If this spec cannot be normalized, for example because it is invalid or
+    # it uses an unsupported version type, then an exception is raised.
     def self.normalize_spec_hash(spec)
       raise NoNamespace unless spec.key?('namespace')
+
+      if spec.key?('version') && !Wrapture.supports_version?(spec['version'])
+        raise UnsupportedSpecVersion
+      end
 
       normalized = spec.dup
       normalized.default = []
 
-      normalized['includes'] = Wrapture.normalize_includes spec['includes']
+      normalized['version'] = if spec.key?('version')
+                                spec['version']
+                              else
+                                Wrapture::VERSION
+                              end
+
+      normalized['includes'] = Wrapture.normalize_includes(spec['includes'])
 
       normalized
     end
