@@ -22,7 +22,7 @@ class ConstantSpecTest < Minitest::Test
   end
 
   def test_versioned_constant
-    test_spec = load_fixture('basic_constant')
+    test_spec = load_fixture('versioned_constant')
 
     Wrapture::ConstantSpec.new(test_spec)
   end

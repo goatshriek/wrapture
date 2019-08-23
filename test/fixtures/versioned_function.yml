@@ -1,0 +1,13 @@
+name: "BasicFunction1"
+version: "0.2.0"
+params:
+  - name: "app_name"
+    type: "const char *"
+wrapped-function:
+  name: "underlying_basic_function"
+  includes:
+    - "folder/include_file_2.h"
+    - "folder/include_file_3.h"
+  params:
+    - name: "equivalent-struct-pointer"
+    - name: "app_name"

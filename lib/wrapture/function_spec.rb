@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'wrapture/scope'
+
 module Wrapture
   # A description of a function to be generated, including details about the
   # underlying implementation.
@@ -11,6 +13,8 @@ module Wrapture
     def self.normalize_spec_hash(spec)
       normalized = spec.dup
       param_types = {}
+
+      normalized['version'] = Wrapture.spec_version(spec)
 
       normalized['params'] ||= []
       normalized['params'].each do |param_spec|
@@ -86,7 +90,7 @@ module Wrapture
     #
     # The following keys are optional:
     # static:: set to true if this is a static function.
-    def initialize(spec, owner)
+    def initialize(spec, owner = Scope.new)
       @owner = owner
       @spec = FunctionSpec.normalize_spec_hash(spec)
     end
