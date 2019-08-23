@@ -8,4 +8,8 @@ module Wrapture
   # Missing a namespace in the class spec
   class NoNamespace < WraptureError
   end
+
+  # The spec version is not supported by this version of Wrapture.
+  class UnsupportedSpecVersion < WraptureError
+  end
 end

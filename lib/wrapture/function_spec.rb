@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'wrapture/scope'
+
 module Wrapture
   # A description of a function to be generated, including details about the
   # underlying implementation.
@@ -12,9 +14,13 @@ module Wrapture
       normalized = spec.dup
       param_types = {}
 
+      normalized['version'] = Wrapture.spec_version(spec)
+
       normalized['params'] ||= []
       normalized['params'].each do |param_spec|
         param_types[param_spec['name']] = param_spec['type']
+        includes = Wrapture.normalize_includes(param_spec['includes'])
+        param_spec['includes'] = includes
       end
 
       wrapped = normalize_wrapped_hash(spec['wrapped-function'], param_types)
@@ -24,7 +30,7 @@ module Wrapture
         normalized['return']['type'] = 'void'
         normalized['return']['includes'] = []
       else
-        includes = Wrapture.normalize_includes spec['return']['includes']
+        includes = Wrapture.normalize_includes(spec['return']['includes'])
         normalized['return']['includes'] = includes
       end
 
@@ -84,21 +90,23 @@ module Wrapture
     #
     # The following keys are optional:
     # static:: set to true if this is a static function.
-    def initialize(spec, owner)
+    def initialize(spec, owner = Scope.new)
       @owner = owner
       @spec = FunctionSpec.normalize_spec_hash(spec)
     end
 
     # A list of includes needed for the declaration of the function.
     def declaration_includes
-      @spec['return']['includes'].dup
+      includes = @spec['return']['includes'].dup
+      includes.concat(param_includes)
+      includes.uniq
     end
 
     # A list of includes needed for the definition of the function.
     def definition_includes
       includes = @spec['return']['includes'].dup
-      includes.concat @spec['wrapped-function']['includes']
-
+      includes.concat(@spec['wrapped-function']['includes'])
+      includes.concat(param_includes)
       includes.uniq
     end
 
@@ -127,6 +135,17 @@ module Wrapture
     end
 
     private
+
+    # A list of includes needed for the parameters of the function.
+    def param_includes
+      includes = []
+
+      @spec['params'].each do |param_spec|
+        includes.concat(param_spec['includes'])
+      end
+
+      includes
+    end
 
     # Returns a call to the wrapped function
     def wrapped_function_call
