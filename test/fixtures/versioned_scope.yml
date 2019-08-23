@@ -1,0 +1,10 @@
+version: "0.2.0"
+classes:
+  - name: "MinimalClassOne"
+    namespace: "wrapture_test"
+    equivalent-struct:
+      name: "minimal_struct_one"
+  - name: "MinimalClassTwo"
+    namespace: "wrapture_test"
+    equivalent-struct:
+      name: "minimal_struct_two"

@@ -15,6 +15,14 @@ class ClassSpecTest < Minitest::Test
     refute_nil normalized_spec
   end
 
+  def test_future_spec_version
+    test_spec = load_fixture('future_version_class')
+
+    assert_raises(Wrapture::UnsupportedSpecVersion) do
+      Wrapture::ClassSpec.new(test_spec)
+    end
+  end
+
   def test_generate_wrappers
     test_spec = load_fixture('basic_class')
 
@@ -61,6 +69,17 @@ class ClassSpecTest < Minitest::Test
       static_function_found = true if line.include? 'static'
     end
     assert static_function_found, 'No static function defined.'
+
+    File.delete(*classes)
+  end
+
+  def test_versioned_class
+    test_spec = load_fixture('versioned_class')
+
+    spec = Wrapture::ClassSpec.new(test_spec)
+
+    classes = spec.generate_wrappers
+    validate_wrapper_results(test_spec, classes)
 
     File.delete(*classes)
   end
