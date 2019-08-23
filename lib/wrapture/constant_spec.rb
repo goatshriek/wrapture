@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'wrapture/normalize'
+
 module Wrapture
   # A description of a constant.
   class ConstantSpec
@@ -10,6 +12,7 @@ module Wrapture
     def self.normalize_spec_hash(spec)
       normalized = spec.dup
 
+      normalized['version'] = Wrapture.spec_version(spec)
       normalized['includes'] = Wrapture.normalize_includes spec['includes']
 
       normalized

@@ -21,7 +21,7 @@ module Wrapture
       normalized = spec.dup
       normalized.default = []
 
-      normalized['version'] = Wrapture.get_spec_version(spec)
+      normalized['version'] = Wrapture.spec_version(spec)
       normalized['includes'] = Wrapture.normalize_includes(spec['includes'])
 
       normalized
