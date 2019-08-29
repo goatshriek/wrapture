@@ -43,7 +43,8 @@ class ClassSpecTest < Minitest::Test
     validate_wrapper_results(test_spec, classes)
 
     includes = get_include_list("#{test_spec['name']}.cpp")
-    assert_includes(includes, test_spec['constructors'][0]['wrapped-function']['includes'])
+    wrapped_function = test_spec['constructors'][0]['wrapped-function']
+    assert_includes(includes, wrapped_function['includes'])
 
     File.delete(*classes)
   end
