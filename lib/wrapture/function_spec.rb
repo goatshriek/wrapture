@@ -90,7 +90,7 @@ module Wrapture
     #
     # The following keys are optional:
     # static:: set to true if this is a static function.
-    def initialize(spec, owner = Scope.new)
+    def initialize(spec, owner = Scope.new, constructor: false)
       @owner = owner
       @spec = FunctionSpec.normalize_spec_hash(spec)
     end
@@ -156,6 +156,16 @@ module Wrapture
       end
 
       "#{@spec['wrapped-function']['name']}( #{resolved_params.join(', ')} )"
+    end
+
+    def resolve_type(type)
+      if type == 'equivalent-struct'
+        "struct #{@owner.struct_name}"
+      elsif type == 'equivalent-struct-pointer'
+        "struct #{@owner.struct_name} *"
+      else
+        type
+      end
     end
 
     def resolve_wrapped_param(param_spec)

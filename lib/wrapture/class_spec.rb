@@ -51,13 +51,22 @@ module Wrapture
     # functions:: a list of function specs
     # constants:: a list of constant specs
     def initialize(spec, scope: Scope.new)
-      @spec = ClassSpec.normalize_spec_hash spec
+      @spec = ClassSpec.normalize_spec_hash(spec)
 
       @struct = StructSpec.new @spec['equivalent-struct']
 
       @functions = []
       @spec['functions'].each do |function_spec|
         @functions << FunctionSpec.new(function_spec, self)
+      end
+
+      @spec['constructors'].each do |constructor_spec|
+        function_spec = constructor_spec.dup
+
+        function_spec['name'] = @spec['name']
+        function_spec['params'] = constructor_spec['params']
+
+        @functions << FunctionSpec.new(function_spec, self, constructor: true)
       end
 
       @constants = []
