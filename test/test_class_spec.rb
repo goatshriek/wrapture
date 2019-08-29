@@ -42,9 +42,13 @@ class ClassSpecTest < Minitest::Test
     classes = spec.generate_wrappers
     validate_wrapper_results(test_spec, classes)
 
-    includes = get_include_list("#{test_spec['name']}.cpp")
+    source_file = "#{test_spec['name']}.cpp"
+    includes = get_include_list(source_file)
     wrapped_function = test_spec['constructors'][0]['wrapped-function']
     assert_includes(includes, wrapped_function['includes'])
+
+    forbiden = Wrapture::EQUIVALENT_STRUCT_KEYWORD
+    assert(!file_contains_match(source_file, forbiden))
 
     File.delete(*classes)
   end
