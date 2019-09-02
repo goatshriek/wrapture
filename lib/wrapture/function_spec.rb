@@ -24,8 +24,6 @@ module Wrapture
         param_spec['includes'] = includes
       end
 
-      wrapped = WrappedFunctionSpec.normalize_spec_hash(spec['wrapped-function'], param_types)
-      normalized['wrapped-function'] = wrapped
       if normalized['return'].nil?
         normalized['return'] = {}
         normalized['return']['type'] = 'void'
@@ -56,6 +54,7 @@ module Wrapture
                    destructor: false)
       @owner = owner
       @spec = FunctionSpec.normalize_spec_hash(spec)
+      @wrapped = WrappedFunctionSpec.new(spec['wrapped-function'])
       @structor = constructor || destructor
     end
 
@@ -68,8 +67,8 @@ module Wrapture
 
     # A list of includes needed for the definition of the function.
     def definition_includes
-      includes = @spec['return']['includes'].dup
-      includes.concat(@spec['wrapped-function']['includes'])
+      includes = @wrapped.includes
+      includes.concat(@spec['return']['includes'])
       includes.concat(param_includes)
       includes.uniq
     end
@@ -87,6 +86,23 @@ module Wrapture
       end
 
       params.join(', ')
+    end
+
+    def resolve_wrapped_param(param_spec)
+      used_param = @spec['params'].find { |p| p['name'] == param_spec['value'] }
+
+      if param_spec['value'] == EQUIVALENT_STRUCT_KEYWORD
+        @owner.this_struct
+      elsif param_spec['value'] == EQUIVALENT_POINTER_KEYWORD
+        @owner.this_struct_pointer
+      elsif used_param &&
+            @owner.type?(used_param['type']) &&
+            !param_spec['type'].nil?
+        param_class = @owner.type(used_param['type'])
+        param_class.cast_to(used_param['name'], param_spec['type'])
+      else
+        param_spec['value']
+      end
     end
 
     # The signature of the function.
@@ -110,7 +126,7 @@ module Wrapture
 
       wrapped_call = String.new
       wrapped_call << "return #{return_type} ( " unless return_type == 'void'
-      wrapped_call << wrapped_function_call
+      wrapped_call << @wrapped.call_from(self)
       wrapped_call << ' )' unless return_type == 'void'
       yield "  #{wrapped_call};"
       yield '}'
@@ -129,17 +145,6 @@ module Wrapture
       includes
     end
 
-    # Returns a call to the wrapped function
-    def wrapped_function_call
-      resolved_params = []
-
-      @spec['wrapped-function']['params'].each do |param|
-        resolved_params << resolve_wrapped_param(param)
-      end
-
-      "#{@spec['wrapped-function']['name']}( #{resolved_params.join(', ')} )"
-    end
-
     # A resolved type name.
     def resolve_type(type)
       if type == EQUIVALENT_STRUCT_KEYWORD
@@ -148,21 +153,6 @@ module Wrapture
         "struct #{@owner.struct_name} *"
       else
         type
-      end
-    end
-
-    def resolve_wrapped_param(param_spec)
-      used_param = @spec['params'].find { |p| p['name'] == param_spec['value'] }
-
-      if param_spec['value'] == 'equivalent-struct'
-        @owner.this_struct
-      elsif param_spec['value'] == 'equivalent-struct-pointer'
-        @owner.this_struct_pointer
-      elsif used_param && @owner.type?(used_param['type'])
-        param_class = @owner.type(used_param['type'])
-        param_class.cast_to(used_param['name'], param_spec['type'])
-      else
-        param_spec['value']
       end
     end
   end
