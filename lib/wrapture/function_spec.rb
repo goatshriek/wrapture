@@ -112,7 +112,17 @@ module Wrapture
 
     # The signature of the function.
     def signature
-      "#{@spec['name']}( #{FunctionSpec.param_list @spec} )"
+      params = []
+
+      @spec['params'].each do |param|
+        params << ClassSpec.typed_variable(resolve_type(param['type']), param['name'])
+      end
+
+      if @spec['params'].empty?
+        "#{@spec['name']}( void )"
+      else
+        "#{@spec['name']}( #{params.join(', ')} )"
+      end
     end
 
     # The declaration of the function.
@@ -158,10 +168,11 @@ module Wrapture
       "#{@spec['wrapped-function']['name']}( #{resolved_params.join(', ')} )"
     end
 
+    # A resolved type name.
     def resolve_type(type)
-      if type == 'equivalent-struct'
+      if type == EQUIVALENT_STRUCT_KEYWORD
         "struct #{@owner.struct_name}"
-      elsif type == 'equivalent-struct-pointer'
+      elsif type == EQUIVALENT_POINTER_KEYWORD
         "struct #{@owner.struct_name} *"
       else
         type

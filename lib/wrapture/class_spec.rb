@@ -53,20 +53,19 @@ module Wrapture
     def initialize(spec, scope: Scope.new)
       @spec = ClassSpec.normalize_spec_hash(spec)
 
-      @struct = StructSpec.new @spec['equivalent-struct']
+      @struct = StructSpec.new @spec[EQUIVALENT_STRUCT_KEYWORD]
 
       @functions = []
-      @spec['functions'].each do |function_spec|
-        @functions << FunctionSpec.new(function_spec, self)
-      end
-
       @spec['constructors'].each do |constructor_spec|
         function_spec = constructor_spec.dup
-
         function_spec['name'] = @spec['name']
-        function_spec['params'] = constructor_spec['params']
+        function_spec['params'] = constructor_spec['wrapped-function']['params']
 
         @functions << FunctionSpec.new(function_spec, self, constructor: true)
+      end
+
+      @spec['functions'].each do |function_spec|
+        @functions << FunctionSpec.new(function_spec, self)
       end
 
       @constants = []
@@ -131,6 +130,11 @@ module Wrapture
       else
         param
       end
+    end
+
+    # The name of the equivalent struct of this class.
+    def struct_name
+      @struct.name
     end
 
     # Gives a code snippet that accesses the equivalent struct from within the
@@ -334,9 +338,9 @@ module Wrapture
         yield "    #{pointer_constructor_signature};"
       end
 
-      @spec['constructors'].each_index do |constructor|
-        yield "    #{wrapped_constructor_signature constructor};"
-      end
+      #@spec['constructors'].each_index do |constructor|
+      #  yield "    #{wrapped_constructor_signature constructor};"
+      #end
 
       yield "    #{destructor_signature};" if @spec.key? 'destructor'
 
@@ -412,12 +416,12 @@ module Wrapture
         yield '  }'
       end
 
-      @spec['constructors'].each_index do |constructor|
-        yield
-        wrapped_constructor_definition(constructor) do |line|
-          yield "  #{line}"
-        end
-      end
+      #@spec['constructors'].each_index do |constructor|
+      #  yield
+      #  wrapped_constructor_definition(constructor) do |line|
+      #    yield "  #{line}"
+      #  end
+      #end
 
       if @spec.key? 'destructor'
         yield
