@@ -249,32 +249,9 @@ module Wrapture
       end
     end
 
-    # Gives the signature of a constructor, based on its index in the class
-    # specification.
-    def wrapped_constructor_signature(index)
-      function_spec = @spec['constructors'][index]['wrapped-function']
-
-      "#{@spec['name']}( #{FunctionSpec.param_list function_spec} )"
-    end
-
     # The signature of the destructor.
     def destructor_signature
       "~#{@spec['name']}( void )"
-    end
-
-    # The definition of a constructor, based on its index in the class
-    # specification.
-    def wrapped_constructor_definition(index)
-      constructor_spec = @spec['constructors'][index]
-      wrapped_function = constructor_spec['wrapped-function']
-
-      yield "#{@spec['name']}::#{wrapped_constructor_signature(index)}{"
-
-      result = resolve_param wrapped_function['return']['type']
-
-      yield "  #{result} = #{function_call wrapped_function};"
-
-      yield '}'
     end
 
     # The definition of the member constructor for a class. This is only valid
@@ -337,10 +314,6 @@ module Wrapture
         yield "    #{struct_constructor_signature};"
         yield "    #{pointer_constructor_signature};"
       end
-
-      #@spec['constructors'].each_index do |constructor|
-      #  yield "    #{wrapped_constructor_signature constructor};"
-      #end
 
       yield "    #{destructor_signature};" if @spec.key? 'destructor'
 
@@ -415,13 +388,6 @@ module Wrapture
 
         yield '  }'
       end
-
-      #@spec['constructors'].each_index do |constructor|
-      #  yield
-      #  wrapped_constructor_definition(constructor) do |line|
-      #    yield "  #{line}"
-      #  end
-      #end
 
       if @spec.key? 'destructor'
         yield

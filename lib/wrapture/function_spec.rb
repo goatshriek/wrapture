@@ -62,20 +62,6 @@ module Wrapture
       normalized
     end
 
-    # A comma-separated string of each parameter with its type, suitable for use
-    # in function signatures and definitions.
-    def self.param_list(spec)
-      return 'void' if spec['params'].empty?
-
-      params = []
-
-      spec['params'].each do |param|
-        params << ClassSpec.typed_variable(param['type'], param['name'])
-      end
-
-      params.join ', '
-    end
-
     # Creates a function spec based on the provided function spec.
     #
     # The hash must have the following keys:
