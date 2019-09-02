@@ -29,6 +29,7 @@ module Wrapture
         normalized['return']['type'] = 'void'
         normalized['return']['includes'] = []
       else
+        normalized['return']['type'] ||= 'void'
         includes = Wrapture.normalize_includes(spec['return']['includes'])
         normalized['return']['includes'] = includes
       end
@@ -55,7 +56,8 @@ module Wrapture
       @owner = owner
       @spec = FunctionSpec.normalize_spec_hash(spec)
       @wrapped = WrappedFunctionSpec.new(spec['wrapped-function'])
-      @structor = constructor || destructor
+      @constructor = constructor
+      @destructor = destructor
     end
 
     # A list of includes needed for the declaration of the function.
@@ -115,7 +117,7 @@ module Wrapture
 
     # The declaration of the function.
     def declaration
-      return signature if @structor
+      return signature if @constructor || @destructor
 
       modifier_prefix = @spec['static'] ? 'static ' : ''
       "#{modifier_prefix}#{@spec['return']['type']} #{signature}"
@@ -124,13 +126,20 @@ module Wrapture
     # Gives the definition of the function to a block, line by line.
     def definition(class_name)
       return_type = @spec['return']['type']
-      return_prefix = @structor ? '' : "#{return_type} "
+      return_prefix = @constructor || @destructor ? '' : "#{return_type} "
       yield "#{return_prefix}#{class_name}::#{signature} {"
 
       wrapped_call = String.new
-      wrapped_call << "return #{return_type} ( " unless return_type == 'void'
+      if returns_value?
+        wrapped_call << "return #{return_type} ( "
+      elsif @constructor
+        wrapped_call << 'this->equivalent = '
+      end
+
       wrapped_call << @wrapped.call_from(self)
-      wrapped_call << ' )' unless return_type == 'void'
+
+      wrapped_call << ' )' if returns_value?
+
       yield "  #{wrapped_call};"
       yield '}'
     end
@@ -157,6 +166,11 @@ module Wrapture
       else
         type
       end
+    end
+
+    # True if the function returns a value.
+    def returns_value?
+      !@constructor && !@destructor && @spec['return']['type'] != 'void'
     end
   end
 end
