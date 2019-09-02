@@ -76,7 +76,8 @@ module Wrapture
     #
     # The following keys are optional:
     # static:: set to true if this is a static function.
-    def initialize(spec, owner = Scope.new, constructor: false, destructor: false)
+    def initialize(spec, owner = Scope.new, constructor: false,
+                   destructor: false)
       @owner = owner
       @spec = FunctionSpec.normalize_spec_hash(spec)
       @structor = constructor || destructor
@@ -102,7 +103,8 @@ module Wrapture
       params = []
 
       @spec['params'].each do |param|
-        params << ClassSpec.typed_variable(resolve_type(param['type']), param['name'])
+        type = resolve_type(param['type'])
+        params << ClassSpec.typed_variable(type, param['name'])
       end
 
       if @spec['params'].empty?

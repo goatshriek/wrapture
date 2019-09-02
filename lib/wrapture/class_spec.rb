@@ -57,18 +57,18 @@ module Wrapture
 
       @functions = []
       @spec['constructors'].each do |constructor_spec|
-        function_spec = constructor_spec.dup
-        function_spec['name'] = @spec['name']
-        function_spec['params'] = constructor_spec['wrapped-function']['params']
+        full_spec = constructor_spec.dup
+        full_spec['name'] = @spec['name']
+        full_spec['params'] = constructor_spec['wrapped-function']['params']
 
-        @functions << FunctionSpec.new(function_spec, self, constructor: true)
+        @functions << FunctionSpec.new(full_spec, self, constructor: true)
       end
 
       if @spec.key?('destructor')
-        function_spec = @spec['destructor'].dup
-        function_spec['name'] = "~#{@spec['name']}"
+        destructor_spec = @spec['destructor'].dup
+        destructor_spec['name'] = "~#{@spec['name']}"
 
-        @functions << FunctionSpec.new(function_spec, self, destructor: true)
+        @functions << FunctionSpec.new(destructor_spec, self, destructor: true)
       end
 
       @spec['functions'].each do |function_spec|
