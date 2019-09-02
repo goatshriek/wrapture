@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Python class generation.
  - Perl class generation.
 
-## [0.3.0] - 2019-08-24
+## [0.3.0] - 2019-09-02
 ### Added
  - Examples of basic usage and features.
  - Option to give a class-level include list.
