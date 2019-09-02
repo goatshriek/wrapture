@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'wrapture/scope'
+require 'wrapture/wrapped_function_spec'
 
 module Wrapture
   # A description of a function to be generated, including details about the
@@ -23,7 +24,7 @@ module Wrapture
         param_spec['includes'] = includes
       end
 
-      wrapped = normalize_wrapped_hash(spec['wrapped-function'], param_types)
+      wrapped = WrappedFunctionSpec.normalize_spec_hash(spec['wrapped-function'], param_types)
       normalized['wrapped-function'] = wrapped
       if normalized['return'].nil?
         normalized['return'] = {}
@@ -33,31 +34,6 @@ module Wrapture
         includes = Wrapture.normalize_includes(spec['return']['includes'])
         normalized['return']['includes'] = includes
       end
-
-      normalized
-    end
-
-    # Normalizes a hash specification of a wrapped function. Normalization will
-    # check for things like missing keys and duplicate entries in include lists.
-    def self.normalize_wrapped_hash(spec, parent_types)
-      normalized = spec.dup
-
-      normalized['params'] ||= []
-      normalized['params'].each do |param_spec|
-        param_spec['value'] = param_spec['name'] if param_spec['value'].nil?
-
-        next unless param_spec['type'].nil?
-
-        name = param_spec['name']
-
-        if %w[equivalent-struct equivalent-struct-pointer].include?(name)
-          param_spec['type'] = name
-        elsif parent_types.key?(name)
-          param_spec['type'] = parent_types[name]
-        end
-      end
-
-      normalized['includes'] = Wrapture.normalize_includes(spec['includes'])
 
       normalized
     end
