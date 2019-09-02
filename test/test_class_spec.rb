@@ -50,6 +50,8 @@ class ClassSpecTest < Minitest::Test
     forbidden = Wrapture::EQUIVALENT_STRUCT_KEYWORD
     assert(!file_contains_match(source_file, forbidden))
 
+    assert(file_contains_match(source_file, /= #{wrapped_function['name']}/))
+
     File.delete(*classes)
   end
 
