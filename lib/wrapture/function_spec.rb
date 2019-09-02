@@ -62,20 +62,6 @@ module Wrapture
       normalized
     end
 
-    # A comma-separated string of each parameter with its type, suitable for use
-    # in function signatures and definitions.
-    def self.param_list(spec)
-      return 'void' if spec['params'].empty?
-
-      params = []
-
-      spec['params'].each do |param|
-        params << ClassSpec.typed_variable(param['type'], param['name'])
-      end
-
-      params.join ', '
-    end
-
     # Creates a function spec based on the provided function spec.
     #
     # The hash must have the following keys:
@@ -90,9 +76,11 @@ module Wrapture
     #
     # The following keys are optional:
     # static:: set to true if this is a static function.
-    def initialize(spec, owner = Scope.new)
+    def initialize(spec, owner = Scope.new, constructor: false,
+                   destructor: false)
       @owner = owner
       @spec = FunctionSpec.normalize_spec_hash(spec)
+      @structor = constructor || destructor
     end
 
     # A list of includes needed for the declaration of the function.
@@ -110,13 +98,30 @@ module Wrapture
       includes.uniq
     end
 
+    # A comma-separated list of parameters and resolved types fit for use in a
+    # function signature or declaration.
+    def param_list
+      return 'void' if @spec['params'].empty?
+
+      params = []
+
+      @spec['params'].each do |param|
+        type = resolve_type(param['type'])
+        params << ClassSpec.typed_variable(type, param['name'])
+      end
+
+      params.join(', ')
+    end
+
     # The signature of the function.
     def signature
-      "#{@spec['name']}( #{FunctionSpec.param_list @spec} )"
+      "#{@spec['name']}( #{param_list} )"
     end
 
     # The declaration of the function.
     def declaration
+      return signature if @structor
+
       modifier_prefix = @spec['static'] ? 'static ' : ''
       "#{modifier_prefix}#{@spec['return']['type']} #{signature}"
     end
@@ -124,7 +129,8 @@ module Wrapture
     # Gives the definition of the function to a block, line by line.
     def definition(class_name)
       return_type = @spec['return']['type']
-      yield "#{return_type} #{class_name}::#{signature} {"
+      return_prefix = @structor ? '' : "#{return_type} "
+      yield "#{return_prefix}#{class_name}::#{signature} {"
 
       wrapped_call = String.new
       wrapped_call << "return #{return_type} ( " unless return_type == 'void'
@@ -156,6 +162,17 @@ module Wrapture
       end
 
       "#{@spec['wrapped-function']['name']}( #{resolved_params.join(', ')} )"
+    end
+
+    # A resolved type name.
+    def resolve_type(type)
+      if type == EQUIVALENT_STRUCT_KEYWORD
+        "struct #{@owner.struct_name}"
+      elsif type == EQUIVALENT_POINTER_KEYWORD
+        "struct #{@owner.struct_name} *"
+      else
+        type
+      end
     end
 
     def resolve_wrapped_param(param_spec)

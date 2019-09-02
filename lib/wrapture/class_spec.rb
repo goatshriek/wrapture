@@ -51,11 +51,26 @@ module Wrapture
     # functions:: a list of function specs
     # constants:: a list of constant specs
     def initialize(spec, scope: Scope.new)
-      @spec = ClassSpec.normalize_spec_hash spec
+      @spec = ClassSpec.normalize_spec_hash(spec)
 
-      @struct = StructSpec.new @spec['equivalent-struct']
+      @struct = StructSpec.new @spec[EQUIVALENT_STRUCT_KEYWORD]
 
       @functions = []
+      @spec['constructors'].each do |constructor_spec|
+        full_spec = constructor_spec.dup
+        full_spec['name'] = @spec['name']
+        full_spec['params'] = constructor_spec['wrapped-function']['params']
+
+        @functions << FunctionSpec.new(full_spec, self, constructor: true)
+      end
+
+      if @spec.key?('destructor')
+        destructor_spec = @spec['destructor'].dup
+        destructor_spec['name'] = "~#{@spec['name']}"
+
+        @functions << FunctionSpec.new(destructor_spec, self, destructor: true)
+      end
+
       @spec['functions'].each do |function_spec|
         @functions << FunctionSpec.new(function_spec, self)
       end
@@ -111,17 +126,9 @@ module Wrapture
       @spec['name']
     end
 
-    # Returns a string for the provided parameter that can be used within the
-    # class's code.
-    def resolve_param(param)
-      case param
-      when 'equivalent-struct'
-        this_struct
-      when 'equivalent-struct-pointer'
-        this_struct_pointer
-      else
-        param
-      end
+    # The name of the equivalent struct of this class.
+    def struct_name
+      @struct.name
     end
 
     # Gives a code snippet that accesses the equivalent struct from within the
@@ -152,17 +159,6 @@ module Wrapture
     # Returns true if the given type exists in this class's scope.
     def type?(type)
       @scope.type?(type)
-    end
-
-    # A string calling the wrapped function spec, with resolved parameters.
-    def function_call(spec)
-      resolved_params = []
-
-      spec['params'].each do |param|
-        resolved_params << resolve_param(param['name'])
-      end
-
-      "#{spec['name']}( #{resolved_params.join ', '} )"
     end
 
     private
@@ -236,34 +232,6 @@ module Wrapture
       end
     end
 
-    # Gives the signature of a constructor, based on its index in the class
-    # specification.
-    def wrapped_constructor_signature(index)
-      function_spec = @spec['constructors'][index]['wrapped-function']
-
-      "#{@spec['name']}( #{FunctionSpec.param_list function_spec} )"
-    end
-
-    # The signature of the destructor.
-    def destructor_signature
-      "~#{@spec['name']}( void )"
-    end
-
-    # The definition of a constructor, based on its index in the class
-    # specification.
-    def wrapped_constructor_definition(index)
-      constructor_spec = @spec['constructors'][index]
-      wrapped_function = constructor_spec['wrapped-function']
-
-      yield "#{@spec['name']}::#{wrapped_constructor_signature(index)}{"
-
-      result = resolve_param wrapped_function['return']['type']
-
-      yield "  #{result} = #{function_call wrapped_function};"
-
-      yield '}'
-    end
-
     # The definition of the member constructor for a class. This is only valid
     # when the class is not a pointer wrapper.
     def member_constructor_signature
@@ -324,12 +292,6 @@ module Wrapture
         yield "    #{struct_constructor_signature};"
         yield "    #{pointer_constructor_signature};"
       end
-
-      @spec['constructors'].each_index do |constructor|
-        yield "    #{wrapped_constructor_signature constructor};"
-      end
-
-      yield "    #{destructor_signature};" if @spec.key? 'destructor'
 
       @functions.each do |func|
         yield "    #{func.declaration};"
@@ -400,21 +362,6 @@ module Wrapture
           yield "    #{member_decl} = equivalent->#{member['name']};"
         end
 
-        yield '  }'
-      end
-
-      @spec['constructors'].each_index do |constructor|
-        yield
-        wrapped_constructor_definition(constructor) do |line|
-          yield "  #{line}"
-        end
-      end
-
-      if @spec.key? 'destructor'
-        yield
-        yield "  #{@spec['name']}::#{destructor_signature} {"
-        func_spec = @spec['destructor']['wrapped-function']
-        yield "    #{function_call func_spec};"
         yield '  }'
       end
 
