@@ -98,8 +98,10 @@ module Wrapture
       includes.uniq
     end
 
-    # The signature of the function.
-    def signature
+    # A comma-separated list of parameters and resolved types fit for use in a
+    # function signature or declaration.
+    def param_list
+      return 'void' if @spec['params'].empty?
       params = []
 
       @spec['params'].each do |param|
@@ -107,11 +109,12 @@ module Wrapture
         params << ClassSpec.typed_variable(type, param['name'])
       end
 
-      if @spec['params'].empty?
-        "#{@spec['name']}( void )"
-      else
-        "#{@spec['name']}( #{params.join(', ')} )"
-      end
+      params.join(', ')
+    end
+
+    # The signature of the function.
+    def signature
+      "#{@spec['name']}( #{param_list} )"
     end
 
     # The declaration of the function.
