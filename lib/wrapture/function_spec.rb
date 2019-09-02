@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'wrapture/constants'
 require 'wrapture/scope'
 
 module Wrapture
@@ -50,7 +51,7 @@ module Wrapture
 
         name = param_spec['name']
 
-        if %w[equivalent-struct equivalent-struct-pointer].include?(name)
+        if KEYWORDS.include?(name)
           param_spec['type'] = name
         elsif parent_types.key?(name)
           param_spec['type'] = parent_types[name]
@@ -178,9 +179,9 @@ module Wrapture
     def resolve_wrapped_param(param_spec)
       used_param = @spec['params'].find { |p| p['name'] == param_spec['value'] }
 
-      if param_spec['value'] == 'equivalent-struct'
+      if param_spec['value'] == EQUIVALENT_STRUCT_KEYWORD
         @owner.this_struct
-      elsif param_spec['value'] == 'equivalent-struct-pointer'
+      elsif param_spec['value'] == EQUIVALENT_POINTER_KEYWORD
         @owner.this_struct_pointer
       elsif used_param && @owner.type?(used_param['type'])
         param_class = @owner.type(used_param['type'])

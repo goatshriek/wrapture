@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'wrapture/constant_spec'
+require 'wrapture/constants'
 require 'wrapture/function_spec'
 require 'wrapture/normalize'
 
@@ -89,9 +90,9 @@ module Wrapture
     def cast_to(name, type)
       struct = "struct #{@struct.name}"
 
-      if ['equivalent-struct', struct].include?(type)
+      if [EQUIVALENT_STRUCT_KEYWORD, struct].include?(type)
         equivalent_struct(name)
-      elsif ['equivalent-struct-pointer', "#{struct} *"].include?(type)
+      elsif [EQUIVALENT_POINTER_KEYWORD, "#{struct} *"].include?(type)
         equivalent_struct_pointer(name)
       end
     end
@@ -207,7 +208,7 @@ module Wrapture
       @spec['constructors'].each do |constructor_spec|
         return_type = constructor_spec['wrapped-function']['return']['type']
 
-        return true if return_type == 'equivalent-struct-pointer'
+        return true if return_type == EQUIVALENT_POINTER_KEYWORD
       end
 
       false
