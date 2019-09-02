@@ -13,16 +13,6 @@ module Wrapture
       normalized['params'] ||= []
       normalized['params'].each do |param_spec|
         param_spec['value'] = param_spec['name'] if param_spec['value'].nil?
-
-        # next unless param_spec['type'].nil?
-
-        # name = param_spec['name']
-
-        # if %w[equivalent-struct equivalent-struct-pointer].include?(name)
-        #   param_spec['type'] = name
-        # elsif parent_types.key?(name)
-        #   param_spec['type'] = parent_types[name]
-        # end
       end
 
       normalized['includes'] = Wrapture.normalize_includes(spec['includes'])
