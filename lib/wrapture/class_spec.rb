@@ -64,6 +64,13 @@ module Wrapture
         @functions << FunctionSpec.new(function_spec, self, constructor: true)
       end
 
+      if @spec.key?('destructor')
+        function_spec = @spec['destructor'].dup
+        function_spec['name'] = "~#{@spec['name']}"
+
+        @functions << FunctionSpec.new(function_spec, self, destructor: true)
+      end
+
       @spec['functions'].each do |function_spec|
         @functions << FunctionSpec.new(function_spec, self)
       end

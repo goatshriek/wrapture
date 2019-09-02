@@ -76,9 +76,10 @@ module Wrapture
     #
     # The following keys are optional:
     # static:: set to true if this is a static function.
-    def initialize(spec, owner = Scope.new, constructor: false)
+    def initialize(spec, owner = Scope.new, constructor: false, destructor: false)
       @owner = owner
       @spec = FunctionSpec.normalize_spec_hash(spec)
+      @structor = constructor || destructor
     end
 
     # A list of includes needed for the declaration of the function.
@@ -113,6 +114,8 @@ module Wrapture
 
     # The declaration of the function.
     def declaration
+      return signature if @structor
+
       modifier_prefix = @spec['static'] ? 'static ' : ''
       "#{modifier_prefix}#{@spec['return']['type']} #{signature}"
     end
@@ -120,7 +123,8 @@ module Wrapture
     # Gives the definition of the function to a block, line by line.
     def definition(class_name)
       return_type = @spec['return']['type']
-      yield "#{return_type} #{class_name}::#{signature} {"
+      return_prefix = @structor ? '' : "#{return_type} "
+      yield "#{return_prefix}#{class_name}::#{signature} {"
 
       wrapped_call = String.new
       wrapped_call << "return #{return_type} ( " unless return_type == 'void'
