@@ -102,6 +102,7 @@ module Wrapture
     # function signature or declaration.
     def param_list
       return 'void' if @spec['params'].empty?
+
       params = []
 
       @spec['params'].each do |param|
