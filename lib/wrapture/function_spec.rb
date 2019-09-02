@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'wrapture/constants'
 require 'wrapture/scope'
 require 'wrapture/wrapped_function_spec'
 

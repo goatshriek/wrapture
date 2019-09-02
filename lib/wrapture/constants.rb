@@ -6,4 +6,7 @@ module Wrapture
 
   # A string denoting a pointer to an equivalent struct type or value.
   EQUIVALENT_POINTER_KEYWORD = 'equivalent-struct-pointer'
+
+  # A list of all keywords.
+  KEYWORDS = [EQUIVALENT_STRUCT_KEYWORD, EQUIVALENT_POINTER_KEYWORD].freeze
 end
