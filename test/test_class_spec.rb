@@ -47,8 +47,8 @@ class ClassSpecTest < Minitest::Test
     wrapped_function = test_spec['constructors'][0]['wrapped-function']
     assert_includes(includes, wrapped_function['includes'])
 
-    forbiden = Wrapture::EQUIVALENT_STRUCT_KEYWORD
-    assert(!file_contains_match(source_file, forbiden))
+    forbidden = Wrapture::EQUIVALENT_STRUCT_KEYWORD
+    assert(!file_contains_match(source_file, forbidden))
 
     File.delete(*classes)
   end
