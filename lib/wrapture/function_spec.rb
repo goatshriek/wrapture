@@ -88,6 +88,9 @@ module Wrapture
       params.join(', ')
     end
 
+    # Gives an expression for calling a given parameter within this function.
+    # Equivalent structs and pointers are resolved, as well as casts between
+    # types if they are known within the scope of this function.
     def resolve_wrapped_param(param_spec)
       used_param = @spec['params'].find { |p| p['name'] == param_spec['value'] }
 
