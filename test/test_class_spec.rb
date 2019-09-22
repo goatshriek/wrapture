@@ -34,6 +34,17 @@ class ClassSpecTest < Minitest::Test
     File.delete(*classes)
   end
 
+  def test_child_class
+    test_spec = load_fixture('child_class')
+
+    spec = Wrapture::ClassSpec.new(test_spec)
+
+    classes = spec.generate_wrappers
+    validate_wrapper_results(test_spec, classes)
+
+    File.delete(*classes)
+  end
+
   def test_class_with_constructor
     test_spec = load_fixture('constructor_class')
 
