@@ -1,0 +1,7 @@
+name: "ChildClass"
+namespace: "wrapture_test"
+equivalent-struct:
+  name: "error_struct"
+parent:
+  name: "exception"
+  includes: "exception"

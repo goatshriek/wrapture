@@ -25,6 +25,11 @@ module Wrapture
       normalized['version'] = Wrapture.spec_version(spec)
       normalized['includes'] = Wrapture.normalize_includes(spec['includes'])
 
+      if spec.key?('parent')
+        includes = Wrapture.normalize_includes(spec['parent']['includes'])
+        normalized['parent']['includes'] = includes
+      end
+
       normalized
     end
 
@@ -173,15 +178,17 @@ module Wrapture
     def declaration_includes
       includes = @spec['includes'].dup
 
-      includes.concat @struct.includes
+      includes.concat(@struct.includes)
 
       @functions.each do |func|
-        includes.concat func.declaration_includes
+        includes.concat(func.declaration_includes)
       end
 
       @constants.each do |const|
-        includes.concat const.declaration_includes
+        includes.concat(const.declaration_includes)
       end
+
+      includes.concat(@spec['parent']['includes']) if @spec.key?('parent')
 
       includes.uniq
     end
@@ -275,7 +282,14 @@ module Wrapture
       yield
       yield "namespace #{@spec['namespace']} {"
       yield
-      yield "  class #{@spec['name']} {"
+
+      parent = if @spec.key?('parent')
+                 ": public #{@spec['parent']['name']} "
+               else
+                 ''
+               end
+      yield "  class #{@spec['name']} #{parent}{"
+
       yield '  public:'
 
       yield unless @constants.empty?
