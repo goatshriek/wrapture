@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Python class generation.
  - Perl class generation.
 
-## [0.3.0] - 2019-09-22
+## [0.3.0] - 2019-10-13
 ### Added
  - Examples of basic usage and features.
  - Option to give a class-level include list.
@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - `bin/wapture` now accepts multiple input files.
  - `version` field in specs for explicit support checks.
  - Classes may have a parent class specified.
+ - Structs can be wrapped by the best matching wrapper via the `newClassName`
+   family of functions.
 
 ### Fixed
  - `bin/wrapture` is now executable.
