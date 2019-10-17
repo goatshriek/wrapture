@@ -13,12 +13,85 @@ that it will be translated to the correct class. This example demonstrates the
 concept using the most common exception pattern, but it can be used in other
 ways as needed.
 
-For this exampmle, we will consider an error struct that consists of an integer
-error code and a string message describing the problem.
+Let's consider a simple error struct that consists of an integer error code and
+a string message describing the problem. This error struct is used by a library
+that provides access to an automated foam dart turret.
 
 ```c
-struct error {
+struct turret_error {
   int code;
   const char *message;
 };
+```
+
+We can wrap the struct at a general level in the normal manner:
+
+```yaml
+classes:
+  - name: "TurretException"
+    namespace: "turret"
+    parent:
+      name: "std::exception"
+      includes: "exception"
+    equivalent-struct:
+      name: "turret_error"
+      includes: "turret_error.h"
+      members:
+        - name: "code"
+          type: "int"
+        - name: "message"
+          type: "const char *"
+```
+
+Note that we have specified that this class will inherit from the standard
+exception class, as one would expect. We have also specified the members so
+that default the constructor and destructor are created.
+
+But if we'd like users of our wrapper to catch different exceptions in a more
+natural way, we'll need to break out the different types of errors into their
+own different classes.
+
+The error code may be a variety of values depending on what sort of problem is
+encountered. In our wrapper we need to generate an exceptions for cases when
+the turret has jammed, run out of ammunition, or is not able to aim. Assuming
+that there are well-named `#define`s for these codes, we can create their
+exception classes like this:
+
+```yaml
+  - name: "TargetingException"
+    namespace: "turret"
+    parent:
+      name: "TurretException"
+      includes: "TurretException.h"
+    equivalent-struct:
+      name: "turret_error"
+      includes: "turret_error.h"
+      rules:
+        - member-name: "code"
+          condition: "equals"
+          value: "TARGETING_ERROR"
+  - name: "OutOfAmmoException"
+    namespace: "turret"
+    parent:
+      name: "TurretException"
+      includes: "TurretException.h"
+    equivalent-struct:
+      name: "turret_error"
+      includes: "turret_error.h"
+      rules:
+        - member-name: "code"
+          condition: "equals"
+          value: "OUT_OF_AMMO"
+  - name: "JammedException"
+    namespace: "turret"
+    parent:
+      name: "TurretException"
+      includes: "TurretException.h"
+    equivalent-struct:
+      name: "turret_error"
+      includes: "turret_error.h"
+      rules:
+        - member-name: "code"
+          condition: "equals"
+          value: "JAMMED"
 ```
