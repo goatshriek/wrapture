@@ -95,3 +95,35 @@ exception classes like this:
           condition: "equals"
           value: "JAMMED"
 ```
+
+This will create an exception class for each of these cases as expected.
+However, and perhaps more importantly, it will also create a function in the
+parent TurretException that can create an exception based on a `turret_error`
+struct by checking the rules. This function will be called `newTurretException`
+and will look like this:
+
+```cpp
+// need to add implementation example
+```
+
+This allows exceptions to be thrown in a more natural way, using this function
+as a way to convert the error structs in the throw clause, like this:
+
+```cpp
+// need to add usage example
+```
+
+The full example has a complete implementation of this concept, and can be
+compiled and run as follows:
+
+```sh
+# generating the wrapper source code
+wrapture turret.yml
+
+# assuming that you're using sh and have g++
+g++ -I . -o turret_usage_example # add files
+./turret_usage_example
+
+# generates the following output:
+# <add output>
+```
