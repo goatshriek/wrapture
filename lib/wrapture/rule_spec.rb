@@ -23,6 +23,9 @@ module Wrapture
   # in order to conform to a given specification. This allows a single struct
   # type to be equivalent to some class specifications, but not others.
   class RuleSpec
+    # A list of valid condition strings.
+    CONDITIONS = %w[equals].freeze
+
     # Normalizes a hash specification of a rule. Normalization checks for
     # invalid keys and unrecognized conditions.
     def self.normalize_spec_hash(spec)
@@ -38,6 +41,11 @@ module Wrapture
       unless extra_keys.empty?
         extra_msg = "these keys are unrecognized: #{extra_keys.join(', ')}"
         raise InvalidSpecKey, extra_msg
+      end
+
+      unless RuleSpec.CONDITIONS.include?(spec['condition'])
+        condition_msg = "#{spec['condition']} is an invalid condition"
+        raise InvalidSpecKey, condition_msg
       end
 
       # TODO: check for unrecognized conditions
