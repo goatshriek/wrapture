@@ -1,4 +1,20 @@
+# SPDX-License-Identifier: Apache-2.0
+
 # frozen_string_literal: true
+
+# Copyright 2019 Joel E. Anderson
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 module Wrapture
   # A description of a struct.
@@ -37,8 +53,9 @@ module Wrapture
     # includes:: a list of includes required for the struct
     # members:: a list of the members of the struct, each with a type and name
     # field
+    # rules:: a list of conditions this struct and its members must meet
     def initialize(spec)
-      @spec = StructSpec.normalize_spec_hash spec
+      @spec = StructSpec.normalize_spec_hash(spec)
     end
 
     # A string containing the typed members of the struct, separated by commas.
