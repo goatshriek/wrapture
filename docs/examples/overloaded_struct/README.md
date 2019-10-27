@@ -112,7 +112,7 @@ that was defined for each of the children of `TurretException`. These rules can
 define the conditions to be checked in a variety of ways - for the complete set
 of capabilities, see their documentation at (where will this be?).
 
-This allows exceptions to be thrown in the target langauge in a natural way by
+This allows exceptions to be thrown in the target language in a natural way by
 using this function to convert the error structs in the throw clause, like this:
 
 ```cpp
