@@ -10,8 +10,8 @@ classes.
 
 Wrapture provides a way to distinguish between different types of a struct so
 that it will be translated to the correct class. This example demonstrates the
-concept using the most common exception pattern, but it can be used in other
-ways as needed.
+concept using a common exception pattern, but it can be used in other
+ways as well.
 
 Let's consider a simple error struct that consists of an integer error code and
 a string message describing the problem. This error struct is used by a library
@@ -45,17 +45,18 @@ classes:
 
 Note that we have specified that this class will inherit from the standard
 exception class, as one would expect. We have also specified the members so
-that default the constructor and destructor are created.
+that a default constructor and destructor are created. This allows the class
+to be created and thrown like any other Exception class.
 
 But if we'd like users of our wrapper to catch different exceptions in a more
 natural way, we'll need to break out the different types of errors into their
-own different classes.
+own specialized classes.
 
-The error code may be a variety of values depending on what sort of problem is
-encountered. In our wrapper we need to generate an exceptions for cases when
-the turret has jammed, run out of ammunition, or is not able to aim. Assuming
-that there are well-named `#define`s for these codes, we can create their
-exception classes like this:
+The error code may be any of a number of values depending on what sort of
+problem is encountered. In our wrapper we need to generate an exceptions for
+cases when the turret has jammed, run out of ammunition, or is not able to aim.
+Assuming that there are well-named `#define`s for these codes, we can create
+their exception classes like this:
 
 ```yaml
   - name: "TargetingException"
@@ -106,8 +107,13 @@ and will look like this:
 // need to add implementation example
 ```
 
-This allows exceptions to be thrown in a more natural way, using this function
-as a way to convert the error structs in the throw clause, like this:
+Note that the content of this function is taken directly from the `rules` member
+that was defined for each of the children of `TurretException`. These rules can
+define the conditions to be checked in a variety of ways - for the complete set
+of capabilities, see their documentation at (where will this be?).
+
+This allows exceptions to be thrown in the target langauge in a natural way by
+using this function to convert the error structs in the throw clause, like this:
 
 ```cpp
 // need to add usage example
