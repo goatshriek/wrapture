@@ -5,6 +5,14 @@ module Wrapture
   class WraptureError < StandardError
   end
 
+  # The spec has a key that is not valid.
+  class InvalidSpecKey < WraptureError
+    # Creates an InvalidSpecKey with the given message.
+    def initialize(message)
+      super(message)
+    end
+  end
+
   # Missing a namespace in the class spec
   class NoNamespace < WraptureError
   end

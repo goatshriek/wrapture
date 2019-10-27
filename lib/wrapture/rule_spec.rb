@@ -16,6 +16,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require 'wrapture/errors'
+
 module Wrapture
   # A condition (or set of conditions) that a struct or its members must meet
   # in order to conform to a given specification. This allows a single struct
@@ -24,7 +26,19 @@ module Wrapture
     # Normalizes a hash specification of a rule. Normalization checks for
     # invalid keys and unrecognized conditions.
     def self.normalize_spec_hash(spec)
-      # TODO: check for invalid keys
+      required_keys = %w[member-name condition value]
+
+      missing_keys = required_keys - spec.keys
+      unless missing_keys.empty?
+        missing_msg = "required keys are missing: #{missing_keys.join(', ')}"
+        raise InvalidSpecKey, missing_msg
+      end
+
+      extra_keys = spec.keys - required_keys
+      unless extra_keys.empty?
+        extra_msg = "these keys are unrecognized: #{extra_keys.join(', ')}"
+        raise InvalidSpecKey, extra_msg
+      end
 
       # TODO: check for unrecognized conditions
     end
