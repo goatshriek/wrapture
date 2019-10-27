@@ -53,7 +53,8 @@ module Wrapture
     # includes:: a list of includes required for the struct
     # members:: a list of the members of the struct, each with a type and name
     # field
-    # rules:: a list of conditions this struct and its members must meet
+    # rules:: a list of conditions this struct and its members must meet (refer
+    # to the RuleSpec class for more details)
     def initialize(spec)
       @spec = StructSpec.normalize_spec_hash(spec)
     end

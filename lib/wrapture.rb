@@ -8,6 +8,7 @@ module Wrapture
   require 'wrapture/errors'
   require 'wrapture/function_spec'
   require 'wrapture/normalize'
+  require 'wrapture/rule_spec'
   require 'wrapture/scope'
   require 'wrapture/struct_spec'
   require 'wrapture/version'
