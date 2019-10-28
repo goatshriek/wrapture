@@ -47,8 +47,6 @@ module Wrapture
         condition_msg = "#{spec['condition']} is an invalid condition"
         raise InvalidSpecKey, condition_msg
       end
-
-      # TODO: check for unrecognized conditions
     end
   end
 end
