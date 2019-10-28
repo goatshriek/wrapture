@@ -151,17 +151,17 @@ module Wrapture
       @spec['name']
     end
 
-    # True if the given class overloads this one. A class is considered an
+    # True if this class overloads the given one. A class is considered an
     # overload if its parent is the given class, it has the same equivalent
     # struct name, and the equivalent struct has a set of rules. The overloaded
     # class cannot have any rules in its equivalent struct, or it will not be
     # overloaded.
-    def overloads?(class_spec)
-      return false unless @struct.rules.empty?
+    def overloads?(parent_spec)
+      return false unless parent_spec.struct.rules.empty?
 
-      class_spec.struct.name == struct_name &&
-        class_spec.parent_name == name &&
-        !class_spec.struct.rules.empty?
+      parent_spec.struct.name == struct_name &&
+        parent_spec.name == parent_name &&
+        !@struct.rules.empty?
     end
 
     # The name of the parent of this class, or nil if there is no parent.
@@ -344,6 +344,8 @@ module Wrapture
         yield "    #{struct_constructor_signature};"
         yield "    #{pointer_constructor_signature};"
       end
+
+      yield '// the overload signature will be here' if @scope.overloads?(self)
 
       @functions.each do |func|
         yield "    #{func.declaration};"

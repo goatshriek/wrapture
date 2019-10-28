@@ -42,6 +42,13 @@ module Wrapture
       @classes.filter { |class_spec| class_spec.overloads?(parent) }
     end
 
+    # True if there is an overload of the given class in this scope.
+    def overloads?(parent)
+     @classes.each { |class_spec| return true if class_spec.overloads?(parent) }
+
+     false
+    end
+
     # Returns the ClassSpec for the given type in the scope.
     def type(type)
       @classes.find { |class_spec| class_spec.name == type }

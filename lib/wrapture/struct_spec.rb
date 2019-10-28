@@ -34,15 +34,8 @@ module Wrapture
       normalized
     end
 
-    # A declaration of the struct with the given variable name.
-    def declaration(name)
-      "struct #{@spec['name']} #{name}"
-    end
-
-    # A list of includes required for this struct.
-    def includes
-      @spec['includes'].dup
-    end
+    # A list of rules defined for this struct.
+    attr_reader :rules
 
     # Creates a struct spec based on the provided spec hash.
     #
@@ -57,6 +50,21 @@ module Wrapture
     # to the RuleSpec class for more details)
     def initialize(spec)
       @spec = StructSpec.normalize_spec_hash(spec)
+
+      @rules = []
+      @spec['rules'].each do |rule_spec|
+        @rules << RuleSpec.new(rule_spec)
+      end
+    end
+
+    # A declaration of the struct with the given variable name.
+    def declaration(name)
+      "struct #{@spec['name']} #{name}"
+    end
+
+    # A list of includes required for this struct.
+    def includes
+      @spec['includes'].dup
     end
 
     # A string containing the typed members of the struct, separated by commas.
@@ -66,6 +74,8 @@ module Wrapture
       @spec['members'].each do |member|
         members << ClassSpec.typed_variable(member['type'], member['name'])
       end
+
+
 
       members.join ', '
     end
@@ -88,11 +98,6 @@ module Wrapture
     # A declaration of a pointer to the struct with the given variable name.
     def pointer_declaration(name)
       "struct #{@spec['name']} *#{name}"
-    end
-
-    # The rules applied to this struct.
-    def rules
-      @spec['rules']
     end
   end
 end

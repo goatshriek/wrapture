@@ -43,10 +43,14 @@ module Wrapture
         raise InvalidSpecKey, extra_msg
       end
 
-      unless RuleSpec.CONDITIONS.include?(spec['condition'])
+      unless RuleSpec::CONDITIONS.include?(spec['condition'])
         condition_msg = "#{spec['condition']} is an invalid condition"
         raise InvalidSpecKey, condition_msg
       end
+    end
+
+    def initialize(spec)
+      @spec = RuleSpec.normalize_spec_hash(spec)
     end
   end
 end
