@@ -1,4 +1,20 @@
+# SPDX-License-Identifier: Apache-2.0
+
 # frozen_string_literal: true
+
+# Copyright 2019 Joel E. Anderson
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 require 'wrapture/constant_spec'
 require 'wrapture/constants'
@@ -41,6 +57,9 @@ module Wrapture
         "#{type} #{name}"
       end
     end
+
+    # The underlying struct of this class.
+    attr_reader :struct
 
     # Creates a class spec based on the provided hash spec.
     #
@@ -130,6 +149,28 @@ module Wrapture
     # The name of the class
     def name
       @spec['name']
+    end
+
+    # True if the given class overloads this one. A class is considered an
+    # overload if its parent is the given class, it has the same equivalent
+    # struct name, and the equivalent struct has a set of rules. The overloaded
+    # class cannot have any rules in its equivalent struct, or it will not be
+    # overloaded.
+    def overloads?(class_spec)
+      return false unless @struct.rules.empty?
+
+      class_spec.struct.name == struct_name &&
+        class_spec.parent_name == name &&
+        !class_spec.struct.rules.empty?
+    end
+
+    # The name of the parent of this class, or nil if there is no parent.
+    def parent_name
+      if @spec.key?('parent')
+        @spec['parent']['name']
+      else
+        nil
+      end
     end
 
     # The name of the equivalent struct of this class.
@@ -284,7 +325,7 @@ module Wrapture
       yield
 
       parent = if @spec.key?('parent')
-                 ": public #{@spec['parent']['name']} "
+                 ": public #{parent_name} "
                else
                  ''
                end

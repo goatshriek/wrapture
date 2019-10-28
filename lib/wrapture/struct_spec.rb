@@ -89,5 +89,10 @@ module Wrapture
     def pointer_declaration(name)
       "struct #{@spec['name']} *#{name}"
     end
+
+    # The rules applied to this struct.
+    def rules
+      @spec['rules']
+    end
   end
 end

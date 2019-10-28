@@ -37,6 +37,11 @@ module Wrapture
       files
     end
 
+    # A list of ClassSpecs in this scope that are overloads of the given class.
+    def overloads(parent)
+      @classes.filter { |class_spec| class_spec.overloads?(parent) }
+    end
+
     # Returns the ClassSpec for the given type in the scope.
     def type(type)
       @classes.find { |class_spec| class_spec.name == type }
