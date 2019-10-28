@@ -349,7 +349,7 @@ module Wrapture
         yield "    #{pointer_constructor_signature};"
       end
 
-      overload_signature { |line| yield line }
+      overload_signature { |line| yield "    #{line}" }
 
       @functions.each do |func|
         yield "    #{func.declaration};"
