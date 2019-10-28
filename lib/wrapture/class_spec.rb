@@ -230,6 +230,10 @@ module Wrapture
       includes.uniq
     end
 
+    def overload_signature
+      yield '// the overload signature will be here' if @scope.overloads?(self)
+    end
+
     # A list of includes needed for the definition of the class.
     def definition_includes
       includes = ["#{@spec['name']}.hpp"]
@@ -345,7 +349,7 @@ module Wrapture
         yield "    #{pointer_constructor_signature};"
       end
 
-      yield '// the overload signature will be here' if @scope.overloads?(self)
+      overload_signature { |line| yield line }
 
       @functions.each do |func|
         yield "    #{func.declaration};"
