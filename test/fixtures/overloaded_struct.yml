@@ -1,0 +1,18 @@
+version: "0.3.0"
+classes:
+  - name: "Parent"
+    namespace: "wrapture_test"
+    equivalent-struct:
+      name: "overloaded_struct"
+  - name: "ChildOne"
+    namespace: "wrapture_test"
+    equivalent-struct:
+      name: "overloaded_struct"
+    parent:
+      name: "Parent"
+  - name: "ChildTwo"
+    namespace: "wrapture_test"
+    equivalent-struct:
+      name: "overloaded_struct"
+    parent:
+      name: "Parent"
