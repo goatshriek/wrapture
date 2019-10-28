@@ -166,11 +166,7 @@ module Wrapture
 
     # The name of the parent of this class, or nil if there is no parent.
     def parent_name
-      if @spec.key?('parent')
-        @spec['parent']['name']
-      else
-        nil
-      end
+      @spec['parent']['name'] if @spec.key?('parent')
     end
 
     # The name of the equivalent struct of this class.
