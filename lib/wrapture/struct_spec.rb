@@ -75,8 +75,6 @@ module Wrapture
         members << ClassSpec.typed_variable(member['type'], member['name'])
       end
 
-
-
       members.join ', '
     end
 

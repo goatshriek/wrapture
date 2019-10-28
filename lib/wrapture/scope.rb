@@ -44,9 +44,11 @@ module Wrapture
 
     # True if there is an overload of the given class in this scope.
     def overloads?(parent)
-     @classes.each { |class_spec| return true if class_spec.overloads?(parent) }
+      @classes.each do |class_spec|
+        return true if class_spec.overloads?(parent)
+      end
 
-     false
+      false
     end
 
     # Returns the ClassSpec for the given type in the scope.
