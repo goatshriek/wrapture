@@ -231,7 +231,8 @@ module Wrapture
     end
 
     def overload_signature
-      yield '// the overload signature will be here' if @scope.overloads?(self)
+      signature = "#{name} new#{name}( struct #{@struct.name} *equivalent);"
+      yield signature if @scope.overloads?(self)
     end
 
     # A list of includes needed for the definition of the class.

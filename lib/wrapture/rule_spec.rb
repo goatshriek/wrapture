@@ -49,6 +49,13 @@ module Wrapture
       end
     end
 
+    # Creates a rule spec based on the provided spec.
+    #
+    # The hash must have the following keys:
+    # member-name:: the name of the struct member the rule applies to
+    # condition:: the condition this rule uses (supported values are held in the
+    # RuleSpec::CONDITIONS list)
+    # value:: the value to use in the condition check
     def initialize(spec)
       @spec = RuleSpec.normalize_spec_hash(spec)
     end
