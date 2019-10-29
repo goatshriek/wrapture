@@ -231,7 +231,7 @@ module Wrapture
     end
 
     def overload_signature
-      signature = "#{name} new#{name}( struct #{@struct.name} *equivalent);"
+      signature = "#{name} new#{name}( struct #{@struct.name} *equivalent );"
       yield signature if @scope.overloads?(self)
     end
 
