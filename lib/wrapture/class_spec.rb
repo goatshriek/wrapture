@@ -230,9 +230,23 @@ module Wrapture
       includes.uniq
     end
 
-    def overload_signature
-      signature = "#{name} new#{name}( struct #{@struct.name} *equivalent );"
-      yield signature if @scope.overloads?(self)
+    # Yields the declaration of the overload function for this class. If there
+    # is no overload function for this class, then nothing is yielded.
+    def overload_declaration
+      decl = "#{name} new#{name}( struct #{@struct.name} *equivalent );"
+      yield decl if @scope.overloads?(self)
+    end
+
+    # Yields each line of the definition of the overload function, with a
+    # leading empty yield. If there is no overload function for this class,
+    # then nothing is yielded.
+    def overload_definition
+      return unless @scope.overloads?(self)
+
+      yield
+      yield "#{name} new#{name}( struct #{@struct.name} *equivalent ) {"
+      yield "  return #{name}( equivalent );"
+      yield '}'
     end
 
     # A list of includes needed for the definition of the class.
@@ -350,7 +364,7 @@ module Wrapture
         yield "    #{pointer_constructor_signature};"
       end
 
-      overload_signature { |line| yield "    #{line}" }
+      overload_declaration { |line| yield "    #{line}" }
 
       @functions.each do |func|
         yield "    #{func.declaration};"
@@ -423,6 +437,8 @@ module Wrapture
 
         yield '  }'
       end
+
+      overload_definition { |line| yield "  #{line}" }
 
       @functions.each do |func|
         yield
