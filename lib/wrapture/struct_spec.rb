@@ -97,5 +97,11 @@ module Wrapture
     def pointer_declaration(name)
       "struct #{@spec['name']} *#{name}"
     end
+
+    # A string containing an expression that returns true if the struct with
+    # the given name meets all rules defined for this struct.
+    def rule_check
+      'true'
+    end
   end
 end
