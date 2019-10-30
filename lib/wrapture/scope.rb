@@ -39,7 +39,7 @@ module Wrapture
 
     # A list of ClassSpecs in this scope that are overloads of the given class.
     def overloads(parent)
-      @classes.filter { |class_spec| class_spec.overloads?(parent) }
+      @classes.select { |class_spec| class_spec.overloads?(parent) }
     end
 
     # True if there is an overload of the given class in this scope.
