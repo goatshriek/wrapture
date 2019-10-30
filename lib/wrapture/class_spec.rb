@@ -246,13 +246,16 @@ module Wrapture
       yield
       yield "#{name} new#{name}( struct #{@struct.name} *equivalent ) {"
 
-      @scope.overloads(self).each do |overload_spec|
-        yield "  if( #{@struct.rule_check} ) {" # need to add string of rules
-        yield "    return #{overload_spec.name}( equivalent );"
-        yield '  }'
+      line_prefix = '  '
+      @scope.overloads(self).each do |overload|
+        yield "#{line_prefix}if( #{overload.struct.rules_check('equivalent')} ) {"
+        yield "    return #{overload.name}( equivalent );"
+        line_prefix = '  } else '
       end
 
-      yield "  return #{name}( equivalent );"
+      yield "#{line_prefix}{"
+      yield "    return #{name}( equivalent );"
+      yield '  }'
       yield '}'
     end
 

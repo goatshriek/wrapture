@@ -47,6 +47,8 @@ module Wrapture
         condition_msg = "#{spec['condition']} is an invalid condition"
         raise InvalidSpecKey, condition_msg
       end
+
+      spec.dup
     end
 
     # Creates a rule spec based on the provided spec.
@@ -58,6 +60,11 @@ module Wrapture
     # value:: the value to use in the condition check
     def initialize(spec)
       @spec = RuleSpec.normalize_spec_hash(spec)
+    end
+
+    # A string containing a check for a struct of the given name for this rule.
+    def check(name)
+      "#{name}->#{@spec['member-name']} == #{@spec['value']}"
     end
   end
 end

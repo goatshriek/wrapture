@@ -4,6 +4,9 @@ classes:
     namespace: "wrapture_test"
     equivalent-struct:
       name: "overloaded_struct"
+      members:
+        - name: "code"
+          type: "int"
   - name: "ChildOne"
     namespace: "wrapture_test"
     equivalent-struct:

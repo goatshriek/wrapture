@@ -87,7 +87,7 @@ def validate_indentation(filename)
 
     line.chomp!
 
-    indent_level -= 1 if line.end_with? '}', '};'
+    indent_level -= 1 if line.end_with?('}', '};') || line.include?('} if') || line.include?('} else')
 
     space_count = if line.end_with? ':'
                     (indent_level - 1) * 2
