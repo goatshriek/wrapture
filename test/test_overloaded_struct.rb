@@ -33,6 +33,8 @@ class OverloadedStructTest < Minitest::Test
     generated_files = scope.generate_wrappers
     validate_wrapper_results(test_spec, generated_files)
 
+    assert(file_contains_match('Parent.hpp', 'newParent'))
+
     File.delete(*generated_files)
   end
 end

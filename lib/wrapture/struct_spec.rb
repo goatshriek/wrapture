@@ -51,10 +51,7 @@ module Wrapture
     def initialize(spec)
       @spec = StructSpec.normalize_spec_hash(spec)
 
-      @rules = []
-      @spec['rules'].each do |rule_spec|
-        @rules << RuleSpec.new(rule_spec)
-      end
+      @rules = @spec['rules'].map { |rule_spec| RuleSpec.new(rule_spec) }
     end
 
     # A declaration of the struct with the given variable name.
