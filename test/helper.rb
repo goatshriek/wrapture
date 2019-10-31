@@ -87,19 +87,14 @@ def validate_indentation(filename)
 
     line.chomp!
 
-    indent_level -= 1 if line.end_with?('}', '};') || line.include?('} if') || line.include?('} else')
+    indent_level -= 1 if line.end_with?('}', '};') ||
+                         line.include?('} if') ||
+                         line.include?('} else')
 
-    space_count = if line.end_with? ':'
-                    (indent_level - 1) * 2
-                  else
-                    indent_level * 2
-                  end
+    msg_prefix = "#{filename}: line #{line_number}"
+    validate_space_count(line, indent_level, msg_prefix)
 
-    fail_msg = "#{filename}: line #{line_number} should have #{space_count}" \
-               ' spaces'
-    assert line.start_with?(' ' * space_count), fail_msg
-
-    indent_level += 1 if line.end_with? '{'
+    indent_level += 1 if line.end_with?('{')
   end
 end
 
@@ -115,6 +110,17 @@ end
 def validate_namespace(spec, filename)
   assert file_contains_match(filename, /namespace \w+/), 'namespace was invalid'
   assert file_contains_match(filename, "namespace #{spec['namespace']}")
+end
+
+def validate_space_count(line, indent_level, msg_prefix)
+  space_count = if line.end_with?(':')
+                  (indent_level - 1) * 2
+                else
+                  indent_level * 2
+                end
+
+  fail_msg = "#{msg_prefix} should have #{space_count} spaces"
+  assert(line.start_with?(' ' * space_count), fail_msg)
 end
 
 def validate_wrapper_results(spec, file_list)

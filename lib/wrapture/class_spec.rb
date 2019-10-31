@@ -248,7 +248,8 @@ module Wrapture
 
       line_prefix = '  '
       @scope.overloads(self).each do |overload|
-        yield "#{line_prefix}if( #{overload.struct.rules_check('equivalent')} ) {"
+        check = overload.struct.rules_check('equivalent')
+        yield "#{line_prefix}if( #{check} ) {"
         yield "    return #{overload.name}( equivalent );"
         line_prefix = '  } else '
       end
