@@ -34,18 +34,18 @@ module Wrapture
       missing_keys = required_keys - spec.keys
       unless missing_keys.empty?
         missing_msg = "required keys are missing: #{missing_keys.join(', ')}"
-        raise InvalidSpecKey, missing_msg
+        raise(MissingSpecKey, missing_msg)
       end
 
       extra_keys = spec.keys - required_keys
       unless extra_keys.empty?
         extra_msg = "these keys are unrecognized: #{extra_keys.join(', ')}"
-        raise InvalidSpecKey, extra_msg
+        raise(InvalidSpecKey, extra_msg)
       end
 
       unless RuleSpec::CONDITIONS.include?(spec['condition'])
         condition_msg = "#{spec['condition']} is an invalid condition"
-        raise InvalidSpecKey, condition_msg
+        raise(InvalidSpecKey, condition_msg)
       end
 
       spec.dup
