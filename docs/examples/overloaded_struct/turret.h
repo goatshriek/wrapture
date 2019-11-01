@@ -16,23 +16,18 @@
  * limitations under the License.
  */
 
-#ifndef __TURRET_ERROR_H
-#define __TURRET_ERROR_H
+#ifndef __TURRET_H
+#define __TURRET_H
 
-#define SUCCESS         0
-#define TARGETING_ERROR 1
-#define OUT_OF_AMMO     2
-#define JAMMED          3
-
-struct turret_error {
-  int code;
-  const char *message;
-};
+#include <turret_error.h>
 
 const struct turret_error *
-out_of_ammo( void );
+aim( int x, int y, int z );
 
 const struct turret_error *
-success( void );
+fire( void );
+
+const struct turret_error *
+reload( void );
 
 #endif
