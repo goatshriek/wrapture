@@ -52,6 +52,27 @@ module Wrapture
       members.join ', '
     end
 
+    # A string containing the typed members of the struct, with their default
+    # values if provided, separated by commas.
+    def member_list_with_defaults
+      @spec['members'].map do |member|
+        member_str = ClassSpec.typed_variable(member['type'], member['name'])
+
+        if member.key?('default-value')
+          member_str += ' = '
+          member_str += if member['type'] == 'const char *'
+                          '"' + member['default-value'] + '"'
+                        elsif member['type'].end_with?('char')
+                          "'" + member['default-value'] + "'"
+                        else
+                          member['default-value'].to_s
+                        end
+        end
+
+        member_str
+      end.join(', ')
+    end
+
     # The members of the struct
     def members
       @spec['members']

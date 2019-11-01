@@ -240,10 +240,27 @@ module Wrapture
       end
     end
 
-    # The definition of the member constructor for a class. This is only valid
-    # when the class is not a pointer wrapper.
-    def member_constructor_signature
-      "#{@spec['name']}( #{@struct.member_list} )"
+    # Yields the declaration of the member constructor for a class. This will be
+    # empty if the wrapped struct is a pointer wrapper.
+    def member_constructor_declaration
+      if @struct.members?
+        yield "#{@spec['name']}( #{@struct.member_list_with_defaults} );"
+      end
+    end
+
+    # Yields the definition of the member constructor for a class. This will be
+    # empty if the wrapped struct is a pointer wrapper.
+    def member_constructor_definition
+      if @struct.members?
+        yield "#{@spec['name']}::#{@spec['name']}( #{@struct.member_list} ) {"
+
+        @struct.members.each do |member|
+          member_decl = this_member(member['name'])
+          yield "  #{member_decl} = #{member['name']};"
+        end
+
+        yield '}'
+      end
     end
 
     # The signature of the constructor given an equivalent struct type.
@@ -301,7 +318,7 @@ module Wrapture
       yield "    #{@struct.declaration equivalent_name};"
       yield
 
-      yield "    #{member_constructor_signature};" if @struct.members?
+      member_constructor_declaration { |line| yield "    #{line}" }
 
       unless pointer_wrapper?
         yield "    #{struct_constructor_signature};"
@@ -346,17 +363,7 @@ module Wrapture
         yield "  #{const.definition @spec['name']};"
       end
 
-      if @struct.members?
-        yield
-        yield "  #{@spec['name']}::#{member_constructor_signature} {"
-
-        @struct.members.each do |member|
-          member_decl = this_member(member['name'])
-          yield "    #{member_decl} = #{member['name']};"
-        end
-
-        yield '  }'
-      end
+      member_constructor_definition { |line| yield "  #{line}" }
 
       unless pointer_wrapper?
         yield
