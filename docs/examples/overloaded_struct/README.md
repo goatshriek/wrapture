@@ -104,13 +104,23 @@ struct by checking the rules. This function will be called `newTurretException`
 and will look like this:
 
 ```cpp
-// need to add implementation example
+TurretException newTurretException( struct turret_error *equivalent ) {
+  if( equivalent->code == TARGETING_ERROR ) {
+    return TargetingException( equivalent );
+  } else if( equivalent->code == OUT_OF_AMMO ) {
+    return OutOfAmmoException( equivalent );
+  } else if( equivalent->code == JAMMED ) {
+    return JammedException( equivalent );
+  } else {
+    return TurretException( equivalent );
+  }
+}
 ```
 
 Note that the content of this function is taken directly from the `rules` member
 that was defined for each of the children of `TurretException`. These rules can
 define the conditions to be checked in a variety of ways - for the complete set
-of capabilities, see their documentation at (where will this be?).
+of capabilities, see the documentation for the RuleSpec class.
 
 This allows exceptions to be thrown in the target language in a natural way by
 using this function to convert the error structs in the throw clause, like this:
