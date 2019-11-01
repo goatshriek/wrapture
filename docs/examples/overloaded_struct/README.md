@@ -63,10 +63,15 @@ their exception classes like this:
     namespace: "turret"
     parent:
       name: "TurretException"
-      includes: "TurretException.h"
+      includes: "TurretException.hpp"
     equivalent-struct:
       name: "turret_error"
       includes: "turret_error.h"
+      members:
+        - name: "code"
+          type: "int"
+        - name: "message"
+          type: "const char *"
       rules:
         - member-name: "code"
           condition: "equals"
@@ -75,10 +80,15 @@ their exception classes like this:
     namespace: "turret"
     parent:
       name: "TurretException"
-      includes: "TurretException.h"
+      includes: "TurretException.hpp"
     equivalent-struct:
       name: "turret_error"
       includes: "turret_error.h"
+      members:
+        - name: "code"
+          type: "int"
+        - name: "message"
+          type: "const char *"
       rules:
         - member-name: "code"
           condition: "equals"
@@ -87,10 +97,15 @@ their exception classes like this:
     namespace: "turret"
     parent:
       name: "TurretException"
-      includes: "TurretException.h"
+      includes: "TurretException.hpp"
     equivalent-struct:
       name: "turret_error"
       includes: "turret_error.h"
+      members:
+        - name: "code"
+          type: "int"
+        - name: "message"
+          type: "const char *"
       rules:
         - member-name: "code"
           condition: "equals"
