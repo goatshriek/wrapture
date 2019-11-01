@@ -101,7 +101,7 @@ class ClassSpecTest < Minitest::Test
 
     classes = spec.generate_wrappers
     validate_wrapper_results(test_spec, classes)
-    assert(file_contains_match("DefaultMembersClass.hpp", "member_1 = 42"))
+    assert(file_contains_match('DefaultMembersClass.hpp', 'member_1 = 42'))
 
     File.delete(*classes)
   end
