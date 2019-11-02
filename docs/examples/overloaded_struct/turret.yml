@@ -30,8 +30,10 @@ classes:
       members:
         - name: "code"
           type: "int"
+          default-value: "SUCCESS"
         - name: "message"
           type: "const char *"
+          default-value: "operation success"
   - name: "TargetingException"
     namespace: "turret"
     parent:
