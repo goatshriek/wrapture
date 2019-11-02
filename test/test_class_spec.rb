@@ -94,6 +94,18 @@ class ClassSpecTest < Minitest::Test
     File.delete(*classes)
   end
 
+  def test_default_constructor_generation
+    test_spec = load_fixture('default_value_members')
+
+    spec = Wrapture::ClassSpec.new(test_spec)
+
+    classes = spec.generate_wrappers
+    validate_wrapper_results(test_spec, classes)
+    assert(file_contains_match('DefaultMembersClass.hpp', 'member_1 = 42'))
+
+    File.delete(*classes)
+  end
+
   def test_versioned_class
     test_spec = load_fixture('versioned_class')
 
