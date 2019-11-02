@@ -59,13 +59,15 @@ module Wrapture
         member_str = ClassSpec.typed_variable(member['type'], member['name'])
 
         if member.key?('default-value')
+          default_value = member['default-value']
+
           member_str += ' = '
           member_str += if member['type'] == 'const char *'
-                          '"' + member['default-value'] + '"'
+                          '"' + default_value + '"'
                         elsif member['type'].end_with?('char')
-                          "'" + member['default-value'] + "'"
+                          "'#{default_value}'"
                         else
-                          member['default-value'].to_s
+                          default_value.to_s
                         end
         end
 
