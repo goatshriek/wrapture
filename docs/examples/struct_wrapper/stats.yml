@@ -7,10 +7,16 @@ classes:
       members:
         - name: "goals_scored"
           type: "int"
+          # games start with no goals scored
+          default-value: 0
         - name: "yellow_cards"
           type: "int"
+          # players start without any yellow cards
+          default-value: 0
         - name: "red_cards"
           type: "int"
+          # players start without any red cards
+          default-value: 0
     functions:
       - name: "Print"
         wrapped-function:
