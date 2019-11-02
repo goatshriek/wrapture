@@ -43,9 +43,9 @@ There will also be two other constructors which accept either a struct, or a
 struct pointer, and copy all members to the class instantiation.
 
 This is all that's required to generate the basic struct wrapping. However, if
-you'd like a default constructor to be generated that doesn't require any
-parameters, then you'll need to give some extra information. For each member,
-just define a default value. Then the members section would look like this:
+you'd like a default constructor that doesn't require any parameters, then
+you'll need to provide a little more information. For each member, just define
+a default value. This would look like this:
 
 ```yaml
       members:
@@ -60,8 +60,10 @@ just define a default value. Then the members section would look like this:
           default-value: 0
 ```
 
-This will make it much easier to extend this class as well, as it provides a
-default constructor that can be called to initialize a child class.
+Now it will be much easier to extend this class, as it provides a default
+constructor that can be called to initialize a child class. If you only provide
+a few default values but not all of them, those will be optional in the
+constructor.
 
 Adding a function to our PlayerStats class is the same as with any other
 Wrapture class. For example, if we have a simple print function for the stats:
