@@ -22,35 +22,30 @@ We can wrap the struct at a general level in the normal manner:
 
 ```yaml
 classes:
-  - name: "TurretException"
-    namespace: "turret"
-    parent:
-      name: "std::exception"
-      includes: "exception"
+  - name: "SecurityEvent"
+    namespace: "security_system"
     equivalent-struct:
-      name: "turret_error"
-      includes: "turret_error.h"
+      name: "event"
+      includes: "security_system.h"
       members:
         - name: "code"
           type: "int"
-        - name: "message"
-          type: "const char *"
+        - name: "data"
+          type: "void *"
 ```
 
-Note that we have specified that this class will inherit from the standard
-exception class, as one would expect. We have also specified the members so
-that a default constructor and destructor are created. This allows the class
-to be created and thrown like any other Exception class.
+Note that we have specified the members so that a default constructor and
+destructor are created. This is not a requirement, but will create a quick and
+simple way to work with the class for the example.
 
-But if we'd like users of our wrapper to catch different exceptions in a more
-natural way, we'll need to break out the different types of errors into their
-own specialized classes.
+Next we'll need to break out the different types of events into their own
+specialized classes. The code may be any of a number of values depending on what
+sort of event is detected. In our example here we'll handle events for a motion
+detector, a window break sensor, and a camera recording. Assuming that there are
+well-named `#define`s for these codes, we can create their classes like this:
 
-The error code may be any of a number of values depending on what sort of
-problem is encountered. In our wrapper we need to generate an exceptions for
-cases when the turret has jammed, run out of ammunition, or is not able to aim.
-Assuming that there are well-named `#define`s for these codes, we can create
-their exception classes like this:
+### Pick up here
+
 
 ```yaml
   - name: "TargetingException"
@@ -149,6 +144,6 @@ wrapture turret.yml
 g++ -I . -o turret_usage_example # add files
 ./turret_usage_example
 
-# generates the following output:
+# output:
 # <add output>
 ```
