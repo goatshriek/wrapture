@@ -31,4 +31,7 @@ struct event {
 struct event *
 get_next_event( void );
 
+void
+print_event( const struct event *ev );
+
 #endif

@@ -22,7 +22,7 @@
 int
 main( int argc, char **argv ) {
   for( int i = 0; i < 5; i++ ) {
-    SecurityEvent::NextEvent().print();
+    SecurityEvent::NextEvent().Print();
   }
 
   return EXIT_SUCCESS;

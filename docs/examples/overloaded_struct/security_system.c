@@ -17,6 +17,7 @@
  */
 
 #include <security_event.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 static int event_type = 0;
@@ -50,4 +51,9 @@ get_next_event( void ) {
   }
 
   return next;
+}
+
+void
+print_event( const struct event *ev ) {
+  printf( "event code: %d\n", ev->code );
 }
