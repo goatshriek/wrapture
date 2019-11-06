@@ -16,19 +16,38 @@
  * limitations under the License.
  */
 
-#ifndef __SECURITY_SYSTEM_H
-#define __SECURITY_SYSTEM_H
+#include <security_event.h>
+#include <stdlib.h>
 
-#define MOTION_DETECTOR_EVENT 1
-#define GLASS_BREAK_EVENT 2
-#define CAMERA_EVENT 3
-
-struct event {
-  int code;
-  void *data;
-};
+static int event_type = 0;
+static int break_level = 3;
 
 struct event *
-get_next_event( void );
+get_next_event( void ) {
+  struct event *next;
 
-#endif
+  next = malloc( sizeof( *next ) );
+  if( !next ) {
+    return NULL;
+  }
+
+  switch( event_type++ % 3 ) {
+    case 0:
+      next->code = MOTION_DETECTOR_EVENT;
+      next->data = "watch out for snakes!";
+      break;
+
+    case 1:
+      next->code = GLASS_BREAK_EVENT;
+      break_level++;
+      next->data = &break_level;
+      break;
+
+    case 2:
+      next->code = CAMERA_EVENT;
+      next->data = "is that bigfoot?";
+      break;
+  }
+
+  return next;
+}
