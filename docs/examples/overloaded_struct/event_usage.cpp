@@ -16,12 +16,10 @@
  * limitations under the License.
  */
 
-#ifndef __SECURITY_SYSTEM_H
-#define __SECURITY_SYSTEM_H
+#include <cstdlib>
+#include <SecurityEvent.hpp>
 
-struct event {
-  int code;
-  void *data;
-};
-
-#endif
+int
+main( int argc, char **argv ) {
+  return EXIT_SUCCESS;
+}
