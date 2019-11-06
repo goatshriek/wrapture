@@ -8,7 +8,7 @@ common pattern is to create a parent class and inherit from it.
 Wrapture provides a way to distinguish between different types of a struct so
 that it will be transparently translated to the correct class. Let's consider a
 simple struct that describes an event detected by a security system. Different
-events come with different information attached, which should be interpretted
+events come with different information attached, which should be interpreted
 based on the event code provided.
 
 ```c
@@ -41,93 +41,86 @@ simple way to work with the class for the example.
 Next we'll need to break out the different types of events into their own
 specialized classes. The code may be any of a number of values depending on what
 sort of event is detected. In our example here we'll handle events for a motion
-detector, a window break sensor, and a camera recording. Assuming that there are
+detector, a glass break sensor, and a camera recording. Assuming that there are
 well-named `#define`s for these codes, we can create their classes like this:
 
 ### Pick up here
 
-
 ```yaml
-  - name: "TargetingException"
-    namespace: "turret"
+  - name: "MotionEvent"
+    namespace: "security_system"
     parent:
-      name: "TurretException"
-      includes: "TurretException.hpp"
+      name: "SecurityEvent"
+      includes: "security_system.h"
     equivalent-struct:
-      name: "turret_error"
-      includes: "turret_error.h"
+      name: "event"
+      includes: "security_system.h"
       members:
-        - name: "code"
-          type: "int"
-        - name: "message"
-          type: "const char *"
+        - name: "data"
+          type: "void *"
       rules:
         - member-name: "code"
           condition: "equals"
-          value: "TARGETING_ERROR"
-  - name: "OutOfAmmoException"
-    namespace: "turret"
+          value: "MOTION_DETECTOR_EVENT"
+  - name: "GlassBreakEvent"
+    namespace: "security_system"
     parent:
-      name: "TurretException"
-      includes: "TurretException.hpp"
+      name: "SecurityEvent"
+      includes: "security_system.h"
     equivalent-struct:
-      name: "turret_error"
-      includes: "turret_error.h"
+      name: "event"
+      includes: "security_system.h"
       members:
-        - name: "code"
-          type: "int"
-        - name: "message"
-          type: "const char *"
+        - name: "data"
+          type: "void *"
       rules:
         - member-name: "code"
           condition: "equals"
-          value: "OUT_OF_AMMO"
-  - name: "JammedException"
-    namespace: "turret"
+          value: "GLASS_BREAK_EVENT"
+  - name: "CameraEvent"
+    namespace: "security_system"
     parent:
-      name: "TurretException"
-      includes: "TurretException.hpp"
+      name: "SecurityEvent"
+      includes: "security_system.h"
     equivalent-struct:
-      name: "turret_error"
-      includes: "turret_error.h"
+      name: "event"
+      includes: "security_system.h"
       members:
-        - name: "code"
-          type: "int"
-        - name: "message"
-          type: "const char *"
+        - name: "data"
+          type: "void *"
       rules:
         - member-name: "code"
           condition: "equals"
-          value: "JAMMED"
+          value: "CAMERA_EVENT"
 ```
 
-This will create an exception class for each of these cases as expected.
-However, and perhaps more importantly, it will also create a function in the
-parent TurretException that can create an exception based on a `turret_error`
-struct by checking the rules. This function will be called `newTurretException`
-and will look like this:
+This will create a class for each of these cases as expected. However, and
+perhaps more importantly, it will also create a function in the parent
+SecurityEvent class that can create an event based on an `event` struct by
+checking the rules. This function will be called `newSecurityEvent` and will
+look like this:
 
 ```cpp
-TurretException newTurretException( struct turret_error *equivalent ) {
-  if( equivalent->code == TARGETING_ERROR ) {
-    return TargetingException( equivalent );
-  } else if( equivalent->code == OUT_OF_AMMO ) {
-    return OutOfAmmoException( equivalent );
-  } else if( equivalent->code == JAMMED ) {
-    return JammedException( equivalent );
+SecurityEvent newSecurityEvent( struct event *equivalent ) {
+  if( equivalent->code == MOTION_DETECTOR_EVENT ) {
+    return MotionEvent( equivalent );
+  } else if( equivalent->code == GLASS_BREAK_EVENT ) {
+    return GlassBreakEvent( equivalent );
+  } else if( equivalent->code == CAMERA_EVENT ) {
+    return CameraEvent( equivalent );
   } else {
-    return TurretException( equivalent );
+    return SecurityEvent( equivalent );
   }
 }
 ```
 
-Note that the content of this function is taken directly from the `rules` member
-that was defined for each of the children of `TurretException`. These rules can
+Note that the content of this function is taken directly from the `rules` list
+that was defined for each of the children of `SecurityEvent`. These rules can
 define the conditions to be checked in a variety of ways - for the complete set
 of capabilities, see the documentation for the RuleSpec class.
 
-This allows exceptions to be thrown in the target language in a natural way by
-using this function to convert the error structs in the throw clause, like this:
+This allows security events to be returned in a way that supports polymorphism
+in a natural way, like this:
 
 ```cpp
 // need to add usage example
@@ -138,11 +131,11 @@ compiled and run as follows:
 
 ```sh
 # generating the wrapper source code
-wrapture turret.yml
+wrapture security_event.yml
 
 # assuming that you're using sh and have g++
-g++ -I . -o turret_usage_example # add files
-./turret_usage_example
+g++ -I . -o event_usage_example # add files
+./event_usage_example
 
 # output:
 # <add output>

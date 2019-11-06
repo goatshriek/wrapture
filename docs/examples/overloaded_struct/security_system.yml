@@ -1,0 +1,57 @@
+version: "0.3.0"
+classes:
+  - name: "SecurityEvent"
+    namespace: "security_system"
+    equivalent-struct:
+      name: "event"
+      includes: "security_system.h"
+      members:
+        - name: "code"
+          type: "int"
+        - name: "data"
+          type: "void *"
+  - name: "MotionEvent"
+    namespace: "security_system"
+    parent:
+      name: "SecurityEvent"
+      includes: "SecurityEvent.hpp"
+    equivalent-struct:
+      name: "event"
+      includes: "security_system.h"
+      members:
+        - name: "data"
+          type: "void *"
+      rules:
+        - member-name: "code"
+          condition: "equals"
+          value: "MOTION_DETECTOR_EVENT"
+  - name: "GlassBreakEvent"
+    namespace: "security_system"
+    parent:
+      name: "SecurityEvent"
+      includes: "SecurityEvent.hpp"
+    equivalent-struct:
+      name: "event"
+      includes: "security_system.h"
+      members:
+        - name: "data"
+          type: "void *"
+      rules:
+        - member-name: "code"
+          condition: "equals"
+          value: "GLASS_BREAK_EVENT"
+  - name: "CameraEvent"
+    namespace: "security_system"
+    parent:
+      name: "SecurityEvent"
+      includes: "SecurityEvent.hpp"
+    equivalent-struct:
+      name: "event"
+      includes: "security_system.h"
+      members:
+        - name: "data"
+          type: "void *"
+      rules:
+        - member-name: "code"
+          condition: "equals"
+          value: "CAMERA_EVENT"
