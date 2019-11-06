@@ -233,8 +233,9 @@ module Wrapture
     # Yields the declaration of the overload function for this class. If there
     # is no overload function for this class, then nothing is yielded.
     def overload_declaration
-      decl = "#{name} new#{name}( struct #{@struct.name} *equivalent );"
-      yield decl if @scope.overloads?(self)
+      return unless @scope.overloads?(self)
+
+      yield "static #{name} new#{name}( struct #{@struct.name} *equivalent );"
     end
 
     # Yields each line of the definition of the overload function, with a
