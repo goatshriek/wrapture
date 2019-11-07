@@ -11,12 +11,19 @@ classes:
         - name: "data"
           type: "void *"
     functions:
-      name: "Print"
-      wrapped-function:
-        name: "print_event"
-        includes: "security_system.h"
-        params:
-          - value: "equivalent-struct-pointer"
+      - name: "NextEvent"
+        static: true
+        return:
+          type: "SecurityEvent"
+        wrapped-function:
+          name: "get_next_event"
+          includes: "security_system.h"
+      - name: "Print"
+        wrapped-function:
+          name: "print_event"
+          includes: "security_system.h"
+          params:
+            - value: "equivalent-struct-pointer"
   - name: "MotionEvent"
     namespace: "security_system"
     parent:
