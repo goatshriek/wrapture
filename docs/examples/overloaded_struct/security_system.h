@@ -28,10 +28,34 @@ struct event {
   void *data;
 };
 
+void
+destroy_event( struct event *ev );
+
 struct event *
 get_next_event( void );
 
+struct event *
+new_camera_event( const char *description );
+
+struct event *
+new_event( int code, void *data );
+
+struct event *
+new_glass_break_event( int level );
+
+struct event *
+new_motion_event( const char *description );
+
 void
 print_event( const struct event *ev );
+
+void
+print_camera_event( const struct event *ev );
+
+void
+print_glass_break_event( const struct event *ev );
+
+void
+print_motion_event( const struct event *ev );
 
 #endif

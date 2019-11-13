@@ -5,11 +5,19 @@ classes:
     equivalent-struct:
       name: "event"
       includes: "security_system.h"
-      members:
-        - name: "code"
-          type: "int"
-        - name: "data"
-          type: "void *"
+    constructors:
+      - wrapped-function:
+          name: "new_event"
+          params:
+            - name: "code"
+              type: "int"
+            - name: "data"
+              type: "void *"
+    destructor:
+      wrapped-function:
+        name: "destroy_event"
+        params:
+          - value: "equivalent-struct-pointer"
     functions:
       - name: "NextEvent"
         static: true
@@ -32,13 +40,23 @@ classes:
     equivalent-struct:
       name: "event"
       includes: "security_system.h"
-      members:
-        - name: "data"
-          type: "void *"
       rules:
         - member-name: "code"
           condition: "equals"
           value: "MOTION_DETECTOR_EVENT"
+    constructors:
+      - wrapped-function:
+          name: "new_motion_event"
+          params:
+            - name: "description"
+              type: "const char *"
+    functions:
+      - name: "Print"
+        wrapped-function:
+          name: "print_motion_event"
+          includes: "security_system.h"
+          params:
+            - value: "equivalent-struct-pointer"
   - name: "GlassBreakEvent"
     namespace: "security_system"
     parent:
@@ -47,13 +65,23 @@ classes:
     equivalent-struct:
       name: "event"
       includes: "security_system.h"
-      members:
-        - name: "data"
-          type: "void *"
       rules:
         - member-name: "code"
           condition: "equals"
           value: "GLASS_BREAK_EVENT"
+    constructors:
+      - wrapped-function:
+          name: "new_glass_break_event"
+          params:
+            - name: "level"
+              type: "int"
+    functions:
+      - name: "Print"
+        wrapped-function:
+          name: "print_glass_break_event"
+          includes: "security_system.h"
+          params:
+            - value: "equivalent-struct-pointer"
   - name: "CameraEvent"
     namespace: "security_system"
     parent:
@@ -62,10 +90,20 @@ classes:
     equivalent-struct:
       name: "event"
       includes: "security_system.h"
-      members:
-        - name: "data"
-          type: "void *"
       rules:
         - member-name: "code"
           condition: "equals"
           value: "CAMERA_EVENT"
+    constructors:
+      - wrapped-function:
+          name: "new_camera_event"
+          params:
+            - name: "description"
+              type: "const char *"
+    functions:
+      - name: "Print"
+        wrapped-function:
+          name: "print_camera_event"
+          includes: "security_system.h"
+          params:
+            - value: "equivalent-struct-pointer"
