@@ -1,3 +1,4 @@
+
 version: "0.3.0"
 classes:
   - name: "SecurityEvent"
@@ -7,12 +8,25 @@ classes:
       includes: "security_system.h"
     constructors:
       - wrapped-function:
+          name: "new_default_event"
+          return:
+            type: "equivalent-struct-pointer"
+      - wrapped-function:
           name: "new_event"
           params:
             - name: "code"
               type: "int"
             - name: "data"
               type: "void *"
+          return:
+            type: "equivalent-struct-pointer"
+      - wrapped-function:
+          name: "copy_event"
+          params:
+            - name: "ev"
+              type: "equivalent-struct-pointer"
+          return:
+            type: "equivalent-struct-pointer"
     destructor:
       wrapped-function:
         name: "destroy_event"
@@ -43,13 +57,15 @@ classes:
       rules:
         - member-name: "code"
           condition: "equals"
-          value: "MOTION_DETECTOR_EVENT"
+          value: "MOTION_EVENT"
     constructors:
       - wrapped-function:
           name: "new_motion_event"
           params:
             - name: "description"
               type: "const char *"
+          return:
+            type: "equivalent-struct-pointer"
     functions:
       - name: "Print"
         wrapped-function:
@@ -75,6 +91,8 @@ classes:
           params:
             - name: "level"
               type: "int"
+          return:
+            type: "equivalent-struct-pointer"
     functions:
       - name: "Print"
         wrapped-function:
@@ -100,6 +118,8 @@ classes:
           params:
             - name: "description"
               type: "const char *"
+          return:
+            type: "equivalent-struct-pointer"
     functions:
       - name: "Print"
         wrapped-function:

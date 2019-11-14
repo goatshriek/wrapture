@@ -19,6 +19,8 @@
 #include <cstdlib>
 #include <SecurityEvent.hpp>
 
+using namespace security_system;
+
 int
 main( int argc, char **argv ) {
   for( int i = 0; i < 5; i++ ) {

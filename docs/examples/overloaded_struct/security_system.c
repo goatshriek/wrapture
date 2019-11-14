@@ -16,12 +16,19 @@
  * limitations under the License.
  */
 
-#include <security_event.h>
+#include <inttypes.h>
+#include <security_system.h>
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 
 static int event_type = 0;
 static int break_level = 3;
+
+struct event *
+copy_event( struct event *ev ) {
+  return new_event( ev->code, ev->data );
+}
 
 void
 destroy_event( struct event *ev ) {
@@ -34,58 +41,51 @@ destroy_event( struct event *ev ) {
 
 struct event *
 get_next_event( void ) {
-  struct event *next;
-
-  next = malloc( sizeof( *next ) );
-  if( !next ) {
-    return NULL;
-  }
-
   switch( event_type++ % 3 ) {
     case 0:
-      next->code = MOTION_DETECTOR_EVENT;
-      next->data = "watch out for snakes!";
-      break;
+      return new_motion_event( "watch out for snakes!" );
 
     case 1:
-      next->data = malloc( sizeof( break_level ) );
-      if( !next->data ) {
-        free( next);
-        return NULL;
-      }
-
-      next->code = GLASS_BREAK_EVENT;
-      break_level++;
-      *next->data = break_level;
-      break;
+      return new_glass_break_event( break_level++ );
 
     case 2:
-      next->code = CAMERA_EVENT;
-      next->data = "is that bigfoot?";
-      break;
+      return new_camera_event( "is that bigfoot?" );
   }
-
-  return next;
 }
 
 struct event *
 new_camera_event( const char *description ) {
+  return new_event( CAMERA_EVENT, (void *) description );
+}
 
+struct event *
+new_default_event( void ) {
+  return new_event( 0, NULL );
 }
 
 struct event *
 new_event( int code, void *data ) {
+  struct event *ev;
 
+  ev = (struct event *) malloc( sizeof( *ev ) );
+  if( !ev ) {
+    return NULL;
+  }
+
+  ev->code = code;
+  ev->data = data;
+
+  return ev;
 }
 
 struct event *
 new_glass_break_event( int level ) {
-
+  return new_event( GLASS_BREAK_EVENT, ( void * ) ( (uintptr_t) level ) );
 }
 
 struct event *
 new_motion_event( const char *description ) {
-
+  return new_event( MOTION_EVENT, (void *) description );
 }
 
 void
@@ -95,15 +95,15 @@ print_event( const struct event *ev ) {
 
 void
 print_camera_event( const struct event *ev ) {
-  printf( "camera event: %s\n", ev->data );
+  printf( "camera event: %s\n", (char *) ev->data );
 }
 
 void
 print_glass_break_event( const struct event *ev ) {
-  printf( "glass break event: level %d\n", *ev->data );
+  printf( "glass break event: level %" PRIxPTR "\n", (uintptr_t) ev->data );
 }
 
 void
 print_motion_event( const struct event *ev ) {
-  printf( "motion event: %s\n", ev->data );
+  printf( "motion event: %s\n", (char *) ev->data );
 }

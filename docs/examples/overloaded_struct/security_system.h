@@ -19,7 +19,7 @@
 #ifndef __SECURITY_SYSTEM_H
 #define __SECURITY_SYSTEM_H
 
-#define MOTION_DETECTOR_EVENT 1
+#define MOTION_EVENT 1
 #define GLASS_BREAK_EVENT 2
 #define CAMERA_EVENT 3
 
@@ -27,6 +27,9 @@ struct event {
   int code;
   void *data;
 };
+
+struct event *
+copy_event( struct event *ev );
 
 void
 destroy_event( struct event *ev );
@@ -36,6 +39,9 @@ get_next_event( void );
 
 struct event *
 new_camera_event( const char *description );
+
+struct event *
+new_default_event( void );
 
 struct event *
 new_event( int code, void *data );
