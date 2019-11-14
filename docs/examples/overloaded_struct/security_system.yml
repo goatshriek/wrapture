@@ -66,6 +66,13 @@ classes:
               type: "const char *"
           return:
             type: "equivalent-struct-pointer"
+      - wrapped-function:
+          name: "copy_motion_event"
+          params:
+            - name: "ev"
+              type: "equivalent-struct-pointer"
+          return:
+            type: "equivalent-struct-pointer"
     functions:
       - name: "Print"
         wrapped-function:
@@ -93,6 +100,13 @@ classes:
               type: "int"
           return:
             type: "equivalent-struct-pointer"
+      - wrapped-function:
+          name: "copy_glass_break_event"
+          params:
+            - name: "ev"
+              type: "equivalent-struct-pointer"
+          return:
+            type: "equivalent-struct-pointer"
     functions:
       - name: "Print"
         wrapped-function:
@@ -118,6 +132,13 @@ classes:
           params:
             - name: "description"
               type: "const char *"
+          return:
+            type: "equivalent-struct-pointer"
+      - wrapped-function:
+          name: "copy_camera_event"
+          params:
+            - name: "ev"
+              type: "equivalent-struct-pointer"
           return:
             type: "equivalent-struct-pointer"
     functions:

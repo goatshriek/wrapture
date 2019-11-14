@@ -29,7 +29,16 @@ struct event {
 };
 
 struct event *
-copy_event( struct event *ev );
+copy_camera_event( const struct event *ev );
+
+struct event *
+copy_event( const struct event *ev );
+
+struct event *
+copy_glass_break_event( const struct event *ev );
+
+struct event *
+copy_motion_event( const struct event *ev );
 
 void
 destroy_event( struct event *ev );

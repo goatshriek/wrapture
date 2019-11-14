@@ -26,16 +26,27 @@ static int event_type = 0;
 static int break_level = 3;
 
 struct event *
-copy_event( struct event *ev ) {
+copy_camera_event( const struct event *ev ) {
+  return new_event( CAMERA_EVENT, ev->data );
+}
+
+struct event *
+copy_event( const struct event *ev ) {
   return new_event( ev->code, ev->data );
+}
+
+struct event *
+copy_glass_break_event( const struct event *ev ) {
+  return new_event( GLASS_BREAK_EVENT, ev->data );
+}
+
+struct event *
+copy_motion_event( const struct event *ev ) {
+  return new_event( MOTION_EVENT, ev->data );
 }
 
 void
 destroy_event( struct event *ev ) {
-  if( ev->code == GLASS_BREAK_EVENT ) {
-    free( ev->data );
-  }
-
   free( ev );
 }
 
