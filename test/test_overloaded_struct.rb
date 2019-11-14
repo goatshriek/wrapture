@@ -34,6 +34,9 @@ class OverloadedStructTest < Minitest::Test
     validate_wrapper_results(test_spec, generated_files)
 
     assert(file_contains_match('Parent.hpp', 'newParent'))
+    includes = get_include_list('Parent.cpp')
+    assert_includes(includes, 'ChildOne.hpp')
+    assert_includes(includes, 'ChildTwo.hpp')
 
     File.delete(*generated_files)
   end

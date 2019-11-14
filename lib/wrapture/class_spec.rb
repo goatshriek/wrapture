@@ -261,19 +261,26 @@ module Wrapture
       yield '}'
     end
 
+    # A list of the includes needed for the overload definitions.
+    def overload_definition_includes
+      @scope.overloads(self).map { |overload| "#{overload.name}.hpp" }
+    end
+
     # A list of includes needed for the definition of the class.
     def definition_includes
       includes = ["#{@spec['name']}.hpp"]
 
-      includes.concat @spec['includes']
+      includes.concat(@spec['includes'])
 
       @functions.each do |func|
-        includes.concat func.definition_includes
+        includes.concat(func.definition_includes)
       end
 
       @constants.each do |const|
-        includes.concat const.definition_includes
+        includes.concat(const.definition_includes)
       end
+
+      includes.concat(overload_definition_includes)
 
       includes.uniq
     end
