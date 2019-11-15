@@ -131,7 +131,6 @@ module Wrapture
 
     # Gives the definition of the function to a block, line by line.
     def definition(class_name)
-      return_type = @spec['return']['type']
       return_prefix = @constructor || @destructor ? '' : "#{return_type} "
       yield "#{return_prefix}#{class_name}::#{signature} {"
 
@@ -171,6 +170,15 @@ module Wrapture
         "struct #{@owner.struct_name} *"
       else
         type
+      end
+    end
+
+    # The function to use to create the return value of the function.
+    def return_type
+      if @spec['return']['overloaded']
+        "new#{@spec['return']['type']}"
+      else
+        @spec['return']['type']
       end
     end
 
