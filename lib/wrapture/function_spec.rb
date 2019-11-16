@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'wrapture/constants'
+require 'wrapture/errors'
 require 'wrapture/scope'
 require 'wrapture/wrapped_function_spec'
 
@@ -17,6 +18,7 @@ module Wrapture
       param_types = {}
 
       normalized['version'] = Wrapture.spec_version(spec)
+      normalized['virtual'] = Wrapture.normalize_boolean(spec, 'virtual')
 
       normalized['params'] ||= []
       normalized['params'].each do |param_spec|
@@ -143,6 +145,11 @@ module Wrapture
 
       yield "  #{wrapped_call};"
       yield '}'
+    end
+
+    # True if the function is virtual.
+    def virtual?
+      @spec['virtual']
     end
 
     private
