@@ -131,14 +131,6 @@ module Wrapture
 
     # Gives the definition of the function to a block, line by line.
     def definition(class_name)
-      return_type = @spec['return']['type']
-      return_prefix = if @constructor || @destructor
-                        ''
-                      elsif return_type.end_with?('*')
-                        return_type
-                      else
-                        "#{return_type} "
-                      end
       yield "#{return_prefix}#{class_name}::#{signature} {"
 
       wrapped_call = String.new
@@ -186,6 +178,17 @@ module Wrapture
         "new#{@spec['return']['type'].chomp('*').strip}"
       else
         @spec['return']['type']
+      end
+    end
+
+    # The return type prefix to use for the function definition.
+    def return_prefix
+      if @constructor || @destructor
+        ''
+      elsif @spec['return']['type'].end_with?('*')
+        @spec['return']['type']
+      else
+        "#{@spec['return']['type']} "
       end
     end
 
