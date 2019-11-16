@@ -15,7 +15,7 @@ class FunctionSpecTest < Minitest::Test
     classes = spec.generate_wrappers
     validate_wrapper_results(test_spec, classes)
 
-    assert(file_contains_match('BaseClass.hpp', 'virtual'))
+    assert(file_contains_match('BaseClass.hpp', 'virtual void'))
 
     File.delete(*classes)
   end
