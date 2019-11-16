@@ -122,7 +122,13 @@ module Wrapture
     def declaration
       return signature if @constructor || @destructor
 
-      modifier_prefix = @spec['static'] ? 'static ' : ''
+      modifier_prefix = if @spec['static']
+                          'static '
+                        elsif virtual?
+                          'virtual'
+                        else
+                          ''
+                        end
       "#{modifier_prefix}#{@spec['return']['type']} #{signature}"
     end
 
