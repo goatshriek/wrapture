@@ -18,23 +18,28 @@
 
 require 'helper'
 
+require 'fixture'
 require 'minitest/autorun'
 require 'wrapture'
 
-class InvalidTest < Minitest::Test
-  def test_invalid_virtual_key
-    test_spec = load_fixture('invalid/invalid_virtual_key')
+class FunctionSpecTest < Minitest::Test
+  def test_class_with_virtual_function
+    test_spec = load_fixture('class_with_virtual_function')
 
-    assert_raises(Wrapture::InvalidSpecKey) do
-      Wrapture::FunctionSpec.new(test_spec)
-    end
+    spec = Wrapture::ClassSpec.new(test_spec)
+
+    classes = spec.generate_wrappers
+    validate_wrapper_results(test_spec, classes)
+
+    assert(file_contains_match('BaseClass.hpp', 'virtual void'))
+
+    File.delete(*classes)
   end
 
-  def test_no_namespace
-    test_spec = load_fixture 'invalid/no_namespace'
+  def test_virtual_function
+    test_spec = load_fixture('virtual_function')
 
-    assert_raises(Wrapture::WraptureError) do
-      Wrapture::ClassSpec.new test_spec
-    end
+    func_spec = Wrapture::FunctionSpec.new(test_spec)
+    assert(func_spec.virtual?)
   end
 end
