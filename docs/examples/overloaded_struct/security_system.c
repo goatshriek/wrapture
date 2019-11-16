@@ -71,7 +71,8 @@ new_camera_event( const char *description ) {
 
 struct event *
 new_default_event( void ) {
-  return new_event( 0, NULL );
+  //return new_event( 0, NULL );
+  return NULL;
 }
 
 struct event *

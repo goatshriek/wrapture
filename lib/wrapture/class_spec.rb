@@ -235,7 +235,7 @@ module Wrapture
     def overload_declaration
       return unless @scope.overloads?(self)
 
-      yield "static #{name} new#{name}( struct #{@struct.name} *equivalent );"
+      yield "static #{name} *new#{name}( struct #{@struct.name} *equivalent );"
     end
 
     # Yields each line of the definition of the overload function, with a
@@ -245,18 +245,20 @@ module Wrapture
       return unless @scope.overloads?(self)
 
       yield
-      yield "#{name} new#{name}( struct #{@struct.name} *equivalent ) {"
+
+      parameter = "struct #{@struct.name} *equivalent"
+      yield "#{name} *#{name}::new#{name}( #{parameter} ) {"
 
       line_prefix = '  '
       @scope.overloads(self).each do |overload|
         check = overload.struct.rules_check('equivalent')
         yield "#{line_prefix}if( #{check} ) {"
-        yield "    return #{overload.name}( equivalent );"
+        yield "    return new #{overload.name}( equivalent );"
         line_prefix = '  } else '
       end
 
       yield "#{line_prefix}{"
-      yield "    return #{name}( equivalent );"
+      yield "    return new #{name}( equivalent );"
       yield '  }'
       yield '}'
     end

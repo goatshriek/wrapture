@@ -24,7 +24,8 @@ using namespace security_system;
 int
 main( int argc, char **argv ) {
   for( int i = 0; i < 5; i++ ) {
-    SecurityEvent::NextEvent().Print();
+    SecurityEvent *ev = SecurityEvent::NextEvent();
+    ev->Print();
   }
 
   return EXIT_SUCCESS;

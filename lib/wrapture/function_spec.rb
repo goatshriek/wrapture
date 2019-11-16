@@ -132,7 +132,13 @@ module Wrapture
     # Gives the definition of the function to a block, line by line.
     def definition(class_name)
       return_type = @spec['return']['type']
-      return_prefix = @constructor || @destructor ? '' : "#{return_type} "
+      return_prefix = if @constructor || @destructor
+                        ''
+                      elsif return_type.end_with?('*')
+                        return_type
+                      else
+                        "#{return_type} "
+                      end
       yield "#{return_prefix}#{class_name}::#{signature} {"
 
       wrapped_call = String.new
@@ -177,7 +183,7 @@ module Wrapture
     # The function to use to create the return value of the function.
     def return_cast
       if @spec['return']['overloaded']
-        "new#{@spec['return']['type']}"
+        "new#{@spec['return']['type'].chomp('*').strip}"
       else
         @spec['return']['type']
       end

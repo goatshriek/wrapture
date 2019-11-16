@@ -1,4 +1,3 @@
-
 version: "0.3.0"
 classes:
   - name: "SecurityEvent"
@@ -36,7 +35,7 @@ classes:
       - name: "NextEvent"
         static: true
         return:
-          type: "SecurityEvent"
+          type: "SecurityEvent *"
           overloaded: true
         wrapped-function:
           name: "get_next_event"

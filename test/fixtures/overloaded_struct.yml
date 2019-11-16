@@ -10,7 +10,7 @@ classes:
     functions:
       - name: "OverloadedType"
         return:
-          type: "Parent"
+          type: "Parent *"
           overloaded: true
         wrapped-function:
           name: "overloaded_type"
