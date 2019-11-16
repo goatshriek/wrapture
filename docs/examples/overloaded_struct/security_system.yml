@@ -41,6 +41,7 @@ classes:
           name: "get_next_event"
           includes: "security_system.h"
       - name: "Print"
+        virtual: true
         wrapped-function:
           name: "print_event"
           includes: "security_system.h"

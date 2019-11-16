@@ -130,7 +130,7 @@ module Wrapture
       modifier_prefix = if @spec['static']
                           'static '
                         elsif virtual?
-                          'virtual'
+                          'virtual '
                         else
                           ''
                         end
