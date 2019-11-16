@@ -1,0 +1,6 @@
+name: "VirtualFunction"
+virtual: true
+wrapped-function:
+  name: "underlying_function"
+  params:
+    - value: "equivalent-struct-pointer"
