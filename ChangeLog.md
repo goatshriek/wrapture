@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Python class generation.
  - Perl class generation.
 
-## [0.3.0] - 2019-11-02
+## [0.3.0] - 2019-11-16
 ### Added
  - Examples of basic usage and features.
  - Option to give a class-level include list.
@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Classes may have a parent class specified.
  - Struct members may have default values specified to allow for the generation
    of a default constructor.
+ - Support for virtual functions.
  - Structs can be wrapped by the best matching wrapper via the `newClassName`
    family of functions.
 

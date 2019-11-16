@@ -1,0 +1,12 @@
+name: "BaseClass"
+namespace: "wrapture_test"
+equivalent-struct:
+  name: "overloaded_struct"
+  includes: "allthethings.h"
+functions:
+  - name: "VirtualFunction"
+    virtual: true
+    wrapped-function:
+      name: "vanilla_flavor"
+      params:
+        - value: "equivalent-struct-pointer"
