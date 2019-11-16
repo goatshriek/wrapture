@@ -151,8 +151,9 @@ We can define the remaining two functions in the same way:
             - name: "new_level"
 ```
 
-Static functions are defined in the same manner, but with one additional field
-named `static` set to true.
+Static and virtual functions are defined in the same manner, but with one
+additional field named `static` or `virtual` (respectively) set to true. For
+this case, we'll define a `static` function:
 
 ```yaml
       - name: "IsModelSupported"
