@@ -47,7 +47,7 @@ classes:
           includes: "security_system.h"
           params:
             - value: "equivalent-struct-pointer"
-  - name: "MotionEvent"
+  - name: "CameraEvent"
     namespace: "security_system"
     parent:
       name: "SecurityEvent"
@@ -58,17 +58,17 @@ classes:
       rules:
         - member-name: "code"
           condition: "equals"
-          value: "MOTION_EVENT"
+          value: "CAMERA_EVENT"
     constructors:
       - wrapped-function:
-          name: "new_motion_event"
+          name: "new_camera_event"
           params:
             - name: "description"
               type: "const char *"
           return:
             type: "equivalent-struct-pointer"
       - wrapped-function:
-          name: "copy_motion_event"
+          name: "copy_camera_event"
           params:
             - name: "ev"
               type: "equivalent-struct-pointer"
@@ -77,7 +77,7 @@ classes:
     functions:
       - name: "Print"
         wrapped-function:
-          name: "print_motion_event"
+          name: "print_camera_event"
           includes: "security_system.h"
           params:
             - value: "equivalent-struct-pointer"
@@ -115,7 +115,7 @@ classes:
           includes: "security_system.h"
           params:
             - value: "equivalent-struct-pointer"
-  - name: "CameraEvent"
+  - name: "MotionEvent"
     namespace: "security_system"
     parent:
       name: "SecurityEvent"
@@ -126,17 +126,17 @@ classes:
       rules:
         - member-name: "code"
           condition: "equals"
-          value: "CAMERA_EVENT"
+          value: "MOTION_EVENT"
     constructors:
       - wrapped-function:
-          name: "new_camera_event"
+          name: "new_motion_event"
           params:
             - name: "description"
               type: "const char *"
           return:
             type: "equivalent-struct-pointer"
       - wrapped-function:
-          name: "copy_camera_event"
+          name: "copy_motion_event"
           params:
             - name: "ev"
               type: "equivalent-struct-pointer"
@@ -145,7 +145,7 @@ classes:
     functions:
       - name: "Print"
         wrapped-function:
-          name: "print_camera_event"
+          name: "print_motion_event"
           includes: "security_system.h"
           params:
             - value: "equivalent-struct-pointer"
