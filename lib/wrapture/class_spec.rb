@@ -341,7 +341,15 @@ module Wrapture
     end
 
     # Yields the declaration of the pointer constructor for a class.
+    #
+    # If there is already a constructor provided with this signature, then this
+    # function will return with no output.
     def pointer_constructor_declaration
+      signature_prefix = "#{@spec['name']}( #{@struct.pointer_declaration('')}"
+      return if @functions.any? do |func|
+        func.constructor? && func.signature.start_with?(signature_prefix)
+      end
+
       yield "#{pointer_constructor_signature};"
     end
 
@@ -356,8 +364,9 @@ module Wrapture
     # If this is a struct wrapper class, then a constructor will be created that
     # sets each member of the wrapped struct to the provided value.
     def pointer_constructor_definition
+      signature_prefix = "#{@spec['name']}( #{@struct.pointer_declaration('')}"
       return if @functions.any? do |func|
-        func.constructor? && func.signature == pointer_constructor_signature
+        func.constructor? && func.signature.start_with?(signature_prefix)
       end
 
       yield "#{@spec['name']}::#{pointer_constructor_signature} {"
