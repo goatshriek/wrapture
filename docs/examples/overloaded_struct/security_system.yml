@@ -67,13 +67,6 @@ classes:
               type: "const char *"
           return:
             type: "equivalent-struct-pointer"
-      - wrapped-function:
-          name: "copy_camera_event"
-          params:
-            - name: "ev"
-              type: "equivalent-struct-pointer"
-          return:
-            type: "equivalent-struct-pointer"
     functions:
       - name: "Print"
         wrapped-function:
