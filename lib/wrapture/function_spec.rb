@@ -79,6 +79,11 @@ module Wrapture
       @destructor = destructor
     end
 
+    # True if the function is a constructor, false otherwise.
+    def constructor?
+      @constructor
+    end
+
     # A list of includes needed for the declaration of the function.
     def declaration_includes
       includes = @spec['return']['includes'].dup

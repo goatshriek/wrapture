@@ -1,4 +1,20 @@
+# SPDX-License-Identifier: Apache-2.0
+
 # frozen_string_literal: true
+
+# Copyright 2019 Joel E. Anderson
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 require 'wrapture/constant_spec'
 require 'wrapture/constants'
@@ -263,6 +279,49 @@ module Wrapture
       yield '}'
     end
 
+    # Yields the declaration of the pointer constructor for a class.
+    #
+    # If there is already a constructor provided with this signature, then this
+    # function will return with no output.
+    def pointer_constructor_declaration
+      signature_prefix = "#{@spec['name']}( #{@struct.pointer_declaration('')}"
+      return if @functions.any? do |func|
+        func.constructor? && func.signature.start_with?(signature_prefix)
+      end
+
+      yield "#{pointer_constructor_signature};"
+    end
+
+    # Yields the definition of the pointer constructor for a class.
+    #
+    # If there is already a constructor provided with this signature, then this
+    # function will return with no output.
+    #
+    # If this is a pointer wrapper class, then the constructor will simply set
+    # the underlying pointer to the provied one, and return the new object.
+    #
+    # If this is a struct wrapper class, then a constructor will be created that
+    # sets each member of the wrapped struct to the provided value.
+    def pointer_constructor_definition
+      signature_prefix = "#{@spec['name']}( #{@struct.pointer_declaration('')}"
+      return if @functions.any? do |func|
+        func.constructor? && func.signature.start_with?(signature_prefix)
+      end
+
+      yield "#{@spec['name']}::#{pointer_constructor_signature} {"
+
+      if pointer_wrapper?
+        yield '  this->equivalent = equivalent;'
+      else
+        @struct.members.each do |member|
+          member_decl = this_member(member['name'])
+          yield "  #{member_decl} = equivalent->#{member['name']};"
+        end
+      end
+
+      yield '}'
+    end
+
     # The signature of the constructor given an equivalent struct type.
     def struct_constructor_signature
       "#{@spec['name']}( #{@struct.declaration 'equivalent'} )"
@@ -320,10 +379,9 @@ module Wrapture
 
       member_constructor_declaration { |line| yield "    #{line}" }
 
-      unless pointer_wrapper?
-        yield "    #{struct_constructor_signature};"
-        yield "    #{pointer_constructor_signature};"
-      end
+      pointer_constructor_declaration { |line| yield "    #{line}" }
+
+      yield "    #{struct_constructor_signature};" unless pointer_wrapper?
 
       @functions.each do |func|
         yield "    #{func.declaration};"
@@ -364,6 +422,8 @@ module Wrapture
       end
 
       member_constructor_definition { |line| yield "  #{line}" }
+
+      pointer_constructor_definition { |line| yield "  #{line}" }
 
       unless pointer_wrapper?
         yield
