@@ -15,7 +15,7 @@ class ClassSpecTest < Minitest::Test
     classes = spec.generate_wrappers
     validate_wrapper_results(test_spec, classes)
 
-    expected_signature = 'PointerWrapperClass\( struct wrapped_struct \*'
+    expected_signature = 'PointerWrappingClass\( struct wrapped_struct \*'
     assert(file_contains_match('PointerWrappingClass.hpp', expected_signature))
 
     File.delete(*classes)

@@ -75,8 +75,13 @@ module Wrapture
       @owner = owner
       @spec = FunctionSpec.normalize_spec_hash(spec)
       @wrapped = WrappedFunctionSpec.new(spec['wrapped-function'])
-      @constructor = constructor
-      @destructor = destructor
+      @constructor = !!constructor
+      @destructor = !!destructor
+    end
+
+    # True if the function is a constructor, false otherwise.
+    def constructor?
+      @constructor
     end
 
     # A list of includes needed for the declaration of the function.
