@@ -267,7 +267,7 @@ module Wrapture
 
       yield unless @constants.empty?
       @constants.each do |const|
-        yield "  #{const.definition @spec['name']};"
+        yield "  #{const.definition(@spec['name'])};"
       end
 
       member_constructor_definition { |line| yield "  #{line}" }
