@@ -51,11 +51,7 @@ module Wrapture
 
     # Returns a string of the variable with it's type, properly formatted.
     def self.typed_variable(type, name)
-      if type.end_with? '*'
-        "#{type}#{name}"
-      else
-        "#{type} #{name}"
-      end
+      "#{type}#{' ' unless type.end_with?('*')}#{name}"
     end
 
     # Creates a class spec based on the provided hash spec.
