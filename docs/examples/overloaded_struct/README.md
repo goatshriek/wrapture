@@ -27,71 +27,89 @@ classes:
     equivalent-struct:
       name: "event"
       includes: "security_system.h"
-      members:
-        - name: "code"
-          type: "int"
-        - name: "data"
-          type: "void *"
+    constructors:
+      # constructors...
+    destructor:
+      # destructor...
 ```
 
-Note that we have specified the members so that a default constructor and
-destructor are created. This is not a requirement, but will create a quick and
-simple way to work with the class for the example.
+So far there is nothing special about this class definition. However, there is
+a static function that we want to define which will return one of the different
+types of events this system defines. We will define this function as most
+others, with one extra annotation on the return type:
 
-Next we'll need to break out the different types of events into their own
+```yaml
+    functions:
+      - name: "NextEvent"
+        static: true
+        return:
+          type: "SecurityEvent *"
+          overloaded: true
+        wrapped-function:
+          name: "get_next_event"
+          includes: "security_system.h"
+```
+
+The `overloaded` key tells Wrapture that this return type should be converted
+to a more specific class wrapping when the function is called. Any function that
+needs to make use of an overloaded function needs this annotation on the return
+type.
+
+Next, we'll need to break out the different types of events into their own
 specialized classes. The code may be any of a number of values depending on what
 sort of event is detected. In our example here we'll handle events for a motion
 detector, a glass break sensor, and a camera recording. Assuming that there are
 well-named `#define`s for these codes, we can create their classes like this:
 
-### Pick up here
-
 ```yaml
-  - name: "MotionEvent"
-    namespace: "security_system"
-    parent:
-      name: "SecurityEvent"
-      includes: "security_system.h"
-    equivalent-struct:
-      name: "event"
-      includes: "security_system.h"
-      members:
-        - name: "data"
-          type: "void *"
-      rules:
-        - member-name: "code"
-          condition: "equals"
-          value: "MOTION_DETECTOR_EVENT"
-  - name: "GlassBreakEvent"
-    namespace: "security_system"
-    parent:
-      name: "SecurityEvent"
-      includes: "security_system.h"
-    equivalent-struct:
-      name: "event"
-      includes: "security_system.h"
-      members:
-        - name: "data"
-          type: "void *"
-      rules:
-        - member-name: "code"
-          condition: "equals"
-          value: "GLASS_BREAK_EVENT"
   - name: "CameraEvent"
     namespace: "security_system"
     parent:
       name: "SecurityEvent"
-      includes: "security_system.h"
+      includes: "SecurityEvent.hpp"
     equivalent-struct:
       name: "event"
       includes: "security_system.h"
-      members:
-        - name: "data"
-          type: "void *"
       rules:
         - member-name: "code"
           condition: "equals"
           value: "CAMERA_EVENT"
+    constructors:
+      # constructors...
+    functions:
+      # functions...
+  - name: "GlassBreakEvent"
+    namespace: "security_system"
+    parent:
+      name: "SecurityEvent"
+      includes: "SecurityEvent.hpp"
+    equivalent-struct:
+      name: "event"
+      includes: "security_system.h"
+      rules:
+        - member-name: "code"
+          condition: "equals"
+          value: "GLASS_BREAK_EVENT"
+    constructors:
+      # constructors...
+    functions:
+      # functions...
+  - name: "MotionEvent"
+    namespace: "security_system"
+    parent:
+      name: "SecurityEvent"
+      includes: "SecurityEvent.hpp"
+    equivalent-struct:
+      name: "event"
+      includes: "security_system.h"
+      rules:
+        - member-name: "code"
+          condition: "equals"
+          value: "MOTION_EVENT"
+    constructors:
+      # constructors...
+    functions:
+      # functions...
 ```
 
 This will create a class for each of these cases as expected. However, and
@@ -101,15 +119,15 @@ checking the rules. This function will be called `newSecurityEvent` and will
 look like this:
 
 ```cpp
-SecurityEvent newSecurityEvent( struct event *equivalent ) {
-  if( equivalent->code == MOTION_DETECTOR_EVENT ) {
-    return MotionEvent( equivalent );
+SecurityEvent *SecurityEvent::newSecurityEvent( struct event *equivalent ) {
+  if( equivalent->code == CAMERA_EVENT ) {
+    return new CameraEvent( equivalent );
   } else if( equivalent->code == GLASS_BREAK_EVENT ) {
-    return GlassBreakEvent( equivalent );
-  } else if( equivalent->code == CAMERA_EVENT ) {
-    return CameraEvent( equivalent );
+    return new GlassBreakEvent( equivalent );
+  } else if( equivalent->code == MOTION_EVENT ) {
+    return new MotionEvent( equivalent );
   } else {
-    return SecurityEvent( equivalent );
+    return new SecurityEvent( equivalent );
   }
 }
 ```
@@ -123,7 +141,8 @@ This allows security events to be returned in a way that supports polymorphism
 in a natural way, like this:
 
 ```cpp
-// need to add usage example
+SecurityEvent *ev = SecurityEvent::NextEvent();
+ev->Print();
 ```
 
 The full example has a complete implementation of this concept, and can be
@@ -134,10 +153,17 @@ compiled and run as follows:
 wrapture security_event.yml
 
 # assuming that you're using sh and have g++
-g++ -I . -o event_usage_example # add files
+g++ -I . \
+    security_system.c CameraEvent.cpp GlassBreakEvent.cpp MotionEvent.cpp \
+    SecurityEvent.cpp event_usage.cpp \
+    -o event_usage_example
 ./event_usage_example
 
 # output:
-# <add output>
+# motion event: watch out for snakes!
+# glass break event: level 3
+# camera event: is that bigfoot?
+# motion event: watch out for snakes!
+# glass break event: level 4
 ```
 
