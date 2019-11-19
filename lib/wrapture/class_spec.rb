@@ -124,9 +124,7 @@ module Wrapture
 
     # Generates the wrapper class declaration and definition files.
     def generate_wrappers
-      files = []
-      files << generate_declaration_file
-      files << generate_definition_file
+      [generate_declaration_file, generate_definition_file]
     end
 
     # The name of the class
