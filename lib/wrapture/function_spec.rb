@@ -53,6 +53,9 @@ module Wrapture
         normalized['return']['includes'] = includes
       end
 
+      overload = Wrapture.normalize_boolean(normalized['return'], 'overloaded')
+      normalized['return']['overloaded'] = overload
+
       normalized
     end
 
@@ -155,13 +158,11 @@ module Wrapture
 
     # Gives the definition of the function to a block, line by line.
     def definition(class_name)
-      return_type = @spec['return']['type']
-      return_prefix = @constructor || @destructor ? '' : "#{return_type} "
       yield "#{return_prefix}#{class_name}::#{signature} {"
 
       wrapped_call = String.new
       if returns_value?
-        wrapped_call << "return #{return_type} ( "
+        wrapped_call << "return #{return_cast} ( "
       elsif @constructor
         wrapped_call << 'this->equivalent = '
       end
@@ -200,6 +201,26 @@ module Wrapture
         "struct #{@owner.struct_name} *"
       else
         type
+      end
+    end
+
+    # The function to use to create the return value of the function.
+    def return_cast
+      if @spec['return']['overloaded']
+        "new#{@spec['return']['type'].chomp('*').strip}"
+      else
+        @spec['return']['type']
+      end
+    end
+
+    # The return type prefix to use for the function definition.
+    def return_prefix
+      if @constructor || @destructor
+        ''
+      elsif @spec['return']['type'].end_with?('*')
+        @spec['return']['type']
+      else
+        "#{@spec['return']['type']} "
       end
     end
 

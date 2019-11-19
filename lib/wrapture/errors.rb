@@ -29,6 +29,14 @@ module Wrapture
     end
   end
 
+  # The spec is missing a key that is required.
+  class MissingSpecKey < WraptureError
+    # Creates a MissingSpecKey with the given message.
+    def initialize(message)
+      super(message)
+    end
+  end
+
   # Missing a namespace in the class spec
   class NoNamespace < WraptureError
   end

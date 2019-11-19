@@ -54,6 +54,9 @@ module Wrapture
       "#{type}#{' ' unless type.end_with?('*')}#{name}"
     end
 
+    # The underlying struct of this class.
+    attr_reader :struct
+
     # Creates a class spec based on the provided hash spec.
     #
     # The scope can be provided if available.
@@ -132,6 +135,24 @@ module Wrapture
       @spec['name']
     end
 
+    # True if this class overloads the given one. A class is considered an
+    # overload if its parent is the given class, it has the same equivalent
+    # struct name, and the equivalent struct has a set of rules. The overloaded
+    # class cannot have any rules in its equivalent struct, or it will not be
+    # overloaded.
+    def overloads?(parent_spec)
+      return false unless parent_spec.struct.rules.empty?
+
+      parent_spec.struct.name == struct_name &&
+        parent_spec.name == parent_name &&
+        !@struct.rules.empty?
+    end
+
+    # The name of the parent of this class, or nil if there is no parent.
+    def parent_name
+      @spec['parent']['name'] if @spec.key?('parent')
+    end
+
     # The name of the equivalent struct of this class.
     def struct_name
       @struct.name
@@ -180,7 +201,7 @@ module Wrapture
       yield
 
       parent = if @spec.key?('parent')
-                 ": public #{@spec['parent']['name']} "
+                 ": public #{parent_name} "
                else
                  ''
                end
@@ -202,6 +223,8 @@ module Wrapture
       pointer_constructor_declaration { |line| yield "    #{line}" }
 
       yield "    #{struct_constructor_signature};" unless pointer_wrapper?
+
+      overload_declaration { |line| yield "    #{line}" }
 
       @functions.each do |func|
         yield "    #{func.declaration};"
@@ -273,6 +296,8 @@ module Wrapture
         yield '  }'
       end
 
+      overload_definition { |line| yield "  #{line}" }
+
       @functions.each do |func|
         yield
 
@@ -298,6 +323,8 @@ module Wrapture
       @constants.each do |const|
         includes.concat(const.definition_includes)
       end
+
+      includes.concat(overload_definition_includes)
 
       includes.uniq
     end
@@ -359,6 +386,44 @@ module Wrapture
       end
 
       yield '}'
+    end
+
+    # Yields the declaration of the overload function for this class. If there
+    # is no overload function for this class, then nothing is yielded.
+    def overload_declaration
+      return unless @scope.overloads?(self)
+
+      yield "static #{name} *new#{name}( struct #{@struct.name} *equivalent );"
+    end
+
+    # Yields each line of the definition of the overload function, with a
+    # leading empty yield. If there is no overload function for this class,
+    # then nothing is yielded.
+    def overload_definition
+      return unless @scope.overloads?(self)
+
+      yield
+
+      parameter = "struct #{@struct.name} *equivalent"
+      yield "#{name} *#{name}::new#{name}( #{parameter} ) {"
+
+      line_prefix = '  '
+      @scope.overloads(self).each do |overload|
+        check = overload.struct.rules_check('equivalent')
+        yield "#{line_prefix}if( #{check} ) {"
+        yield "    return new #{overload.name}( equivalent );"
+        line_prefix = '  } else '
+      end
+
+      yield "#{line_prefix}{"
+      yield "    return new #{name}( equivalent );"
+      yield '  }'
+      yield '}'
+    end
+
+    # A list of the includes needed for the overload definitions.
+    def overload_definition_includes
+      @scope.overloads(self).map { |overload| "#{overload.name}.hpp" }
     end
 
     # Yields the declaration of the pointer constructor for a class.
