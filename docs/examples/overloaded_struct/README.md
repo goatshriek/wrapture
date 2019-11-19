@@ -3,7 +3,9 @@
 C structs do not have a pattern for inheritance, and as such it is a common
 pattern for them to be differentiated from one another using something like a
 type code or enumeration. However, in an object oriented language the more
-common pattern is to create a parent class and inherit from it.
+common pattern is to create a parent class and inherit from it. Programs can
+then use features like runtime polymorphism to cleanly treat each child class
+in the appropriate way.
 
 Wrapture provides a way to distinguish between different types of a struct so
 that it will be transparently translated to the correct class. Let's consider a
@@ -142,7 +144,7 @@ in a natural way, like this:
 
 ```cpp
 SecurityEvent *ev = SecurityEvent::NextEvent();
-ev->Print();
+ev->Print(); // runs the Print function for the derived class
 ```
 
 The full example has a complete implementation of this concept, and can be
