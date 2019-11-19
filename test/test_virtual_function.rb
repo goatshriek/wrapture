@@ -16,17 +16,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Classes and functions for generating language wrappers
-module Wrapture
-  require 'wrapture/constant_spec'
-  require 'wrapture/constants'
-  require 'wrapture/class_spec'
-  require 'wrapture/errors'
-  require 'wrapture/function_spec'
-  require 'wrapture/normalize'
-  require 'wrapture/rule_spec'
-  require 'wrapture/scope'
-  require 'wrapture/struct_spec'
-  require 'wrapture/version'
-  require 'wrapture/wrapped_function_spec'
+require 'helper'
+
+require 'fixture'
+require 'minitest/autorun'
+require 'wrapture'
+
+class FunctionSpecTest < Minitest::Test
+  def test_class_with_virtual_function
+    test_spec = load_fixture('class_with_virtual_function')
+
+    spec = Wrapture::ClassSpec.new(test_spec)
+
+    classes = spec.generate_wrappers
+    validate_wrapper_results(test_spec, classes)
+
+    assert(file_contains_match('BaseClass.hpp', 'virtual void'))
+
+    File.delete(*classes)
+  end
+
+  def test_virtual_function
+    test_spec = load_fixture('virtual_function')
+
+    func_spec = Wrapture::FunctionSpec.new(test_spec)
+    assert(func_spec.virtual?)
+  end
 end

@@ -1,0 +1,19 @@
+version: "0.3.0"
+classes:
+  - name: "Parent"
+    namespace: "wrapture_test"
+    equivalent-struct:
+      name: "overloaded_struct"
+      members:
+        - name: "code"
+          type: "int"
+  - name: "ChildOne"
+    namespace: "wrapture_test"
+    equivalent-struct:
+      name: "overloaded_struct"
+      rules:
+        - member-name: "code"
+          value: "1"
+          # a rule is invalid with a 'condition' key
+    parent:
+      name: "Parent"

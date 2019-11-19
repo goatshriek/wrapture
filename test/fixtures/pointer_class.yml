@@ -1,0 +1,19 @@
+name: "PointerWrappingClass"
+namespace: "wrapture_test"
+equivalent-struct:
+  name: "wrapped_struct"
+  includes: "wrapme.h"
+constructors:
+  - wrapped-function:
+      name: "new_thing"
+      params:
+        - name: "new_name"
+          type: "const char *"
+      return:
+        type: "equivalent-struct-pointer"
+destructor:
+  wrapped-function:
+    name: "destroy_a_struct"
+    params:
+      - name: "equivalent-struct-pointer"
+    includes: "wrapme.h"
