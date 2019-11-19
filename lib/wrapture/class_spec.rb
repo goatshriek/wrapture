@@ -73,13 +73,12 @@ module Wrapture
 
       @struct = StructSpec.new @spec[EQUIVALENT_STRUCT_KEYWORD]
 
-      @functions = []
-      @spec['constructors'].each do |constructor_spec|
+      @functions = @spec['constructors'].map do |constructor_spec|
         full_spec = constructor_spec.dup
         full_spec['name'] = @spec['name']
         full_spec['params'] = constructor_spec['wrapped-function']['params']
 
-        @functions << FunctionSpec.new(full_spec, self, constructor: true)
+        FunctionSpec.new(full_spec, self, constructor: true)
       end
 
       if @spec.key?('destructor')
@@ -93,9 +92,8 @@ module Wrapture
         @functions << FunctionSpec.new(function_spec, self)
       end
 
-      @constants = []
-      @spec['constants'].each do |constant_spec|
-        @constants << ConstantSpec.new(constant_spec)
+      @constants = @spec['constants'].map do |constant_spec|
+        ConstantSpec.new(constant_spec)
       end
 
       scope << self
