@@ -120,20 +120,12 @@ module Wrapture
 
     # The equivalent struct of this class from an instance of it.
     def equivalent_struct(instance_name)
-      if pointer_wrapper?
-        "*#{instance_name}.equivalent"
-      else
-        "#{instance_name}.equivalent"
-      end
+      "#{'*' if pointer_wrapper?}#{instance_name}.equivalent"
     end
 
     # A pointer to the equivalent struct of this class from an instance of it.
     def equivalent_struct_pointer(instance_name)
-      if pointer_wrapper?
-        "#{instance_name}.equivalent"
-      else
-        "&#{instance_name}.equivalent"
-      end
+      "#{'&' unless pointer_wrapper?}#{instance_name}.equivalent"
     end
 
     # Generates the wrapper class declaration and definition files.
@@ -166,11 +158,7 @@ module Wrapture
     # Gives a code snippet that accesses the equivalent struct pointer from
     # within the class using the 'this' keyword.
     def this_struct_pointer
-      if pointer_wrapper?
-        'this->equivalent'
-      else
-        '&this->equivalent'
-      end
+      "#{'&' unless pointer_wrapper?}this->equivalent"
     end
 
     # Returns the ClassSpec for the given type in this class's scope.
@@ -216,11 +204,11 @@ module Wrapture
       includes.concat @spec['includes']
 
       @functions.each do |func|
-        includes.concat func.definition_includes
+        includes.concat(func.definition_includes)
       end
 
       @constants.each do |const|
-        includes.concat const.definition_includes
+        includes.concat(const.definition_includes)
       end
 
       includes.uniq
@@ -228,32 +216,20 @@ module Wrapture
 
     # Determines if this class is a wrapper for a struct pointer or not.
     def pointer_wrapper?
-      @spec['constructors'].each do |constructor_spec|
-        return_type = constructor_spec['wrapped-function']['return']['type']
-
-        return true if return_type == EQUIVALENT_POINTER_KEYWORD
+      @spec['constructors'].any? do |spec|
+        spec['wrapped-function']['return']['type'] == EQUIVALENT_POINTER_KEYWORD
       end
-
-      false
     end
 
     # Gives the name of the equivalent struct.
     def equivalent_name
-      if pointer_wrapper?
-        '*equivalent'
-      else
-        'equivalent'
-      end
+      "#{'*' if pointer_wrapper?}equivalent"
     end
 
     # Gives a code snippet that accesses a member of the equivalent struct for
     # this class within the class using the 'this' keyword.
     def this_member(member)
-      if pointer_wrapper?
-        "this->equivalent->#{member}"
-      else
-        "this->equivalent.#{member}"
-      end
+      "this->equivalent#{pointer_wrapper? ? '->' : '.'}#{member}"
     end
 
     # Yields the declaration of the member constructor for a class. This will be
