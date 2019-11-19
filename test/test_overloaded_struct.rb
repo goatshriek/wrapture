@@ -33,11 +33,14 @@ class OverloadedStructTest < Minitest::Test
     generated_files = scope.generate_wrappers
     validate_wrapper_results(test_spec, generated_files)
 
+    def_file = 'Parent.cpp'
+
     assert(file_contains_match('Parent.hpp', 'newParent'))
-    assert(file_contains_match('Parent.cpp', 'Parent::newParent'))
-    assert(file_contains_match('Parent.cpp', 'Parent \*Parent::OverloadedType'))
-    assert(file_contains_match('Parent.cpp', 'return newParent \('))
-    includes = get_include_list('Parent.cpp')
+    assert(file_contains_match(def_file, 'Parent::newParent'))
+    assert(file_contains_match(def_file, 'Parent \*Parent::OverloadedType'))
+    assert(file_contains_match(def_file, 'return newParent \('))
+
+    includes = get_include_list(def_file)
     assert_includes(includes, 'ChildOne.hpp')
     assert_includes(includes, 'ChildTwo.hpp')
 
