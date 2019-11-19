@@ -24,7 +24,12 @@ using namespace security_system;
 int
 main( int argc, char **argv ) {
   for( int i = 0; i < 5; i++ ) {
+
+    // calling the static function to get a pointer to the base class
+    // the returned pointer will be to the appropriate derived class
     SecurityEvent *ev = SecurityEvent::NextEvent();
+
+    // this will call the Print function in the derived class
     ev->Print();
   }
 
