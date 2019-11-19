@@ -45,18 +45,16 @@ module Wrapture
 
       if normalized['return'].nil?
         normalized['return'] = {}
-        normalized['return']['overloaded'] = false
         normalized['return']['type'] = 'void'
         normalized['return']['includes'] = []
       else
         normalized['return']['type'] ||= 'void'
         includes = Wrapture.normalize_includes(spec['return']['includes'])
         normalized['return']['includes'] = includes
-
-        has_overloaded = spec['return'].key?('overloaded')
-        overloaded_val = spec['return']['overloaded']
-        normalized['return']['overloaded'] = has_overloaded && overloaded_val
       end
+
+      overload = Wrapture.normalize_boolean(normalized['return'], 'overloaded')
+      normalized['return']['overloaded'] = overload
 
       normalized
     end
