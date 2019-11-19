@@ -51,11 +51,7 @@ module Wrapture
 
     # Returns a string of the variable with it's type, properly formatted.
     def self.typed_variable(type, name)
-      if type.end_with? '*'
-        "#{type}#{name}"
-      else
-        "#{type} #{name}"
-      end
+      "#{type}#{' ' unless type.end_with?('*')}#{name}"
     end
 
     # Creates a class spec based on the provided hash spec.
@@ -77,13 +73,12 @@ module Wrapture
 
       @struct = StructSpec.new @spec[EQUIVALENT_STRUCT_KEYWORD]
 
-      @functions = []
-      @spec['constructors'].each do |constructor_spec|
+      @functions = @spec['constructors'].map do |constructor_spec|
         full_spec = constructor_spec.dup
         full_spec['name'] = @spec['name']
         full_spec['params'] = constructor_spec['wrapped-function']['params']
 
-        @functions << FunctionSpec.new(full_spec, self, constructor: true)
+        FunctionSpec.new(full_spec, self, constructor: true)
       end
 
       if @spec.key?('destructor')
@@ -97,9 +92,8 @@ module Wrapture
         @functions << FunctionSpec.new(function_spec, self)
       end
 
-      @constants = []
-      @spec['constants'].each do |constant_spec|
-        @constants << ConstantSpec.new(constant_spec)
+      @constants = @spec['constants'].map do |constant_spec|
+        ConstantSpec.new(constant_spec)
       end
 
       scope << self
@@ -120,27 +114,17 @@ module Wrapture
 
     # The equivalent struct of this class from an instance of it.
     def equivalent_struct(instance_name)
-      if pointer_wrapper?
-        "*#{instance_name}.equivalent"
-      else
-        "#{instance_name}.equivalent"
-      end
+      "#{'*' if pointer_wrapper?}#{instance_name}.equivalent"
     end
 
     # A pointer to the equivalent struct of this class from an instance of it.
     def equivalent_struct_pointer(instance_name)
-      if pointer_wrapper?
-        "#{instance_name}.equivalent"
-      else
-        "&#{instance_name}.equivalent"
-      end
+      "#{'&' unless pointer_wrapper?}#{instance_name}.equivalent"
     end
 
     # Generates the wrapper class declaration and definition files.
     def generate_wrappers
-      files = []
-      files << generate_declaration_file
-      files << generate_definition_file
+      [generate_declaration_file, generate_definition_file]
     end
 
     # The name of the class
@@ -166,11 +150,7 @@ module Wrapture
     # Gives a code snippet that accesses the equivalent struct pointer from
     # within the class using the 'this' keyword.
     def this_struct_pointer
-      if pointer_wrapper?
-        'this->equivalent'
-      else
-        '&this->equivalent'
-      end
+      "#{'&' unless pointer_wrapper?}this->equivalent"
     end
 
     # Returns the ClassSpec for the given type in this class's scope.
@@ -185,9 +165,53 @@ module Wrapture
 
     private
 
-    # The header guard for the class.
-    def header_guard
-      "__#{@spec['name'].upcase}_HPP"
+    # Gives the content of the class declaration to a block, line by line.
+    def declaration_contents
+      yield "#ifndef #{header_guard}"
+      yield "#define #{header_guard}"
+
+      yield unless declaration_includes.empty?
+      declaration_includes.each do |include_file|
+        yield "#include <#{include_file}>"
+      end
+
+      yield
+      yield "namespace #{@spec['namespace']} {"
+      yield
+
+      parent = if @spec.key?('parent')
+                 ": public #{@spec['parent']['name']} "
+               else
+                 ''
+               end
+      yield "  class #{@spec['name']} #{parent}{"
+
+      yield '  public:'
+
+      yield unless @constants.empty?
+      @constants.each do |const|
+        yield "    #{const.declaration};"
+      end
+
+      yield
+      yield "    #{@struct.declaration equivalent_name};"
+      yield
+
+      member_constructor_declaration { |line| yield "    #{line}" }
+
+      pointer_constructor_declaration { |line| yield "    #{line}" }
+
+      yield "    #{struct_constructor_signature};" unless pointer_wrapper?
+
+      @functions.each do |func|
+        yield "    #{func.declaration};"
+      end
+
+      yield '  };' # end of class
+      yield
+      yield '}' # end of namespace
+      yield
+      yield '#endif' # end of header guard
     end
 
     # A list of includes needed for the declaration of the class.
@@ -209,51 +233,109 @@ module Wrapture
       includes.uniq
     end
 
+    # Gives the content of the class definition to a block, line by line.
+    def definition_contents
+      definition_includes.each do |include_file|
+        yield "#include <#{include_file}>"
+      end
+
+      yield
+      yield "namespace #{@spec['namespace']} {"
+
+      yield unless @constants.empty?
+      @constants.each do |const|
+        yield "  #{const.definition(@spec['name'])};"
+      end
+
+      member_constructor_definition { |line| yield "  #{line}" }
+
+      pointer_constructor_definition { |line| yield "  #{line}" }
+
+      unless pointer_wrapper?
+        yield
+        yield "  #{@spec['name']}::#{struct_constructor_signature} {"
+
+        @struct.members.each do |member|
+          member_decl = this_member(member['name'])
+          yield "    #{member_decl} = equivalent.#{member['name']};"
+        end
+
+        yield '  }'
+
+        yield
+        yield "  #{@spec['name']}::#{pointer_constructor_signature} {"
+
+        @struct.members.each do |member|
+          member_decl = this_member(member['name'])
+          yield "    #{member_decl} = equivalent->#{member['name']};"
+        end
+
+        yield '  }'
+      end
+
+      @functions.each do |func|
+        yield
+
+        func.definition(@spec['name']) do |def_line|
+          yield "  #{def_line}"
+        end
+      end
+
+      yield
+      yield '}' # end of namespace
+    end
+
     # A list of includes needed for the definition of the class.
     def definition_includes
       includes = ["#{@spec['name']}.hpp"]
 
-      includes.concat @spec['includes']
+      includes.concat(@spec['includes'])
 
       @functions.each do |func|
-        includes.concat func.definition_includes
+        includes.concat(func.definition_includes)
       end
 
       @constants.each do |const|
-        includes.concat const.definition_includes
+        includes.concat(const.definition_includes)
       end
 
       includes.uniq
     end
 
-    # Determines if this class is a wrapper for a struct pointer or not.
-    def pointer_wrapper?
-      @spec['constructors'].each do |constructor_spec|
-        return_type = constructor_spec['wrapped-function']['return']['type']
-
-        return true if return_type == EQUIVALENT_POINTER_KEYWORD
-      end
-
-      false
-    end
-
     # Gives the name of the equivalent struct.
     def equivalent_name
-      if pointer_wrapper?
-        '*equivalent'
-      else
-        'equivalent'
-      end
+      "#{'*' if pointer_wrapper?}equivalent"
     end
 
-    # Gives a code snippet that accesses a member of the equivalent struct for
-    # this class within the class using the 'this' keyword.
-    def this_member(member)
-      if pointer_wrapper?
-        "this->equivalent->#{member}"
-      else
-        "this->equivalent.#{member}"
+    # Generates the declaration of the class.
+    def generate_declaration_file
+      filename = "#{@spec['name']}.hpp"
+
+      File.open(filename, 'w') do |file|
+        declaration_contents do |line|
+          file.puts(line)
+        end
       end
+
+      filename
+    end
+
+    # Generates the definition of the class.
+    def generate_definition_file
+      filename = "#{@spec['name']}.cpp"
+
+      File.open(filename, 'w') do |file|
+        definition_contents do |line|
+          file.puts(line)
+        end
+      end
+
+      filename
+    end
+
+    # The header guard for the class.
+    def header_guard
+      "__#{@spec['name'].upcase}_HPP"
     end
 
     # Yields the declaration of the member constructor for a class. This will be
@@ -322,141 +404,27 @@ module Wrapture
       yield '}'
     end
 
-    # The signature of the constructor given an equivalent struct type.
-    def struct_constructor_signature
-      "#{@spec['name']}( #{@struct.declaration 'equivalent'} )"
-    end
-
     # The signature of the constructor given an equivalent strucct pointer.
     def pointer_constructor_signature
       "#{@spec['name']}( #{@struct.pointer_declaration 'equivalent'} )"
     end
 
-    # Generates the declaration of the class.
-    def generate_declaration_file
-      filename = "#{@spec['name']}.hpp"
-
-      File.open(filename, 'w') do |file|
-        declaration_contents do |line|
-          file.puts line
-        end
+    # Determines if this class is a wrapper for a struct pointer or not.
+    def pointer_wrapper?
+      @spec['constructors'].any? do |spec|
+        spec['wrapped-function']['return']['type'] == EQUIVALENT_POINTER_KEYWORD
       end
-
-      filename
     end
 
-    # Gives the content of the class declaration to a block, line by line.
-    def declaration_contents
-      yield "#ifndef #{header_guard}"
-      yield "#define #{header_guard}"
-
-      yield unless declaration_includes.empty?
-      declaration_includes.each do |include_file|
-        yield "#include <#{include_file}>"
-      end
-
-      yield
-      yield "namespace #{@spec['namespace']} {"
-      yield
-
-      parent = if @spec.key?('parent')
-                 ": public #{@spec['parent']['name']} "
-               else
-                 ''
-               end
-      yield "  class #{@spec['name']} #{parent}{"
-
-      yield '  public:'
-
-      yield unless @constants.empty?
-      @constants.each do |const|
-        yield "    #{const.declaration};"
-      end
-
-      yield
-      yield "    #{@struct.declaration equivalent_name};"
-      yield
-
-      member_constructor_declaration { |line| yield "    #{line}" }
-
-      pointer_constructor_declaration { |line| yield "    #{line}" }
-
-      yield "    #{struct_constructor_signature};" unless pointer_wrapper?
-
-      @functions.each do |func|
-        yield "    #{func.declaration};"
-      end
-
-      yield '  };' # end of class
-      yield
-      yield '}' # end of namespace
-      yield
-      yield '#endif' # end of header guard
+    # The signature of the constructor given an equivalent struct type.
+    def struct_constructor_signature
+      "#{@spec['name']}( #{@struct.declaration 'equivalent'} )"
     end
 
-    # Generates the definition of the class.
-    def generate_definition_file
-      filename = "#{@spec['name']}.cpp"
-
-      File.open(filename, 'w') do |file|
-        definition_contents do |line|
-          file.puts line
-        end
-      end
-
-      filename
-    end
-
-    # Gives the content of the class definition to a block, line by line.
-    def definition_contents
-      definition_includes.each do |include_file|
-        yield "#include <#{include_file}>"
-      end
-
-      yield
-      yield "namespace #{@spec['namespace']} {"
-
-      yield unless @constants.empty?
-      @constants.each do |const|
-        yield "  #{const.definition @spec['name']};"
-      end
-
-      member_constructor_definition { |line| yield "  #{line}" }
-
-      pointer_constructor_definition { |line| yield "  #{line}" }
-
-      unless pointer_wrapper?
-        yield
-        yield "  #{@spec['name']}::#{struct_constructor_signature} {"
-
-        @struct.members.each do |member|
-          member_decl = this_member(member['name'])
-          yield "    #{member_decl} = equivalent.#{member['name']};"
-        end
-
-        yield '  }'
-
-        yield
-        yield "  #{@spec['name']}::#{pointer_constructor_signature} {"
-
-        @struct.members.each do |member|
-          member_decl = this_member(member['name'])
-          yield "    #{member_decl} = equivalent->#{member['name']};"
-        end
-
-        yield '  }'
-      end
-
-      @functions.each do |func|
-        yield
-
-        func.definition(@spec['name']) do |def_line|
-          yield "  #{def_line}"
-        end
-      end
-
-      yield
-      yield '}' # end of namespace
+    # Gives a code snippet that accesses a member of the equivalent struct for
+    # this class within the class using the 'this' keyword.
+    def this_member(member)
+      "this->equivalent#{pointer_wrapper? ? '->' : '.'}#{member}"
     end
   end
 end
