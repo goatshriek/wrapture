@@ -19,6 +19,14 @@
 version: "0.3.0"
 
 classes:
+  - name: "Turret"
+    namespace: "turret"
+    equivalent-struct:
+      name: "turret"
+      includes: "turret.h"
+    constructors:
+    destructor:
+    functions:
   - name: "TurretException"
     namespace: "turret"
     parent:
@@ -27,13 +35,6 @@ classes:
     equivalent-struct:
       name: "turret_error"
       includes: "turret_error.h"
-      members:
-        - name: "code"
-          type: "int"
-          default-value: "SUCCESS"
-        - name: "message"
-          type: "const char *"
-          default-value: "operation success"
   - name: "TargetingException"
     namespace: "turret"
     parent:
@@ -42,11 +43,6 @@ classes:
     equivalent-struct:
       name: "turret_error"
       includes: "turret_error.h"
-      members:
-        - name: "code"
-          type: "int"
-        - name: "message"
-          type: "const char *"
       rules:
         - member-name: "code"
           condition: "equals"
@@ -59,11 +55,6 @@ classes:
     equivalent-struct:
       name: "turret_error"
       includes: "turret_error.h"
-      members:
-        - name: "code"
-          type: "int"
-        - name: "message"
-          type: "const char *"
       rules:
         - member-name: "code"
           condition: "equals"
@@ -76,11 +67,6 @@ classes:
     equivalent-struct:
       name: "turret_error"
       includes: "turret_error.h"
-      members:
-        - name: "code"
-          type: "int"
-        - name: "message"
-          type: "const char *"
       rules:
         - member-name: "code"
           condition: "equals"

@@ -1,5 +1,10 @@
 # Overloaded Struct Example
 
+Error handling in C is typically handled by simple methods like checking a
+return code or checking some other global variable. However, most higher level
+languages have better way of handling errors, typically by throwing exceptions.
+
+
 C structs do not have a pattern for inheritance, and as such it is a common
 pattern for them to be differentiated from one another using something like a
 type code or enumeration. However, in an object oriented language the more
