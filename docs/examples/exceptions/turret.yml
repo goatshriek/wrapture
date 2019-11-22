@@ -25,8 +25,19 @@ classes:
       name: "turret"
       includes: "turret.h"
     constructors:
+      - wrapped-function:
+          name: "new_turret"
+          return:
+            type: "equivalent-struct-pointer"
     destructor:
+      wrapped-function:
+        name: "destroy_turret"
+        params:
+          - value: "equivalent-struct-pointer"
     functions:
+      - name: "Aim"
+      - name: "Fire"
+      - name: "Reload"
   - name: "TurretException"
     namespace: "turret"
     parent:

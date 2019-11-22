@@ -16,28 +16,46 @@
  * limitations under the License.
  */
 
+#include <stdlib.h>
 #include <turret.h>
 #include <turret_error.h>
 
-static int ammo_count = 10;
-
 const struct turret_error *
-aim( int x, int y, int z ) {
+aim( struct turret *t, int x, int y, int z ) {
   return success();
 }
 
+void
+destroy_turret( struct turret *t ) {
+  free( t );
+}
+
 const struct turret_error *
-fire( void ) {
-  if( ammo_count > 0 ) {
-    ammo_count -= 1;
+fire( struct turret *t ) {
+  if( t->ammo_count > 0 ) {
+    t->ammo_count -= 1;
     return success();
   } else {
     return out_of_ammo();
   }
 }
 
+struct turret_error *
+new_turret( void ) {
+  struct turret *t;
+
+  t = malloc( sizeof( *t ) );
+  if( !t ) {
+    return NULL;
+  }
+
+  t->ammo_count = 10;
+
+  return t;
+}
+
 const struct turret_error *
-reload( void ) {
-  ammo_count = 10;
+reload( struct turret *t ) {
+  t->ammo_count = 10;
   return success();
 }

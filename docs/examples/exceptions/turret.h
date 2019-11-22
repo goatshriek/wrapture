@@ -21,13 +21,23 @@
 
 #include <turret_error.h>
 
-const struct turret_error *
-aim( int x, int y, int z );
+struct turret {
+  int ammo_count;
+};
 
 const struct turret_error *
-fire( void );
+aim( struct turret *t, int x, int y, int z );
+
+void
+destroy_turret( struct turret *t );
 
 const struct turret_error *
-reload( void );
+fire( struct turret *t );
+
+struct turret_error *
+new_turret( void );
+
+const struct turret_error *
+reload( struct turret *t );
 
 #endif
