@@ -34,7 +34,8 @@ require 'minitest/autorun'
 require 'wrapture'
 
 def count_matches(filename, regex)
-  count=0
+  count = 0
+
   File.open(filename).each do |line|
     count += 1 if line.match(regex)
   end
@@ -98,11 +99,13 @@ def validate_definition_file(spec)
     assert_includes(includes, class_include)
   end
 
-  def_count = count_matches(filename, "#{spec['name']}::#{spec['name']}\\( struct \\w+ \\*equivalent \\)")
+  sig = "#{spec['name']}::#{spec['name']}\\( struct \\w+ \\*equivalent \\)"
+  def_count = count_matches(filename, sig)
   assert(def_count <= 1)
 
   normalized['functions'].each do |func_spec|
-    def_count = count_matches(filename, "#{spec['name']}::#{func_spec['name']}\\(")
+    sig = "#{spec['name']}::#{func_spec['name']}\\("
+    def_count = count_matches(filename, sig)
     assert_equal(1, def_count, "not one definition of #{func_spec['name']}")
   end
 
