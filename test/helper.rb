@@ -33,6 +33,15 @@ end
 require 'minitest/autorun'
 require 'wrapture'
 
+def count_matches(filename, regex)
+  count=0
+  File.open(filename).each do |line|
+    count += 1 if line.match(regex)
+  end
+
+  count
+end
+
 def file_contains_match(filename, regex)
   File.open(filename).each do |line|
     return true if line.match(regex)
@@ -80,12 +89,21 @@ end
 
 def validate_definition_file(spec)
   filename = "#{spec['name']}.cpp"
-  class_includes = Wrapture::ClassSpec.normalize_spec_hash(spec)['includes']
+  normalized = Wrapture::ClassSpec.normalize_spec_hash(spec)
+  class_includes = normalized['includes']
 
   includes = get_include_list filename
 
   class_includes.each do |class_include|
     assert_includes(includes, class_include)
+  end
+
+  def_count = count_matches(filename, "#{spec['name']}::#{spec['name']}\\( struct \\w+ \\*equivalent \\)")
+  assert(def_count <= 1)
+
+  normalized['functions'].each do |func_spec|
+    def_count = count_matches(filename, "#{spec['name']}::#{func_spec['name']}\\(")
+    assert_equal(1, def_count, "not one definition of #{func_spec['name']}")
   end
 
   validate_indentation filename
