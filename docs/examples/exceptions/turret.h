@@ -31,6 +31,9 @@ struct turret {
 const struct turret_error *
 aim( struct turret *t, int x, int y, int z );
 
+int
+ammo_count( struct turret *t );
+
 void
 destroy_turret( struct turret *t );
 

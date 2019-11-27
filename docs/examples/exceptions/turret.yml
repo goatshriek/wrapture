@@ -50,6 +50,13 @@ classes:
             - value: "x"
             - value: "y"
             - value: "z"
+      - name: "AmmoCount"
+        return:
+          type: "int"
+        wrapped-function:
+          name: "ammo_count"
+          params:
+            - value: "equivalent-struct-pointer"
       - name: "Fire"
         wrapped-function:
           name: "fire"

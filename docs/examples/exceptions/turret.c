@@ -30,6 +30,11 @@ aim( struct turret *t, int x, int y, int z ) {
   return success();
 }
 
+int
+ammo_count( struct turret *t ) {
+  return t->ammo_count;
+}
+
 void
 destroy_turret( struct turret *t ) {
   free( t );
