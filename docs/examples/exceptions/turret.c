@@ -17,11 +17,16 @@
  */
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <turret.h>
 #include <turret_error.h>
 
 const struct turret_error *
 aim( struct turret *t, int x, int y, int z ) {
+  printf( "aimed at (%d, %d, %d)\n", x, y, z );
+  t->x = x;
+  t->y = y;
+  t->z = z;
   return success();
 }
 
@@ -34,13 +39,14 @@ const struct turret_error *
 fire( struct turret *t ) {
   if( t->ammo_count > 0 ) {
     t->ammo_count -= 1;
+    printf( "fired at (%d, %d, %d)\n", t->x, t->y, t->z );
     return success();
   } else {
     return out_of_ammo();
   }
 }
 
-struct turret_error *
+struct turret *
 new_turret( void ) {
   struct turret *t;
 
@@ -57,5 +63,6 @@ new_turret( void ) {
 const struct turret_error *
 reload( struct turret *t ) {
   t->ammo_count = 10;
+  printf("reloaded!\n");
   return success();
 }

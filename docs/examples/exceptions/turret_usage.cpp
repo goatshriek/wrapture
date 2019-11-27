@@ -17,11 +17,19 @@
  */
 
 #include <cstdlib>
+#include <Turret.hpp>
 #include <TurretException.hpp>
 #include <TargetingException.hpp>
 #include <OutOfAmmoException.hpp>
 #include <JammedException.hpp>
 
+using namespace defense_turret;
+
 int main( int argc, char **argv ) {
+  Turret blaster;
+
+  blaster.Aim( -1, 2, 5 );
+  blaster.Fire();
+
   return EXIT_SUCCESS;
 }

@@ -117,6 +117,11 @@ their exception classes like this:
           value: "JAMMED"
 ```
 
+Note that we have used the `rules` key in the description of the underlying
+struct here in order to have the structs translated to the proper class. If
+you want to see more about how that works, check out the overloaded struct
+example for a detailed explanation.
+
 This will create an exception class for each of these cases as expected.
 However, and perhaps more importantly, it will also create a function in the
 parent TurretException that can create an exception based on a `turret_error`

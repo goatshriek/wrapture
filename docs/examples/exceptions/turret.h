@@ -23,6 +23,9 @@
 
 struct turret {
   int ammo_count;
+  int x;
+  int y;
+  int z;
 };
 
 const struct turret_error *
