@@ -284,16 +284,6 @@ module Wrapture
         end
 
         yield '  }'
-
-        yield
-        yield "  #{@spec['name']}::#{pointer_constructor_signature} {"
-
-        @struct.members.each do |member|
-          member_decl = this_member(member['name'])
-          yield "    #{member_decl} = equivalent->#{member['name']};"
-        end
-
-        yield '  }'
       end
 
       overload_definition { |line| yield "  #{line}" }
