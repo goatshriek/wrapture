@@ -68,6 +68,11 @@ classes:
     equivalent-struct:
       name: "turret_error"
       includes: "turret_error.h"
+    constructors:
+      - wrapped-function:
+          name: "null_error"
+          return:
+            type: "equivalent-struct-pointer"
   - name: "TargetingException"
     namespace: "defense_turret"
     parent:

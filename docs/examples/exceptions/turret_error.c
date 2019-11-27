@@ -16,24 +16,30 @@
  * limitations under the License.
  */
 
+#include <stdlib.h>
 #include <turret_error.h>
 
-static const struct turret_error out_of_ammo_instance = {
+static struct turret_error out_of_ammo_instance = {
   .code = OUT_OF_AMMO,
   .message = "the turret is out of ammo, reload!"
 };
 
-static const struct turret_error success_instance = {
+static struct turret_error success_instance = {
   .code = SUCCESS,
   .message = "operation success"
 };
 
-const struct turret_error *
+struct turret_error *
+null_error( void ) {
+  return NULL;
+}
+
+struct turret_error *
 out_of_ammo( void ) {
   return &out_of_ammo_instance;
 }
 
-const struct turret_error *
+struct turret_error *
 success( void ) {
   return &success_instance;
 }
