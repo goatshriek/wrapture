@@ -50,7 +50,7 @@ struct turret *
 new_turret( void ) {
   struct turret *t;
 
-  t = malloc( sizeof( *t ) );
+  t = (struct turret *) malloc( sizeof( *t ) );
   if( !t ) {
     return NULL;
   }

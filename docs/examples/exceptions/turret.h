@@ -37,7 +37,7 @@ destroy_turret( struct turret *t );
 const struct turret_error *
 fire( struct turret *t );
 
-struct turret_error *
+struct turret *
 new_turret( void );
 
 const struct turret_error *
