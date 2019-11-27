@@ -62,6 +62,17 @@ classes:
           name: "fire"
           params:
             - value: "equivalent-struct-pointer"
+          error-check:
+            rules:
+              - left-expression: "return-value"
+                condition: "not-equals"
+                right-expression: "success()"
+            error-action:
+              name: "throw-exception"
+              constructor:
+                name: "newTurretException"
+                params:
+                  - value: "return-value"
       - name: "Reload"
         wrapped-function:
           name: "reload"
