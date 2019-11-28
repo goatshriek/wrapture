@@ -29,9 +29,13 @@ module Wrapture
     # Normalizes a hash specification of a rule. Normalization checks for
     # invalid keys and unrecognized conditions.
     def self.normalize_spec_hash(spec)
+      normalized = spec.dup
+
       required_keys = if spec.key?('member-name')
+                        normalized['type'] = 'struct-member'
                         %w[member-name condition value].freeze
                       else
+                        normalized['type'] = 'expression'
                         %w[left-expression condition right-expression].freeze
                       end
 
@@ -52,7 +56,7 @@ module Wrapture
         raise(InvalidSpecKey, condition_msg)
       end
 
-      spec.dup
+      normalized
     end
 
     # Creates a rule spec based on the provided spec.
@@ -70,7 +74,7 @@ module Wrapture
     def check(variable: nil)
       condition = @spec['condition'] == 'equals' ? '==' : '!='
 
-      if @spec.key?('member-name')
+      if @spec['type'] == 'struct-member'
         "#{variable}->#{@spec['member-name']} #{condition} #{@spec['value']}"
       else
         "#{@spec['left-expression']} #{condition} #{@spec['right-expression']}"
