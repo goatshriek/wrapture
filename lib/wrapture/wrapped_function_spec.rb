@@ -17,6 +17,9 @@ module Wrapture
 
       normalized['includes'] = Wrapture.normalize_includes(spec['includes'])
 
+      normalized['error-check'] ||= {}
+      normalized['error-check']['rules'] ||= []
+
       normalized
     end
 
@@ -36,6 +39,12 @@ module Wrapture
     # includes:: a list of includes needed for this function
     def initialize(spec)
       @spec = self.class.normalize_spec_hash(spec)
+
+      @error_rules = @spec['error-check']['rules'].map do |rule_spec|
+        RuleSpec.new(rule_spec)
+      end
+
+      @error_action = ActionSpec.new(@spec['error-check']['error-action'])
     end
 
     # Generates a function call from a provided FunctionSpec. Paremeters and
