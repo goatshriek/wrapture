@@ -24,12 +24,20 @@ module Wrapture
   # type to be equivalent to some class specifications, but not others.
   class RuleSpec
     # A list of valid condition strings.
-    CONDITIONS = %w[equals].freeze
+    CONDITIONS = %w[equals not-equals].freeze
 
     # Normalizes a hash specification of a rule. Normalization checks for
     # invalid keys and unrecognized conditions.
     def self.normalize_spec_hash(spec)
-      required_keys = %w[member-name condition value]
+      normalized = spec.dup
+
+      required_keys = if spec.key?('member-name')
+                        normalized['type'] = 'struct-member'
+                        %w[member-name condition value].freeze
+                      else
+                        normalized['type'] = 'expression'
+                        %w[left-expression condition right-expression].freeze
+                      end
 
       missing_keys = required_keys - spec.keys
       unless missing_keys.empty?
@@ -48,7 +56,7 @@ module Wrapture
         raise(InvalidSpecKey, condition_msg)
       end
 
-      spec.dup
+      normalized
     end
 
     # Creates a rule spec based on the provided spec.
@@ -63,8 +71,14 @@ module Wrapture
     end
 
     # A string containing a check for a struct of the given name for this rule.
-    def check(name)
-      "#{name}->#{@spec['member-name']} == #{@spec['value']}"
+    def check(variable: nil)
+      condition = @spec['condition'] == 'equals' ? '==' : '!='
+
+      if @spec['type'] == 'struct-member'
+        "#{variable}->#{@spec['member-name']} #{condition} #{@spec['value']}"
+      else
+        "#{@spec['left-expression']} #{condition} #{@spec['right-expression']}"
+      end
     end
   end
 end

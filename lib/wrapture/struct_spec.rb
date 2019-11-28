@@ -121,7 +121,7 @@ module Wrapture
     # A string containing an expression that returns true if the struct with
     # the given name meets all rules defined for this struct.
     def rules_check(name)
-      @rules.map { |rule| rule.check(name) }.join(' && ')
+      @rules.map { |rule| rule.check(variable: name) }.join(' && ')
     end
   end
 end
