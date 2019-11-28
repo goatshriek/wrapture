@@ -30,9 +30,9 @@ module Wrapture
     # invalid keys and unrecognized conditions.
     def self.normalize_spec_hash(spec)
       required_keys = if spec.key?('member-name')
-                        %w[member-name condition value]
+                        %w[member-name condition value].freeze
                       else
-                        %w[left-expression condition right-expression]
+                        %w[left-expression condition right-expression].freeze
                       end
 
       missing_keys = required_keys - spec.keys
