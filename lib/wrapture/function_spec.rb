@@ -182,9 +182,7 @@ module Wrapture
 
       yield "  #{wrapped_call};"
 
-      if @wrapped.error_check do |line|
-        yield "  #{line}"
-      end
+      @wrapped.error_check {|line| yield "  #{line}" }
 
       yield '}'
     end
