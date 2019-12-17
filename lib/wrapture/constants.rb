@@ -7,6 +7,10 @@ module Wrapture
   # A string denoting a pointer to an equivalent struct type or value.
   EQUIVALENT_POINTER_KEYWORD = 'equivalent-struct-pointer'
 
+  # A string denoting the return value of a wrapped function call.
+  RETURN_VALUE_KEYWORD = 'return-value'
+
   # A list of all keywords.
-  KEYWORDS = [EQUIVALENT_STRUCT_KEYWORD, EQUIVALENT_POINTER_KEYWORD].freeze
+  KEYWORDS = [EQUIVALENT_STRUCT_KEYWORD, EQUIVALENT_POINTER_KEYWORD,
+              RETURN_VALUE_KEYWORD].freeze
 end
