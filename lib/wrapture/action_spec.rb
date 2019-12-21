@@ -16,6 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require 'wrapture/constants'
 require 'wrapture/errors'
 
 module Wrapture
@@ -57,7 +58,16 @@ module Wrapture
     # A string containing the invocation of this action.
     def take
       call_spec = @spec['constructor']
-      "throw #{call_spec['name']}( #{call_spec['params'].join(', ')} )"
+
+      params = call_spec['params'].map do |param_spec|
+        if param_spec['value'] == RETURN_VALUE_KEYWORD
+          'return_val'
+        else
+          param_spec['value']
+        end
+      end
+
+      "throw #{call_spec['name']}( #{params.join(', ')} )"
     end
   end
  end
