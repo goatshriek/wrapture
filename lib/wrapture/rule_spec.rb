@@ -16,6 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require 'wrapture/constants'
 require 'wrapture/errors'
 
 module Wrapture
@@ -77,7 +78,9 @@ module Wrapture
       if @spec['type'] == 'struct-member'
         "#{variable}->#{@spec['member-name']} #{condition} #{@spec['value']}"
       else
-        "#{@spec['left-expression']} #{condition} #{@spec['right-expression']}"
+        left = @spec['left-expression'].sub(RETURN_VALUE_KEYWORD, 'return_val')
+        right = @spec['right-expression'].sub(RETURN_VALUE_KEYWORD, 'return_val')
+        "#{left} #{condition} #{right}"
       end
     end
   end
