@@ -53,5 +53,11 @@ module Wrapture
     def initialize(spec)
       @spec = ActionSpec.normalize_spec_hash(spec)
     end
+
+    # A string containing the invocation of this action.
+    def take
+      call_spec = @spec['constructor']
+      "throw #{call_spec['name']}( #{call_spec['params'].join(', ')} )"
+    end
   end
  end

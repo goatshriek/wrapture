@@ -161,28 +161,32 @@ module Wrapture
       yield "#{return_prefix}#{class_name}::#{signature} {"
 
       if @wrapped.error_check?
-        yield " #{@wrapped.return_val_type} return_val;"
+        yield "  #{@wrapped.return_val_type} return_val;"
         yield
       end
 
-      wrapped_call = String.new
-      if returns_value?
-        if @wrapped.error_check?
-          wrapped_call << "return_val = "
-        else
-          wrapped_call << "return #{return_cast} ( "
-        end
-      elsif @constructor
-        wrapped_call << 'this->equivalent = '
+      call_prefix = if @constructor
+                      'this->equivalent = '
+                    elsif @wrapped.error_check?
+                      'return_val = '
+                    elsif returns_value?
+                      "return #{return_cast} ( "
+                    else
+                      ''
+                    end
+
+      call_suffix = if returns_value? && !@wrapped.error_check?
+                      ' )'
+                    else
+                      ''
+                    end
+
+      yield "  #{call_prefix}#{@wrapped.call_from(self)}#{call_suffix};"
+
+      if @wrapped.error_check?
+        yield
+        @wrapped.error_check {|line| yield "  #{line}" }
       end
-
-      wrapped_call << @wrapped.call_from(self)
-
-      wrapped_call << ' )' if returns_value? && !@wrapped.error_check?
-
-      yield "  #{wrapped_call};"
-
-      @wrapped.error_check {|line| yield "  #{line}" }
 
       yield '}'
     end

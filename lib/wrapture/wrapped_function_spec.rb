@@ -44,7 +44,8 @@ module Wrapture
         RuleSpec.new(rule_spec)
       end
 
-      @error_action = ActionSpec.new(@spec['error-check']['error-action'])
+      action = @spec['error-check']['error-action']
+      @error_action = ActionSpec.new(action) unless @error_rules.empty?
     end
 
     # Generates a function call from a provided FunctionSpec. Paremeters and
@@ -59,9 +60,31 @@ module Wrapture
       "#{@spec['name']}( #{resolved_params.join(', ')} )"
     end
 
+    # Yields each line of the error check and any actions taken for this wrapped
+    # function. If this function does not have any error check defined, then
+    # this function returns without yielding anything.
+    def error_check
+      return if @error_rules.empty?
+
+      checks = @error_rules.map {|rule| rule.check }
+      yield "if( #{checks.join(' && ')} ){"
+      yield "  #{@error_action.take};"
+      yield '}'
+    end
+
+    # True if the wrapped function has an error check associated with it.
+    def error_check?
+      !@error_rules.empty?
+    end
+
     # A list of includes required for this function call.
     def includes
       @spec['includes'].dup
+    end
+
+    # A string with the type of the return value.
+    def return_val_type
+      @spec['return']['type']
     end
   end
 end
