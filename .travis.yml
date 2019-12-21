@@ -13,8 +13,6 @@ matrix:
   allow_failures:
     - os: osx
       rvm: 2.3
-    - os: osx
-      rvm: jruby
   include:
     - os: linux
       dist: trusty
