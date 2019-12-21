@@ -12,6 +12,8 @@ rvm:
 matrix:
   allow_failures:
     - os: osx
+      rvm: 2.3
+    - os: osx
       rvm: jruby
   include:
     - os: linux
@@ -49,7 +51,8 @@ matrix:
 
 before_install:
   - gem update --system --no-document
-  - if [[ $TRAVIS_RUBY_VERSION =~ "truffle" ]]; then gem install bundler -v 1.17.3 --no-document; else gem install bundler --no-document; fi
+#  - if [[ $TRAVIS_RUBY_VERSION =~ "truffle" ]]; then gem install bundler -v 1.17.3 --no-document; else gem install bundler --no-document; fi
+  - gem install bundler --no-document
 
 script:
   - if [[ $TRAVIS_RUBY_VERSION =~ "2.6" ]]; then bundle exec rubocop; fi
