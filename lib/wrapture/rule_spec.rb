@@ -78,9 +78,9 @@ module Wrapture
       if @spec['type'] == 'struct-member'
         "#{variable}->#{@spec['member-name']} #{condition} #{@spec['value']}"
       else
-        left = @spec['left-expression'].sub(RETURN_VALUE_KEYWORD, 'return_val')
-        right = @spec['right-expression'].sub(RETURN_VALUE_KEYWORD, 'return_val')
-        "#{left} #{condition} #{right}"
+        left = @spec['left-expression']
+        right = @spec['right-expression']
+        "#{left} #{condition} #{right}".sub(RETURN_VALUE_KEYWORD, 'return_val')
       end
     end
   end

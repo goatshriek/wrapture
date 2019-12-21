@@ -66,7 +66,7 @@ module Wrapture
     def error_check
       return if @error_rules.empty?
 
-      checks = @error_rules.map {|rule| rule.check }
+      checks = @error_rules.map(&:check)
       yield "if( #{checks.join(' && ')} ){"
       yield "  #{@error_action.take};"
       yield '}'

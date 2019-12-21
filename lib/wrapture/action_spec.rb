@@ -70,4 +70,4 @@ module Wrapture
       "throw #{call_spec['name']}( #{params.join(', ')} )"
     end
   end
- end
+end

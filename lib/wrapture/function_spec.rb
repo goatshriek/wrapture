@@ -165,27 +165,21 @@ module Wrapture
         yield
       end
 
-      call_prefix = if @constructor
-                      'this->equivalent = '
-                    elsif @wrapped.error_check?
-                      'return_val = '
-                    elsif returns_value?
-                      "return #{return_cast} ( "
-                    else
-                      ''
-                    end
-
-      call_suffix = if returns_value? && !@wrapped.error_check?
-                      ' )'
-                    else
-                      ''
-                    end
-
-      yield "  #{call_prefix}#{@wrapped.call_from(self)}#{call_suffix};"
+      call = @wrapped.call_from(self)
+      call_line = if @constructor
+                    "this->equivalent = #{call}"
+                  elsif @wrapped.error_check?
+                    "return_val = #{call}"
+                  elsif returns_value?
+                    "return #{return_cast} ( #{call} )"
+                  else
+                    call
+                  end
+      yield "  #{call_line};"
 
       if @wrapped.error_check?
         yield
-        @wrapped.error_check {|line| yield "  #{line}" }
+        @wrapped.error_check { |line| yield "  #{line}" }
       end
 
       yield '}'
