@@ -79,7 +79,11 @@ module Wrapture
 
     # A list of includes required for this function call.
     def includes
-      @spec['includes'].dup
+      includes = @spec['includes'].dup
+
+      includes.concat(@error_action.includes) if error_check?
+
+      includes
     end
 
     # A string with the type of the return value.

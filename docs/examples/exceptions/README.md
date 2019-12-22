@@ -142,9 +142,16 @@ compiled and run as follows:
 wrapture turret.yml
 
 # assuming that you're using sh and have g++
-g++ -I . -o turret_usage_example # add files
+g++ -I . \
+    turret.c turret_error.c \
+    Turret.cpp \
+    JammedException.cpp OutOfAmmoException.cpp \
+    TargetingException.cpp TurretException.cpp \
+    turret_usage.cpp \
+    -o turret_usage_example
 ./turret_usage_example
 
 # generates the following output:
 # <add output>
 ```
+

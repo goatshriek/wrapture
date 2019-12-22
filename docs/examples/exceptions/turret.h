@@ -28,7 +28,7 @@ struct turret {
   int z;
 };
 
-const struct turret_error *
+struct turret_error *
 aim( struct turret *t, int x, int y, int z );
 
 int
@@ -37,13 +37,13 @@ ammo_count( struct turret *t );
 void
 destroy_turret( struct turret *t );
 
-const struct turret_error *
+struct turret_error *
 fire( struct turret *t );
 
 struct turret *
 new_turret( void );
 
-const struct turret_error *
+struct turret_error *
 reload( struct turret *t );
 
 #endif

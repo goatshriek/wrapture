@@ -21,7 +21,7 @@
 #include <turret.h>
 #include <turret_error.h>
 
-const struct turret_error *
+struct turret_error *
 aim( struct turret *t, int x, int y, int z ) {
   printf( "aimed at (%d, %d, %d)\n", x, y, z );
   t->x = x;
@@ -40,7 +40,7 @@ destroy_turret( struct turret *t ) {
   free( t );
 }
 
-const struct turret_error *
+struct turret_error *
 fire( struct turret *t ) {
   if( t->ammo_count > 0 ) {
     t->ammo_count -= 1;
@@ -65,7 +65,7 @@ new_turret( void ) {
   return t;
 }
 
-const struct turret_error *
+struct turret_error *
 reload( struct turret *t ) {
   t->ammo_count = 10;
   printf("reloaded!\n");

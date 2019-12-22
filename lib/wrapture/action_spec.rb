@@ -41,6 +41,9 @@ module Wrapture
         raise(InvalidSpecKey, extra_msg)
       end
 
+      includes = Wrapture.normalize_includes(spec['constructor']['includes'])
+      normalized['constructor']['includes'] = includes
+
       normalized
     end
 
@@ -53,6 +56,11 @@ module Wrapture
     # wrapped function call
     def initialize(spec)
       @spec = ActionSpec.normalize_spec_hash(spec)
+    end
+
+    # A list of includes needed for the action.
+    def includes
+      @spec['constructor']['includes'].dup
     end
 
     # A string containing the invocation of this action.
