@@ -94,6 +94,15 @@ classes:
           name: "null_error"
           return:
             type: "equivalent-struct-pointer"
+    functions:
+      - name: "message"
+        return:
+          type: "const char *"
+        wrapped-function:
+          name: "get_error_message"
+          includes: "turret_error.h"
+          params:
+            - value: "equivalent-struct-pointer"
   - name: "TargetingException"
     namespace: "defense_turret"
     parent:
@@ -118,6 +127,15 @@ classes:
         - member-name: "code"
           condition: "equals"
           value: "OUT_OF_AMMO"
+    functions:
+      - name: "message"
+        return:
+          type: "const char *"
+        wrapped-function:
+          name: "get_error_message"
+          includes: "turret_error.h"
+          params:
+            - value: "equivalent-struct-pointer"
   - name: "JammedException"
     namespace: "defense_turret"
     parent:

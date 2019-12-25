@@ -29,6 +29,11 @@ static struct turret_error success_instance = {
   .message = "operation success"
 };
 
+const char *
+get_error_message( const struct turret_error *err ) {
+  return err->message;
+}
+
 struct turret_error *
 null_error( void ) {
   return NULL;

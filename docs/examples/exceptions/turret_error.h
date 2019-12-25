@@ -29,6 +29,9 @@ struct turret_error {
   const char *message;
 };
 
+const char *
+get_error_message( const struct turret_error *err );
+
 /* 
  * This function is needed to satisfy C++'s need for a default constructor that
  * it can call when instantiating a child class. It would be ideal for wrapture

@@ -37,7 +37,7 @@ int main( int argc, char **argv ) {
       blaster.Fire();
     }
   } catch( TurretException *e ) {
-    cout << e->what() << endl;
+    cout << ((OutOfAmmoException *)e)->message() << endl;
   }
 
   return EXIT_SUCCESS;
