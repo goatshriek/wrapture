@@ -1,0 +1,5 @@
+name: "ExplicitPointerWrapper"
+namespace: "wrapture_test"
+type: "pointer"
+equivalent-struct:
+  name: "basic_struct"
