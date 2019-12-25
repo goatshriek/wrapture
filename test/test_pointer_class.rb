@@ -31,7 +31,8 @@ class ClassSpecTest < Minitest::Test
     classes = spec.generate_wrappers
     validate_wrapper_results(test_spec, classes)
 
-    assert(file_contains_match('ExplicitPointerWrapper.hpp', 'struct basic_struct \*equivalent;'))
+    declaration = 'struct basic_struct \*equivalent;'
+    assert(file_contains_match('ExplicitPointerWrapper.hpp', declaration))
 
     File.delete(*classes)
   end
