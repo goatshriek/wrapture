@@ -46,6 +46,14 @@ module Wrapture
         normalized['parent']['includes'] = includes
       end
 
+      if spec.key?('type')
+        valid_types = %w[pointer struct]
+        unless valid_types.include?(spec['type'])
+          type_message = "#{spec['type']} is not a valid class type"
+          raise InvalidSpecKey.new(type_message, valid_keys: valid_types)
+        end
+      end
+
       normalized
     end
 
