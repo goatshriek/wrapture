@@ -21,6 +21,19 @@ class FunctionSpecTest < Minitest::Test
     end
   end
 
+  def test_matching_return_types
+    test_spec = load_fixture('no_cast_function')
+
+    spec = Wrapture::FunctionSpec.new(test_spec)
+
+    call = test_spec['wrapped-function']['name']
+    spec.definition('NoSuchClass') do |line|
+      code = line.strip
+
+      assert(code.start_with?("return #{call}")) if code.start_with?('return')
+    end
+  end
+
   def test_versioned_function
     test_spec = load_fixture('versioned_function')
 
