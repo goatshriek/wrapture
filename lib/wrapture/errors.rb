@@ -23,9 +23,19 @@ module Wrapture
 
   # The spec has a key that is not valid.
   class InvalidSpecKey < WraptureError
-    # Creates an InvalidSpecKey with the given message.
-    def initialize(message)
-      super(message)
+    # Creates an InvalidSpecKey with the given message. A list of valid values
+    # may optionally be passed to +valid_keys+ which will be added to the end
+    # of the message.
+    def initialize(message, valid_keys: [])
+      complete_message = message.dup
+
+      unless valid_keys.empty?
+        complete_message << ' (valid values are \''
+        complete_message << valid_keys.join('\', \'')
+        complete_message << '\')'
+      end
+
+      super(complete_message)
     end
   end
 
