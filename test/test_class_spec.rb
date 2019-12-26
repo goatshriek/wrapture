@@ -7,6 +7,12 @@ require 'minitest/autorun'
 require 'wrapture'
 
 class ClassSpecTest < Minitest::Test
+  def test_invalid_type
+    assert_raises(Wrapture::InvalidSpecKey) do
+      Wrapture::ClassSpec.new(load_fixture('invalid_type_class'))
+    end
+  end
+
   def test_normalize
     test_spec = load_fixture('minimal_class')
 
