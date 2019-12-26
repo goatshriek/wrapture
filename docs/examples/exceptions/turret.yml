@@ -105,6 +105,7 @@ classes:
             - value: "equivalent-struct-pointer"
   - name: "TargetingException"
     namespace: "defense_turret"
+    type: "pointer"
     parent:
       name: "TurretException"
       includes: "TurretException.hpp"
@@ -117,6 +118,7 @@ classes:
           value: "TARGETING_ERROR"
   - name: "OutOfAmmoException"
     namespace: "defense_turret"
+    type: "pointer"
     parent:
       name: "TurretException"
       includes: "TurretException.hpp"
@@ -138,6 +140,7 @@ classes:
             - value: "equivalent-struct-pointer"
   - name: "JammedException"
     namespace: "defense_turret"
+    type: "pointer"
     parent:
       name: "TurretException"
       includes: "TurretException.hpp"
