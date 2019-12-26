@@ -52,8 +52,8 @@ module Wrapture
 
     # Gives the effective type of the given class spec hash.
     def self.effective_type(spec)
-      inferred_pointer_wrapper = @spec['constructors'].any? do |spec|
-        spec['wrapped-function']['return']['type'] == EQUIVALENT_POINTER_KEYWORD
+      inferred_pointer_wrapper = spec['constructors'].any? do |func|
+        func['wrapped-function']['return']['type'] == EQUIVALENT_POINTER_KEYWORD
       end
 
       if spec.key?('type')
