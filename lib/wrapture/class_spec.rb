@@ -40,14 +40,20 @@ module Wrapture
 
       normalized['version'] = Wrapture.spec_version(spec)
       normalized['includes'] = Wrapture.normalize_includes(spec['includes'])
+      normalized['type'] = ClassSpec.effective_type(normalized)
 
       if spec.key?('parent')
         includes = Wrapture.normalize_includes(spec['parent']['includes'])
         normalized['parent']['includes'] = includes
       end
 
-      detected_pointer = normalized['constructors'].any? do |func|
-        func['wrapped-function']['return']['type'] == EQUIVALENT_POINTER_KEYWORD
+      normalized
+    end
+
+    # Gives the effective type of the given class spec hash.
+    def self.effective_type(spec)
+      inferred_pointer_wrapper = @spec['constructors'].any? do |spec|
+        spec['wrapped-function']['return']['type'] == EQUIVALENT_POINTER_KEYWORD
       end
 
       if spec.key?('type')
@@ -56,13 +62,13 @@ module Wrapture
           type_message = "#{spec['type']} is not a valid class type"
           raise InvalidSpecKey.new(type_message, valid_keys: valid_types)
         end
-      elsif detected_pointer
-        normalized['type'] = 'pointer'
-      else
-        normalized['type'] = 'struct'
-      end
 
-      normalized
+        spec['type']
+      elsif inferred_pointer_wrapper
+        'pointer'
+      else
+        'struct'
+      end
     end
 
     # Returns a string of the variable with it's type, properly formatted.
