@@ -103,6 +103,8 @@ classes:
           includes: "turret_error.h"
           params:
             - value: "equivalent-struct-pointer"
+          return:
+            type: "const char *"
   - name: "TargetingException"
     namespace: "defense_turret"
     type: "pointer"
@@ -136,6 +138,8 @@ classes:
         wrapped-function:
           name: "get_error_message"
           includes: "turret_error.h"
+          return:
+            type: "const char *"
           params:
             - value: "equivalent-struct-pointer"
   - name: "JammedException"

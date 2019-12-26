@@ -168,6 +168,8 @@ module Wrapture
       call = @wrapped.call_from(self)
       call_line = if @constructor
                     "this->equivalent = #{call}"
+                  elsif @wrapped.error_check?
+                    "return_val = #{call}"
                   elsif returns_value?
                     "return #{return_cast(call)}"
                   else
