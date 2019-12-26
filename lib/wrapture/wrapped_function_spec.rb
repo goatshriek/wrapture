@@ -33,6 +33,11 @@ module Wrapture
 
       normalized['includes'] = Wrapture.normalize_includes(spec['includes'])
 
+      unless spec.key?('return')
+        normalized['return'] = {}
+        normalized['return']['type'] = 'void'
+      end
+
       normalized
     end
 

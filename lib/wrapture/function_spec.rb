@@ -164,7 +164,7 @@ module Wrapture
       call_line = if @constructor
                     "this->equivalent = #{call}"
                   elsif returns_value?
-                    "return #{return_cast} ( #{call} )"
+                    "return #{return_cast(call)}"
                   else
                     call
                   end
@@ -203,11 +203,13 @@ module Wrapture
     end
 
     # The function to use to create the return value of the function.
-    def return_cast
-      if @spec['return']['overloaded']
-        "new#{@spec['return']['type'].chomp('*').strip}"
+    def return_cast(value)
+      if @spec['return']['type'] == @wrapped.return_val_type
+        value
+      elsif @spec['return']['overloaded']
+        "new#{@spec['return']['type'].chomp('*').strip} ( #{value} )"
       else
-        @spec['return']['type']
+        "#{@spec['return']['type']} ( #{value} )"
       end
     end
 
