@@ -111,10 +111,5 @@ module Wrapture
     def return_val_type
       @spec['return']['type']
     end
-
-    # A string with the type of the return value.
-    def return_val_type
-      @spec['return']['type']
-    end
   end
 end
