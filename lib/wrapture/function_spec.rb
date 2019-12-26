@@ -160,18 +160,16 @@ module Wrapture
     def definition(class_name)
       yield "#{return_prefix}#{class_name}::#{signature} {"
 
-      wrapped_call = String.new
-      if returns_value?
-        wrapped_call << "return #{return_cast} ( "
-      elsif @constructor
-        wrapped_call << 'this->equivalent = '
-      end
+      call = @wrapped.call_from(self)
+      call_line = if @constructor
+                    "this->equivalent = #{call}"
+                  elsif returns_value?
+                    "return #{return_cast(call)}"
+                  else
+                    call
+                  end
 
-      wrapped_call << @wrapped.call_from(self)
-
-      wrapped_call << ' )' if returns_value?
-
-      yield "  #{wrapped_call};"
+      yield "  #{call_line};"
       yield '}'
     end
 
@@ -205,11 +203,13 @@ module Wrapture
     end
 
     # The function to use to create the return value of the function.
-    def return_cast
-      if @spec['return']['overloaded']
-        "new#{@spec['return']['type'].chomp('*').strip}"
+    def return_cast(value)
+      if @spec['return']['type'] == @wrapped.return_val_type
+        value
+      elsif @spec['return']['overloaded']
+        "new#{@spec['return']['type'].chomp('*').strip} ( #{value} )"
       else
-        @spec['return']['type']
+        "#{@spec['return']['type']} ( #{value} )"
       end
     end
 
