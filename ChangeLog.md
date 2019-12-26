@@ -29,6 +29,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    pointer to the equivalent struct and wraps it in the class.
  - Structs can be wrapped by the best matching wrapper via the `newClassName`
    family of functions.
+ - Classes can be explicitly specified as pointer or struct wrapping classes
+   using the `type` property.
 
 ### Fixed
  - `bin/wrapture` is now executable.

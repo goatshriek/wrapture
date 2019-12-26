@@ -23,6 +23,20 @@ require 'minitest/autorun'
 require 'wrapture'
 
 class ClassSpecTest < Minitest::Test
+  def test_explicit_class
+    test_spec = load_fixture('explicit_pointer_class')
+
+    spec = Wrapture::ClassSpec.new(test_spec)
+
+    classes = spec.generate_wrappers
+    validate_wrapper_results(test_spec, classes)
+
+    declaration = 'struct basic_struct \*equivalent;'
+    assert(file_contains_match('ExplicitPointerWrapper.hpp', declaration))
+
+    File.delete(*classes)
+  end
+
   def test_overriding_constructor
     test_spec = load_fixture('constructor_class')
 
