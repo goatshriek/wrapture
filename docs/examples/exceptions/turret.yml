@@ -96,6 +96,7 @@ classes:
             type: "equivalent-struct-pointer"
     functions:
       - name: "message"
+        virtual: true
         return:
           type: "const char *"
         wrapped-function:
