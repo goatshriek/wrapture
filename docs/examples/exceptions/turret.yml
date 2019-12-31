@@ -119,6 +119,17 @@ classes:
         - member-name: "code"
           condition: "equals"
           value: "TARGETING_ERROR"
+    functions:
+      - name: "message"
+        return:
+          type: "const char *"
+        wrapped-function:
+          name: "get_error_message"
+          includes: "turret_error.h"
+          return:
+            type: "const char *"
+          params:
+            - value: "equivalent-struct-pointer"
   - name: "OutOfAmmoException"
     namespace: "defense_turret"
     type: "pointer"
@@ -156,3 +167,14 @@ classes:
         - member-name: "code"
           condition: "equals"
           value: "JAMMED"
+    functions:
+      - name: "message"
+        return:
+          type: "const char *"
+        wrapped-function:
+          name: "get_error_message"
+          includes: "turret_error.h"
+          return:
+            type: "const char *"
+          params:
+            - value: "equivalent-struct-pointer"
