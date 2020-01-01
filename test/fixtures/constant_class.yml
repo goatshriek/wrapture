@@ -1,7 +1,9 @@
 name: "ClassWithConstant"
+namespace: "wrapture_test"
 equivalent-struct:
   name: "basic_struct"
 constants:
   - name: "TEST_CONSTANT"
     type: "int"
     value: "3"
+    includes: "my_include.h"

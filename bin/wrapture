@@ -5,9 +5,14 @@
 require 'yaml'
 require 'wrapture'
 
-spec = YAML.load_file ARGV[0]
+scope = Wrapture::Scope.new
 
-spec['classes'].each do |spec_hash|
-  class_spec = Wrapture::ClassSpec.new spec_hash
-  class_spec.generate_wrappers
+ARGV.each do |spec_file|
+  spec = YAML.load_file(spec_file)
+
+  spec['classes'].each do |class_spec|
+    Wrapture::ClassSpec.new(class_spec, scope: scope)
+  end
 end
+
+scope.generate_wrappers

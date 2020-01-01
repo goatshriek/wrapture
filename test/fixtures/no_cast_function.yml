@@ -1,0 +1,7 @@
+name: "BasicFunction1"
+return:
+  type: "const char *"
+wrapped-function:
+  name: "underlying_basic_function"
+  return:
+    type: "const char *"

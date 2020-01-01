@@ -1,0 +1,123 @@
+version: "0.3.0"
+classes:
+  - name: "SecurityEvent"
+    namespace: "security_system"
+    equivalent-struct:
+      name: "event"
+      includes: "security_system.h"
+    constructors:
+      - wrapped-function:
+          name: "new_default_event"
+          return:
+            type: "equivalent-struct-pointer"
+      - wrapped-function:
+          name: "new_event"
+          params:
+            - name: "code"
+              type: "int"
+            - name: "data"
+              type: "void *"
+          return:
+            type: "equivalent-struct-pointer"
+    destructor:
+      wrapped-function:
+        name: "destroy_event"
+        params:
+          - value: "equivalent-struct-pointer"
+    functions:
+      - name: "NextEvent"
+        static: true
+        return:
+          type: "SecurityEvent *"
+          overloaded: true
+        wrapped-function:
+          name: "get_next_event"
+          includes: "security_system.h"
+      - name: "Print"
+        virtual: true
+        wrapped-function:
+          name: "print_event"
+          includes: "security_system.h"
+          params:
+            - value: "equivalent-struct-pointer"
+  - name: "CameraEvent"
+    namespace: "security_system"
+    parent:
+      name: "SecurityEvent"
+      includes: "SecurityEvent.hpp"
+    equivalent-struct:
+      name: "event"
+      includes: "security_system.h"
+      rules:
+        - member-name: "code"
+          condition: "equals"
+          value: "CAMERA_EVENT"
+    constructors:
+      - wrapped-function:
+          name: "new_camera_event"
+          params:
+            - name: "description"
+              type: "const char *"
+          return:
+            type: "equivalent-struct-pointer"
+    functions:
+      - name: "Print"
+        wrapped-function:
+          name: "print_camera_event"
+          includes: "security_system.h"
+          params:
+            - value: "equivalent-struct-pointer"
+  - name: "GlassBreakEvent"
+    namespace: "security_system"
+    parent:
+      name: "SecurityEvent"
+      includes: "SecurityEvent.hpp"
+    equivalent-struct:
+      name: "event"
+      includes: "security_system.h"
+      rules:
+        - member-name: "code"
+          condition: "equals"
+          value: "GLASS_BREAK_EVENT"
+    constructors:
+      - wrapped-function:
+          name: "new_glass_break_event"
+          params:
+            - name: "level"
+              type: "int"
+          return:
+            type: "equivalent-struct-pointer"
+    functions:
+      - name: "Print"
+        wrapped-function:
+          name: "print_glass_break_event"
+          includes: "security_system.h"
+          params:
+            - value: "equivalent-struct-pointer"
+  - name: "MotionEvent"
+    namespace: "security_system"
+    parent:
+      name: "SecurityEvent"
+      includes: "SecurityEvent.hpp"
+    equivalent-struct:
+      name: "event"
+      includes: "security_system.h"
+      rules:
+        - member-name: "code"
+          condition: "equals"
+          value: "MOTION_EVENT"
+    constructors:
+      - wrapped-function:
+          name: "new_motion_event"
+          params:
+            - name: "description"
+              type: "const char *"
+          return:
+            type: "equivalent-struct-pointer"
+    functions:
+      - name: "Print"
+        wrapped-function:
+          name: "print_motion_event"
+          includes: "security_system.h"
+          params:
+            - value: "equivalent-struct-pointer"

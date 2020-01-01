@@ -1,0 +1,78 @@
+classes:
+  - name: "Gym"
+    namespace: "wrapture_test"
+    equivalent-struct:
+      name: "gym"
+    functions:
+      - name: "AddPool"
+        params:
+          - name: "new_pool"
+            type: "Pool"
+            includes: "Pool.hpp"
+        wrapped-function:
+          name: "add_pool_to_gym"
+          params:
+            - name: "gym"
+              type: "equivalent-struct-pointer"
+            - name: "new_pool"
+              type: "struct gym_pool *"
+      - name: "AddPoolCopy"
+        params:
+          - name: "original_pool"
+            type: "Pool"
+            includes: "Pool.hpp"
+        wrapped-function:
+          name: "copy_pool_to_gym"
+          params:
+            - name: "gym"
+              type: "equivalent-struct-pointer"
+            - name: "original_pool"
+              type: "struct gym_pool"
+      - name: "AddTrack"
+        params:
+          - name: "new_track"
+            type: "Track"
+            includes: "Track.hpp"
+        wrapped-function:
+          name: "add_track_to_gym"
+          params:
+            - name: "gym"
+              type: "equivalent-struct-pointer"
+            - name: "new_track"
+              type: "struct gym_track *"
+      - name: "AddTrackCopy"
+        params:
+          - name: "original_track"
+            type: "Track"
+            includes: "Track.hpp"
+        wrapped-function:
+          name: "copy_track_to_gym"
+          params:
+            - name: "gym"
+              type: "equivalent-struct-pointer"
+            - name: "original_track"
+              type: "struct gym_track"
+  - name: "Pool"
+    namespace: "wrapture_test"
+    equivalent-struct:
+      name: "gym_pool"
+    constructors:
+      - wrapped-function:
+          name: "new_pool"
+          params:
+            - name: "name"
+              type: "const char *"
+          return:
+            type: "equivalent-struct"
+  - name: "Track"
+    namespace: "wrapture_test"
+    equivalent-struct:
+      name: "gym_track"
+    constructors:
+      - wrapped-function:
+          name: "new_track"
+          params:
+            - name: "length"
+              type: "int"
+          return:
+            type: "equivalent-struct-pointer"

@@ -1,4 +1,5 @@
 name: "ClassWithConstructor"
+namespace: "wrapture_test"
 equivalent-struct:
   name: "constructed_struct"
   members:
@@ -14,8 +15,7 @@ constructors:
           type: "const char *"
       return:
         type: "equivalent-struct-pointer"
-      includes:
-        - "constructed.h"
+      includes: "constructed.h"
   - wrapped-function:
       name: "copy_struct"
       params:
@@ -23,6 +23,8 @@ constructors:
           type: "equivalent-struct"
       return:
         type: "equivalent-struct-pointer"
+      includes:
+        - "constructed.h"
   - wrapped-function:
       name: "copy_struct_pointer"
       params:

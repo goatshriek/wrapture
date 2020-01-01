@@ -1,8 +1,9 @@
 name: "BasicClass"
+namespace: "wrapture_test"
+includes: "class_include.h"
 equivalent-struct:
   name: "basic_struct"
-  includes:
-    - "folder/include_file_1.h"
+  includes: "folder/include_file_1.h"
 functions:
   - name: "BasicFunction1"
     params:
@@ -12,6 +13,7 @@ functions:
       name: "underlying_basic_function"
       includes:
         - "folder/include_file_2.h"
+        - "folder/include_file_3.h"
       params:
         - name: "equivalent-struct-pointer"
         - name: "app_name"

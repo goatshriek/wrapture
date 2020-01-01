@@ -1,0 +1,4 @@
+name: "TEST_CONSTANT"
+type: "int"
+value: "455"
+includes: "my_include.h"

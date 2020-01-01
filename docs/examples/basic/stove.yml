@@ -1,0 +1,77 @@
+classes:
+  - name: "Stove"
+    namespace: "kitchen"
+    includes: "stove.h"
+    equivalent-struct:
+      name: "stove"
+    constructors:
+      - wrapped-function:
+          name: "new_stove"
+          params:
+            - name: "burner_count"
+              type: "int"
+          return:
+            type: "equivalent-struct-pointer"
+    destructor:
+      wrapped-function:
+        name: "destroy_stove"
+        params:
+          - name: "equivalent-struct-pointer"
+    functions:
+      - name: "GetBurnerCount"
+        return:
+          type: "int"
+        wrapped-function:
+          name: "get_burner_count"
+          params:
+            - name: "equivalent-struct-pointer"
+      - name: "GetOvenTemp"
+        return:
+          type: "int"
+        wrapped-function:
+          name: "get_oven_temp"
+          params:
+            - name: "equivalent-struct-pointer"
+      - name: "SetOvenTemp"
+        params:
+          - name: "new_temp"
+            type: "int"
+        wrapped-function:
+          name: "set_oven_temp"
+          params:
+            - name: "equivalent-struct-pointer"
+            - name: "new_temp"
+      - name: "GetBurnerLevel"
+        params:
+          - name: "burner_index"
+            type: "int"
+        return:
+          type: "int"
+        wrapped-function:
+          name: "get_burner_level"
+          params:
+            - name: "equivalent-struct-pointer"
+            - name: "burner_index"
+      - name: "SetBurnerLevel"
+        params:
+          - name: "burner_index"
+            type: "int"
+          - name: "new_level"
+            type: "int"
+        wrapped-function:
+          name: "set_burner_level"
+          params:
+            - name: "equivalent-struct-pointer"
+            - name: "burner_index"
+            - name: "new_level"
+      - name: "IsModelSupported"
+        static: true
+        return:
+          type: "bool"
+        params:
+          - name: "model"
+            type: "int"
+        wrapped-function:
+          name: "is_model_supported"
+          params:
+            - name: "model"

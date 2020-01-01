@@ -1,0 +1,15 @@
+classes:
+  - name: "MylibError"
+    namespace: "mylib"
+    equivalent-struct:
+      name: "mylib_error"
+      includes: "mylib.h"
+    parent:
+      name: "std::exception"
+      includes: "exception"
+    constructors:
+      - wrapped-function:
+          name: "raise_mylib_error"
+          includes: "mylib.h"
+          return:
+            type: "equivalent-struct-pointer"

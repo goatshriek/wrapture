@@ -1,0 +1,92 @@
+classes:
+  - name: "IceMaker"
+    namespace: "kitchen"
+    includes: "fridge.h"
+    equivalent-struct:
+      name: "ice_maker"
+    constructors:
+      - wrapped-function:
+          name: "new_ice_maker"
+          params:
+            - name: "size"
+              type: "int"
+            - name: "can_crush_ice"
+              type: "int"
+          return:
+            type: "equivalent-struct-pointer"
+  - name: "WaterFilter"
+    namespace: "kitchen"
+    includes: "fridge.h"
+    equivalent-struct:
+      name: "water_filter"
+    constructors:
+      - wrapped-function:
+          name: "new_water_filter"
+          params:
+            - name: "purity_level"
+              type: "int"
+          return:
+            type: "equivalent-struct-pointer"
+  - name: "Freezer"
+    namespace: "kitchen"
+    includes: "fridge.h"
+    equivalent-struct:
+      name: "freezer"
+    constructors:
+      - wrapped-function:
+          name: "new_freezer"
+          params:
+            - name: "minimum_temp"
+              type: "int"
+            - name: "set_temp"
+              type: "int"
+          return:
+            type: "equivalent-struct-pointer"
+  - name: "Fridge"
+    namespace: "kitchen"
+    includes:
+      - "fridge.h"
+      - "Freezer.hpp"
+      - "IceMaker.hpp"
+      - "WaterFilter.hpp"
+    equivalent-struct:
+      name: "fridge"
+    constructors:
+      - wrapped-function:
+          name: "new_fridge"
+          params:
+            - name: "temperature"
+              type: "int"
+          return:
+            type: "equivalent-struct-pointer"
+    functions:
+      - name: "AddIceMaker"
+        params:
+          - name: "new_ice_maker"
+            type: "IceMaker"
+        wrapped-function:
+          name: "add_ice_maker_to_fridge"
+          params:
+            - name: "equivalent-struct-pointer"
+            - name: "new_ice_maker"
+              type: "struct ice_maker *"
+      - name: "AddWaterFilter"
+        params:
+          - name: "new_filter"
+            type: "WaterFilter"
+        wrapped-function:
+          name: "add_water_filter_to_fridge"
+          params:
+            - name: "equivalent-struct-pointer"
+            - name: "new_filter"
+              type: "struct water_filter *"
+      - name: "AddFreezer"
+        params:
+          - name: "new_freezer"
+            type: "Freezer"
+        wrapped-function:
+          name: "add_freezer_to_fridge"
+          params:
+            - name: "equivalent-struct-pointer"
+            - name: "new_freezer"
+              type: "struct freezer *"

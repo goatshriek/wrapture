@@ -1,11 +1,25 @@
+# SPDX-License-Identifier: Apache-2.0
+
 # frozen_string_literal: true
 
-require File.expand_path('lib/wrapture/version', __dir__)
+# Copyright 2019-2020 Joel E. Anderson
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 Gem::Specification.new do |spec|
   spec.name        =  'wrapture'
-  spec.version     =  Wrapture::VERSION
-  spec.date        =  '2019-04-01'
+  spec.version     =  '0.3.0'
+  spec.date        =  '2020-01-01'
   spec.summary     =  'wrap C in C++'
   spec.description =  'Wraps C code in C++.'
   spec.authors     =  ['Joel Anderson']
@@ -18,7 +32,7 @@ Gem::Specification.new do |spec|
   spec.license     =  'Apache-2.0'
 
   spec.required_ruby_version = '>= 2.3'
-  spec.add_runtime_dependency 'bundler', '>= 1.6.4'
+  spec.add_development_dependency 'bundler', '>= 1.6.4', '< 2.2'
 
   if spec.respond_to?(:metadata)
     spec.metadata = {

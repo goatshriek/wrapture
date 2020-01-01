@@ -1,0 +1,30 @@
+name: "DefaultMembersClass"
+namespace: "wrapture_test"
+equivalent-struct:
+  name: "struct_to_wrap"
+  includes:
+    - "struct_header.h"
+    - "another_struct_header.h"
+  # If all members of a struct with members given have default values, then a
+  # default constructor will be available for the class using these.
+  members:
+    - name: "member_1"
+      type: "int"
+      # a member may have a default value, which will be used in constructors
+      # to make the member optional.
+      default-value: 42
+    - name: "member_2"
+      type: "const char *"
+      # String defaults are okay too.
+      default-value: "fidelio"
+    - name: "member_3"
+      type: "unsigned char"
+      default-value: "t"
+functions:
+  - name: "WrappedFunction"
+    return:
+      type: "DefaultMembersClass"
+    wrapped-function:
+      name: "native_function"
+      params:
+        - name: "equivalent-struct"

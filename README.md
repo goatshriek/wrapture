@@ -10,6 +10,22 @@ A tool for generating object-oriented language wrappers for C code.
 Wrapture uses YAML files that describe the C code being wrapped and the output
 language interface.
 
+## Installation and Dependencies
+
+Wrapture is available on RubyGems.org and can be installed with a simple:
+
+```ruby
+gem install wrapture
+```
+
+Wrapture is packaged with bundler, so if you want to work on the source directly
+you can get all dependencies with a simple `bundle install`.
+
+Running the examples will require an environment that supports the target
+language, for example a compiler like `g++`for the C++ examples. You will need
+to install these on your own, as there is currently nothing in Wrapture to
+manage all of the target language environments.
+
 ## What about SWIG?
 
 [SWIG](http://www.swig.org) provides a very similar functionality by wrapping C
