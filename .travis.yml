@@ -8,6 +8,7 @@ rvm:
   - 2.3
   - 2.4
   - 2.5
+  - truffleruby
 
 matrix:
   allow_failures:
@@ -31,20 +32,20 @@ matrix:
       #gemfile: gemfiles/jruby.gemfile
     - os: osx
       rvm: jruby
-      #gemfile: gemfiles/jruby.gemfile
-    - os: linux
-      dist: trusty
-      rvm: truffleruby
-    - os: osx
-      rvm: truffleruby
+      gemfile: gemfiles/minimal.gemfile
+    #- os: linux
+    #  dist: trusty
+    #  rvm: truffleruby
+    #- os: osx
+    #  rvm: truffleruby
     - os: linux
       dist: trusty
       rvm: rbx-3
-      #gemfile: gemfiles/minimal.gemfile
+      gemfile: gemfiles/minimal.gemfile
     - os: linux
       dist: trusty
       rvm: rbx-4
-      #gemfile: gemfiles/minimal.gemfile
+      gemfile: gemfiles/minimal.gemfile
 
 before_install:
   - gem update --system --no-document
@@ -52,12 +53,13 @@ before_install:
 
 install:
   - bundle config set deployment 'true'
-  - if [[ $TRAVIS_RUBY_VERSION =~ "rbx" ]]; then bundle install --jobs=3 --retry=3 --without=development test; else bundle install --jobs=3 --retry=3; fi
+  - bundle config set gemfile $BUNDLE_GEMFILE
+  - bundle install --jobs=3 --retry=3
 
 script:
   - if [[ $TRAVIS_RUBY_VERSION =~ "2.6" ]]; then bundle exec rubocop; fi
   - if [[ $TRAVIS_RUBY_VERSION =~ "2.6" ]]; then bundle exec rdoc --coverage-report lib; fi
-  - if [[ $TRAVIS_RUBY_VERSION =~ "jruby" || $TRAVIS_RUBY_VERSION =~ "rbx" ]]; then rake test; else bundle exec rake test; fi
+  - if [[ $TRAVIS_RUBY_VERSION =~ "jruby" ]]; then rake test; else bundle exec rake test; fi
   - gem build wrapture.gemspec
   - gem install wrapture
 
