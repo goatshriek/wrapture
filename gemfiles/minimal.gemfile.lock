@@ -5,7 +5,7 @@ GEM
     rake (13.0.1)
 
 PLATFORMS
-  java
+  ruby
 
 DEPENDENCIES
   minitest (>= 5.9)
