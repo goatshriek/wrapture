@@ -5,33 +5,28 @@ os:
   - osx
 
 rvm:
-#  - 2.3
-#  - 2.4
+  - 2.3
+  - 2.4
   - 2.5
-#  - truffleruby
+  - truffleruby
+  - jruby
 
 matrix:
   allow_failures:
     - os: osx
       rvm: 2.3
   include:
-#    - os: linux
-#      dist: trusty
-#      rvm: 2.6
-#      addons:
-#        sonarcloud:
-#          organization: "goatshriek-github"
-#    - os: osx
-#      rvm: 2.6
-#      addons:
-#        sonarcloud:
-#          organization: "goatshriek-github"
     - os: linux
       dist: trusty
-      rvm: jruby
+      rvm: 2.6
+      addons:
+        sonarcloud:
+          organization: "goatshriek-github"
     - os: osx
-      rvm: jruby
-#      gemfile: gemfiles/minimal.gemfile
+      rvm: 2.6
+      addons:
+        sonarcloud:
+          organization: "goatshriek-github"
     - os: linux
       dist: trusty
       rvm: rbx-3
@@ -53,7 +48,6 @@ install:
 script:
   - if [[ $TRAVIS_RUBY_VERSION =~ "2.6" ]]; then bundle exec rubocop; fi
   - if [[ $TRAVIS_RUBY_VERSION =~ "2.6" ]]; then bundle exec rdoc --coverage-report lib; fi
-  # - if [[ $TRAVIS_RUBY_VERSION =~ "jruby" ]]; then rake test; else bundle exec rake test; fi
   - bundle exec rake test
   - gem build wrapture.gemspec
   - gem install wrapture
