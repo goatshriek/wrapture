@@ -8,7 +8,7 @@ gem 'json', '>= 1.8', '<= 2.2' # needed for truffleruby to work
 
 group :development do
   gem 'rake', '>= 0.9.2'
-  gem 'rdoc', '~> 6.0'
+  gem 'rdoc', '>= 6.0', '< 6.2' # 6.2 require >= ruby 2.4.0
 end
 
 group :test do

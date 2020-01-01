@@ -51,6 +51,10 @@ before_install:
   - gem update --system --no-document
   - gem install bundler --no-document
 
+install:
+  - bundle config set deployment 'true'
+  - bundle install --jobs=3 --retry=3 
+
 script:
   - if [[ $TRAVIS_RUBY_VERSION =~ "2.6" ]]; then bundle exec rubocop; fi
   - if [[ $TRAVIS_RUBY_VERSION =~ "2.6" ]]; then bundle exec rdoc --coverage-report lib; fi
