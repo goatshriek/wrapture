@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2019 Joel E. Anderson
+# Copyright 2019-2020 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -61,11 +61,13 @@ module Wrapture
     def initialize(spec)
       @spec = self.class.normalize_spec_hash(spec)
 
-      @error_rules = @spec['error-check']['rules'].map do |rule_spec|
+      check = @spec['error-check']
+
+      @error_rules = check['rules'].map do |rule_spec|
         RuleSpec.new(rule_spec)
       end
 
-      action = @spec['error-check']['error-action']
+      action = check['error-action']
       @error_action = ActionSpec.new(action) unless @error_rules.empty?
     end
 
