@@ -58,7 +58,8 @@ install:
 script:
   - if [[ $TRAVIS_RUBY_VERSION =~ "2.6" ]]; then bundle exec rubocop; fi
   - if [[ $TRAVIS_RUBY_VERSION =~ "2.6" ]]; then bundle exec rdoc --coverage-report lib; fi
-  - if [[ $TRAVIS_RUBY_VERSION =~ "jruby" ]]; then rake test; else bundle exec rake test; fi
+  # - if [[ $TRAVIS_RUBY_VERSION =~ "jruby" ]]; then rake test; else bundle exec rake test; fi
+  - bundle exec rake test
   - gem build wrapture.gemspec
   - gem install wrapture
 
