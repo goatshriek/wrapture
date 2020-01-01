@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Python class generation.
  - Perl class generation.
 
-## [0.3.0] - 2019-12-26
+## [0.3.0] - 2020-01-01
 ### Added
  - Examples of basic usage and features.
  - Option to give a class-level include list.
@@ -33,6 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    using the `type` property.
  - Return values are not casted if the generated function and wrapped function
    have the same return type.
+ - Errors can be detected and converted to exceptions to throw.
 
 ### Fixed
  - `bin/wrapture` is now executable.

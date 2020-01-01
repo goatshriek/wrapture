@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2019 Joel E. Anderson
+# Copyright 2019-2020 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require 'wrapture/constants'
 require 'wrapture/errors'
 
 module Wrapture
@@ -77,7 +78,9 @@ module Wrapture
       if @spec['type'] == 'struct-member'
         "#{variable}->#{@spec['member-name']} #{condition} #{@spec['value']}"
       else
-        "#{@spec['left-expression']} #{condition} #{@spec['right-expression']}"
+        left = @spec['left-expression']
+        right = @spec['right-expression']
+        "#{left} #{condition} #{right}".sub(RETURN_VALUE_KEYWORD, 'return_val')
       end
     end
   end

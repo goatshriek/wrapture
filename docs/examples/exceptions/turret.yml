@@ -1,0 +1,193 @@
+# SPDX-License-Identifier: Apache-2.0
+
+# Copyright 2020 Joel E. Anderson
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# support for overloaded structs was introduced in version 0.3.0, so you will
+# need to use this version of wrapture at a minimum
+version: "0.3.0"
+classes:
+  - name: "Turret"
+    namespace: "defense_turret"
+    equivalent-struct:
+      name: "turret"
+      includes: "turret.h"
+    constructors:
+      - wrapped-function:
+          name: "new_turret"
+          return:
+            type: "equivalent-struct-pointer"
+    destructor:
+      wrapped-function:
+        name: "destroy_turret"
+        params:
+          - value: "equivalent-struct-pointer"
+    functions:
+      - name: "Aim"
+        params:
+          - name: "x"
+            type: "int"
+          - name: "y"
+            type: "int"
+          - name: "z"
+            type: "int"
+        wrapped-function:
+          name: "aim"
+          params:
+            - value: "equivalent-struct-pointer"
+            - value: "x"
+            - value: "y"
+            - value: "z"
+          return:
+            type: "struct turret_error *"
+          error-check:
+            rules:
+              - left-expression: "return-value"
+                condition: "not-equals"
+                right-expression: "success()"
+            error-action:
+              name: "throw-exception"
+              constructor:
+                name: "TargetingException"
+                includes: "TargetingException.hpp"
+                params:
+                  - value: "return-value"
+      - name: "AmmoCount"
+        return:
+          type: "int"
+        wrapped-function:
+          name: "ammo_count"
+          params:
+            - value: "equivalent-struct-pointer"
+      - name: "Fire"
+        wrapped-function:
+          name: "fire"
+          params:
+            - value: "equivalent-struct-pointer"
+          return:
+            type: "struct turret_error *"
+          error-check:
+            rules:
+              - left-expression: "return-value"
+                condition: "not-equals"
+                right-expression: "success()"
+            error-action:
+              name: "throw-exception"
+              constructor:
+                name: "TurretException::newTurretException"
+                includes: "TurretException.hpp"
+                params:
+                  - value: "return-value"
+      - name: "Reload"
+        wrapped-function:
+          name: "reload"
+          params:
+            - value: "equivalent-struct-pointer"
+  - name: "TurretException"
+    namespace: "defense_turret"
+    parent:
+      name: "std::exception"
+      includes: "exception"
+    equivalent-struct:
+      name: "turret_error"
+      includes: "turret_error.h"
+    constructors:
+      - wrapped-function:
+          name: "null_error"
+          return:
+            type: "equivalent-struct-pointer"
+    functions:
+      - name: "message"
+        virtual: true
+        return:
+          type: "const char *"
+        wrapped-function:
+          name: "get_error_message"
+          includes: "turret_error.h"
+          params:
+            - value: "equivalent-struct-pointer"
+          return:
+            type: "const char *"
+  - name: "JammedException"
+    namespace: "defense_turret"
+    type: "pointer"
+    parent:
+      name: "TurretException"
+      includes: "TurretException.hpp"
+    equivalent-struct:
+      name: "turret_error"
+      includes: "turret_error.h"
+      rules:
+        - member-name: "code"
+          condition: "equals"
+          value: "JAMMED"
+    functions:
+      - name: "message"
+        return:
+          type: "const char *"
+        wrapped-function:
+          name: "get_error_message"
+          includes: "turret_error.h"
+          return:
+            type: "const char *"
+          params:
+            - value: "equivalent-struct-pointer"
+  - name: "OutOfAmmoException"
+    namespace: "defense_turret"
+    type: "pointer"
+    parent:
+      name: "TurretException"
+      includes: "TurretException.hpp"
+    equivalent-struct:
+      name: "turret_error"
+      includes: "turret_error.h"
+      rules:
+        - member-name: "code"
+          condition: "equals"
+          value: "OUT_OF_AMMO"
+    functions:
+      - name: "message"
+        return:
+          type: "const char *"
+        wrapped-function:
+          name: "get_error_message"
+          includes: "turret_error.h"
+          return:
+            type: "const char *"
+          params:
+            - value: "equivalent-struct-pointer"
+  - name: "TargetingException"
+    namespace: "defense_turret"
+    type: "pointer"
+    parent:
+      name: "TurretException"
+      includes: "TurretException.hpp"
+    equivalent-struct:
+      name: "turret_error"
+      includes: "turret_error.h"
+      rules:
+        - member-name: "code"
+          condition: "equals"
+          value: "TARGETING_ERROR"
+    functions:
+      - name: "message"
+        return:
+          type: "const char *"
+        wrapped-function:
+          name: "get_error_message"
+          includes: "turret_error.h"
+          return:
+            type: "const char *"
+          params:
+            - value: "equivalent-struct-pointer"

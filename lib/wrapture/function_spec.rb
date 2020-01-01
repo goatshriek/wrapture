@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2019 Joel E. Anderson
+# Copyright 2019-2020 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -160,9 +160,16 @@ module Wrapture
     def definition(class_name)
       yield "#{return_prefix}#{class_name}::#{signature} {"
 
+      if @wrapped.error_check?
+        yield "  #{@wrapped.return_val_type} return_val;"
+        yield
+      end
+
       call = @wrapped.call_from(self)
       call_line = if @constructor
                     "this->equivalent = #{call}"
+                  elsif @wrapped.error_check?
+                    "return_val = #{call}"
                   elsif returns_value?
                     "return #{return_cast(call)}"
                   else
@@ -170,6 +177,12 @@ module Wrapture
                   end
 
       yield "  #{call_line};"
+
+      if @wrapped.error_check?
+        yield
+        @wrapped.error_check { |line| yield "  #{line}" }
+      end
+
       yield '}'
     end
 

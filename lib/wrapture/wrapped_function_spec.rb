@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2019 Joel E. Anderson
+# Copyright 2019-2020 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -33,6 +33,9 @@ module Wrapture
 
       normalized['includes'] = Wrapture.normalize_includes(spec['includes'])
 
+      normalized['error-check'] ||= {}
+      normalized['error-check']['rules'] ||= []
+
       unless spec.key?('return')
         normalized['return'] = {}
         normalized['return']['type'] = 'void'
@@ -57,6 +60,15 @@ module Wrapture
     # includes:: a list of includes needed for this function
     def initialize(spec)
       @spec = self.class.normalize_spec_hash(spec)
+
+      check = @spec['error-check']
+
+      @error_rules = check['rules'].map do |rule_spec|
+        RuleSpec.new(rule_spec)
+      end
+
+      action = check['error-action']
+      @error_action = ActionSpec.new(action) unless @error_rules.empty?
     end
 
     # Generates a function call from a provided FunctionSpec. Paremeters and
@@ -71,9 +83,30 @@ module Wrapture
       "#{@spec['name']}( #{resolved_params.join(', ')} )"
     end
 
+    # Yields each line of the error check and any actions taken for this wrapped
+    # function. If this function does not have any error check defined, then
+    # this function returns without yielding anything.
+    def error_check
+      return if @error_rules.empty?
+
+      checks = @error_rules.map(&:check)
+      yield "if( #{checks.join(' && ')} ){"
+      yield "  #{@error_action.take};"
+      yield '}'
+    end
+
+    # True if the wrapped function has an error check associated with it.
+    def error_check?
+      !@error_rules.empty?
+    end
+
     # A list of includes required for this function call.
     def includes
-      @spec['includes'].dup
+      includes = @spec['includes'].dup
+
+      includes.concat(@error_action.includes) if error_check?
+
+      includes
     end
 
     # A string with the type of the return value.
