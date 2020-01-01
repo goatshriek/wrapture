@@ -231,8 +231,8 @@ g++ -I . \
     TargetingException.cpp TurretException.cpp \
     turret_usage.cpp \
     -o turret_usage_example
-./turret_usage_example
 
+./turret_usage_example
 # generates the following output:
 # aimed at (-1, 2, 5)
 # fired at (-1, 2, 5)
