@@ -23,5 +23,5 @@ group :development do
 end
 
 group :test do
-  gem 'minitest', '>= 5.9', '< 5.12'
+  gem 'minitest', '>= 5.9', '< 5.12' # 5.12+ cause problems with rbx 4
 end

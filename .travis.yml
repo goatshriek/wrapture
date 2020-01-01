@@ -7,7 +7,7 @@ os:
 rvm:
 #  - 2.3
 #  - 2.4
-#  - 2.5
+  - 2.5
 #  - truffleruby
 
 matrix:
@@ -15,17 +15,17 @@ matrix:
     - os: osx
       rvm: 2.3
   include:
-    - os: linux
-      dist: trusty
-      rvm: 2.6
-      addons:
-        sonarcloud:
-          organization: "goatshriek-github"
-    - os: osx
-      rvm: 2.6
-      addons:
-        sonarcloud:
-          organization: "goatshriek-github"
+#    - os: linux
+#      dist: trusty
+#      rvm: 2.6
+#      addons:
+#        sonarcloud:
+#          organization: "goatshriek-github"
+#    - os: osx
+#      rvm: 2.6
+#      addons:
+#        sonarcloud:
+#          organization: "goatshriek-github"
     - os: linux
       dist: trusty
       rvm: jruby
