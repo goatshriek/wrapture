@@ -17,7 +17,6 @@
 # support for overloaded structs was introduced in version 0.3.0, so you will
 # need to use this version of wrapture at a minimum
 version: "0.3.0"
-
 classes:
   - name: "Turret"
     namespace: "defense_turret"
@@ -60,8 +59,8 @@ classes:
             error-action:
               name: "throw-exception"
               constructor:
-                name: "TurretException::newTurretException"
-                includes: "TurretException.hpp"
+                name: "TargetingException"
+                includes: "TargetingException.hpp"
                 params:
                   - value: "return-value"
       - name: "AmmoCount"
@@ -120,7 +119,7 @@ classes:
             - value: "equivalent-struct-pointer"
           return:
             type: "const char *"
-  - name: "TargetingException"
+  - name: "JammedException"
     namespace: "defense_turret"
     type: "pointer"
     parent:
@@ -132,7 +131,7 @@ classes:
       rules:
         - member-name: "code"
           condition: "equals"
-          value: "TARGETING_ERROR"
+          value: "JAMMED"
     functions:
       - name: "message"
         return:
@@ -168,7 +167,7 @@ classes:
             type: "const char *"
           params:
             - value: "equivalent-struct-pointer"
-  - name: "JammedException"
+  - name: "TargetingException"
     namespace: "defense_turret"
     type: "pointer"
     parent:
@@ -180,7 +179,7 @@ classes:
       rules:
         - member-name: "code"
           condition: "equals"
-          value: "JAMMED"
+          value: "TARGETING_ERROR"
     functions:
       - name: "message"
         return:

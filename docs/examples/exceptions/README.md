@@ -34,28 +34,36 @@ We can wrap the struct at a general level in the normal manner:
 ```yaml
 classes:
   - name: "TurretException"
-    namespace: "turret"
+    namespace: "defense_turret"
     parent:
       name: "std::exception"
       includes: "exception"
     equivalent-struct:
       name: "turret_error"
       includes: "turret_error.h"
-      members:
-        - name: "code"
-          type: "int"
-        - name: "message"
+    constructors:
+      - wrapped-function:
+          name: "null_error"
+          return:
+            type: "equivalent-struct-pointer"
+    functions:
+      - name: "message"
+        virtual: true
+        return:
           type: "const char *"
+        wrapped-function:
+          name: "get_error_message"
+          includes: "turret_error.h"
+          params:
+            - value: "equivalent-struct-pointer"
+          return:
+            type: "const char *"
 ```
 
 Note that we have specified that this class will inherit from the standard
 exception class, as one would expect. We have also specified the members so
 that a default constructor and destructor are created. This allows the class
 to be created and thrown like any other Exception class.
-
-But if we'd like users of our wrapper to catch different exceptions in a more
-natural way, we'll need to break out the different types of errors into their
-own specialized classes.
 
 The error code may be any of a number of values depending on what sort of
 problem is encountered. In our wrapper we need to generate an exceptions for
@@ -64,57 +72,54 @@ Assuming that there are well-named `#define`s for these codes, we can create
 their exception classes like this:
 
 ```yaml
-  - name: "TargetingException"
-    namespace: "turret"
-    parent:
-      name: "TurretException"
-      includes: "TurretException.hpp"
-    equivalent-struct:
-      name: "turret_error"
-      includes: "turret_error.h"
-      members:
-        - name: "code"
-          type: "int"
-        - name: "message"
-          type: "const char *"
-      rules:
-        - member-name: "code"
-          condition: "equals"
-          value: "TARGETING_ERROR"
-  - name: "OutOfAmmoException"
-    namespace: "turret"
-    parent:
-      name: "TurretException"
-      includes: "TurretException.hpp"
-    equivalent-struct:
-      name: "turret_error"
-      includes: "turret_error.h"
-      members:
-        - name: "code"
-          type: "int"
-        - name: "message"
-          type: "const char *"
-      rules:
-        - member-name: "code"
-          condition: "equals"
-          value: "OUT_OF_AMMO"
   - name: "JammedException"
-    namespace: "turret"
+    namespace: "defense_turret"
+    type: "pointer"
     parent:
       name: "TurretException"
       includes: "TurretException.hpp"
     equivalent-struct:
       name: "turret_error"
       includes: "turret_error.h"
-      members:
-        - name: "code"
-          type: "int"
-        - name: "message"
-          type: "const char *"
       rules:
         - member-name: "code"
           condition: "equals"
           value: "JAMMED"
+    functions:
+      - name: "message"
+        # rest of function definition...
+  - name: "OutOfAmmoException"
+    namespace: "defense_turret"
+    type: "pointer"
+    parent:
+      name: "TurretException"
+      includes: "TurretException.hpp"
+    equivalent-struct:
+      name: "turret_error"
+      includes: "turret_error.h"
+      rules:
+        - member-name: "code"
+          condition: "equals"
+          value: "OUT_OF_AMMO"
+    functions:
+      - name: "message"
+        # rest of function definition...
+  - name: "TargetingException"
+    namespace: "defense_turret"
+    type: "pointer"
+    parent:
+      name: "TurretException"
+      includes: "TurretException.hpp"
+    equivalent-struct:
+      name: "turret_error"
+      includes: "turret_error.h"
+      rules:
+        - member-name: "code"
+          condition: "equals"
+          value: "TARGETING_ERROR"
+    functions:
+      - name: "message"
+        # rest of function definition...
 ```
 
 Note that we have used the `rules` key in the description of the underlying
@@ -123,15 +128,95 @@ you want to see more about how that works, check out the overloaded struct
 example for a detailed explanation.
 
 Now that we've defined the errors we expect to see, let's define some functions
-that checks for errors and throw an exception if there is a problem.
+in a class that check for errors and throw an exception if there is a problem.
 
 ```yaml
-
+name: "Turret"
+# struct, constructors, and destructor specs...
+functions:
+  - name: "Aim"
+    params:
+      - name: "x"
+        type: "int"
+      - name: "y"
+        type: "int"
+      - name: "z"
+        type: "int"
+    wrapped-function:
+      name: "aim"
+      params:
+        - value: "equivalent-struct-pointer"
+        - value: "x"
+        - value: "y"
+        - value: "z"
+      return:
+        type: "struct turret_error *"
+      error-check:
+        rules:
+          - left-expression: "return-value"
+            condition: "not-equals"
+            right-expression: "success()"
+        error-action:
+          name: "throw-exception"
+          constructor:
+            name: "TargetingException"
+            includes: "TargetingException.hpp"
+            params:
+              - value: "return-value"
 ```
 
+The `error-check` section of the `Aim` function defines how errors are detected
+after the wrapped function is called. The `rules` provided specify the check
+to be performed, followed by the action to take in the `error-action` section.
+
+We could catch exceptions thrown by the `Aim` function like this:
 
 ```cpp
-// need to add usage example
+try {
+  blaster.Aim( x, y, z );
+} catch( TargetingException &e ) {
+  cout << e.message() << endl;
+}
+```
+
+In the above example, we knew that the wrapped function could only possibly have
+a targeting error, so we used the constructor for `TargetingException` in the
+call. However, a wrapped function could easily have more than one potential
+problem. In cases like this, you can use the overloaded struct function to
+create the exception, like this:
+
+```
+name: "Fire"
+wrapped-function:
+  name: "fire"
+  params:
+    - value: "equivalent-struct-pointer"
+  return:
+    type: "struct turret_error *"
+  error-check:
+    rules:
+      - left-expression: "return-value"
+        condition: "not-equals"
+        right-expression: "success()"
+    error-action:
+      name: "throw-exception"
+      constructor:
+        name: "TurretException::newTurretException"
+        includes: "TurretException.hpp"
+        params:
+          - value: "return-value"yaml
+```
+
+Which would then be used like so:
+
+```cpp
+try {
+  for( int i = 0; i < 15; i++ ) {
+    blaster.Fire();
+  }
+} catch( TurretException *e ) {
+  cout << e->message() << endl;
+}
 ```
 
 The full example has a complete implementation of this concept, and can be
@@ -152,6 +237,35 @@ g++ -I . \
 ./turret_usage_example
 
 # generates the following output:
-# <add output>
+# aimed at (-1, 2, 5)
+# fired at (-1, 2, 5)
+# fired at (-1, 2, 5)
+# fired at (-1, 2, 5)
+# fired at (-1, 2, 5)
+# ah crap, the turret jammed!
+# reloaded!
+# aimed at (7, 7, 0)
+# fired at (7, 7, 0)
+# aimed at (7, 7, 1)
+# fired at (7, 7, 1)
+# aimed at (7, 7, 2)
+# fired at (7, 7, 2)
+# aimed at (7, 7, 3)
+# fired at (7, 7, 3)
+# aimed at (7, 7, 4)
+# fired at (7, 7, 4)
+# aimed at (7, 7, 5)
+# fired at (7, 7, 5)
+# aimed at (7, 7, 6)
+# fired at (7, 7, 6)
+# aimed at (7, 7, 7)
+# fired at (7, 7, 7)
+# aimed at (7, 7, 8)
+# fired at (7, 7, 8)
+# aimed at (7, 7, 9)
+# fired at (7, 7, 9)
+# aimed at (7, 7, 10)
+# the turret is out of ammo, reload!
+# I can't aim at the fourth quadrant...
 ```
 

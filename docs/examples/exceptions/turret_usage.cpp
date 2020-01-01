@@ -53,8 +53,8 @@ int main( int argc, char **argv ) {
 
   try {
     blaster.Aim( -6, -6, 6 );
-  } catch( TurretException *e ) {
-    cout << e->message() << endl;
+  } catch( TargetingException &e ) {
+    cout << e.message() << endl;
   }
 
   return EXIT_SUCCESS;
