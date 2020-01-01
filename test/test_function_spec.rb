@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2019 Joel E. Anderson
+# Copyright 2019-2020 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -27,6 +27,21 @@ class FunctionSpecTest < Minitest::Test
     test_spec = load_fixture('basic_function')
 
     Wrapture::FunctionSpec.new(test_spec)
+  end
+
+  def test_exception_throwing_function
+    test_spec = load_fixture('exception_throwing_function')
+
+    spec = Wrapture::FunctionSpec.new(test_spec)
+
+    throw_code = 'throw CodeException( return_val )'
+    spec.definition('NoSuchClass') do |line|
+      next if line.nil?
+
+      code = line.strip
+
+      assert(code.include?(throw_code)) if code.start_with?('throw')
+    end
   end
 
   def test_future_spec_version

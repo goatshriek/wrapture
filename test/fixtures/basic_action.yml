@@ -1,0 +1,9 @@
+name: "throw-exception"
+constructor:
+  name: "NewCustomException"
+  includes:
+    - "inc1.h"
+    - "inc2.h"
+  params:
+    - value: "return-value"
+    - value: 3
