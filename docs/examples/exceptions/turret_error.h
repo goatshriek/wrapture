@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /*
- * Copyright 2019 Joel E. Anderson
+ * Copyright 2020 Joel E. Anderson
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ get_error_message( const struct turret_error *err );
 struct turret_error *
 jammed( void );
 
-/* 
+/*
  * This function is needed to satisfy C++'s need for a default constructor that
  * it can call when instantiating a child class. It would be ideal for wrapture
  * to take care of the generation of this functionality itself, but this is not
