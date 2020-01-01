@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /*
- * Copyright 2019 Joel E. Anderson
+ * Copyright 2020 Joel E. Anderson
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,10 @@
 
 struct turret_error *
 aim( struct turret *t, int x, int y, int z ) {
+  if( x < 0 && y < 0 ) {
+    return targeting_error();
+  }
+
   printf( "aimed at (%d, %d, %d)\n", x, y, z );
   t->x = x;
   t->y = y;
@@ -42,7 +46,9 @@ destroy_turret( struct turret *t ) {
 
 struct turret_error *
 fire( struct turret *t ) {
-  if( t->ammo_count > 0 ) {
+  if( t->x + t->y + t->z == t->ammo_count) {
+    return jammed();
+  } else if( t->ammo_count > 0 ) {
     t->ammo_count -= 1;
     printf( "fired at (%d, %d, %d)\n", t->x, t->y, t->z );
     return success();

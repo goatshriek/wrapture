@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-# Copyright 2019 Joel E. Anderson
+# Copyright 2020 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -50,6 +50,20 @@ classes:
             - value: "x"
             - value: "y"
             - value: "z"
+          return:
+            type: "struct turret_error *"
+          error-check:
+            rules:
+              - left-expression: "return-value"
+                condition: "not-equals"
+                right-expression: "success()"
+            error-action:
+              name: "throw-exception"
+              constructor:
+                name: "TurretException::newTurretException"
+                includes: "TurretException.hpp"
+                params:
+                  - value: "return-value"
       - name: "AmmoCount"
         return:
           type: "int"

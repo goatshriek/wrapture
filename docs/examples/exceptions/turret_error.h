@@ -20,9 +20,9 @@
 #define __TURRET_ERROR_H
 
 #define SUCCESS         0
-#define TARGETING_ERROR 1
+#define JAMMED          1
 #define OUT_OF_AMMO     2
-#define JAMMED          3
+#define TARGETING_ERROR 3
 
 struct turret_error {
   int code;
@@ -31,6 +31,9 @@ struct turret_error {
 
 const char *
 get_error_message( const struct turret_error *err );
+
+struct turret_error *
+jammed( void );
 
 /* 
  * This function is needed to satisfy C++'s need for a default constructor that
@@ -46,5 +49,8 @@ out_of_ammo( void );
 
 struct turret_error *
 success( void );
+
+struct turret_error *
+targeting_error( void );
 
 #endif
