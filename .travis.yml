@@ -5,10 +5,10 @@ os:
   - osx
 
 rvm:
-  - 2.3
-  - 2.4
-  - 2.5
-  - truffleruby
+#  - 2.3
+#  - 2.4
+#  - 2.5
+#  - truffleruby
 
 matrix:
   allow_failures:
