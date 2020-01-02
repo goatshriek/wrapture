@@ -69,9 +69,9 @@ module Wrapture
     #
     # The hash must have the following keys:
     # member-name:: the name of the struct member the rule applies to
-    # condition:: the condition this rule uses (supported values are the keys in
-    # the RuleSpec::CONDITIONS map, with the values mapped to the keys being the
-    # operator they translate to)
+    # condition:: the condition this rule uses (supported values are keys in the
+    #             RuleSpec::CONDITIONS map, with the mapped values being the
+    #             operator they translate to)
     # value:: the value to use in the condition check
     def initialize(spec)
       @spec = RuleSpec.normalize_spec_hash(spec)
