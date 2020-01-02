@@ -24,8 +24,13 @@ module Wrapture
   # in order to conform to a given specification. This allows a single struct
   # type to be equivalent to some class specifications, but not others.
   class RuleSpec
-    # A list of valid condition strings.
-    CONDITIONS = %w[equals not-equals].freeze
+    # A map of condition strings to their operators.
+    CONDITIONS = {'equals' => '==',
+                  'greater-than' => '>',
+                  'greater-than-equal' => '>=',
+                  'less-than' => '<',
+                  'less-than-equal' => '<=',
+                  'not-equals' => '!='}.freeze
 
     # Normalizes a hash specification of a rule. Normalization checks for
     # invalid keys and unrecognized conditions.
@@ -52,7 +57,7 @@ module Wrapture
         raise(InvalidSpecKey, extra_msg)
       end
 
-      unless RuleSpec::CONDITIONS.include?(spec['condition'])
+      unless RuleSpec::CONDITIONS.keys.include?(spec['condition'])
         condition_msg = "#{spec['condition']} is an invalid condition"
         raise(InvalidSpecKey, condition_msg)
       end
@@ -73,7 +78,7 @@ module Wrapture
 
     # A string containing a check for a struct of the given name for this rule.
     def check(variable: nil)
-      condition = @spec['condition'] == 'equals' ? '==' : '!='
+      condition = RuleSpec::CONDITIONS[@spec['condition']]
 
       if @spec['type'] == 'struct-member'
         "#{variable}->#{@spec['member-name']} #{condition} #{@spec['value']}"
