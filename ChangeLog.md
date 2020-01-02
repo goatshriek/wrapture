@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Python class generation.
  - Perl class generation.
 
+## [0.4.0] - 2020-01-02
+### Added
+ - Inequality conditions for rules (less-than, less-than-equal, greater-than,
+   greater-than-equal).
+
 ## [0.3.0] - 2020-01-01
 ### Added
  - Examples of basic usage and features.
