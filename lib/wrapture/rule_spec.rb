@@ -25,12 +25,12 @@ module Wrapture
   # type to be equivalent to some class specifications, but not others.
   class RuleSpec
     # A map of condition strings to their operators.
-    CONDITIONS = {'equals' => '==',
-                  'greater-than' => '>',
-                  'greater-than-equal' => '>=',
-                  'less-than' => '<',
-                  'less-than-equal' => '<=',
-                  'not-equals' => '!='}.freeze
+    CONDITIONS = { 'equals' => '==',
+                   'greater-than' => '>',
+                   'greater-than-equal' => '>=',
+                   'less-than' => '<',
+                   'less-than-equal' => '<=',
+                   'not-equals' => '!=' }.freeze
 
     # Normalizes a hash specification of a rule. Normalization checks for
     # invalid keys and unrecognized conditions.
