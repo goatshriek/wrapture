@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
  - Inequality conditions for rules (less-than, less-than-equal, greater-than,
    greater-than-equal).
+ - Pointer classes that are children of classes that wrap the same equivalent
+   struct will re-use the equivalent member and use the parent's pointer
+   constructor as the child's pointer constructor.
 
 ## [0.3.0] - 2020-01-01
 ### Added
