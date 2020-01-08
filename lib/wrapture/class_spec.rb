@@ -175,6 +175,11 @@ module Wrapture
       @spec['parent']['name'] if @spec.key?('parent')
     end
 
+    # Determines if this class is a wrapper for a struct pointer or not.
+    def pointer_wrapper?
+      @spec['type'] == 'pointer'
+    end
+
     # The name of the equivalent struct of this class.
     def struct_name
       @struct.name
@@ -346,6 +351,11 @@ module Wrapture
     # A class might not have an equivalent member if it is able to use the
     # parent class's, for example if the child class wraps the same struct.
     def equivalent_member_declaration
+      if @spec.key?('parent') && pointer_wrapper?
+        parent_spec = @scope.type(parent_name)
+        return if parent_spec.struct_name == @struct.name && parent_spec.pointer_wrapper?
+      end
+
       yield "#{@struct.declaration(equivalent_name)};"
     end
 
@@ -492,11 +502,6 @@ module Wrapture
     # The signature of the constructor given an equivalent strucct pointer.
     def pointer_constructor_signature
       "#{@spec['name']}( #{@struct.pointer_declaration 'equivalent'} )"
-    end
-
-    # Determines if this class is a wrapper for a struct pointer or not.
-    def pointer_wrapper?
-      @spec['type'] == 'pointer'
     end
 
     # The signature of the constructor given an equivalent struct type.
