@@ -172,7 +172,7 @@ module Wrapture
 
     # The name of the parent of this class, or nil if there is no parent.
     def parent_name
-      @spec['parent']['name'] if @spec.key?('parent')
+      @spec['parent']['name'] if has_parent?
     end
 
     # Determines if this class is a wrapper for a struct pointer or not.
@@ -227,7 +227,7 @@ module Wrapture
       yield "namespace #{@spec['namespace']} {"
       yield
 
-      parent = if @spec.key?('parent')
+      parent = if has_parent?
                  ": public #{parent_name} "
                else
                  ''
@@ -278,7 +278,7 @@ module Wrapture
         includes.concat(const.declaration_includes)
       end
 
-      includes.concat(@spec['parent']['includes']) if @spec.key?('parent')
+      includes.concat(@spec['parent']['includes']) if has_parent?
 
       includes.uniq
     end
@@ -351,7 +351,7 @@ module Wrapture
     # A class might not have an equivalent member if it is able to use the
     # parent class's, for example if the child class wraps the same struct.
     def equivalent_member_declaration
-      if @spec.key?('parent')
+      if has_parent?
         parent_spec = @scope.type(parent_name)
         member_reusable = !parent_spec.nil? &&
                           parent_spec.struct_name == @struct.name &&
@@ -391,6 +391,11 @@ module Wrapture
       end
 
       filename
+    end
+
+    # True if the class has a parent.
+    def has_parent?
+      @spec.key?('parent')
     end
 
     # The header guard for the class.
