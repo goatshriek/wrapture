@@ -172,7 +172,7 @@ module Wrapture
 
     # The name of the parent of this class, or nil if there is no parent.
     def parent_name
-      @spec['parent']['name'] if has_parent?
+      @spec['parent']['name'] if child?
     end
 
     # Determines if this class is a wrapper for a struct pointer or not.
@@ -213,6 +213,11 @@ module Wrapture
 
     private
 
+    # True if the class has a parent.
+    def child?
+      @spec.key?('parent')
+    end
+
     # Gives the content of the class declaration to a block, line by line.
     def declaration_contents
       yield "#ifndef #{header_guard}"
@@ -227,7 +232,7 @@ module Wrapture
       yield "namespace #{@spec['namespace']} {"
       yield
 
-      parent = if has_parent?
+      parent = if child?
                  ": public #{parent_name} "
                else
                  ''
@@ -278,7 +283,7 @@ module Wrapture
         includes.concat(const.declaration_includes)
       end
 
-      includes.concat(@spec['parent']['includes']) if has_parent?
+      includes.concat(@spec['parent']['includes']) if child?
 
       includes.uniq
     end
@@ -351,7 +356,7 @@ module Wrapture
     # A class might not have an equivalent member if it is able to use the
     # parent class's, for example if the child class wraps the same struct.
     def equivalent_member_declaration
-      if has_parent?
+      if child?
         parent_spec = @scope.type(parent_name)
         member_reusable = !parent_spec.nil? &&
                           parent_spec.struct_name == @struct.name &&
@@ -391,11 +396,6 @@ module Wrapture
       end
 
       filename
-    end
-
-    # True if the class has a parent.
-    def has_parent?
-      @spec.key?('parent')
     end
 
     # The header guard for the class.
@@ -493,15 +493,7 @@ module Wrapture
         func.constructor? && func.signature.start_with?(signature_prefix)
       end
 
-      initializer = ''
-      if pointer_wrapper? && has_parent?
-        parent_spec = @scope.type(parent_name)
-        parent_usable = !parent_spec.nil? &&
-                        parent_spec.pointer_wrapper?
-                        parent_spec.struct_name == @struct.name
-        initializer = ": #{parent_name}( equivalent ) " if parent_usable
-      end
-
+      initializer = pointer_constructor_initializer
       yield "#{@spec['name']}::#{pointer_constructor_signature} #{initializer}{"
 
       if pointer_wrapper?
@@ -514,6 +506,20 @@ module Wrapture
       end
 
       yield '}'
+    end
+
+    # The initializer for the pointer constructor, if one is available, or an
+    # empty string if not.
+    def pointer_constructor_initializer
+      if pointer_wrapper? && child?
+        parent_spec = @scope.type(parent_name)
+        parent_usable = !parent_spec.nil? &&
+                        parent_spec.pointer_wrapper? &&
+                        parent_spec.struct_name == @struct.name
+        return ": #{parent_name}( equivalent ) " if parent_usable
+      end
+
+      ''
     end
 
     # The signature of the constructor given an equivalent strucct pointer.
