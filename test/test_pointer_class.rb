@@ -80,6 +80,9 @@ class ClassSpecTest < Minitest::Test
     equivalent_signature = 'struct wrapped_struct \*equivalent;'
     refute(file_contains_match('ChildPointer.hpp', equivalent_signature))
 
+    parent_initializer = 'equivalent \) : ParentPointer\('
+    assert(file_contains_match('ChildPointer.cpp', parent_initializer))
+
     File.delete(*classes)
   end
 end
