@@ -353,7 +353,9 @@ module Wrapture
     def equivalent_member_declaration
       if @spec.key?('parent') && pointer_wrapper?
         parent_spec = @scope.type(parent_name)
-        return if parent_spec.struct_name == @struct.name && parent_spec.pointer_wrapper?
+        member_reusable = parent_spec.struct_name == @struct.name &&
+                          parent_spec.pointer_wrapper?
+        return if member_reusable
       end
 
       yield "#{@struct.declaration(equivalent_name)};"
