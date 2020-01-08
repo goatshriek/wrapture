@@ -493,7 +493,16 @@ module Wrapture
         func.constructor? && func.signature.start_with?(signature_prefix)
       end
 
-      yield "#{@spec['name']}::#{pointer_constructor_signature} {"
+      initializer = ''
+      if pointer_wrapper? && has_parent?
+        parent_spec = @scope.type(parent_name)
+        parent_usable = !parent_spec.nil? &&
+                        parent_spec.pointer_wrapper?
+                        parent_spec.struct_name == @struct.name
+        initializer = ": #{parent_name}( equivalent ) " if parent_usable
+      end
+
+      yield "#{@spec['name']}::#{pointer_constructor_signature} #{initializer}{"
 
       if pointer_wrapper?
         yield '  this->equivalent = equivalent;'
