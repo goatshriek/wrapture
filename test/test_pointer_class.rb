@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2019 Joel E. Anderson
+# Copyright 2019-2020 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -65,6 +65,20 @@ class ClassSpecTest < Minitest::Test
 
     expected_signature = 'PointerWrappingClass\( struct wrapped_struct \*'
     assert(file_contains_match('PointerWrappingClass.hpp', expected_signature))
+
+    File.delete(*classes)
+  end
+
+  def test_pointer_class_and_child
+    test_spec = load_fixture('pointer_class_and_child')
+
+    spec = Wrapture::Scope.new(test_spec)
+
+    classes = spec.generate_wrappers
+    validate_wrapper_results(test_spec, classes)
+
+    equivalent_signature = 'struct wrapped_struct \*equivalent;'
+    refute(file_contains_match('ChildPointer.hpp', equivalent_signature))
 
     File.delete(*classes)
   end
