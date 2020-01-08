@@ -9,13 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Python class generation.
  - Perl class generation.
 
-## [0.4.0] - 2020-01-02
+## [0.4.0] - 2020-01-08
 ### Added
  - Inequality conditions for rules (less-than, less-than-equal, greater-than,
    greater-than-equal).
- - Pointer classes that are children of classes that wrap the same equivalent
-   struct will re-use the equivalent member and use the parent's pointer
-   constructor as the child's pointer constructor.
+ - Classes who's parent wraps the same equivalent struct will re-use the
+   equivalent pointer member of the parent class.
+ - Pointer classes who's parent wraps the same equivalent struct will use the
+   parent's pointer constructor as the initializer for their own pointer
+   constructor.
 
 ## [0.3.0] - 2020-01-01
 ### Added
