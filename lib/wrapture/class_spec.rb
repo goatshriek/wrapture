@@ -237,7 +237,7 @@ module Wrapture
       end
 
       yield
-      yield "    #{@struct.declaration equivalent_name};"
+      equivalent_member_declaration { |line| yield "    #{line}" }
       yield
 
       member_constructor_declaration { |line| yield "    #{line}" }
@@ -339,6 +339,14 @@ module Wrapture
       includes.concat(overload_definition_includes)
 
       includes.uniq
+    end
+
+    # Yields the declaration of the equivalent member if this class has one.
+    #
+    # A class might not have an equivalent member if it is able to use the
+    # parent class's, for example if the child class wraps the same struct.
+    def equivalent_member_declaration
+      yield "#{@struct.declaration(equivalent_name)};"
     end
 
     # Gives the name of the equivalent struct.
