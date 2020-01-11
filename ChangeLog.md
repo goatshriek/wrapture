@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Python class generation.
  - Perl class generation.
 
-## [0.4.0] - 2020-01-08
+## [0.4.0] - 2020-01-11
 ### Added
  - Inequality conditions for rules (less-than, less-than-equal, greater-than,
    greater-than-equal).
@@ -18,8 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Pointer classes who's parent wraps the same equivalent struct will use the
    parent's pointer constructor as the initializer for their own pointer
    constructor.
- - Specs can contain templatized sections to avoid duplicate portions such
-   as common error handling code.
+ - Specs can contain templatized sections to avoid duplicated sections.
 
 ## [0.3.0] - 2020-01-01
 ### Added
