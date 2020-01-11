@@ -135,7 +135,7 @@ wrapture magic_math.yml
 
 # assuming that you're using sh and have g++
 g++ -I . \
-   # other source files
+   magic_math.c MagicMath.cpp magic_math_usage.cpp \
    -o magic_math_usage_example
 
 ./magic_match_usage_example
