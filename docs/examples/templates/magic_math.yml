@@ -24,7 +24,7 @@ templates:
           type: "int"
       wrapped-function:
         name:
-          is-variable: true
+          is-param: true
           name: "wrapped-name"
         params:
           - value: "num"
