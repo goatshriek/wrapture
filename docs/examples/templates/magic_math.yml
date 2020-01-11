@@ -1,1 +1,36 @@
 version: "0.4.0"
+templates:
+  - name: "magical-static-function"
+    value:
+      static: true
+      params:
+        - name: "num"
+          type: "int"
+      wrapped-function:
+        name:
+          is-variable: true
+          name: "wrapped-name"
+        params:
+          - value: "num"
+classes:
+  - name: "MagicMath"
+    namespace: "magic_math"
+    functions:
+      - name: "IsPrime"
+        use-template:
+          name: "magical-static-function"
+          params:
+            - name: "wrapped-name"
+              value: "is_prime"
+      - name: "IsMagical"
+        use-template:
+          name: "magical-static-function"
+          params:
+            - name: "wrapped-name"
+              value: "is_magical"
+      - name: "IsRandom"
+        use-template:
+          name: "magical-static-function"
+          params:
+            - name: "wrapped-name"
+              value: "is_random"
