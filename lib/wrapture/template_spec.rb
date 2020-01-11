@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2019-2020 Joel E. Anderson
+# Copyright 2020 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,19 +16,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Classes and functions for generating language wrappers
 module Wrapture
-  require 'wrapture/action_spec'
-  require 'wrapture/constant_spec'
-  require 'wrapture/constants'
-  require 'wrapture/class_spec'
-  require 'wrapture/errors'
-  require 'wrapture/function_spec'
-  require 'wrapture/normalize'
-  require 'wrapture/rule_spec'
-  require 'wrapture/scope'
-  require 'wrapture/struct_spec'
-  require 'wrapture/template_spec'
-  require 'wrapture/version'
-  require 'wrapture/wrapped_function_spec'
+  # A template spec that can be referenced in other specs.
+  class TemplateSpec
+    # Creates a new template with the given hash spec.
+    def initialize(spec)
+
+    end
+  end
 end
