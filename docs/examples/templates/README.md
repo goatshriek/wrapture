@@ -37,6 +37,15 @@ classes:
           name: "is_magical"
           params:
             - value: "num"
+      - name: "IsPrime"
+        static: true
+        params:
+          - name: "num"
+            type: "int"
+        wrapped-function:
+          name: "is_prime"
+          params:
+            - value: "num"
       - name: "IsRandom"
         static: true
         params:
@@ -91,18 +100,18 @@ the redundancy from our previous declarations:
 
 ```yaml
 functions:
-  - name: "IsPrime"
-    use-template:
-      name: "magical-static-function"
-      params:
-        - name: "wrapped-name"
-          value: "is_prime"
   - name: "IsMagical"
     use-template:
       name: "magical-static-function"
       params:
         - name: "wrapped-name"
           value: "is_magical"
+  - name: "IsPrime"
+    use-template:
+      name: "magical-static-function"
+      params:
+        - name: "wrapped-name"
+          value: "is_prime"
   - name: "IsRandom"
     use-template:
       name: "magical-static-function"
