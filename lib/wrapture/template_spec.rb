@@ -19,9 +19,73 @@
 module Wrapture
   # A template spec that can be referenced in other specs.
   class TemplateSpec
+    # True if the provided spec is a template parameter with the given name.
+    def self.param?(spec, param_name)
+      spec.is_a?(Hash) &&
+        spec.include?('is-param') &&
+        spec['is-param'] &&
+        spec['name'] == param_name
+    end
+
+    # Gives a spec with all instances of a parameter with the given name
+    # replaced with the given value in the provided spec.
+    def self.replace_param(spec, param_name, param_value)
+      TemplateSpec.replace_param!(spec.dup, param_name, param_value)
+    end
+
+    # Replaces all instances of a parameter with the given name with the given
+    # value in the provided spec.
+    def self.replace_param!(spec, param_name, param_value)
+      if spec.is_a?(Hash)
+        TemplateSpec.replace_param_in_hash(spec, param_name, param_value)
+      elsif spec.is_a?(Array)
+        TemplateSpec.replace_param_in_array(spec, param_name, param_value)
+      end
+    end
+
+    def self.replace_param_in_array(spec, param_name, param_value)
+      spec.map! do |value|
+        if TemplateSpec.param?(value, param_name)
+          param_value
+        else
+          TemplateSpec.replace_param!(value, param_name, param_value)
+          value
+        end
+      end
+    end
+    private_class_method :replace_param_in_array
+
+    def self.replace_param_in_hash(spec, param_name, param_value)
+      spec.keys.each_pair do |key, value|
+        if TemplateSpec.param?(value, param_name)
+          spec[key] = param_value
+        else
+          TemplateSpec.replace_param!(value, param_name, param_value)
+        end
+      end
+    end
+    private_class_method :replace_param_in_hash
+
     # Creates a new template with the given hash spec.
     def initialize(spec)
+      @spec = spec
+    end
 
+    # Returns a spec hash of this template with the provided parameters
+    # substituted.
+    def instantiate(params)
+      result_spec = @spec['value'].dup
+
+      params.each do |param|
+        TemplateSpec.replace_param!(result_spec, param['name'], param['value'])
+      end
+
+      result_spec
+    end
+
+    # The name of the template.
+    def name
+      @spec['name']
     end
   end
 end
