@@ -29,7 +29,15 @@ module Wrapture
       return if spec.nil? || !spec.key?('classes')
 
       @version = Wrapture.spec_version(spec)
-      spec['classes'].each do |class_hash|
+
+      @templates = spec.fetch('templates', []).map do |template_hash|
+        TemplateSpec.new(template_hash)
+      end
+
+      class_specs = spec['classes'].dup
+      @templates.each { |temp| temp.replace_uses(class_specs) }
+
+      class_specs.each do |class_hash|
         ClassSpec.new(class_hash, scope: self)
       end
     end

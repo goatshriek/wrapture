@@ -43,6 +43,8 @@ module Wrapture
       end
     end
 
+    # Replaces all instances of a parameter with the given name with the given
+    # value in the provided spec, assuming the spec is an array.
     def self.replace_param_in_array(spec, param_name, param_value)
       spec.map! do |value|
         if TemplateSpec.param?(value, param_name)
@@ -55,6 +57,8 @@ module Wrapture
     end
     private_class_method :replace_param_in_array
 
+    # Replaces all instances of a parameter with the given name with the given
+    # value in the provided spec, assuming the spec is a hash.
     def self.replace_param_in_hash(spec, param_name, param_value)
       spec.keys.each_pair do |key, value|
         if TemplateSpec.param?(value, param_name)
@@ -86,6 +90,51 @@ module Wrapture
     # The name of the template.
     def name
       @spec['name']
+    end
+
+    # Replaces all references to this template with an instantiation of it in
+    # the given spec.
+    def replace_uses(spec)
+      if spec.is_a?(Hash)
+        replace_uses_in_hash(spec)
+      elsif spec.is_a?(Array)
+        replace_uses_in_array(spec)
+      end
+    end
+
+    # True if the given spec is a reference to this template.
+    def use?(spec)
+      spec.is_a?(Hash) &&
+        spec.include?('use-template') &&
+        spec['use-template']['name'] == name
+    end
+
+    private
+
+    # Replaces all references to this template with an instantiation of it in
+    # the given spec, assuming it is a hash.
+    def replace_uses_in_hash(spec)
+      spec.keys.each_pair do |key, value|
+        spec[key] = if use?(value)
+                      instantiate(value['params'])
+                    else
+                      replace_uses(value)
+                    end
+      end
+
+      spec
+    end
+
+    # Replaces all references to this template with an instantiation of it in
+    # the given spec, assuming it is an array.
+    def replace_uses_in_array(spec)
+      spec.map! do |value|
+        if use?(value)
+          instantiate(value['params'])
+        else
+          replace_uses(value)
+        end
+      end
     end
   end
 end
