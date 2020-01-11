@@ -1,0 +1,53 @@
+classes:
+  - name: "OneClass"
+    namespace: "wrapture_test"
+    equivalent-struct:
+      name: "one_struct"
+      includes: "one_struct.h"
+    functions:
+      - name: "to_string"
+        return:
+          type: "const char *"
+        wrapped-function:
+          name: "one_struct_to_string"
+          params:
+            - value: "equivalent-struct-pointer"
+  - name: "TwoClass"
+    namespace: "wrapture_test"
+    equivalent-struct:
+      name: "two_struct"
+      includes: "two_struct.h"
+    functions:
+      - name: "to_string"
+        return:
+          type: "const char *"
+        wrapped-function:
+          name: "two_struct_to_string"
+          params:
+            - value: "equivalent-struct-pointer"
+  - name: "RedClass"
+    namespace: "wrapture_test"
+    equivalent-struct:
+      name: "red_struct"
+      includes: "red_struct.h"
+    functions:
+      - name: "to_string"
+        return:
+          type: "const char *"
+        wrapped-function:
+          name: "red_struct_to_string"
+          params:
+            - value: "equivalent-struct-pointer"
+  - name: "BlueClass"
+    namespace: "wrapture_test"
+    equivalent-struct:
+      name: "blue_struct"
+      includes: "blue_struct.h"
+    functions:
+      - name: "to_string"
+        return:
+          type: "const char *"
+        wrapped-function:
+          name: "blue_struct_to_string"
+          params:
+            - value: "equivalent-struct-pointer"
