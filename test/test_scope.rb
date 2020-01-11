@@ -28,6 +28,33 @@ class ScopeTest < Minitest::Test
     File.delete(*generated_files)
   end
 
+  def test_templatized_classes
+    spec_with_template = load_fixture('scope_with_template')
+    scope_with_template = Wrapture::Scope.new(spec_with_template)
+    with_template_files = scope_with_template.generate_wrappers
+    validate_wrapper_results(spec_with_template, with_template_files)
+
+    # rename the files so that they don't overwrite one another
+    with_template_files.each { |name| File.rename(name, "#{name}.with") }
+
+    spec_without_template = load_fixture('scope_without_template')
+    scope_without_template = Wrapture::Scope.new(spec_without_template)
+    without_template_files = scope_without_template.generate_wrappers
+    validate_wrapper_results(spec_without_template, without_template_files)
+
+    # rename the second round of files for consistency
+    without_template_files.each { |name| File.rename(name, "#{name}.without") }
+
+    # the same filenames should have been generated
+    assert_equal(with_template_files, without_template_files)
+
+    # each of the files should be identical
+    with_template_files.each do |name|
+      assert(FileUtils.compare_files("#{name}.with", "#{name}.without"))
+      File.delete("#{name}.with", "#{name}.without")
+    end
+  end
+
   def test_versioned_scope
     test_spec = load_fixture('versioned_scope')
 
