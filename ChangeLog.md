@@ -19,6 +19,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    parent's pointer constructor as the initializer for their own pointer
    constructor.
 
+### Fixed
+ - Classes with no `name` member raise a MissingSpecKey exception.
+
 ## [0.3.0] - 2020-01-01
 ### Added
  - Examples of basic usage and features.
