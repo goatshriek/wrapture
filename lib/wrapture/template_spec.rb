@@ -97,11 +97,19 @@ module Wrapture
     # Replaces all references to this template with an instantiation of it in
     # the given spec.
     def replace_uses(spec)
+      puts 'before'
+      puts spec
+      puts
+
       if spec.is_a?(Hash)
         replace_uses_in_hash(spec)
       elsif spec.is_a?(Array)
         replace_uses_in_array(spec)
       end
+
+      puts 'after'
+      puts spec
+      puts
     end
 
     # True if the given spec is a reference to this template.
@@ -116,12 +124,14 @@ module Wrapture
     # Replaces all references to this template with an instantiation of it in
     # the given spec, assuming it is a hash.
     def replace_uses_in_hash(spec)
-      spec.keys.each_pair do |key, value|
-        spec['use-template'] = if use?(value)
-                                 instantiate(value['params'])
-                               else
-                                 replace_uses(value)
-                               end
+      if use?(spec)
+        puts 'found use!'
+        spec.merge!(instantiate(spec['use-template']['params']))
+        spec.delete('use-template')
+      end
+
+      spec.keys.each_value do |key, value|
+        replace_uses(value)
       end
 
       spec
@@ -132,7 +142,9 @@ module Wrapture
     def replace_uses_in_array(spec)
       spec.map! do |value|
         if use?(value)
-          instantiate(value['params'])
+          puts 'found use!'
+          value.merge!(instantiate(value['use-template']['params']))
+          value.delete('use-template')
         else
           replace_uses(value)
         end

@@ -38,9 +38,6 @@ module Wrapture
       @templates.each { |temp| temp.replace_uses(class_specs) }
 
       @classes = class_specs.collect do |class_hash|
-        puts
-        puts class_hash
-        puts
         ClassSpec.new(class_hash, scope: self)
       end
     end
