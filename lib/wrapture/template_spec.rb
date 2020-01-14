@@ -80,6 +80,8 @@ module Wrapture
     def instantiate(params)
       result_spec = @spec['value'].dup
 
+      return result_spec if params.nil?
+
       params.each do |param|
         TemplateSpec.replace_param!(result_spec, param['name'], param['value'])
       end
@@ -135,6 +137,8 @@ module Wrapture
           replace_uses(value)
         end
       end
+
+      spec
     end
   end
 end
