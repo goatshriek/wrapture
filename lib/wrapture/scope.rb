@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2019 Joel E. Anderson
+# Copyright 2019-2020 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,8 +24,6 @@ module Wrapture
 
     # Creates an empty scope with no classes in it.
     def initialize(spec = nil)
-      @classes = []
-
       return if spec.nil? || !spec.key?('classes')
 
       @version = Wrapture.spec_version(spec)
@@ -37,7 +35,7 @@ module Wrapture
       class_specs = spec['classes'].dup
       @templates.each { |temp| temp.replace_uses(class_specs) }
 
-      class_specs.each do |class_hash|
+      @classes = class_specs.collect do |class_hash|
         ClassSpec.new(class_hash, scope: self)
       end
     end
