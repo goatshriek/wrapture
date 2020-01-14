@@ -24,6 +24,8 @@ module Wrapture
 
     # Creates an empty scope with no classes in it.
     def initialize(spec = nil)
+      @classes = []
+
       return if spec.nil? || !spec.key?('classes')
 
       @version = Wrapture.spec_version(spec)
@@ -36,6 +38,9 @@ module Wrapture
       @templates.each { |temp| temp.replace_uses(class_specs) }
 
       @classes = class_specs.collect do |class_hash|
+        puts
+        puts class_hash
+        puts
         ClassSpec.new(class_hash, scope: self)
       end
     end

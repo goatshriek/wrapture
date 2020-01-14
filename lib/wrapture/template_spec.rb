@@ -22,7 +22,7 @@ module Wrapture
     # True if the provided spec is a template parameter with the given name.
     def self.param?(spec, param_name)
       spec.is_a?(Hash) &&
-        spec.include?('is-param') &&
+        spec.key?('is-param') &&
         spec['is-param'] &&
         spec['name'] == param_name
     end
@@ -107,7 +107,7 @@ module Wrapture
     # True if the given spec is a reference to this template.
     def use?(spec)
       spec.is_a?(Hash) &&
-        spec.include?('use-template') &&
+        spec.key?('use-template') &&
         spec['use-template']['name'] == name
     end
 
@@ -117,11 +117,11 @@ module Wrapture
     # the given spec, assuming it is a hash.
     def replace_uses_in_hash(spec)
       spec.keys.each_pair do |key, value|
-        spec[key] = if use?(value)
-                      instantiate(value['params'])
-                    else
-                      replace_uses(value)
-                    end
+        spec['use-template'] = if use?(value)
+                                 instantiate(value['params'])
+                               else
+                                 replace_uses(value)
+                               end
       end
 
       spec
