@@ -34,6 +34,7 @@ module Wrapture
     # it uses an unsupported version type, then an exception is raised.
     def self.normalize_spec_hash(spec)
       raise NoNamespace unless spec.key?('namespace')
+      raise MissingSpecKey, 'name key is required' unless spec.key?('name')
 
       normalized = spec.dup
       normalized.default = []

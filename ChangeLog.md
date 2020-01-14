@@ -20,6 +20,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    constructor.
  - Specs can contain templatized sections to avoid duplicated sections.
 
+### Fixed
+ - Classes with no `name` member raise a MissingSpecKey exception.
+
 ## [0.3.0] - 2020-01-01
 ### Added
  - Examples of basic usage and features.
