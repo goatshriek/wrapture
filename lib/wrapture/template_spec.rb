@@ -30,16 +30,16 @@ module Wrapture
     # Gives a spec with all instances of a parameter with the given name
     # replaced with the given value in the provided spec.
     def self.replace_param(spec, param_name, param_value)
-      TemplateSpec.replace_param!(spec.dup, param_name, param_value)
+      replace_param!(spec.dup, param_name, param_value)
     end
 
     # Replaces all instances of a parameter with the given name with the given
     # value in the provided spec.
     def self.replace_param!(spec, param_name, param_value)
       if spec.is_a?(Hash)
-        TemplateSpec.replace_param_in_hash(spec, param_name, param_value)
+        replace_param_in_hash(spec, param_name, param_value)
       elsif spec.is_a?(Array)
-        TemplateSpec.replace_param_in_array(spec, param_name, param_value)
+        replace_param_in_array(spec, param_name, param_value)
       end
     end
 
@@ -47,10 +47,10 @@ module Wrapture
     # value in the provided spec, assuming the spec is an array.
     def self.replace_param_in_array(spec, param_name, param_value)
       spec.map! do |value|
-        if TemplateSpec.param?(value, param_name)
+        if param?(value, param_name)
           param_value
         else
-          TemplateSpec.replace_param!(value, param_name, param_value)
+          replace_param!(value, param_name, param_value)
           value
         end
       end
@@ -60,11 +60,11 @@ module Wrapture
     # Replaces all instances of a parameter with the given name with the given
     # value in the provided spec, assuming the spec is a hash.
     def self.replace_param_in_hash(spec, param_name, param_value)
-      spec.keys.each_pair do |key, value|
-        if TemplateSpec.param?(value, param_name)
+      spec.each_pair do |key, value|
+        if param?(value, param_name)
           spec[key] = param_value
         else
-          TemplateSpec.replace_param!(value, param_name, param_value)
+          replace_param!(value, param_name, param_value)
         end
       end
     end
@@ -78,7 +78,7 @@ module Wrapture
     # Returns a spec hash of this template with the provided parameters
     # substituted.
     def instantiate(params)
-      result_spec = @spec['value'].dup
+      result_spec = Marshal.load(Marshal.dump(@spec['value']))
 
       return result_spec if params.nil?
 
@@ -97,19 +97,11 @@ module Wrapture
     # Replaces all references to this template with an instantiation of it in
     # the given spec.
     def replace_uses(spec)
-      puts 'before'
-      puts spec
-      puts
-
       if spec.is_a?(Hash)
         replace_uses_in_hash(spec)
       elsif spec.is_a?(Array)
         replace_uses_in_array(spec)
       end
-
-      puts 'after'
-      puts spec
-      puts
     end
 
     # True if the given spec is a reference to this template.
@@ -125,12 +117,11 @@ module Wrapture
     # the given spec, assuming it is a hash.
     def replace_uses_in_hash(spec)
       if use?(spec)
-        puts 'found use!'
         spec.merge!(instantiate(spec['use-template']['params']))
         spec.delete('use-template')
       end
 
-      spec.keys.each_value do |key, value|
+      spec.each_value do |value|
         replace_uses(value)
       end
 
@@ -142,9 +133,9 @@ module Wrapture
     def replace_uses_in_array(spec)
       spec.map! do |value|
         if use?(value)
-          puts 'found use!'
           value.merge!(instantiate(value['use-template']['params']))
           value.delete('use-template')
+          value
         else
           replace_uses(value)
         end

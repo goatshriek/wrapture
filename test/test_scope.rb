@@ -66,7 +66,7 @@ class ScopeTest < Minitest::Test
 
     # each of the files should be identical
     with_template_files.each do |name|
-      assert(FileUtils.compare_files("#{name}.with", "#{name}.without"))
+      assert(FileUtils.compare_file("#{name}.with", "#{name}.without"))
       File.delete("#{name}.with", "#{name}.without")
     end
   end
