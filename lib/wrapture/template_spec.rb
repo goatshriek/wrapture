@@ -77,7 +77,7 @@ module Wrapture
 
     # Returns a spec hash of this template with the provided parameters
     # substituted.
-    def instantiate(params)
+    def instantiate(params=nil)
       result_spec = Marshal.load(Marshal.dump(@spec['value']))
 
       return result_spec if params.nil?
@@ -101,6 +101,8 @@ module Wrapture
         replace_uses_in_hash(spec)
       elsif spec.is_a?(Array)
         replace_uses_in_array(spec)
+      else
+        spec
       end
     end
 
