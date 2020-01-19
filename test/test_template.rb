@@ -51,9 +51,12 @@ class TemplateSpecTest < Minitest::Test
   def test_param_replacement
     temp_spec = load_fixture('template_with_params')
 
-    result = Wrapture::TemplateSpec.replace_param(temp_spec['value'], 'buckle-thing', 'shoe')
+    result = Wrapture::TemplateSpec.replace_param(temp_spec['value'],
+                                                  'buckle-thing',
+                                                  'shoe')
 
     assert_equal('shoe', result['key-1'][3])
+    refute_equal('shoe', temp_spec['value']['key-1'][3])
   end
 
   def test_replace_in_array
