@@ -1,0 +1,17 @@
+name: "template-with-params"
+value:
+  key-1:
+    - "one"
+    - "two"
+    - "buckle my"
+    - is-param: true
+      name: "buckle-thing"
+  key-2:
+    subkey-1: "nothing to see here"
+    subkey-2: "just a simple object"
+  key-3:
+    subkey-1: "one is the loneliest number"
+    subkey-2: "two tickets to paradise"
+    subkey-3:
+      is-param: true
+      name: "third-thing"

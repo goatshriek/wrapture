@@ -23,6 +23,23 @@ require 'minitest/autorun'
 require 'wrapture'
 
 class TemplateSpecTest < Minitest::Test
+  def test_instantiation
+    temp_spec = load_fixture('template_with_params')
+
+    temp = Wrapture::TemplateSpec.new(temp_spec)
+
+    param1 = { 'name' => 'buckle-thing', 'value' => 'shoe' }
+    param2 = { 'name' => 'third-thing', 'value' => 'three times a lady' }
+
+    actual_result = temp.instantiate([param1, param2])
+
+    expected_result = temp_spec['value'].dup
+    expected_result['key-1'][3] = param1['value']
+    expected_result['key-3']['subkey-3'] = param2['value']
+
+    assert_equal(expected_result, actual_result)
+  end
+
   def test_no_param_instantiation
     temp_spec = load_fixture('basic_template')
 
