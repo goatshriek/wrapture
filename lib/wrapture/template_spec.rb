@@ -30,7 +30,8 @@ module Wrapture
     # Gives a spec with all instances of a parameter with the given name
     # replaced with the given value in the provided spec.
     def self.replace_param(spec, param_name, param_value)
-      replace_param!(spec.dup, param_name, param_value)
+      new_spec = Marshal.load(Marshal.dump(spec))
+      replace_param!(new_spec, param_name, param_value)
     end
 
     # Replaces all instances of a parameter with the given name with the given
@@ -40,6 +41,8 @@ module Wrapture
         replace_param_in_hash(spec, param_name, param_value)
       elsif spec.is_a?(Array)
         replace_param_in_array(spec, param_name, param_value)
+      else
+        spec
       end
     end
 
@@ -54,6 +57,8 @@ module Wrapture
           value
         end
       end
+
+      spec
     end
     private_class_method :replace_param_in_array
 
@@ -67,6 +72,8 @@ module Wrapture
           replace_param!(value, param_name, param_value)
         end
       end
+
+      spec
     end
     private_class_method :replace_param_in_hash
 
