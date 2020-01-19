@@ -10,7 +10,7 @@ scope = Wrapture::Scope.new
 ARGV.each do |spec_file|
   spec = YAML.load_file(spec_file)
 
-  spec['templates'].each do |temp_spec|
+  spec.fetch('templates', []).each do |temp_spec|
     scope << Wrapture::TemplateSpec.new(temp_spec)
   end
 
