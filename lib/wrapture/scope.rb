@@ -58,7 +58,7 @@ module Wrapture
 
       @templates.each { |temp| temp.replace_uses(class_hash) }
 
-      @classes << ClassSpec.new(class_hash, scope: self)
+      ClassSpec.new(class_hash, scope: self)
     end
 
     # Generates the wrapper class files for all classes in the scope.

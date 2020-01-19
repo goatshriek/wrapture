@@ -71,6 +71,23 @@ class ScopeTest < Minitest::Test
     end
   end
 
+  def test_sequential_class_load
+    class_specs = [load_fixture('basic_class'),
+                   load_fixture('child_class'),
+                   load_fixture('constant_class'),
+                   load_fixture('constructor_class')]
+
+    scope = Wrapture::Scope.new
+
+    class_specs.each { |spec| scope.add_class_spec_hash(spec) }
+    assert_equal(class_specs.count, scope.classes.count)
+
+    generated_files = scope.generate_wrappers
+    assert_equal(scope.classes.count, generated_files.count / 2)
+
+    File.delete(*generated_files)
+  end
+
   def test_versioned_scope
     test_spec = load_fixture('versioned_scope')
 
