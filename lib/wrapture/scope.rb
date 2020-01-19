@@ -25,6 +25,7 @@ module Wrapture
     # Creates an empty scope with no classes in it.
     def initialize(spec = nil)
       @classes = []
+      @templates = []
 
       return if spec.nil? || !spec.key?('classes')
 
@@ -42,12 +43,22 @@ module Wrapture
       end
     end
 
-    # Adds a class specification to the scope.
+    # Adds a class or template specification to the scope.
     #
-    # This does not set the scope as the owner of the class. This must be done
-    # during the construction of the class spec.
+    # This does not set the scope as the owner of the class for a ClassSpec.
+    # This must be done during the construction of the class spec.
     def <<(spec)
+      @templates << spec if spec.is_a?(TemplateSpec)
       @classes << spec if spec.is_a?(ClassSpec)
+    end
+
+    # Adds a class to the scope created from the given specification hash.
+    def add_class_spec_hash(spec)
+      class_hash = Marshal.load(Marshal.dump(spec))
+
+      @templates.each { |temp| temp.replace_uses(class_hash) }
+
+      @classes << ClassSpec.new(class_hash, scope: self)
     end
 
     # Generates the wrapper class files for all classes in the scope.
