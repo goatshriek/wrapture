@@ -133,13 +133,18 @@ module Wrapture
     # Replaces all references to this template with an instantiation of it in
     # the given spec, assuming it is an array.
     def replace_uses_in_array(spec)
-      spec.map! do |value|
-        if use?(value)
-          value.merge!(instantiate(value['use-template']['params']))
-          value.delete('use-template')
-          value
+      spec.dup.each_index do |i|
+        if use?(spec[i])
+          result = instantiate(spec[i]['use-template']['params'])
+          if result.is_a?(Array)
+            spec.delete_at(i)
+            spec.insert(i, *result)
+          else # assumes that the result is a Hash
+            spec[i].merge!(result)
+            spec.delete('use-template')
+          end
         else
-          replace_uses(value)
+          replace_uses(spec[i])
         end
       end
 

@@ -41,15 +41,46 @@ class TemplateSpecTest < Minitest::Test
   end
 
   def test_no_param_instantiation
-    temp_spec = load_fixture('basic_template')
+    temp_spec = load_fixture('basic_hash_template')
 
     temp = Wrapture::TemplateSpec.new(temp_spec)
 
     assert_equal(temp_spec['value'], temp.instantiate)
   end
 
+  def test_replace_in_array
+    temp_spec = load_fixture('basic_array_template')
+    usage = load_fixture('template_usage_in_array')
+
+    temp = Wrapture::TemplateSpec.new(temp_spec)
+
+    temp.replace_uses(usage)
+
+    assert(usage.include?('thing-1'))
+    assert(usage.include?('thing-2'))
+    assert(usage.include?('thing-a'))
+    assert(usage.include?('thing-b'))
+    assert(usage.last.is_a?(Hash))
+    assert(usage.last['key-1'] == 'thing-3')
+  end
+
+  def test_replace_in_hash
+    temp_spec = load_fixture('basic_hash_template')
+    usage = load_fixture('template_usage_in_hash')
+
+    temp = Wrapture::TemplateSpec.new(temp_spec)
+
+    temp.replace_uses(usage)
+
+    assert(usage.key?('name'))
+    assert(usage.key?('key-1'))
+    assert(usage.key?('key-2'))
+    assert(usage.key?('key-3'))
+    assert(usage['key-3'].is_a?(Array))
+  end
+
   def test_replace_with_no_uses
-    temp_spec = load_fixture('basic_template')
+    temp_spec = load_fixture('basic_hash_template')
     class_spec_original = load_fixture('basic_class')
     class_spec_replaced = load_fixture('basic_class')
 

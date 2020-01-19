@@ -1,0 +1,7 @@
+name: "test-array-template"
+value:
+  - "thing-1"
+  - "thing-2"
+  - key-1: "thing-3"
+    key-2: "this one is bigger"
+    key-3: "but not necessarily better"
