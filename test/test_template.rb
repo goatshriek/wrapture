@@ -56,6 +56,24 @@ class TemplateSpecTest < Minitest::Test
     assert_equal(override_val, usage[first_key])
   end
 
+  def test_multiple_uses
+    hash_temp_spec = load_fixture('basic_hash_template')
+    array_temp_spec = load_fixture('basic_array_template')
+
+    hash_temp = Wrapture::TemplateSpec.new(hash_temp_spec)
+    array_temp = Wrapture::TemplateSpec.new(array_temp_spec)
+
+    usage = load_fixture('multiple_template_uses')
+
+    hash_temp.replace_uses(usage)
+    array_temp.replace_uses(usage)
+
+    puts
+    puts usage
+    puts
+    # need to add assertions
+  end
+
   def test_no_param_instantiation
     temp_spec = load_fixture('basic_hash_template')
 
