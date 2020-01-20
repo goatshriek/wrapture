@@ -40,6 +40,22 @@ class TemplateSpecTest < Minitest::Test
     assert_equal(expected_result, actual_result)
   end
 
+  def test_merge_override
+    temp_spec = load_fixture('basic_hash_template')
+
+    temp = Wrapture::TemplateSpec.new(temp_spec)
+
+    first_key = temp_spec['value'].keys.first
+    override_val = 67
+    usage = { first_key => override_val,
+              'use-template' => { 'name' => temp_spec['name'] } }
+
+    refute_equal(override_val, temp_spec['value'][first_key])
+    temp.replace_uses(usage)
+
+    assert_equal(override_val, usage[first_key])
+  end
+
   def test_no_param_instantiation
     temp_spec = load_fixture('basic_hash_template')
 

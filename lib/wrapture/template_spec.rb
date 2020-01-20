@@ -170,23 +170,23 @@ module Wrapture
   #
   # The above would result in a class specification of this:
   #
-  # name: "StupendousMan"
-  # functions:
-  #   - name: "crawl"
-  #     wrapped-function:
-  #           name: "stupendous_man_crawl"
-  #           params:
-  #             - value: "equivalent-struct-pointer"
-  #   - name: "walk"
-  #     wrapped-function:
-  #           name: "stupendous_man_walk"
-  #           params:
-  #             - value: "equivalent-struct-pointer"
-  #   - name: "run"
-  #     wrapped-function:
-  #           name: "stupendous_man_run"
-  #           params:
-  #             - value: "equivalent-struct-pointer"
+  #  name: "StupendousMan"
+  #  functions:
+  #    - name: "crawl"
+  #      wrapped-function:
+  #            name: "stupendous_man_crawl"
+  #            params:
+  #              - value: "equivalent-struct-pointer"
+  #    - name: "walk"
+  #      wrapped-function:
+  #            name: "stupendous_man_walk"
+  #            params:
+  #              - value: "equivalent-struct-pointer"
+  #    - name: "run"
+  #      wrapped-function:
+  #            name: "stupendous_man_run"
+  #            params:
+  #              - value: "equivalent-struct-pointer"
   #
   # == Parameter Replacement
   # The rules for parameter replacement are not as complex as for template
@@ -206,8 +206,8 @@ module Wrapture
         spec['name'] == param_name
     end
 
-    # Gives a spec with all instances of a parameter with the given name
-    # replaced with the given value in the provided spec.
+    # Creates a new spec based on the given one with all instances of a
+    # parameter with the given name replaced with the given value.
     def self.replace_param(spec, param_name, param_value)
       new_spec = Marshal.load(Marshal.dump(spec))
       replace_param!(new_spec, param_name, param_value)
@@ -305,7 +305,8 @@ module Wrapture
     # the given spec, assuming it is a hash.
     def replace_uses_in_hash(spec)
       if use?(spec)
-        spec.merge!(instantiate(spec['use-template']['params']))
+        result = instantiate(spec['use-template']['params'])
+        spec.merge!(result) { |_, oldval, _| oldval }
         spec.delete('use-template')
       end
 
