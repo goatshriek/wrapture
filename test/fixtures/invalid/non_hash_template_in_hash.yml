@@ -1,0 +1,11 @@
+templates:
+  - name: "i-return-an-array"
+    value:
+      - "value-1"
+      - "value-2"
+      - "value-3"
+      - "value-4"
+classes:
+  - name: "InvalidTemplateUsage"
+    use-template:
+      name: "i-return-an-array"

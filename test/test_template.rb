@@ -75,7 +75,7 @@ class TemplateSpecTest < Minitest::Test
     refute_equal('shoe', temp_spec['value']['key-1'][3])
   end
 
-  def test_replace_in_array
+  def test_replace_in_array_with_array
     temp_spec = load_fixture('basic_array_template')
     usage = load_fixture('template_usage_in_array')
 

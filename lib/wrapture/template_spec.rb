@@ -304,6 +304,11 @@ module Wrapture
     # Replaces a single use of the template in a Hash object.
     def replace_use_in_hash(use)
       result = instantiate(use['use-template']['params'])
+
+      error_message = "template #{name} was invoked in a Hash context, but is"\
+                      'not a hash template'
+      raise InvalidTemplateUsage, error_message unless result.is_a?(Hash)
+
       use.merge!(result) { |_, oldval, _| oldval }
       use.delete('use-template')
     end
@@ -311,9 +316,7 @@ module Wrapture
     # Replaces all references to this template with an instantiation of it in
     # the given spec, assuming it is a hash.
     def replace_uses_in_hash(spec)
-      if use?(spec)
-        replace_use_in_hash(spec)
-      end
+      replace_use_in_hash(spec) if use?(spec)
 
       spec.each_value do |value|
         replace_uses(value)
@@ -328,10 +331,10 @@ module Wrapture
       spec.dup.each_index do |i|
         if use?(spec[i])
           result = instantiate(spec[i]['use-template']['params'])
-          if result.is_a?(Array)
+          if result.is_a?(Array) && spec[i].length == 1
             spec.delete_at(i)
             spec.insert(i, *result)
-          elsif spec[i].is_a?(Hash)
+          else
             replace_use_in_hash(spec[i])
           end
         else

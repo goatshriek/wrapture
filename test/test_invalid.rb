@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2019 Joel E. Anderson
+# Copyright 2019-2020 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
 
 require 'helper'
 
+require 'fixture'
 require 'minitest/autorun'
 require 'wrapture'
 
@@ -35,6 +36,14 @@ class InvalidTest < Minitest::Test
 
     assert_raises(Wrapture::WraptureError) do
       Wrapture::ClassSpec.new test_spec
+    end
+  end
+
+  def test_non_hash_template_in_hash
+    scope_spec = load_fixture('invalid/non_hash_template_in_hash')
+
+    assert_raises(Wrapture::InvalidTemplateUsage) do
+      Wrapture::Scope.new(scope_spec)
     end
   end
 
