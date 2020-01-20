@@ -301,13 +301,18 @@ module Wrapture
 
     private
 
+    # Replaces a single use of the template in a Hash object.
+    def replace_use_in_hash(use)
+      result = instantiate(use['use-template']['params'])
+      use.merge!(result) { |_, oldval, _| oldval }
+      use.delete('use-template')
+    end
+
     # Replaces all references to this template with an instantiation of it in
     # the given spec, assuming it is a hash.
     def replace_uses_in_hash(spec)
       if use?(spec)
-        result = instantiate(spec['use-template']['params'])
-        spec.merge!(result) { |_, oldval, _| oldval }
-        spec.delete('use-template')
+        replace_use_in_hash(spec)
       end
 
       spec.each_value do |value|
@@ -326,9 +331,8 @@ module Wrapture
           if result.is_a?(Array)
             spec.delete_at(i)
             spec.insert(i, *result)
-          else # assumes that the result is a Hash
-            spec[i].merge!(result)
-            spec.delete('use-template')
+          elsif spec[i].is_a?(Hash)
+            replace_use_in_hash(spec[i])
           end
         else
           replace_uses(spec[i])
