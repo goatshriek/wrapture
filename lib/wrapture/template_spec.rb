@@ -76,6 +76,16 @@ module Wrapture
   # members of the object. If there is a conflict between members, the member of
   # the invoking specification will override the template's member.
   #
+  # In templates that don't have any parameters, you can save a small bit of
+  # typing by simply setting the value of the +use-template+ member to the name
+  # of the template directly. So, the previous invocation would become this:
+  #
+  #  classes:
+  #    - name: "ClassA"
+  #      use-template: "standard-class-properties"
+  #    - name: "ClassB"
+  #      use-template: "standard-class-properties"
+  #
   # == Usage in Arrays
   # In some cases, you may want a template to expand to an array of elements
   # that are added to an existing array. This can be accomplished by invoking
