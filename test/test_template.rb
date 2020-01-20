@@ -75,7 +75,7 @@ class TemplateSpecTest < Minitest::Test
     refute_equal('shoe', temp_spec['value']['key-1'][3])
   end
 
-  def test_replace_in_array_with_array
+  def test_replace_in_array
     temp_spec = load_fixture('basic_array_template')
     usage = load_fixture('template_usage_in_array')
 
@@ -115,5 +115,18 @@ class TemplateSpecTest < Minitest::Test
     temp.replace_uses(class_spec_replaced)
 
     assert_equal(class_spec_original, class_spec_replaced)
+  end
+
+  def test_shorthand_usage
+    temp_spec = load_fixture('basic_hash_template')
+    shorthand_usage = load_fixture('template_shorthand_usage')
+    verbose_usage = load_fixture('template_usage_in_hash')
+
+    temp = Wrapture::TemplateSpec.new(temp_spec)
+
+    temp.replace_uses(shorthand_usage)
+    temp.replace_uses(verbose_usage)
+
+    assert_equal(verbose_usage, shorthand_usage)
   end
 end

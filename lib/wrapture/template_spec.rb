@@ -304,9 +304,16 @@ module Wrapture
 
     # True if the given spec is a reference to this template.
     def use?(spec)
-      spec.is_a?(Hash) &&
-        spec.key?('use-template') &&
-        spec['use-template']['name'] == name
+      return false unless spec.is_a?(Hash) && spec.key?('use-template')
+
+      invocation = spec['use-template']
+      if invocation.is_a?(String)
+        invocation == name
+      elsif invocation.is_a?(Hash)
+        invocation.key?('name') && invocation['name'] == name
+      else
+        false
+      end
     end
 
     private
