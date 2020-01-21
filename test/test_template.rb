@@ -101,6 +101,7 @@ class TemplateSpecTest < Minitest::Test
 
     temp.replace_uses(usage)
 
+    puts usage
     assert(usage.include?('thing-1'))
     assert(usage.include?('thing-2'))
     assert(usage.include?('thing-a'))
@@ -148,8 +149,20 @@ class TemplateSpecTest < Minitest::Test
     assert_equal(verbose_usage, shorthand_usage)
   end
 
-  def test_string_template_usage
-    scope_spec = load_fixture('string_template_usage')
+  def test_string_template_usage_in_array
+    scope_spec = load_fixture('string_template_usage_in_array')
+
+    temp = Wrapture::TemplateSpec.new(scope_spec['templates'].first)
+
+    usage = temp.replace_uses(scope_spec['classes'].first)
+
+    include_list = usage['equivalent-struct']['includes']
+    template_value = scope_spec['templates'].first['value']
+    assert_includes(include_list, template_value)
+  end
+
+  def test_string_template_usage_in_hash
+    scope_spec = load_fixture('string_template_usage_in_hash')
 
     temp = Wrapture::TemplateSpec.new(scope_spec['templates'].first)
 
