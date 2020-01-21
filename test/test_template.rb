@@ -101,7 +101,6 @@ class TemplateSpecTest < Minitest::Test
 
     temp.replace_uses(usage)
 
-    puts usage
     assert(usage.include?('thing-1'))
     assert(usage.include?('thing-2'))
     assert(usage.include?('thing-a'))
