@@ -70,4 +70,12 @@ class InvalidTest < Minitest::Test
       Wrapture::Scope.new(test_spec)
     end
   end
+
+  def test_use_template_with_no_name
+    scope_spec = load_fixture('invalid/use_template_with_no_name')
+
+    assert_raises(Wrapture::InvalidTemplateUsage) do
+      Wrapture::Scope.new(scope_spec)
+    end
+  end
 end

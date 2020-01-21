@@ -310,9 +310,15 @@ module Wrapture
       if invocation.is_a?(String)
         invocation == name
       elsif invocation.is_a?(Hash)
-        invocation.key?('name') && invocation['name'] == name
+        unless invocation.key?('name')
+          error_message = 'invocations of use-template must have a name member'
+          raise InvalidTemplateUsage, error_message
+        end
+
+        invocation['name'] == name
       else
-        false
+        error_message = 'use-template must either be a String or a Hash'
+        raise InvalidTemplateUsage, error_message
       end
     end
 
