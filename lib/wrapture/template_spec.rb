@@ -329,7 +329,7 @@ module Wrapture
       result = instantiate(use['use-template']['params'])
 
       error_message = "template #{name} was invoked in a Hash context, but is"\
-                      'not a hash template'
+                      ' not a hash template'
       raise InvalidTemplateUsage, error_message unless result.is_a?(Hash)
 
       use.merge!(result) { |_, oldval, _| oldval }
