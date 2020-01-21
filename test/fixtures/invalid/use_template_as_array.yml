@@ -1,0 +1,12 @@
+templates:
+  - name: "not-a-list"
+    value:
+      - "well, I'm a list"
+      - "but that's different"
+      - "you know what, never mind"
+classes:
+  - name: "TemplateUseIsAnArray"
+    namespace: "wrapture_test"
+    use-template:
+      - "what?"
+      - "is this not right?"
