@@ -275,24 +275,7 @@ module Wrapture
     # completely replaced by the template. A direct use can be recognized as
     # a hash with only a 'use-template' key and no others.
     def direct_use?(spec)
-      return false unless spec.is_a?(Hash) &&
-                            spec.key?('use-template') &&
-                            spec.length == 1
-
-      invocation = spec['use-template']
-      if invocation.is_a?(String)
-        invocation == name
-      elsif invocation.is_a?(Hash)
-        unless invocation.key?('name')
-          error_message = 'invocations of use-template must have a name'
-          raise InvalidTemplateUsage, error_message
-        end
-
-        invocation['name'] == name
-      else
-        error_message = 'use-template must either be a String or a Hash'
-        raise InvalidTemplateUsage, error_message
-      end
+      use?(spec) && spec.length == 1
     end
 
     # Returns a spec hash of this template with the provided parameters
@@ -363,9 +346,7 @@ module Wrapture
     # Replaces all references to this template with an instantiation of it in
     # the given spec, assuming it is a hash.
     def replace_uses_in_hash(spec)
-      if use?(spec)
-        merge_use_with_hash(spec)
-      end
+      merge_use_with_hash(spec) if use?(spec)
 
       spec.each_pair do |key, value|
         if direct_use?(value)
