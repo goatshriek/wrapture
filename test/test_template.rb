@@ -68,10 +68,10 @@ class TemplateSpecTest < Minitest::Test
     hash_temp.replace_uses(usage)
     array_temp.replace_uses(usage)
 
-    puts
-    puts usage
-    puts
-    # need to add assertions
+    assert(usage.key?('places'))
+    assert(usage.key?('key-1'))
+    assert_instance_of(Array, usage['other-stuff'])
+    assert(usage['other-stuff'].include?('thing-2'))
   end
 
   def test_no_param_instantiation
