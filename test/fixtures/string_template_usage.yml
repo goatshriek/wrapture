@@ -1,0 +1,8 @@
+templates:
+  - name: "default-namespace"
+    value:
+      "wrapture_test"
+classes:
+  - name: "SimpleClass"
+    namespace:
+      use-template: "default-namespace"

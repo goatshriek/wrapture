@@ -271,6 +271,30 @@ module Wrapture
       @spec = spec
     end
 
+    # True if the given spec is a reference to this template that will be
+    # completely replaced by the template. A direct use can be recognized as
+    # a hash with only a 'use-template' key and no others.
+    def direct_use?(spec)
+      return false unless spec.is_a?(Hash) &&
+                            spec.key?('use-template') &&
+                            spec.length == 1
+
+      invocation = spec['use-template']
+      if invocation.is_a?(String)
+        invocation == name
+      elsif invocation.is_a?(Hash)
+        unless invocation.key?('name')
+          error_message = 'invocations of use-template must have a name'
+          raise InvalidTemplateUsage, error_message
+        end
+
+        invocation['name'] == name
+      else
+        error_message = 'use-template must either be a String or a Hash'
+        raise InvalidTemplateUsage, error_message
+      end
+    end
+
     # Returns a spec hash of this template with the provided parameters
     # substituted.
     def instantiate(params = nil)
@@ -325,11 +349,11 @@ module Wrapture
     private
 
     # Replaces a single use of the template in a Hash object.
-    def replace_use_in_hash(use)
+    def merge_use_with_hash(use)
       result = instantiate(use['use-template']['params'])
 
-      error_message = "template #{name} was invoked in a Hash context, but is"\
-                      ' not a hash template'
+      error_message = "template #{name} was invoked in a Hash with other"\
+                      ' keys, but does not resolve to a hash itself'
       raise InvalidTemplateUsage, error_message unless result.is_a?(Hash)
 
       use.merge!(result) { |_, oldval, _| oldval }
@@ -339,10 +363,16 @@ module Wrapture
     # Replaces all references to this template with an instantiation of it in
     # the given spec, assuming it is a hash.
     def replace_uses_in_hash(spec)
-      replace_use_in_hash(spec) if use?(spec)
+      if use?(spec)
+        merge_use_with_hash(spec)
+      end
 
-      spec.each_value do |value|
-        replace_uses(value)
+      spec.each_pair do |key, value|
+        if direct_use?(value)
+          spec[key] = instantiate(value['use-template']['params'])
+        else
+          replace_uses(value)
+        end
       end
 
       spec
@@ -352,14 +382,12 @@ module Wrapture
     # the given spec, assuming it is an array.
     def replace_uses_in_array(spec)
       spec.dup.each_index do |i|
-        if use?(spec[i])
+        if direct_use?(spec[i])
           result = instantiate(spec[i]['use-template']['params'])
-          if result.is_a?(Array) && spec[i].length == 1
-            spec.delete_at(i)
-            spec.insert(i, *result)
-          else
-            replace_use_in_hash(spec[i])
-          end
+          spec.delete_at(i)
+          spec.insert(i, *result)
+        elsif use?(spec[i])
+          merge_use_with_hash(spec[i])
         else
           replace_uses(spec[i])
         end

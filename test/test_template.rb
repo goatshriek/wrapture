@@ -147,4 +147,14 @@ class TemplateSpecTest < Minitest::Test
 
     assert_equal(verbose_usage, shorthand_usage)
   end
+
+  def test_string_template_usage
+    scope_spec = load_fixture('string_template_usage')
+
+    temp = Wrapture::TemplateSpec.new(scope_spec['templates'].first)
+
+    usage = temp.replace_uses(scope_spec['classes'].first)
+
+    assert_equal(scope_spec['templates'].first['value'], usage['namespace'])
+  end
 end
