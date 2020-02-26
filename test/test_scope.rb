@@ -44,6 +44,19 @@ class ScopeTest < Minitest::Test
     File.delete(*generated_files)
   end
 
+  def test_nested_templates
+    test_spec = load_fixture('scope_with_nested_templates')
+
+    scope = Wrapture::Scope.new(test_spec)
+
+    assert_equal(test_spec['classes'].count, scope.classes.count)
+
+    generated_files = scope.generate_wrappers
+    assert_equal(scope.classes.count, generated_files.count / 2)
+
+    File.delete(*generated_files)
+  end
+
   def test_templatized_classes
     spec_with_template = load_fixture('scope_with_template')
     scope_with_template = Wrapture::Scope.new(spec_with_template)
