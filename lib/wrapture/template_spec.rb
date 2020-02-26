@@ -130,6 +130,16 @@ module Wrapture
   #       - use-template:
   #           name: "list-template"
   #
+  # == Usage in other Templates
+  # Templates may reference other templates within themselves. There is no limit
+  # to this nesting, which means that it is quite possible for a careless
+  # developer to get himself into trouble, for example by recursively
+  # referencing a template from itself. Responsible usage of this functionality
+  # is left to the users.
+  #
+  # There are no guarantees made about the order in which templates are
+  # expanded. This is an attempt to keep template usage simple and direct.
+  #
   # = Parameters
   #
   # Templates may contain any number of parameters that can be supplied upon
