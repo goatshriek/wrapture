@@ -22,23 +22,23 @@ module Wrapture
     # A list of classes currently in the scope.
     attr_reader :classes
 
+    # A list of the templates defined in the scope.
+    attr_reader :templates
+
     # Creates an empty scope with no classes in it.
     def initialize(spec = nil)
       @classes = []
       @templates = []
 
-      return if spec.nil? || !spec.key?('classes')
+      return if spec.nil?
 
       @version = Wrapture.spec_version(spec)
 
-      @templates = spec.fetch('templates', []).map do |template_hash|
+      @templates = spec.fetch('templates', []).collect do |template_hash|
         TemplateSpec.new(template_hash)
       end
 
-      class_specs = spec['classes'].dup
-      @templates.each { |temp| temp.replace_uses(class_specs) }
-
-      @classes = class_specs.collect do |class_hash|
+      @classes = spec.fetch('classes', []).collect do |class_hash|
         ClassSpec.new(class_hash, scope: self)
       end
     end
@@ -54,11 +54,7 @@ module Wrapture
 
     # Adds a class to the scope created from the given specification hash.
     def add_class_spec_hash(spec)
-      class_hash = Marshal.load(Marshal.dump(spec))
-
-      @templates.each { |temp| temp.replace_uses(class_hash) }
-
-      ClassSpec.new(class_hash, scope: self)
+      ClassSpec.new(spec, scope: self)
     end
 
     # Generates the wrapper class files for all classes in the scope.
