@@ -105,6 +105,17 @@ class ClassSpecTest < Minitest::Test
     File.delete(*classes)
   end
 
+  def test_class_with_no_struct
+    test_spec = load_fixture('no_struct_class')
+
+    spec = Wrapture::ClassSpec.new(test_spec)
+
+    generated_files = spec.generate_wrappers
+    validate_wrapper_results(test_spec, generated_files)
+
+    File.delete(*generated_files)
+  end
+
   def test_class_with_static_function
     test_spec = load_fixture('static_function_class')
 

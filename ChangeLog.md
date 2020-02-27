@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Pointer classes who's parent wraps the same equivalent struct will use the
    parent's pointer constructor as the initializer for their own pointer
    constructor.
+ - Classes may be defined without an equivalent struct.
  - Specs can contain templatized sections to avoid duplicated sections.
 
 ### Fixed

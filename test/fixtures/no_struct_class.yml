@@ -1,0 +1,7 @@
+name: "ClassWithNoStruct"
+namespace: "wrapture_test"
+functions:
+  - name: "StaticFunction"
+    static: true
+    wrapped-function:
+      name: "underlying_function"
