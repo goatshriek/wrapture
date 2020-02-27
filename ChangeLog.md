@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Python class generation.
  - Perl class generation.
 
-## [0.4.0] - 2020-02-27
+## [0.4.0] - 2020-02-28
 ### Added
  - Inequality conditions for rules (less-than, less-than-equal, greater-than,
    greater-than-equal).
@@ -18,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Pointer classes who's parent wraps the same equivalent struct will use the
    parent's pointer constructor as the initializer for their own pointer
    constructor.
- - Classes may be defined with an equivalent struct.
+ - Classes may be defined without an equivalent struct.
 
 ### Fixed
  - Classes with no `name` member raise a MissingSpecKey exception.
