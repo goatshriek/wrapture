@@ -23,6 +23,18 @@ require 'minitest/autorun'
 require 'wrapture'
 
 class TemplateSpecTest < Minitest::Test
+  def test_hash_template_usage_in_array
+    scope_spec = load_fixture('hash_template_usage_in_array')
+
+    temp = Wrapture::TemplateSpec.new(scope_spec['templates'].first)
+
+    temp.replace_uses(scope_spec['classes'].first)
+    usage = scope_spec['classes'].first
+
+    first_function = usage['functions'].first
+    assert_instance_of(Hash, first_function)
+  end
+
   def test_instantiation
     temp_spec = load_fixture('template_with_params')
 
@@ -153,7 +165,8 @@ class TemplateSpecTest < Minitest::Test
 
     temp = Wrapture::TemplateSpec.new(scope_spec['templates'].first)
 
-    usage = temp.replace_uses(scope_spec['classes'].first)
+    temp.replace_uses(scope_spec['classes'].first)
+    usage = scope_spec['classes'].first
 
     include_list = usage['equivalent-struct']['includes']
     template_value = scope_spec['templates'].first['value']
@@ -165,7 +178,8 @@ class TemplateSpecTest < Minitest::Test
 
     temp = Wrapture::TemplateSpec.new(scope_spec['templates'].first)
 
-    usage = temp.replace_uses(scope_spec['classes'].first)
+    temp.replace_uses(scope_spec['classes'].first)
+    usage = scope_spec['classes'].first
 
     assert_equal(scope_spec['templates'].first['value'], usage['namespace'])
   end

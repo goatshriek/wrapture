@@ -218,6 +218,26 @@ module Wrapture
   # array members. If the more complex merging functionality is needed, then
   # consider invoking a template instead of using a parameter.
   class TemplateSpec
+    # Replaces all instances of the given templates in the provided spec. This
+    # is done recursively until no more changes can be made. Returns true if
+    # any changes were made, false otherwise.
+    def self.replace_all_uses(spec, *templates)
+      return false unless spec.is_a?(Hash) || spec.is_a?(Array)
+
+      changed = false
+      loop do
+        changes = templates.collect do |temp|
+          temp.replace_uses(spec)
+        end
+
+        changed = true if changes.any?
+
+        break unless changes.any?
+      end
+
+      changed
+    end
+
     # True if the provided spec is a template parameter with the given name.
     def self.param?(spec, param_name)
       spec.is_a?(Hash) &&
@@ -308,14 +328,18 @@ module Wrapture
     end
 
     # Replaces all references to this template with an instantiation of it in
-    # the given spec.
+    # the given spec. Returns true if any changes were made, false otherwise.
+    #
+    # Recursive template uses will not be replaced by this function. If
+    # multiple replacements are needed, then you will need to call this function
+    # multiple times.
     def replace_uses(spec)
       if spec.is_a?(Hash)
         replace_uses_in_hash(spec)
       elsif spec.is_a?(Array)
         replace_uses_in_array(spec)
       else
-        spec
+        false
       end
     end
 
@@ -354,37 +378,53 @@ module Wrapture
     end
 
     # Replaces all references to this template with an instantiation of it in
-    # the given spec, assuming it is a hash.
+    # the given spec, assuming it is a hash. Returns true if any changes were
+    # made, false otherwise.
     def replace_uses_in_hash(spec)
-      merge_use_with_hash(spec) if use?(spec)
+      changes = []
+
+      if use?(spec)
+        merge_use_with_hash(spec) if use?(spec)
+        changes << true
+      end
 
       spec.each_pair do |key, value|
         if direct_use?(value)
           spec[key] = instantiate(value['use-template']['params'])
+          changes << true
         else
-          replace_uses(value)
+          changes << replace_uses(value)
         end
       end
 
-      spec
+      changes.any?
     end
 
     # Replaces all references to this template with an instantiation of it in
-    # the given spec, assuming it is an array.
+    # the given spec, assuming it is an array. Returns true if any changes were
+    # made, false otherwise.
     def replace_uses_in_array(spec)
+      changes = []
+
       spec.dup.each_index do |i|
         if direct_use?(spec[i])
           result = instantiate(spec[i]['use-template']['params'])
           spec.delete_at(i)
-          spec.insert(i, *result)
+          if result.is_a?(Array)
+            spec.insert(i, *result)
+          else
+            spec.insert(i, result)
+          end
+          changes << true
         elsif use?(spec[i])
           merge_use_with_hash(spec[i])
+          changes << true
         else
-          replace_uses(spec[i])
+          changes << replace_uses(spec[i])
         end
       end
 
-      spec
+      changes.any?
     end
   end
 end
