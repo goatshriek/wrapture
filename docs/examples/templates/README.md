@@ -90,13 +90,13 @@ templates:
 
 This template closely matches our function specifications above, with a few
 obvious differences. First, the template has a name associated with it that is
-used when we need to use it later. Second, the name of the wrapped function is
+referenced when we want to use it. Second, the name of the wrapped function is
 no longer a string value: it is an object with a member called `is-param` set to
-`true`. This object signifies that this is a parameterized portion of the
-template that we can replace as needed when we use this template.
+`true`. The presence of this key signifies that this is a parameterized portion
+of the template that we can replace as needed.
 
-Now that we have this template defined, let's see how we would use it to remove
-the redundancy from our previous declarations:
+Now that we have a template defined, let's see how we would use it to remove the
+redundancy from our previous declarations:
 
 ```yaml
 functions:
@@ -121,10 +121,10 @@ functions:
 ```
 
 The declaration code has been shortened from nine lines to six, a reduction by a
-third. More importantly, we have placed the common code into a single place (the
+third. More importantly, we have placed the common code into a single spot (the
 template) where it can be modified once and reflected at all use sites, a clean
 example of the DRY principle. Verbosity and ease of maintenance will continue to
-improve as we add even more to the function specs, such as error handling.
+improve as we add more to the function specs, such as error handling.
 
 If you'd like to run this example in its entirety, you can do so with the
 following invocations:
