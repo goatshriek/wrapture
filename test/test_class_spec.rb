@@ -113,7 +113,7 @@ class ClassSpecTest < Minitest::Test
     generated_files = spec.generate_wrappers
     validate_wrapper_results(test_spec, generated_files)
 
-    File.delete(*classes)
+    File.delete(*generated_files)
   end
 
   def test_class_with_static_function

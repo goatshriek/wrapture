@@ -136,6 +136,7 @@ def validate_indentation(filename)
 end
 
 def validate_members(spec, filename)
+  return unless spec.key?('equivalent-struct')
   return unless spec['equivalent-struct']['members']
 
   first_member_name = spec['equivalent-struct']['members'][0]['name']
