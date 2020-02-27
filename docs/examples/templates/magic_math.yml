@@ -22,12 +22,15 @@ templates:
       params:
         - name: "num"
           type: "int"
+      return:
+        type: "bool"
       wrapped-function:
         name:
           is-param: true
           name: "wrapped-name"
         params:
           - value: "num"
+        includes: "magic_math.h"
 classes:
   - name: "MagicMath"
     namespace: "magic_math"

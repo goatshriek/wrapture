@@ -19,42 +19,42 @@ classes:
   - name: "MagicMath"
     namespace: "magic_math"
     functions:
-      - name: "IsPrime"
-        static: true
-        params:
-          - name: "num"
-            type: "int"
-        wrapped-function:
-          name: "is_prime"
-          params:
-            - value: "num"
       - name: "IsMagical"
         static: true
         params:
           - name: "num"
             type: "int"
+        return:
+          type: "bool"
         wrapped-function:
           name: "is_magical"
           params:
             - value: "num"
+          includes: "magic_math.h"
       - name: "IsPrime"
         static: true
         params:
           - name: "num"
             type: "int"
+        return:
+          type: "bool"
         wrapped-function:
           name: "is_prime"
           params:
             - value: "num"
+          includes: "magic_math.h"
       - name: "IsRandom"
         static: true
         params:
           - name: "num"
             type: "int"
+        return:
+          type: "bool"
         wrapped-function:
           name: "is_random"
           params:
             - value: "num"
+          includes: "magic_math.h"
 ```
 
 But goodness, there sure is a lot of repetition in this specification. For each
@@ -80,12 +80,15 @@ templates:
       params:
         - name: "num"
           type: "int"
+      return:
+        type: "bool"
       wrapped-function:
         name:
           is-param: true
           name: "wrapped-name"
         params:
           - value: "num"
+        includes: "magic_math.h"
 ```
 
 This template closely matches our function specifications above, with a few
@@ -120,11 +123,12 @@ functions:
           value: "is_random"
 ```
 
-The declaration code has been shortened from nine lines to six, a reduction by a
-third. More importantly, we have placed the common code into a single spot (the
-template) where it can be modified once and reflected at all use sites, a clean
-example of the DRY principle. Verbosity and ease of maintenance will continue to
-improve as we add more to the function specs, such as error handling.
+The declaration code for each function has been shortened from twelve lines to
+six, cutting it in half. More importantly, we have placed the common code into a
+single spot (the template) where it can be modified once and reflected at all
+use sites, a clean example of the DRY principle. Verbosity and ease of
+maintenance will continue to improve as we add more to the function specs, such
+as error handling.
 
 If you'd like to run this example in its entirety, you can do so with the
 following invocations:
@@ -140,4 +144,30 @@ g++ -I . \
 
 ./magic_match_usage_example
 # generates the following output:
+# listing primes from 0 to 100:
+# 2
+# 3
+# 5
+# 7
+# 11
+# 13
+# 17
+# 19
+# 23
+# 29
+# 31
+# 37
+# 41
+# 43
+# 47
+# 53
+# 59
+# 61
+# 67
+# 71
+# 73
+# 79
+# 83
+# 89
+# 97
 ```

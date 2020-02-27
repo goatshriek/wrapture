@@ -28,7 +28,7 @@ main( int argc, char **argv ) {
   cout << "listing primes from 0 to 100:" << endl;
 
   for( int i = 0; i <= 100; i++ ) {
-    if( MagicMath::is_prime( i ) ) {
+    if( MagicMath::IsPrime( i ) ) {
       cout << i << endl;
     }
   }
