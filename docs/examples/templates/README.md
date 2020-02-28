@@ -142,7 +142,7 @@ g++ -I . \
    magic_math.c MagicMath.cpp magic_math_usage.cpp \
    -o magic_math_usage_example
 
-./magic_match_usage_example
+./magic_math_usage_example
 # generates the following output:
 # listing primes from 0 to 100:
 # 2
