@@ -17,6 +17,8 @@ matrix:
       rvm: 2.3
     - os: linux
       rvm: rbx-3
+    - os: linux
+      rvm: rbx-4
   include:
     - os: linux
       dist: trusty
