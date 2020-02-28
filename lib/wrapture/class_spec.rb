@@ -97,7 +97,9 @@ module Wrapture
     def initialize(spec, scope: Scope.new)
       @spec = ClassSpec.normalize_spec_hash(spec)
 
-      @struct = StructSpec.new @spec[EQUIVALENT_STRUCT_KEYWORD]
+      @struct = if @spec.key?(EQUIVALENT_STRUCT_KEYWORD)
+                  StructSpec.new(@spec[EQUIVALENT_STRUCT_KEYWORD])
+                end
 
       @functions = @spec['constructors'].map do |constructor_spec|
         full_spec = constructor_spec.dup
@@ -164,7 +166,7 @@ module Wrapture
     # class cannot have any rules in its equivalent struct, or it will not be
     # overloaded.
     def overloads?(parent_spec)
-      return false unless parent_spec.struct.rules.empty?
+      return false unless parent_spec.struct&.rules&.empty?
 
       parent_spec.struct.name == struct_name &&
         parent_spec.name == parent_name &&
@@ -255,7 +257,9 @@ module Wrapture
 
       pointer_constructor_declaration { |line| yield "    #{line}" }
 
-      yield "    #{struct_constructor_signature};" unless pointer_wrapper?
+      unless !@struct || pointer_wrapper?
+        yield "    #{struct_constructor_signature};"
+      end
 
       overload_declaration { |line| yield "    #{line}" }
 
@@ -274,7 +278,7 @@ module Wrapture
     def declaration_includes
       includes = @spec['includes'].dup
 
-      includes.concat(@struct.includes)
+      includes.concat(@struct.includes) if @struct
 
       @functions.each do |func|
         includes.concat(func.declaration_includes)
@@ -307,7 +311,7 @@ module Wrapture
 
       pointer_constructor_definition { |line| yield "  #{line}" }
 
-      unless pointer_wrapper?
+      unless pointer_wrapper? || !@struct
         yield
         yield "  #{@spec['name']}::#{struct_constructor_signature} {"
 
@@ -357,6 +361,8 @@ module Wrapture
     # A class might not have an equivalent member if it is able to use the
     # parent class's, for example if the child class wraps the same struct.
     def equivalent_member_declaration
+      return unless @struct
+
       if child?
         parent_spec = @scope.type(parent_name)
         member_reusable = !parent_spec.nil? &&
@@ -407,7 +413,7 @@ module Wrapture
     # Yields the declaration of the member constructor for a class. This will be
     # empty if the wrapped struct is a pointer wrapper.
     def member_constructor_declaration
-      return unless @struct.members?
+      return unless @struct&.members?
 
       yield "#{@spec['name']}( #{@struct.member_list_with_defaults} );"
     end
@@ -415,7 +421,7 @@ module Wrapture
     # Yields the definition of the member constructor for a class. This will be
     # empty if the wrapped struct is a pointer wrapper.
     def member_constructor_definition
-      return unless @struct.members?
+      return unless @struct&.members?
 
       yield "#{@spec['name']}::#{@spec['name']}( #{@struct.member_list} ) {"
 
@@ -467,9 +473,12 @@ module Wrapture
 
     # Yields the declaration of the pointer constructor for a class.
     #
-    # If there is already a constructor provided with this signature, then this
-    # function will return with no output.
+    # If this class does not have an equivalent struct, or if there is already
+    # a constructor defined with this signature, then this function will return
+    # with no output.
     def pointer_constructor_declaration
+      return unless @struct
+
       signature_prefix = "#{@spec['name']}( #{@struct.pointer_declaration('')}"
       return if @functions.any? do |func|
         func.constructor? && func.signature.start_with?(signature_prefix)
@@ -480,15 +489,18 @@ module Wrapture
 
     # Yields the definition of the pointer constructor for a class.
     #
-    # If there is already a constructor provided with this signature, then this
-    # function will return with no output.
+    # If this class has no equivalent struct, or if there is already a
+    # constructor provided with this signature, then this function will return
+    # with no output.
     #
     # If this is a pointer wrapper class, then the constructor will simply set
-    # the underlying pointer to the provied one, and return the new object.
+    # the underlying pointer to the provided one, and return the new object.
     #
     # If this is a struct wrapper class, then a constructor will be created that
     # sets each member of the wrapped struct to the provided value.
     def pointer_constructor_definition
+      return unless @struct
+
       signature_prefix = "#{@spec['name']}( #{@struct.pointer_declaration('')}"
       return if @functions.any? do |func|
         func.constructor? && func.signature.start_with?(signature_prefix)

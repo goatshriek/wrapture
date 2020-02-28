@@ -136,9 +136,12 @@ def validate_indentation(filename)
 end
 
 def validate_members(spec, filename)
-  return unless spec['equivalent-struct']['members']
+  return unless spec.key?('equivalent-struct')
 
-  first_member_name = spec['equivalent-struct']['members'][0]['name']
+  equiv_struct = spec['equivalent-struct']
+  return unless equiv_struct['members']
+
+  first_member_name = equiv_struct['members'][0]['name']
 
   fail_msg = 'no constructor for struct members generated'
   assert file_contains_match(filename, first_member_name), fail_msg
