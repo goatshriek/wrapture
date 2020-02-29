@@ -28,5 +28,12 @@ module Wrapture
     def initialize(comment)
       @text = comment
     end
+
+    # Yields each line of the comment formatted as specified.
+    def format(first_line: '', last_line: '')
+      yield first_line
+      yield @text
+      yield last_line
+    end
   end
 end
