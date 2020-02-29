@@ -74,9 +74,11 @@ class InvalidTest < Minitest::Test
   def test_use_template_as_array
     scope_spec = load_fixture('invalid/use_template_as_array')
 
-    assert_raises(Wrapture::InvalidTemplateUsage) do
+    error = assert_raises(Wrapture::InvalidTemplateUsage) do
       Wrapture::Scope.new(scope_spec)
     end
+
+    assert(error.message.include?(Wrapture::TEMPLATE_USE_KEYWORD))
   end
 
   def test_use_template_with_no_name

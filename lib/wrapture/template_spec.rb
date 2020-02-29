@@ -354,13 +354,15 @@ module Wrapture
         invocation == name
       elsif invocation.is_a?(Hash)
         unless invocation.key?('name')
-          error_message = 'invocations of use-template must have a name member'
+          error_message = "invocations of #{TEMPLATE_USE_KEYWORD} must have a "\
+                          'name member'
           raise InvalidTemplateUsage, error_message
         end
 
         invocation['name'] == name
       else
-        error_message = 'use-template must either be a String or a Hash'
+        error_message = "#{TEMPLATE_USE_KEYWORD} must either be a String or a "\
+                        'Hash'
         raise InvalidTemplateUsage, error_message
       end
     end
