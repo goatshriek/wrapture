@@ -22,7 +22,7 @@ module Wrapture
   # A template that can be referenced in other specs.
   #
   # Templates provide a way to re-use common specification portions without
-  # needing to repeat it in each portion it is needed. For example, if the error
+  # needing to repeat them everywhere they're needed. For example, if the error
   # handling code within a wrapped library is the same for most functions, it
   # can be defined once in a template and then simply referenced in each
   # function specification that needs it. Not only does this reduce the size of
@@ -89,10 +89,10 @@ module Wrapture
   # == Usage in Arrays
   # In some cases, you may want a template to expand to an array of elements
   # that are added to an existing array. This can be accomplished by invoking
-  # the template in it's own list element and making sure that the
+  # the template in its own list element and making sure that the
   # +use-template+ member is the only member of the hash. This will result in
   # the template result being inserted into the list at the point of the
-  # template invocation. Consider this example specification file snippet:
+  # template invocation. Consider this example specification snippet:
   #
   #   templates:
   #     - name: "default-includes"
