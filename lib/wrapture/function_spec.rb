@@ -66,13 +66,25 @@ module Wrapture
     # params:: a list of parameter specifications
     # wrapped-function:: a hash describing the function to be wrapped
     #
+    # Each parameter specification must have a 'name' key with the name of the
+    # parameter and a 'type' key with its type. It may optionally have an
+    # 'includes' key with includes that are required (for example to support the
+    # type) and/or a 'doc' key with documentation of the parameter.
+    #
     # The wrapped-function must have a 'name' key with the name of the function,
     # and a 'params' key with a list of parameters (each a hash with a 'name'
     # and 'type' key). Optionally, it may also include an 'includes' key with a
     # list of includes that are needed for this function to compile.
     #
     # The following keys are optional:
-    # static:: set to true if this is a static function.
+    # doc:: a string containing the documentation for this function
+    # return:: a specification of the return value for this function
+    # static:: set to true if this is a static function
+    #
+    # The return specification may have either a 'type' key with the name of the
+    # type the function returns, and/or a 'doc' key with documentation on the
+    # return value itself. If neither of these is needed, then the return
+    # specification may simply be omitted.
     def initialize(spec, owner = Scope.new, constructor: false,
                    destructor: false)
       @owner = owner

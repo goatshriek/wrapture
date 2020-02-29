@@ -26,6 +26,9 @@ module Wrapture
     # value:: the value to assign to the constant
     # includes::  a list of includes that need to be added in order for this
     # constant to be valid (for example, includes for the type and value).
+    #
+    # The following keys are optional:
+    # doc:: a string containing the documentation for this constant
     def initialize(spec)
       @spec = ConstantSpec.normalize_spec_hash spec
     end

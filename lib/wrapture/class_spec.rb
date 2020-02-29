@@ -90,6 +90,7 @@ module Wrapture
     # equivalent-struct:: a hash describing the struct this class wraps
     #
     # The following keys are optional:
+    # doc:: a string containing the documentation for this class
     # constructors:: a list of function specs that can create this class
     # destructor:: a function spec for the destructor of the class
     # functions:: a list of function specs
