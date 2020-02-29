@@ -95,7 +95,10 @@ module Wrapture
     # functions:: a list of function specs
     # constants:: a list of constant specs
     def initialize(spec, scope: Scope.new)
-      @spec = ClassSpec.normalize_spec_hash(spec)
+      @spec = Marshal.load(Marshal.dump(spec))
+      TemplateSpec.replace_all_uses(@spec, *scope.templates)
+
+      @spec = ClassSpec.normalize_spec_hash(@spec)
 
       @struct = if @spec.key?(EQUIVALENT_STRUCT_KEYWORD)
                   StructSpec.new(@spec[EQUIVALENT_STRUCT_KEYWORD])

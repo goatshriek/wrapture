@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2019 Joel E. Anderson
+# Copyright 2019-2020 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ module Wrapture
   require 'wrapture/rule_spec'
   require 'wrapture/scope'
   require 'wrapture/struct_spec'
+  require 'wrapture/template_spec'
   require 'wrapture/version'
   require 'wrapture/wrapped_function_spec'
 end

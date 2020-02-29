@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2019 Joel E. Anderson
+# Copyright 2019-2020 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,24 +22,39 @@ module Wrapture
     # A list of classes currently in the scope.
     attr_reader :classes
 
+    # A list of the templates defined in the scope.
+    attr_reader :templates
+
     # Creates an empty scope with no classes in it.
     def initialize(spec = nil)
       @classes = []
+      @templates = []
 
-      return if spec.nil? || !spec.key?('classes')
+      return if spec.nil?
 
       @version = Wrapture.spec_version(spec)
-      spec['classes'].each do |class_hash|
+
+      @templates = spec.fetch('templates', []).collect do |template_hash|
+        TemplateSpec.new(template_hash)
+      end
+
+      @classes = spec.fetch('classes', []).collect do |class_hash|
         ClassSpec.new(class_hash, scope: self)
       end
     end
 
-    # Adds a class specification to the scope.
+    # Adds a class or template specification to the scope.
     #
-    # This does not set the scope as the owner of the class. This must be done
-    # during the construction of the class spec.
+    # This does not set the scope as the owner of the class for a ClassSpec.
+    # This must be done during the construction of the class spec.
     def <<(spec)
+      @templates << spec if spec.is_a?(TemplateSpec)
       @classes << spec if spec.is_a?(ClassSpec)
+    end
+
+    # Adds a class to the scope created from the given specification hash.
+    def add_class_spec_hash(spec)
+      ClassSpec.new(spec, scope: self)
     end
 
     # Generates the wrapper class files for all classes in the scope.

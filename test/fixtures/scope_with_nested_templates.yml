@@ -1,0 +1,28 @@
+templates:
+  - name: "common-return"
+    value:
+      return:
+        type: "const char *"
+  - name: "common-function"
+    value:
+      name: "to_string"
+      use-template: "common-return"
+      wrapped-function:
+        name: "generic_to_string"
+        params:
+          - value: "equivalent-struct-pointer"
+classes:
+  - name: "OneClass"
+    namespace: "wrapture_test"
+    equivalent-struct:
+      name: "basic_struct_1"
+      includes: "one_class.h"
+    functions:
+      - use-template: "common-function"
+  - name: "TwoClass"
+    namespace: "wrapture_test"
+    equivalent-struct:
+      name: "basic_struct_1"
+      includes: "one_class.h"
+    functions:
+      - use-template: "common-function"

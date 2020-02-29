@@ -1,0 +1,4 @@
+- "thing-a"
+- "thing-b"
+- use-template:
+    name: "test-array-template"

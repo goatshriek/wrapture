@@ -1,0 +1,12 @@
+templates:
+  - name: "default-include"
+    value:
+      "wrapture_test.h"
+classes:
+  - name: "SimpleClass"
+    namespace: "wrapture_test"
+    equivalent-struct:
+      name: "simple_struct"
+      includes:
+        - "simple_struct.h"
+        - use-template: "default-include"

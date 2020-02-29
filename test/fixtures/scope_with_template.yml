@@ -1,0 +1,62 @@
+templates:
+  - name: "dr-seuss-class"
+    value:
+      namespace: "wrapture_test"
+      equivalent-struct:
+        name:
+          is-param: true
+          name: "equivalent-struct-name"
+        includes:
+          is-param: true
+          name: "include-list"
+      functions:
+        - name: "to_string"
+          return:
+            type: "const char *"
+          wrapped-function:
+            name:
+              is-param: true
+              name: "to-string-function-name"
+            params:
+              - value: "equivalent-struct-pointer"
+classes:
+  - name: "OneClass"
+    use-template:
+      name: "dr-seuss-class"
+      params:
+        - name: "equivalent-struct-name"
+          value: "one_struct"
+        - name: "include-list"
+          value: "one_struct.h"
+        - name: "to-string-function-name"
+          value: "one_struct_to_string"
+  - name: "TwoClass"
+    use-template:
+      name: "dr-seuss-class"
+      params:
+        - name: "equivalent-struct-name"
+          value: "two_struct"
+        - name: "include-list"
+          value: "two_struct.h"
+        - name: "to-string-function-name"
+          value: "two_struct_to_string"
+  - name: "RedClass"
+    use-template:
+      name: "dr-seuss-class"
+      params:
+        - name: "equivalent-struct-name"
+          value: "red_struct"
+        - name: "include-list"
+          value: "red_struct.h"
+        - name: "to-string-function-name"
+          value: "red_struct_to_string"
+  - name: "BlueClass"
+    use-template:
+      name: "dr-seuss-class"
+      params:
+        - name: "equivalent-struct-name"
+          value: "blue_struct"
+        - name: "include-list"
+          value: "blue_struct.h"
+        - name: "to-string-function-name"
+          value: "blue_struct_to_string"

@@ -26,7 +26,10 @@ module Wrapture
   # A string denoting the return value of a wrapped function call.
   RETURN_VALUE_KEYWORD = 'return-value'
 
+  # A string denoting a reference to a template.
+  TEMPLATE_USE_KEYWORD = 'use-template'
+
   # A list of all keywords.
   KEYWORDS = [EQUIVALENT_STRUCT_KEYWORD, EQUIVALENT_POINTER_KEYWORD,
-              RETURN_VALUE_KEYWORD].freeze
+              RETURN_VALUE_KEYWORD, TEMPLATE_USE_KEYWORD].freeze
 end
