@@ -18,6 +18,8 @@
 # limitations under the License.
 #++
 
+require 'wrapture/constants'
+
 module Wrapture
   # A template that can be referenced in other specs.
   #
@@ -345,9 +347,9 @@ module Wrapture
 
     # True if the given spec is a reference to this template.
     def use?(spec)
-      return false unless spec.is_a?(Hash) && spec.key?('use-template')
+      return false unless spec.is_a?(Hash) && spec.key?(TEMPLATE_USE_KEYWORD)
 
-      invocation = spec['use-template']
+      invocation = spec[TEMPLATE_USE_KEYWORD]
       if invocation.is_a?(String)
         invocation == name
       elsif invocation.is_a?(Hash)
@@ -374,7 +376,7 @@ module Wrapture
       raise InvalidTemplateUsage, error_message unless result.is_a?(Hash)
 
       use.merge!(result) { |_, oldval, _| oldval }
-      use.delete('use-template')
+      use.delete(TEMPLATE_USE_KEYWORD)
     end
 
     # Replaces all references to this template with an instantiation of it in
@@ -390,7 +392,7 @@ module Wrapture
 
       spec.each_pair do |key, value|
         if direct_use?(value)
-          spec[key] = instantiate(value['use-template']['params'])
+          spec[key] = instantiate(value[TEMPLATE_USE_KEYWORD]['params'])
           changes << true
         else
           changes << replace_uses(value)
@@ -408,7 +410,7 @@ module Wrapture
 
       spec.dup.each_index do |i|
         if direct_use?(spec[i])
-          result = instantiate(spec[i]['use-template']['params'])
+          result = instantiate(spec[i][TEMPLATE_USE_KEYWORD]['params'])
           spec.delete_at(i)
           if result.is_a?(Array)
             spec.insert(i, *result)
