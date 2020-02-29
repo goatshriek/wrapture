@@ -19,6 +19,7 @@
 # Classes and functions for generating language wrappers
 module Wrapture
   require 'wrapture/action_spec'
+  require 'wrapture/comment'
   require 'wrapture/constant_spec'
   require 'wrapture/constants'
   require 'wrapture/class_spec'
