@@ -30,10 +30,31 @@ module Wrapture
     end
 
     # Yields each line of the comment formatted as specified.
-    def format(first_line: '', last_line: '')
-      yield first_line
-      yield @text
-      yield last_line
+    def format(line_prefix: '// ', first_line: nil, last_line: nil,
+               max_line_length: 80)
+      yield first_line if first_line
+
+      @text.each_line do |line|
+        running_line = line_prefix.dup
+        line.scan(/\S+/) do |word|
+          if running_line.length + word.length > max_line_length
+            yield running_line.chomp
+            running_line = line_prefix.dup + word + ' '
+          else
+            running_line << word << ' '
+          end
+        end
+        yield running_line.chomp
+      end
+
+      yield last_line if last_line
+    end
+
+    # Yields each line of the comment formatted using Doxygen style.
+    def format_as_doxygen
+      format(line_prefix: ' * ', first_line: '/**', last_line: ' */') do |line|
+        yield line
+      end
     end
   end
 end
