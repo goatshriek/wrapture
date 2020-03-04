@@ -133,7 +133,7 @@ module Wrapture
         ConstantSpec.new(constant_spec)
       end
 
-      @doc = Comment.new(@spec['doc']) if @spec['doc']
+      @doc = @spec.key?('doc') ? Comment.new(@spec['doc']) : nil
 
       scope << self
       @scope = scope
@@ -246,6 +246,7 @@ module Wrapture
       yield "namespace #{@spec['namespace']} {"
       yield
 
+      documentation { |line| yield "  #{line}" }
       parent = if child?
                  ": public #{parent_name} "
                else
@@ -365,6 +366,11 @@ module Wrapture
       includes.concat(overload_definition_includes)
 
       includes.uniq
+    end
+
+    # Yields the class documentation one line at a time.
+    def documentation
+      @doc.format_as_doxygen {|line| yield line} if @doc
     end
 
     # Yields the declaration of the equivalent member if this class has one.
