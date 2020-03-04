@@ -51,8 +51,9 @@ module Wrapture
     end
 
     # Yields each line of the comment formatted using Doxygen style.
-    def format_as_doxygen
-      format(line_prefix: ' * ', first_line: '/**', last_line: ' */') do |line|
+    def format_as_doxygen(max_line_length: 80)
+      format(line_prefix: ' * ', first_line: '/**',
+             last_line: ' */', max_line_length: max_line_length) do |line|
         yield line
       end
     end

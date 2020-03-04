@@ -370,7 +370,7 @@ module Wrapture
 
     # Yields the class documentation one line at a time.
     def documentation
-      @doc.format_as_doxygen {|line| yield line} if @doc
+      @doc&.format_as_doxygen(max_line_length: 78) { |line| yield line }
     end
 
     # Yields the declaration of the equivalent member if this class has one.
