@@ -16,6 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require 'wrapture/comment'
 require 'wrapture/constant_spec'
 require 'wrapture/constants'
 require 'wrapture/function_spec'
@@ -35,6 +36,10 @@ module Wrapture
     def self.normalize_spec_hash(spec)
       raise NoNamespace unless spec.key?('namespace')
       raise MissingSpecKey, 'name key is required' unless spec.key?('name')
+
+      if spec['doc'] && !spec['doc'].is_a?(String)
+        raise InvalidSpecKey, 'the doc key must be a string'
+      end
 
       normalized = spec.dup
       normalized.default = []
@@ -127,6 +132,8 @@ module Wrapture
       @constants = @spec['constants'].map do |constant_spec|
         ConstantSpec.new(constant_spec)
       end
+
+      @doc = Comment.new(@spec['doc']) if @spec['doc']
 
       scope << self
       @scope = scope
