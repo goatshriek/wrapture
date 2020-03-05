@@ -34,18 +34,31 @@ module Wrapture
                max_line_length: 80)
       yield first_line if first_line
 
+      running_line = line_prefix.dup
+      newline_mode = false
       @text.each_line do |line|
-        running_line = line_prefix.dup
+        if line.strip.empty?
+          if !newline_mode
+            yield running_line.rstrip
+            yield line_prefix.rstrip
+            running_line = line_prefix.dup
+            newline_mode = true
+          end
+        else
+          newline_mode = false
+        end
+
         line.scan(/\S+/) do |word|
           if running_line.length + word.length > max_line_length
-            yield running_line.chomp
+            yield running_line.rstrip
             running_line = line_prefix.dup + word + ' '
           else
             running_line << word << ' '
           end
         end
-        yield running_line.chomp
       end
+
+      yield running_line.rstrip
 
       yield last_line if last_line
     end

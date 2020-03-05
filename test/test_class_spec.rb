@@ -105,6 +105,25 @@ class ClassSpecTest < Minitest::Test
     File.delete(*classes)
   end
 
+  def test_class_with_documentation
+    test_spec = load_fixture('documented_class')
+
+    spec = Wrapture::ClassSpec.new(test_spec)
+
+    generated_files = spec.generate_wrappers
+    validate_wrapper_results(test_spec, generated_files)
+
+    File.open('DocumentedClass.hpp').each do |line|
+      if line.lstrip.start_with?('/**', '*')
+        refute(line.chomp.end_with?(' '))
+      end
+    end
+
+    assert(file_contains_match('DocumentedClass.hpp', '\s\*$'))
+
+    #File.delete(*generated_files)
+  end
+
   def test_class_with_no_struct
     test_spec = load_fixture('no_struct_class')
 
