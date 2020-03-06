@@ -116,12 +116,13 @@ class ClassSpecTest < Minitest::Test
     File.open('DocumentedClass.hpp').each do |line|
       if line.lstrip.start_with?('/**', '*')
         refute(line.chomp.end_with?(' '))
+        assert(line.chomp.length <= 80)
       end
     end
 
     assert(file_contains_match('DocumentedClass.hpp', '\s\*$'))
 
-    #File.delete(*generated_files)
+    File.delete(*generated_files)
   end
 
   def test_class_with_no_struct
