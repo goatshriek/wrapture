@@ -26,7 +26,7 @@ class InvalidTest < Minitest::Test
   def test_class_with_invalid_doc
     test_spec = load_fixture('invalid/class_with_invalid_doc')
 
-    assert_raises(Wrapture::InvalidSpecKey) do
+    assert_raises(Wrapture::InvalidDoc) do
       Wrapture::ClassSpec.new(test_spec)
     end
   end

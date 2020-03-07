@@ -18,12 +18,16 @@
 # limitations under the License.
 #++
 
-module Wrapture
-  # A comment that can be inserted in generated source code.
+module Wrapture  # A comment that can be inserted in generated source code.
   #
   # Comments are primarily used to insert documentation about generated code for
   # documentation generation tools such as Doxygen.
   class Comment
+    # Validates a doc string.
+    def self.validate_doc(doc)
+      raise InvalidDoc, 'a doc must be a string' unless doc.is_a?(String)
+    end
+
     # Creates a comment from a string.
     def initialize(comment)
       @text = comment

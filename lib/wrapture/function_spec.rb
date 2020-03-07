@@ -16,6 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require 'wrapture/comment'
 require 'wrapture/constants'
 require 'wrapture/errors'
 require 'wrapture/scope'
@@ -30,9 +31,7 @@ module Wrapture
     # set missing keys to their default values (for example, an empty list if no
     # includes are given).
     def self.normalize_spec_hash(spec)
-      if spec['doc'] && !spec['doc'].is_a?(String)
-        raise InvalidSpecKey, 'the doc key must be a string'
-      end
+      Comment.validate_doc(spec['doc']) if spec.key?('doc')
 
       normalized = spec.dup
       param_types = {}

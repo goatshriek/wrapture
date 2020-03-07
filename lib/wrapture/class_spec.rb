@@ -36,10 +36,7 @@ module Wrapture
     def self.normalize_spec_hash(spec)
       raise NoNamespace unless spec.key?('namespace')
       raise MissingSpecKey, 'name key is required' unless spec.key?('name')
-
-      if spec['doc'] && !spec['doc'].is_a?(String)
-        raise InvalidSpecKey, 'the doc key must be a string'
-      end
+      Comment.validate_doc(spec['doc']) if spec.key?('doc')
 
       normalized = spec.dup
       normalized.default = []
