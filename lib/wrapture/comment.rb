@@ -18,7 +18,8 @@
 # limitations under the License.
 #++
 
-module Wrapture  # A comment that can be inserted in generated source code.
+module Wrapture
+  # A comment that can be inserted in generated source code.
   #
   # Comments are primarily used to insert documentation about generated code for
   # documentation generation tools such as Doxygen.
