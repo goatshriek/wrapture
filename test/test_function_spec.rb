@@ -35,7 +35,7 @@ class FunctionSpecTest < Minitest::Test
     spec = Wrapture::FunctionSpec.new(test_spec)
 
     doc_found = false
-    spec.definition('NoSuchClass') do |line|
+    spec.declaration do |line|
       next if line.nil? || !line.lstrip.start_with?('/**', '*')
 
       doc_found = true

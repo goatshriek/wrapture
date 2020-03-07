@@ -276,7 +276,7 @@ module Wrapture
       overload_declaration { |line| yield "    #{line}" }
 
       @functions.each do |func|
-        yield "    #{func.declaration};"
+        func.declaration { |line| yield "    #{line}" }
       end
 
       yield '  };' # end of class

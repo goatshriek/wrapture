@@ -154,9 +154,13 @@ module Wrapture
       "#{@spec['name']}( #{param_list} )"
     end
 
-    # The declaration of the function.
+    # Yields each line of the declaration of the function, including any
+    # documentation.
     def declaration
-      return signature if @constructor || @destructor
+      if @constructor || @destructor
+        yield "#{signature};"
+        return
+      end
 
       modifier_prefix = if @spec['static']
                           'static '
@@ -165,7 +169,7 @@ module Wrapture
                         else
                           ''
                         end
-      "#{modifier_prefix}#{@spec['return']['type']} #{signature}"
+      yield "#{modifier_prefix}#{@spec['return']['type']} #{signature};"
     end
 
     # Gives the definition of the function to a block, line by line.
