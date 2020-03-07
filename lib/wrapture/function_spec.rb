@@ -30,6 +30,10 @@ module Wrapture
     # set missing keys to their default values (for example, an empty list if no
     # includes are given).
     def self.normalize_spec_hash(spec)
+      if spec['doc'] && !spec['doc'].is_a?(String)
+        raise InvalidSpecKey, 'the doc key must be a string'
+      end
+
       normalized = spec.dup
       param_types = {}
 
@@ -92,6 +96,7 @@ module Wrapture
       @wrapped = WrappedFunctionSpec.new(spec['wrapped-function'])
       @constructor = constructor
       @destructor = destructor
+      @doc = @spec.key?('doc') ? Comment.new(@spec['doc']) : nil
     end
 
     # True if the function is a constructor, false otherwise.
@@ -157,6 +162,8 @@ module Wrapture
     # Yields each line of the declaration of the function, including any
     # documentation.
     def declaration
+      @doc&.format_as_doxygen(max_line_length: 78) { |line| yield line }
+
       if @constructor || @destructor
         yield "#{signature};"
         return
