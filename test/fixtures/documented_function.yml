@@ -1,0 +1,21 @@
+name: "BasicFunction1"
+doc: |2
+  This is a function created to test the documentation features of Wrapture.
+  Parameters and return values can also be documented, but they should be done
+  separately in their own specs so that the formatting specifics of different
+  target languages are not injected into the specification.
+
+  FunctionDocIdentifier
+params:
+  - name: "app_name"
+    type: "const char *"
+    doc: "the name of an application. ParamDocIdentifier"
+return:
+  doc: "returns a value. ReturnDocIdentifier"
+wrapped-function:
+  name: "underlying_basic_function"
+  includes:
+    - "folder/include_file_2.h"
+    - "folder/include_file_3.h"
+  params:
+    - name: "app_name"

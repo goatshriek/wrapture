@@ -29,6 +29,21 @@ class FunctionSpecTest < Minitest::Test
     Wrapture::FunctionSpec.new(test_spec)
   end
 
+  def test_documentation
+    test_spec = load_fixture('documented_function')
+
+    spec = Wrapture::FunctionSpec.new(test_spec)
+
+    doc_found = false
+    spec.definition('NoSuchClass') do |line|
+      next if line.nil? || !line.lstrip.start_with?('/**', '*')
+
+      doc_found = true
+    end
+
+    assert(doc_found)
+  end
+
   def test_exception_throwing_function
     test_spec = load_fixture('exception_throwing_function')
 
