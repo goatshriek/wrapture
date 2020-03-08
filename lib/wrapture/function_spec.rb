@@ -41,6 +41,7 @@ module Wrapture
 
       normalized['params'] ||= []
       normalized['params'].each do |param_spec|
+        Comment.validate_doc(param_spec['doc']) if param_spec.key?('doc')
         param_types[param_spec['name']] = param_spec['type']
         includes = Wrapture.normalize_includes(param_spec['includes'])
         param_spec['includes'] = includes
@@ -51,6 +52,7 @@ module Wrapture
         normalized['return']['type'] = 'void'
         normalized['return']['includes'] = []
       else
+        Comment.validate_doc(spec['return']['doc']) if spec.key?('doc')
         normalized['return']['type'] ||= 'void'
         includes = Wrapture.normalize_includes(spec['return']['includes'])
         normalized['return']['includes'] = includes
@@ -95,7 +97,20 @@ module Wrapture
       @wrapped = WrappedFunctionSpec.new(spec['wrapped-function'])
       @constructor = constructor
       @destructor = destructor
-      @doc = @spec.key?('doc') ? Comment.new(@spec['doc']) : nil
+
+      comment = String.new
+      comment << @spec['doc'] if @spec.key?('doc')
+      @spec['params'].each do |param|
+        if param.key?('doc')
+          comment << "\n\n" unless comment.empty?
+          comment << '@param ' << param['name'] << ' ' << param['doc']
+        end
+      end
+      if @spec['return'].key?('doc')
+        comment << "\n\n" unless comment.empty?
+        comment << '@return ' << @spec['return']['doc']
+      end
+      @doc = comment.empty? ? nil : Comment.new(comment)
     end
 
     # True if the function is a constructor, false otherwise.
