@@ -34,14 +34,17 @@ class FunctionSpecTest < Minitest::Test
 
     spec = Wrapture::FunctionSpec.new(test_spec)
 
-    doc_found = false
+    comment = String.new
     spec.declaration do |line|
       next if line.nil? || !line.lstrip.start_with?('/**', '*')
 
-      doc_found = true
+      comment << line << "\n"
     end
 
-    assert(doc_found)
+    refute(comment.empty?)
+    assert(comment.include?('FunctionDocIdentifier'))
+    assert(comment.include?('ParamDocIdentifier'))
+    assert(comment.include?('ReturnDocIdentifier'))
   end
 
   def test_exception_throwing_function
