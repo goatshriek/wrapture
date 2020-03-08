@@ -1,0 +1,12 @@
+name: "BasicFunction1"
+params:
+  - name: "app_name"
+    type: "const char *"
+    doc: "the name of an application. ParamDocIdentifier"
+wrapped-function:
+  name: "underlying_basic_function"
+  includes:
+    - "folder/include_file_2.h"
+    - "folder/include_file_3.h"
+  params:
+    - name: "app_name"

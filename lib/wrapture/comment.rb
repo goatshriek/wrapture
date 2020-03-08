@@ -66,7 +66,7 @@ module Wrapture
     # the maximum length. The caller must strip these off.
     def paragraphs(line_length)
       running_line = String.new
-      newline_mode = false
+      newline_mode = true
       @text.each_line do |line|
         if line.strip.empty?
           unless newline_mode

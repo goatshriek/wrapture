@@ -100,15 +100,11 @@ module Wrapture
 
       comment = String.new
       comment << @spec['doc'] if @spec.key?('doc')
-      @spec['params'].each do |param|
-        if param.key?('doc')
-          comment << "\n\n" unless comment.empty?
-          comment << '@param ' << param['name'] << ' ' << param['doc']
-        end
+      @spec['params'].filter { |param| param.key?('doc') }.each do |param|
+        comment << "\n\n@param " << param['name'] << ' ' << param['doc']
       end
       if @spec['return'].key?('doc')
-        comment << "\n\n" unless comment.empty?
-        comment << '@return ' << @spec['return']['doc']
+        comment << "\n\n@return " << @spec['return']['doc']
       end
       @doc = comment.empty? ? nil : Comment.new(comment)
     end

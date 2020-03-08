@@ -83,6 +83,23 @@ class FunctionSpecTest < Minitest::Test
     end
   end
 
+  def test_only_documented_params
+    test_spec = load_fixture('documented_params')
+
+    spec = Wrapture::FunctionSpec.new(test_spec)
+
+    comment = String.new
+    spec.declaration do |line|
+      next if line.nil? || !line.lstrip.start_with?('/**', '*')
+
+      refute_match(/^\s*\*\s*$/, line)
+      comment << line << "\n"
+    end
+
+    refute(comment.empty?)
+    assert(comment.include?('ParamDocIdentifier'))
+  end
+
   def test_versioned_function
     test_spec = load_fixture('versioned_function')
 
