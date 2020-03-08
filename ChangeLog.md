@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Python class generation.
  - Perl class generation.
 
-## [0.4.0] - 2020-02-29
+## [0.4.0] - 2020-03-08
 ### Added
  - Inequality conditions for rules (less-than, less-than-equal, greater-than,
    greater-than-equal).
@@ -20,7 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    constructor.
  - Classes may be defined without an equivalent struct.
  - Specs can contain templatized sections to avoid duplicated sections.
- - Documentation can be added to generated code.
+ - Documentation can be added to generated classes, functions, and constants.
 
 ### Fixed
  - Classes with no `name` member raise a MissingSpecKey exception.
