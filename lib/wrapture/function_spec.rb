@@ -172,7 +172,7 @@ module Wrapture
     # Yields each line of the declaration of the function, including any
     # documentation.
     def declaration
-      @doc&.format_as_doxygen(max_line_length: 78) { |line| yield line }
+      @doc&.format_as_doxygen(max_line_length: 76) { |line| yield line }
 
       if @constructor || @destructor
         yield "#{signature};"

@@ -256,7 +256,7 @@ module Wrapture
 
       yield unless @constants.empty?
       @constants.each do |const|
-        yield "    #{const.declaration};"
+        const.declaration { |line| yield "    #{line}" }
       end
 
       yield
