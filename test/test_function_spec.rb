@@ -29,6 +29,24 @@ class FunctionSpecTest < Minitest::Test
     Wrapture::FunctionSpec.new(test_spec)
   end
 
+  def test_documentation
+    test_spec = load_fixture('documented_function')
+
+    spec = Wrapture::FunctionSpec.new(test_spec)
+
+    comment = String.new
+    spec.declaration do |line|
+      next if line.nil? || !line.lstrip.start_with?('/**', '*')
+
+      comment << line << "\n"
+    end
+
+    refute(comment.empty?)
+    assert(comment.include?('FunctionDocIdentifier'))
+    assert(comment.include?('ParamDocIdentifier'))
+    assert(comment.include?('ReturnDocIdentifier'))
+  end
+
   def test_exception_throwing_function
     test_spec = load_fixture('exception_throwing_function')
 
@@ -63,6 +81,23 @@ class FunctionSpecTest < Minitest::Test
 
       assert(code.start_with?("return #{call}")) if code.start_with?('return')
     end
+  end
+
+  def test_only_documented_params
+    test_spec = load_fixture('documented_params')
+
+    spec = Wrapture::FunctionSpec.new(test_spec)
+
+    comment = String.new
+    spec.declaration do |line|
+      next if line.nil? || !line.lstrip.start_with?('/**', '*')
+
+      refute_match(/^\s*\*\s*$/, line)
+      comment << line << "\n"
+    end
+
+    refute(comment.empty?)
+    assert(comment.include?('ParamDocIdentifier'))
   end
 
   def test_versioned_function

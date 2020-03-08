@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2019 Joel E. Anderson
+# Copyright 2019-2020 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,6 +21,14 @@
 module Wrapture
   # An error from the Wrapture library
   class WraptureError < StandardError
+  end
+
+  # A documentation string is invalid.
+  class InvalidDoc < WraptureError
+    # Creates an InvalidDoc with the given message.
+    def initialize(message)
+      super(message)
+    end
   end
 
   # A template has been invoked in an unsupported way.

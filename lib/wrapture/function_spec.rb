@@ -16,6 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require 'wrapture/comment'
 require 'wrapture/constants'
 require 'wrapture/errors'
 require 'wrapture/scope'
@@ -30,6 +31,8 @@ module Wrapture
     # set missing keys to their default values (for example, an empty list if no
     # includes are given).
     def self.normalize_spec_hash(spec)
+      Comment.validate_doc(spec['doc']) if spec.key?('doc')
+
       normalized = spec.dup
       param_types = {}
 
@@ -38,6 +41,7 @@ module Wrapture
 
       normalized['params'] ||= []
       normalized['params'].each do |param_spec|
+        Comment.validate_doc(param_spec['doc']) if param_spec.key?('doc')
         param_types[param_spec['name']] = param_spec['type']
         includes = Wrapture.normalize_includes(param_spec['includes'])
         param_spec['includes'] = includes
@@ -48,6 +52,7 @@ module Wrapture
         normalized['return']['type'] = 'void'
         normalized['return']['includes'] = []
       else
+        Comment.validate_doc(spec['return']['doc']) if spec.key?('doc')
         normalized['return']['type'] ||= 'void'
         includes = Wrapture.normalize_includes(spec['return']['includes'])
         normalized['return']['includes'] = includes
@@ -66,13 +71,25 @@ module Wrapture
     # params:: a list of parameter specifications
     # wrapped-function:: a hash describing the function to be wrapped
     #
+    # Each parameter specification must have a 'name' key with the name of the
+    # parameter and a 'type' key with its type. It may optionally have an
+    # 'includes' key with includes that are required (for example to support the
+    # type) and/or a 'doc' key with documentation of the parameter.
+    #
     # The wrapped-function must have a 'name' key with the name of the function,
     # and a 'params' key with a list of parameters (each a hash with a 'name'
     # and 'type' key). Optionally, it may also include an 'includes' key with a
     # list of includes that are needed for this function to compile.
     #
     # The following keys are optional:
-    # static:: set to true if this is a static function.
+    # doc:: a string containing the documentation for this function
+    # return:: a specification of the return value for this function
+    # static:: set to true if this is a static function
+    #
+    # The return specification may have either a 'type' key with the name of the
+    # type the function returns, and/or a 'doc' key with documentation on the
+    # return value itself. If neither of these is needed, then the return
+    # specification may simply be omitted.
     def initialize(spec, owner = Scope.new, constructor: false,
                    destructor: false)
       @owner = owner
@@ -80,6 +97,16 @@ module Wrapture
       @wrapped = WrappedFunctionSpec.new(spec['wrapped-function'])
       @constructor = constructor
       @destructor = destructor
+
+      comment = String.new
+      comment << @spec['doc'] if @spec.key?('doc')
+      @spec['params'].select { |param| param.key?('doc') }.each do |param|
+        comment << "\n\n@param " << param['name'] << ' ' << param['doc']
+      end
+      if @spec['return'].key?('doc')
+        comment << "\n\n@return " << @spec['return']['doc']
+      end
+      @doc = comment.empty? ? nil : Comment.new(comment)
     end
 
     # True if the function is a constructor, false otherwise.
@@ -142,9 +169,15 @@ module Wrapture
       "#{@spec['name']}( #{param_list} )"
     end
 
-    # The declaration of the function.
+    # Yields each line of the declaration of the function, including any
+    # documentation.
     def declaration
-      return signature if @constructor || @destructor
+      @doc&.format_as_doxygen(max_line_length: 76) { |line| yield line }
+
+      if @constructor || @destructor
+        yield "#{signature};"
+        return
+      end
 
       modifier_prefix = if @spec['static']
                           'static '
@@ -153,7 +186,7 @@ module Wrapture
                         else
                           ''
                         end
-      "#{modifier_prefix}#{@spec['return']['type']} #{signature}"
+      yield "#{modifier_prefix}#{@spec['return']['type']} #{signature};"
     end
 
     # Gives the definition of the function to a block, line by line.

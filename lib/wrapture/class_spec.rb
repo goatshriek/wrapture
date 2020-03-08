@@ -16,6 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require 'wrapture/comment'
 require 'wrapture/constant_spec'
 require 'wrapture/constants'
 require 'wrapture/function_spec'
@@ -35,6 +36,8 @@ module Wrapture
     def self.normalize_spec_hash(spec)
       raise NoNamespace unless spec.key?('namespace')
       raise MissingSpecKey, 'name key is required' unless spec.key?('name')
+
+      Comment.validate_doc(spec['doc']) if spec.key?('doc')
 
       normalized = spec.dup
       normalized.default = []
@@ -90,6 +93,7 @@ module Wrapture
     # equivalent-struct:: a hash describing the struct this class wraps
     #
     # The following keys are optional:
+    # doc:: a string containing the documentation for this class
     # constructors:: a list of function specs that can create this class
     # destructor:: a function spec for the destructor of the class
     # functions:: a list of function specs
@@ -126,6 +130,8 @@ module Wrapture
       @constants = @spec['constants'].map do |constant_spec|
         ConstantSpec.new(constant_spec)
       end
+
+      @doc = @spec.key?('doc') ? Comment.new(@spec['doc']) : nil
 
       scope << self
       @scope = scope
@@ -238,6 +244,7 @@ module Wrapture
       yield "namespace #{@spec['namespace']} {"
       yield
 
+      documentation { |line| yield "  #{line}" }
       parent = if child?
                  ": public #{parent_name} "
                else
@@ -249,7 +256,7 @@ module Wrapture
 
       yield unless @constants.empty?
       @constants.each do |const|
-        yield "    #{const.declaration};"
+        const.declaration { |line| yield "    #{line}" }
       end
 
       yield
@@ -267,7 +274,7 @@ module Wrapture
       overload_declaration { |line| yield "    #{line}" }
 
       @functions.each do |func|
-        yield "    #{func.declaration};"
+        func.declaration { |line| yield "    #{line}" }
       end
 
       yield '  };' # end of class
@@ -357,6 +364,11 @@ module Wrapture
       includes.concat(overload_definition_includes)
 
       includes.uniq
+    end
+
+    # Yields the class documentation one line at a time.
+    def documentation
+      @doc&.format_as_doxygen(max_line_length: 78) { |line| yield line }
     end
 
     # Yields the declaration of the equivalent member if this class has one.

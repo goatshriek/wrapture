@@ -1,5 +1,24 @@
+# SPDX-License-Identifier: Apache-2.0
+
 # frozen_string_literal: true
 
+#--
+# Copyright 2019-2020 Joel E. Anderson
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#++
+
+require 'wrapture/comment'
 require 'wrapture/normalize'
 
 module Wrapture
@@ -10,6 +29,8 @@ module Wrapture
     # will set missing keys to their default value (for example, an empty list
     # if no includes are given).
     def self.normalize_spec_hash(spec)
+      Comment.validate_doc(spec['doc']) if spec.key?('doc')
+
       normalized = spec.dup
 
       normalized['version'] = Wrapture.spec_version(spec)
@@ -26,8 +47,12 @@ module Wrapture
     # value:: the value to assign to the constant
     # includes::  a list of includes that need to be added in order for this
     # constant to be valid (for example, includes for the type and value).
+    #
+    # The following keys are optional:
+    # doc:: a string containing the documentation for this constant
     def initialize(spec)
-      @spec = ConstantSpec.normalize_spec_hash spec
+      @spec = ConstantSpec.normalize_spec_hash(spec)
+      @doc = @spec.key?('doc') ? Comment.new(@spec['doc']) : nil
     end
 
     # A list of includes needed for the declaration of this constant.
@@ -40,9 +65,12 @@ module Wrapture
       @spec['includes'].dup
     end
 
-    # The declaration of this constant.
+    # Yields each line of the declaration of this constant, including any
+    # documentation.
     def declaration
-      "static const #{ClassSpec.typed_variable(@spec['type'], @spec['name'])}"
+      @doc&.format_as_doxygen(max_line_length: 76) { |line| yield line }
+      type_and_name = ClassSpec.typed_variable(@spec['type'], @spec['name'])
+      yield "static const #{type_and_name};"
     end
 
     # The definition of this constant.
