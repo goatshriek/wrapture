@@ -2,6 +2,7 @@
 
 # frozen_string_literal: true
 
+#--
 # Copyright 2019-2020 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,6 +16,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+#++
 
 require 'wrapture/comment'
 require 'wrapture/constants'
@@ -90,6 +92,11 @@ module Wrapture
     # type the function returns, and/or a 'doc' key with documentation on the
     # return value itself. If neither of these is needed, then the return
     # specification may simply be omitted.
+    #
+    # The 'type' key of the return spec may also be set to 'self-reference'
+    # which will have the function return a reference to the instance it was
+    # called on. Of course, this cannot be used from a function that is not a
+    # class method.
     def initialize(spec, owner = Scope.new, constructor: false,
                    destructor: false)
       @owner = owner
@@ -186,7 +193,8 @@ module Wrapture
                         else
                           ''
                         end
-      yield "#{modifier_prefix}#{@spec['return']['type']} #{signature};"
+
+      yield "#{modifier_prefix}#{return_prefix}#{signature};"
     end
 
     # Gives the definition of the function to a block, line by line.
@@ -203,7 +211,7 @@ module Wrapture
                     "this->equivalent = #{call}"
                   elsif @wrapped.error_check?
                     "return_val = #{call}"
-                  elsif returns_value?
+                  elsif returns_call_result?
                     "return #{return_cast(call)}"
                   else
                     call
@@ -243,6 +251,8 @@ module Wrapture
         "struct #{@owner.struct_name}"
       elsif type == EQUIVALENT_POINTER_KEYWORD
         "struct #{@owner.struct_name} *"
+      elsif type == SELF_REFERENCE_KEYWORD
+        "#{@owner.name}&"
       else
         type
       end
@@ -266,13 +276,14 @@ module Wrapture
       elsif @spec['return']['type'].end_with?('*')
         @spec['return']['type']
       else
-        "#{@spec['return']['type']} "
+        "#{resolve_type(@spec['return']['type'])} "
       end
     end
 
-    # True if the function returns a value.
-    def returns_value?
-      !@constructor && !@destructor && @spec['return']['type'] != 'void'
+    # True if the function returns the result of the wrapped function call.
+    def returns_call_result?
+      !@constructor && !@destructor &&
+        !%w[void self-reference].include?(@spec['return']['type'])
     end
   end
 end
