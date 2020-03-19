@@ -204,24 +204,15 @@ module Wrapture
       if @wrapped.error_check?
         yield "  #{@wrapped.return_val_type} return_val;"
         yield
-      end
-
-      call = @wrapped.call_from(self)
-      call_line = if @constructor
-                    "this->equivalent = #{call}"
-                  elsif @wrapped.error_check?
-                    "return_val = #{call}"
-                  elsif returns_call_result?
-                    "return #{return_cast(call)}"
-                  else
-                    call
-                  end
-
-      yield "  #{call_line};"
-
-      if @wrapped.error_check?
+        yield "  #{wrapped_call_expression};"
         yield
         @wrapped.error_check { |line| yield "  #{line}" }
+      else
+        yield "  #{wrapped_call_expression};"
+      end
+
+      if @spec['return']['type'] == SELF_REFERENCE_KEYWORD
+        yield '  return *this;'
       end
 
       yield '}'
@@ -284,6 +275,21 @@ module Wrapture
     def returns_call_result?
       !@constructor && !@destructor &&
         !%w[void self-reference].include?(@spec['return']['type'])
+    end
+
+    # The expression containing the call to the underlying wrapped function.
+    def wrapped_call_expression
+      call = @wrapped.call_from(self)
+
+      if @constructor
+        "this->equivalent = #{call}"
+      elsif @wrapped.error_check?
+        "return_val = #{call}"
+      elsif returns_call_result?
+        "return #{return_cast(call)}"
+      else
+        call
+      end
     end
   end
 end
