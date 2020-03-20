@@ -165,7 +165,9 @@ module Wrapture
             @owner.type?(used_param['type']) &&
             !param_spec['type'].nil?
         param_class = @owner.type(used_param['type'])
-        param_class.cast_to(used_param['name'], param_spec['type'])
+        param_class.cast(used_param['name'],
+                         param_spec['type'],
+                         used_param['type'])
       else
         param_spec['value']
       end

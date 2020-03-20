@@ -137,26 +137,19 @@ module Wrapture
       @scope = scope
     end
 
-    # Returns a cast of an instance of this class to the provided type, if
-    # possible.
-    def cast_to(name, type)
+    # Returns a cast of an instance of this class with the provided name to the
+    # specified type. Optionally the from parameter may hold the type of the
+    # instance, either a reference or a pointer.
+    def cast(instance, to, from = name)
+      member_access = from.end_with?('*') ? '->' : '.'
+
       struct = "struct #{@struct.name}"
 
-      if [EQUIVALENT_STRUCT_KEYWORD, struct].include?(type)
-        equivalent_struct(name)
-      elsif [EQUIVALENT_POINTER_KEYWORD, "#{struct} *"].include?(type)
-        equivalent_struct_pointer(name)
+      if [EQUIVALENT_STRUCT_KEYWORD, struct].include?(to)
+        "#{'*' if pointer_wrapper?}#{instance}#{member_access}equivalent"
+      elsif [EQUIVALENT_POINTER_KEYWORD, "#{struct} *"].include?(to)
+        "#{'&' unless pointer_wrapper?}#{instance}#{member_access}equivalent"
       end
-    end
-
-    # The equivalent struct of this class from an instance of it.
-    def equivalent_struct(instance_name)
-      "#{'*' if pointer_wrapper?}#{instance_name}.equivalent"
-    end
-
-    # A pointer to the equivalent struct of this class from an instance of it.
-    def equivalent_struct_pointer(instance_name)
-      "#{'&' unless pointer_wrapper?}#{instance_name}.equivalent"
     end
 
     # Generates the wrapper class declaration and definition files.
