@@ -80,14 +80,18 @@ module Wrapture
 
     # Returns the ClassSpec for the given type in the scope.
     def type(type)
-      base_type = type.delete('&*').strip
-      @classes.find { |class_spec| class_spec.name == base_type }
+      @classes.find { |class_spec| class_spec.name == base_type(type) }
     end
 
     # Returns true if the given type is in the scope.
     def type?(type)
-      base_type = type.delete('&*').strip
-      @classes.any? { |class_spec| class_spec.name == base_type }
+      @classes.any? { |class_spec| class_spec.name == base_type(type) }
+    end
+
+    private
+
+    def base_type(type)
+      type.delete('&*').strip
     end
   end
 end
