@@ -137,6 +137,9 @@ module Wrapture
       @scope = scope
     end
 
+    # Returns a cast of an instance of this class with the provided name to the
+    # specified type. Optionally the from parameter may hold the type of the
+    # instance, either a reference or a pointer.
     def cast(instance, to, from = name)
       member_access = from.end_with?('*') ? '->' : '.'
 
