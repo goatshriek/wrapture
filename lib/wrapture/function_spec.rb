@@ -21,6 +21,7 @@
 require 'wrapture/comment'
 require 'wrapture/constants'
 require 'wrapture/errors'
+require 'wrapture/param_spec'
 require 'wrapture/scope'
 require 'wrapture/wrapped_function_spec'
 
@@ -36,18 +37,10 @@ module Wrapture
       Comment.validate_doc(spec['doc']) if spec.key?('doc')
 
       normalized = spec.dup
-      param_types = {}
 
       normalized['version'] = Wrapture.spec_version(spec)
       normalized['virtual'] = Wrapture.normalize_boolean(spec, 'virtual')
-
-      normalized['params'] ||= []
-      normalized['params'].each do |param_spec|
-        Comment.validate_doc(param_spec['doc']) if param_spec.key?('doc')
-        param_types[param_spec['name']] = param_spec['type']
-        includes = Wrapture.normalize_includes(param_spec['includes'])
-        param_spec['includes'] = includes
-      end
+      normalized['params'] = ParamSpec.normalize_param_list(spec['params'])
 
       if normalized['return'].nil?
         normalized['return'] = {}
@@ -74,9 +67,11 @@ module Wrapture
     # wrapped-function:: a hash describing the function to be wrapped
     #
     # Each parameter specification must have a 'name' key with the name of the
-    # parameter and a 'type' key with its type. It may optionally have an
-    # 'includes' key with includes that are required (for example to support the
-    # type) and/or a 'doc' key with documentation of the parameter.
+    # parameter and a 'type' key with its type. The type key may be ommitted
+    # if the name of the parameter is '...' in which case the generated function
+    # will be made variadic. It may optionally have an 'includes' key with
+    # includes that are required (for example to support the type) and/or a
+    # 'doc' key with documentation of the parameter.
     #
     # The wrapped-function must have a 'name' key with the name of the function,
     # and a 'params' key with a list of parameters (each a hash with a 'name'

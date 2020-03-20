@@ -27,6 +27,7 @@ module Wrapture
   require 'wrapture/function_spec'
   require 'wrapture/normalize'
   require 'wrapture/rule_spec'
+  require 'wrapture/param_spec'
   require 'wrapture/scope'
   require 'wrapture/struct_spec'
   require 'wrapture/template_spec'
