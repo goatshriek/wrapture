@@ -149,6 +149,18 @@ module Wrapture
       end
     end
 
+    # Returns a cast of a pointer to an instance of this class to the provided
+    # type, if possible.
+    def cast_pointer_to(name, type)
+      struct = "struct #{@struct.name}"
+
+      if [EQUIVALENT_STRUCT_KEYWORD, struct].include?(type)
+        "#{'*' if pointer_wrapper?}#{name}->equivalent"
+      elsif [EQUIVALENT_POINTER_KEYWORD, "#{struct} *"].include?(type)
+        "#{'&' unless pointer_wrapper?}#{name}->equivalent"
+      end
+    end
+
     # The equivalent struct of this class from an instance of it.
     def equivalent_struct(instance_name)
       "#{'*' if pointer_wrapper?}#{instance_name}.equivalent"

@@ -1,0 +1,39 @@
+classes:
+  - name: "Bullet"
+    namespace: "wrapture_test"
+    equivalent-struct:
+      name: "bullet_struct"
+      includes: "bullet_struct.h"
+    type: "pointer"
+  - name: "Rifle"
+    namespace: "wrapture_test"
+    equivalent-struct:
+      name: "rifle_struct"
+      includes: "rifle_struct.h"
+    functions:
+      - name: "load"
+        params:
+          - name: "bullet"
+            type: "Bullet *"
+            includes: "Bullet.hpp"
+        return:
+          type: "self-reference"
+        wrapped-function:
+          name: "load_rifle_with_bullet"
+          params:
+            - value: "equivalent-struct-pointer"
+            - type: "struct bullet_struct *"
+              value: "bullet"
+      - name: "fire"
+        params:
+          - name: "bullet"
+            type: "Bullet *"
+            includes: "Bullet.hpp"
+        return:
+          type: "self-reference"
+        wrapped-function:
+          name: "fire_bullet_from_rifle"
+          params:
+            - value: "equivalent-struct-pointer"
+            - type: "struct bullet_struct"
+              value: "bullet"

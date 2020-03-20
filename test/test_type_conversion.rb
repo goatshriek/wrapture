@@ -23,6 +23,19 @@ require 'minitest/autorun'
 require 'wrapture'
 
 class TypeConversionTest < Minitest::Test
+  def test_class_pointer_to_struct_pointer
+    test_spec = load_fixture('scope_with_pointer_param')
+
+    scope = Wrapture::Scope.new(test_spec)
+
+    generated_files = scope.generate_wrappers
+    validate_wrapper_results(test_spec, generated_files)
+
+    assert(file_contains_match('Rifle.cpp', /bullet->equivalent/))
+
+    File.delete(*generated_files)
+  end
+
   def test_reference_to_pointer
     test_spec = load_fixture('scope_with_reference_param')
 
