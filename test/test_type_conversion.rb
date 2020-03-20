@@ -31,7 +31,7 @@ class TypeConversionTest < Minitest::Test
     generated_files = scope.generate_wrappers
     validate_wrapper_results(test_spec, generated_files)
 
-    assert(file_contains_match("Rifle.cpp", /bullet\.equivalent/))
+    assert(file_contains_match('Rifle.cpp', /bullet\.equivalent/))
 
     File.delete(*generated_files)
   end
