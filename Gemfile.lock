@@ -33,10 +33,11 @@ GEM
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 1.4.0, < 1.7)
     ruby-progressbar (1.10.1)
-    simplecov (0.18.5)
+    simplecov (0.17.1)
       docile (~> 1.1)
-      simplecov-html (~> 0.11)
-    simplecov-html (0.12.2)
+      json (>= 1.8, < 3)
+      simplecov-html (~> 0.10.0)
+    simplecov-html (0.10.2)
     unicode-display_width (1.6.1)
     url (0.3.2)
 
@@ -52,7 +53,7 @@ DEPENDENCIES
   rake (>= 0.9.2)
   rdoc (>= 6.0, < 6.2)
   rubocop (>= 0.69)
-  simplecov (>= 0.16.1)
+  simplecov (>= 0.16.1, <= 0.17.1)
   wrapture!
 
 BUNDLED WITH
