@@ -45,5 +45,10 @@ module Wrapture
       spec['includes'] = Wrapture.normalize_includes(spec['includes'])
       spec
     end
+
+    # Creates a parameter specification based on the provided hash spec.
+    def initialize(spec)
+      @spec = normalize_param_list(spec)
+    end
   end
 end
