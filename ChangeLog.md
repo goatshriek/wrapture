@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Python class generation.
  - Perl class generation.
 
-## [0.4.0] - 2020-03-21
+## [0.4.0] - 2020-04-04
 ### Added
  - Inequality conditions for rules (less-than, less-than-equal, greater-than,
    greater-than-equal).
@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Return type may be `self-reference` to facilitate method chaining.
  - Conversions can be made from references and pointers to wrapped classes to
    their equivalent structs.
+ - Support for ruby 2.7.
  - Functions may name the last parameter `...` to generate a variadic function.
 
 ### Fixed
