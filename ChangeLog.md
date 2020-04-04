@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Return type may be `self-reference` to facilitate method chaining.
  - Conversions can be made from references and pointers to wrapped classes to
    their equivalent structs.
+ - Support for ruby 2.7.
 
 ### Fixed
  - Classes with no `name` member raise a MissingSpecKey exception.
