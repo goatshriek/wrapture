@@ -21,6 +21,12 @@
 module Wrapture
   # A description of a parameter used in a generated function.
   class ParamSpec
+    # Returns a list of new ParamSpecs based on the provided array of parameter
+    # specification hashes.
+    def self.new_list(spec_list)
+      spec_list.map { |spec| new(spec) }
+    end
+
     # Returns a normalized copy of a list of parameter hash specifications in
     # place.
     def self.normalize_param_list(spec_list)
@@ -48,7 +54,7 @@ module Wrapture
 
     # Creates a parameter specification based on the provided hash spec.
     def initialize(spec)
-      @spec = normalize_param_list(spec)
+      @spec = ParamSpec.normalize_spec_hash(spec)
     end
   end
 end

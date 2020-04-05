@@ -97,6 +97,7 @@ module Wrapture
       @owner = owner
       @spec = FunctionSpec.normalize_spec_hash(spec)
       @wrapped = WrappedFunctionSpec.new(spec['wrapped-function'])
+      @params = ParamSpec.new_list(@spec['params'])
       @constructor = constructor
       @destructor = destructor
 
