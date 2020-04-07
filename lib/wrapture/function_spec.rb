@@ -122,21 +122,6 @@ module Wrapture
       includes.uniq
     end
 
-    # A comma-separated list of parameters and resolved types fit for use in a
-    # function signature or declaration.
-    def param_list
-      return 'void' if @spec['params'].empty?
-
-      params = []
-
-      @spec['params'].each do |param|
-        type = resolve_type(param['type'])
-        params << ClassSpec.typed_variable(type, param['name'])
-      end
-
-      params.join(', ')
-    end
-
     # Gives an expression for calling a given parameter within this function.
     # Equivalent structs and pointers are resolved, as well as casts between
     # types if they are known within the scope of this function.
@@ -161,7 +146,7 @@ module Wrapture
 
     # The signature of the function.
     def signature
-      "#{@spec['name']}( #{param_list} )"
+      "#{@spec['name']}( #{ParamSpec.signature(@params, self)} )"
     end
 
     # Yields each line of the declaration of the function, including any
@@ -222,13 +207,6 @@ module Wrapture
       Comment.new(comment)
     end
 
-    # True if the function is virtual.
-    def virtual?
-      @spec['virtual']
-    end
-
-    private
-
     # A resolved type name.
     def resolve_type(type)
       if type == EQUIVALENT_STRUCT_KEYWORD
@@ -241,6 +219,13 @@ module Wrapture
         type
       end
     end
+
+    # True if the function is virtual.
+    def virtual?
+      @spec['virtual']
+    end
+
+    private
 
     # The function to use to create the return value of the function.
     def return_cast(value)

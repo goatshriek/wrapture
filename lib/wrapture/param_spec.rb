@@ -52,6 +52,18 @@ module Wrapture
       spec
     end
 
+    # A string with a comma-separated list of parameters (using resolved type)
+    # and names, fit for use in a function signature or declaration. param_list
+    # must be a list of ParamSpec instances, and owner must be the FunctionSpec
+    # that the parameters belong to.
+    def self.signature(param_list, owner)
+      return 'void' if param_list.empty?
+
+      param_list.map do |param|
+        ClassSpec.typed_variable(owner.resolve_type(param.type), param.name)
+      end.join(', ')
+    end
+
     # Creates a parameter specification based on the provided hash spec.
     def initialize(spec)
       @spec = ParamSpec.normalize_spec_hash(spec)
@@ -69,6 +81,18 @@ module Wrapture
     # A list of includes needed for this parameter.
     def includes
       @spec['includes']
+    end
+
+    # The name of the parameter.
+    def name
+      @spec['name']
+    end
+
+    # The type of the parameter as listed in the spec. Note that this may need
+    # to be resolved based on context, for example, if it is a reference to a
+    # class's equivalent struct.
+    def type
+      @spec['type']
     end
   end
 end
