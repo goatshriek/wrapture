@@ -100,16 +100,6 @@ module Wrapture
       @params = ParamSpec.new_list(@spec['params'])
       @constructor = constructor
       @destructor = destructor
-
-      comment = String.new
-      comment << @spec['doc'] if @spec.key?('doc')
-      @spec['params'].select { |param| param.key?('doc') }.each do |param|
-        comment << "\n\n@param " << param['name'] << ' ' << param['doc']
-      end
-      if @spec['return'].key?('doc')
-        comment << "\n\n@return " << @spec['return']['doc']
-      end
-      @doc = comment.empty? ? nil : Comment.new(comment)
     end
 
     # True if the function is a constructor, false otherwise.
@@ -177,7 +167,7 @@ module Wrapture
     # Yields each line of the declaration of the function, including any
     # documentation.
     def declaration
-      @doc&.format_as_doxygen(max_line_length: 76) { |line| yield line }
+      doc&.format_as_doxygen(max_line_length: 76) { |line| yield line }
 
       if @constructor || @destructor
         yield "#{signature};"
@@ -214,6 +204,20 @@ module Wrapture
       end
 
       yield '}'
+    end
+
+    # The documentation comment for the function.
+    def doc
+      comment = String.new
+      comment << @spec['doc'] if @spec.key?('doc')
+      @spec['params'].select { |param| param.key?('doc') }.each do |param|
+        comment << "\n\n@param " << param['name'] << ' ' << param['doc']
+      end
+      if @spec['return'].key?('doc')
+        comment << "\n\n@return " << @spec['return']['doc']
+      end
+
+      comment.empty? ? nil : Comment.new(comment)
     end
 
     # True if the function is virtual.
