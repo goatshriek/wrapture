@@ -167,7 +167,7 @@ module Wrapture
     # Yields each line of the declaration of the function, including any
     # documentation.
     def declaration
-      doc&.format_as_doxygen(max_line_length: 76) { |line| yield line }
+      doc.format_as_doxygen(max_line_length: 76) { |line| yield line }
 
       if @constructor || @destructor
         yield "#{signature};"
@@ -206,7 +206,7 @@ module Wrapture
       yield '}'
     end
 
-    # The documentation comment for the function.
+    # A Comment holding the function documentation.
     def doc
       comment = String.new
       comment << @spec['doc'] if @spec.key?('doc')
@@ -217,7 +217,7 @@ module Wrapture
         comment << "\n\n@return " << @spec['return']['doc']
       end
 
-      comment.empty? ? nil : Comment.new(comment)
+      Comment.new(comment)
     end
 
     # True if the function is virtual.
