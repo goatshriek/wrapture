@@ -56,5 +56,14 @@ module Wrapture
     def initialize(spec)
       @spec = ParamSpec.normalize_spec_hash(spec)
     end
+
+    # A Comment holding the parameter documentation.
+    def doc
+      if @spec.key?('doc')
+        Comment.new("@param #{@spec['name']} #{@spec['doc']}")
+      else
+        Comment.new
+      end
+    end
   end
 end

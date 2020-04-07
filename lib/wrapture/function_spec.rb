@@ -210,9 +210,11 @@ module Wrapture
     def doc
       comment = String.new
       comment << @spec['doc'] if @spec.key?('doc')
-      @spec['params'].select { |param| param.key?('doc') }.each do |param|
-        comment << "\n\n@param " << param['name'] << ' ' << param['doc']
+
+      @params.reject { |param| param.doc.text.empty? }.each do |param|
+        comment << "\n\n" << param.doc.text
       end
+
       if @spec['return'].key?('doc')
         comment << "\n\n@return " << @spec['return']['doc']
       end

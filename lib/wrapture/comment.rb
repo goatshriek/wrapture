@@ -29,6 +29,9 @@ module Wrapture
       raise InvalidDoc, 'a doc must be a string' unless doc.is_a?(String)
     end
 
+    # The raw text of the comment.
+    attr_reader :text
+
     # Creates a comment from a string. If the provided string is nil, then an
     # empty string is used.
     def initialize(comment = '')
