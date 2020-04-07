@@ -1,0 +1,4 @@
+name: "notVariadic"
+includes:
+  - "include_1.h"
+  - "include_2.h"
