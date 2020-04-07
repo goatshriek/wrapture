@@ -211,7 +211,7 @@ module Wrapture
       comment = String.new
       comment << @spec['doc'] if @spec.key?('doc')
 
-      @params.reject { |param| param.doc.text.empty? }.each do |param|
+      @params.reject { |param| param.doc.empty? }.each do |param|
         comment << "\n\n" << param.doc.text
       end
 

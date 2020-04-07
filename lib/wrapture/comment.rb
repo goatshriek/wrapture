@@ -38,6 +38,11 @@ module Wrapture
       @text = comment.nil? ? '' : comment
     end
 
+    # True if this comment is empty, false otherwise.
+    def empty?
+      @text.empty?
+    end
+
     # Yields each line of the comment formatted as specified.
     def format(line_prefix: '// ', first_line: nil, last_line: nil,
                max_line_length: 80)
