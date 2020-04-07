@@ -110,7 +110,7 @@ module Wrapture
     # A list of includes needed for the declaration of the function.
     def declaration_includes
       includes = @spec['return']['includes'].dup
-      includes.concat(param_includes)
+      @params.each { |param| includes.concat(param.includes) }
       includes.uniq
     end
 
@@ -118,7 +118,7 @@ module Wrapture
     def definition_includes
       includes = @wrapped.includes
       includes.concat(@spec['return']['includes'])
-      includes.concat(param_includes)
+      @params.each { |param| includes.concat(param.includes) }
       includes.uniq
     end
 
@@ -228,17 +228,6 @@ module Wrapture
     end
 
     private
-
-    # A list of includes needed for the parameters of the function.
-    def param_includes
-      includes = []
-
-      @spec['params'].each do |param_spec|
-        includes.concat(param_spec['includes'])
-      end
-
-      includes
-    end
 
     # A resolved type name.
     def resolve_type(type)

@@ -65,5 +65,10 @@ module Wrapture
         Comment.new
       end
     end
+
+    # A list of includes needed for this parameter.
+    def includes
+      @spec['includes']
+    end
   end
 end
