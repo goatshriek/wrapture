@@ -49,6 +49,10 @@ module Wrapture
     def self.normalize_spec_hash!(spec)
       Comment.validate_doc(spec['doc']) if spec.key?('doc')
       spec['includes'] = Wrapture.normalize_includes(spec['includes'])
+
+      missing_type_msg = 'parameters must have a type key defined'
+      raise(MissingSpecKey, missing_type_msg) unless spec.key?('type')
+
       spec
     end
 
