@@ -1,12 +1,23 @@
 # The Future of Wrapture
 
-Wrapture is under active development, and has a long list of new features and improvements waiting to be made. Some of these are detailed in the issues list on the project Github repository, but this is certainly not a comprehensive list of planned updates. Similarly, work that is in progress on new features is tracked as a project on the Github repository, but future planned work does not exist there either. Instead, the plans for future direction of the library is kept here, in the project roadmap.
+Wrapture is under active development, and has a long list of new features and improvements waiting to be made. Some of these are detailed in the issues list on the project Github website, but this is certainly not a comprehensive list of planned updates. Similarly, work that is in progress on new features is tracked as a project on the Github repository, but future planned work does not exist there either. Instead, the plans for future direction of the library is kept here, in the project roadmap.
 
 Items are added to the roadmap once they have been identified, assessed for level of effort, and prioritized based on community needs. Each item is assigned to a semantic version where it is expected to be included, along with a description of what the change will be and why it is needed. Where they exist, you will see references to issues on the Github repository where you can go for more details on the origin of the request. Once a version is in work, you will be able to find a corresponding project on the Github repository with each roadmap item listed as a task. Once all tasks are complete, the version will be released and the next version started.
 
 Once an item has been implemented it will be removed from the roadmap. If you would like to see a history of changes on the existing codebase, check out the ChangeLog (ChangeLog.md in the project root) to see what was included in each version of the library.
 
-Note that there are either vague or no timelines associated with each change. The project team is currently not big enough to meet any timeline promises realistically, and so timing is left vague in order to prevent users from feeling cheated if something takes longer than expected to make it into a version.
+Note that the timelines associated with each change are vague at best. The project team is not currently big enough to realistically make any promises, so timing is often left out to prevent folks from feeling cheated if something takes longer than expected.
+
+# 0.4.0 (next minor release)
+ * [ADD] **Variadic function generation**
+   C++ functions may have a final parameter named `...` to allow an arbitrary number of arguments. This requires some special handling by Wrapture to allow the spec to define how the parameters should be handled, for example by passing them to a function expecting a va_list parameter that needs be started first. Parameter packs also handle this use case and are typically preferred, but these will be added in a separate, future feature.
+
+# 1.0.0 (next major release)
+ * [DEPRECATE] **Use of `name` key instead of `value` in wrapped function parameter specs.**
+   The name key is equivalent to the value, and is not used for anything else currently. If it is needed for some other functionality in the future this behavior will conflict, and is being preemptively removed to prepare for this.
+
+# 2.0.0
+ * [REMOVE] **Use of `name` key instead of `value` in wrapped function parameter specs.****
 
 ## A Note about Github issues and projects
 
