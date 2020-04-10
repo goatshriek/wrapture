@@ -15,13 +15,37 @@ Note that the timelines associated with each change are vague at best. The proje
 ## 0.4.0 (next minor release)
  * [ADD] **Variadic function generation**
    C++ functions may have a final parameter named `...` to allow an arbitrary number of arguments. This requires some special handling by Wrapture to allow the spec to define how the parameters should be handled, for example by passing them to a function expecting a va_list parameter that needs be started first. Parameter packs also handle this use case and are typically preferred, but these will be added in a separate, future feature.
+ * [ADD] **Wrapping of enumerations as enum classes in C++**
+   C code may use enumerations to facilitate readable code using a known set of values. However, use of C-style enumerations in C++ does not provide any sort of type safety or scoping capability. A way to wrap native C enumerations into an `enum class` in C++ would allow generated code to follow C++ standards practices and feel more native to users.
+
+## 0.5.0
+ * [ADD] **Python class generation**
+   Python is a commonly used language in a variety of applications, and extension of C code into it is estimated to be a valuable feature. Furthermore, this feature must be added before version 1.0.0 so that any major changes to spec structure can be introduced while still in the initial development stage of [semantic versioning](https://semver.org/).
 
 ## 1.0.0 (next major release)
  * [DEPRECATE] **Use of `name` key instead of `value` in wrapped function parameter specs.**
-   The name key is equivalent to the value, and is not used for anything else currently. If it is needed for some other functionality in the future this behavior will conflict, and is being preemptively removed to prepare for this.
+   The name key is equivalent to the value, and is not used for anything else currently. However, if it is needed for some other functionality in the future then this behavior will conflict, and is therefore being preemptively removed.
 
 ## 2.0.0
  * [REMOVE] **Use of `name` key instead of `value` in wrapped function parameter specs.**
+   Removing previously deprecated feature.
+
+## Unallocated to a release
+ * [ADD] **Creation of command-line interface namespace in library**
+ * [ADD] **Support for JSON specifications**
+ * [ADD] **Support for XML specifications**
+ * [ADD] **Bidirectional language support**
+   A major capability would be to write specifications that describe the source and target languages in generic terms, allowing wrappers to be generated to cross between any language (likely using C as the middle ground). This could be a major feature as it would open up libraries implemented in one language to all others supported by Wrapture with relative ease. This would be a major undertaking and will need to be done after multiple language support is added to Wrapture, currently scheduled for release 0.5.0 with the addition of Python wrapper generation.
+ * [ADD] **Public repository of standard library specifications**
+   It may be useful to have standard specifications readily available. These could range from common templates for things like error handling, to simply wrapping standard library calls for use in the target language.
+ * [ADD] **Ruby class generation**
+   Allowing Ruby class generation will enable this project to make use of other libraries that are currently available in C, such as the GNU compiler, to enhance functionality and testing of Wrapture itself. It will also benefit anyone wishing to generate Ruby bindings along with their other languages, and should be relatively simple once Python generation is completed (currently scheduled for release 0.5.0).
+ * [ADD] **C# code generation**
+ * [ADD] **TCL code generation**
+ * [ADD] **Java code generation**
+ * [ADD] **Powershell code generation**
+ * [ADD] **Perl code generation**
+
 
 ## A Note about Github issues and projects
 
