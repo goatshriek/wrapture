@@ -34,6 +34,6 @@ class ParamSpecTest < Minitest::Test
   end
 
   def test_variadic_parameter
-    Wrapture::ParamSpec.new({'name' => '...'})
+    Wrapture::ParamSpec.new({ 'name' => '...' })
   end
 end
