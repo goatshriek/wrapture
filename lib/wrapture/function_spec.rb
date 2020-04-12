@@ -73,6 +73,11 @@ module Wrapture
     # includes that are required (for example to support the type) and/or a
     # 'doc' key with documentation of the parameter.
     #
+    # Only one parameter named '...' is allowed in a specification. If more than
+    # one is provided, then only the first encountered will be used. This
+    # parameter should also be last - if it is not, it will be moved to the end
+    # of the parameter list during normalization.
+    #
     # The wrapped-function must have a 'name' key with the name of the function,
     # and a 'params' key with a list of parameters (each a hash with a 'name'
     # and 'type' key). Optionally, it may also include an 'includes' key with a

@@ -29,6 +29,10 @@ module Wrapture
 
     # Returns a normalized copy of a list of parameter hash specifications in
     # place.
+    #
+    # Multiple variadic parameters (named '...') will be removed and only the
+    # first used. If the variadic parameter is not last, it will be moved to
+    # the end of the list.
     def self.normalize_param_list(spec_list)
       if spec_list.nil?
         []
