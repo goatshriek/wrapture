@@ -138,6 +138,8 @@ module Wrapture
         @owner.this_struct
       elsif param_spec['value'] == EQUIVALENT_POINTER_KEYWORD
         @owner.this_struct_pointer
+      elsif param_spec['value'] == '...'
+        'variadic_args'
       elsif used_param &&
             @owner.type?(used_param['type']) &&
             !param_spec['type'].nil?

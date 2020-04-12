@@ -125,7 +125,7 @@ class FunctionSpecTest < Minitest::Test
       spec.definition('NoSuchClass') do |line|
         code = line.strip
 
-        assert(code.include?('va_list')) if code.include?('underlying')
+        assert(code.include?('variadic_args')) if code.include?('underlying')
       end
     end
   end
