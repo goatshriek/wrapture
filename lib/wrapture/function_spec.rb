@@ -179,8 +179,11 @@ module Wrapture
     def definition(class_name)
       yield "#{return_prefix}#{class_name}::#{signature} {"
 
+      locals { |declaration| yield "  #{declaration}" }
+
+      yield "va_start(#{@params[-2].name} variadic_args);" if variadic?
+
       if @wrapped.error_check?
-        yield "  #{@wrapped.return_val_type} return_val;"
         yield
         yield "  #{wrapped_call_expression};"
         yield
@@ -188,6 +191,8 @@ module Wrapture
       else
         yield "  #{wrapped_call_expression};"
       end
+
+      yield 'va_end(variadic_args);' if variadic?
 
       if @spec['return']['type'] == SELF_REFERENCE_KEYWORD
         yield '  return *this;'
@@ -227,7 +232,7 @@ module Wrapture
 
     # True if the function is variadic.
     def variadic?
-      @params.last.variadic?
+      @params.last&.variadic?
     end
 
     # True if the function is virtual.
@@ -236,6 +241,12 @@ module Wrapture
     end
 
     private
+
+    # Yields a declaration of each local variable used by the function.
+    def locals
+      yield 'va_list variadic_args;' if variadic?
+      yield "#{@wrapped.return_val_type} return_val;" if @wrapped.error_check?
+    end
 
     # The function to use to create the return value of the function.
     def return_cast(value)
