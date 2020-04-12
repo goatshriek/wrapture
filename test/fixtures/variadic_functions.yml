@@ -1,0 +1,21 @@
+- name: "BasicVariadicFunction"
+  params:
+    - name: "app_name"
+      type: "const char *"
+    - name: "..."
+  wrapped-function:
+    name: "underlying_function"
+    params:
+      - name: "equivalent-struct-pointer"
+      - name: "app_name"
+- name: "VariadicFunctionMultipleEllipses"
+  params:
+    - name: "app_name"
+      type: "const char *"
+    - name: "..."
+    - name: "..."
+  wrapped-function:
+    name: "underlying_function"
+    params:
+      - name: "equivalent-struct-pointer"
+      - name: "app_name"
