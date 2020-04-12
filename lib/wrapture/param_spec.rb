@@ -32,8 +32,16 @@ module Wrapture
     def self.normalize_param_list(spec_list)
       if spec_list.nil?
         []
-      else
+      elsif spec_list.count { |spec| spec['name'] == '...' }.zero?
         spec_list.map { |spec| normalize_spec_hash(spec) }
+      else
+        i = spec_list.find_index { |spec| spec['name'] == '...' }
+        var = spec_list[i]
+
+        spec_list
+          .reject { |spec| spec['name'] == '...' }
+          .map { |spec| normalize_spec_hash(spec) }
+          .push(var)
       end
     end
 
@@ -64,7 +72,7 @@ module Wrapture
     # that the parameters belong to.
     def self.signature(param_list, owner)
       if param_list.empty?
-        return 'void'
+        'void'
       else
         param_list.map { |param| param.signature(owner) }.join(', ')
       end

@@ -220,6 +220,11 @@ module Wrapture
       end
     end
 
+    # True if the function is variadic.
+    def variadic?
+      @params.last.variadic?
+    end
+
     # True if the function is virtual.
     def virtual?
       @spec['virtual']
