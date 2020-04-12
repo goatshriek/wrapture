@@ -63,11 +63,11 @@ module Wrapture
     # must be a list of ParamSpec instances, and owner must be the FunctionSpec
     # that the parameters belong to.
     def self.signature(param_list, owner)
-      return 'void' if param_list.empty?
-
-      param_list.map do |param|
-        ClassSpec.typed_variable(owner.resolve_type(param.type), param.name)
-      end.join(', ')
+      if param_list.empty?
+        return 'void'
+      else
+        param_list.map { |param| param.signature(owner) }.join(', ')
+      end
     end
 
     # Creates a parameter specification based on the provided hash spec.
@@ -94,11 +94,27 @@ module Wrapture
       @spec['name']
     end
 
+    # The parameter type and name, suitable for use in a function signature or
+    # declaration. The owner argument must be the FunctionSpec that the
+    # parameter belongs to.
+    def signature(owner)
+      if variadic?
+        '...'
+      else
+        ClassSpec.typed_variable(owner.resolve_type(type), name)
+      end
+    end
+
     # The type of the parameter as listed in the spec. Note that this may need
     # to be resolved based on context, for example, if it is a reference to a
     # class's equivalent struct.
     def type
       @spec['type']
+    end
+
+    # True if this parameter is variadic (the name is equal to '...').
+    def variadic?
+      name == '...'
     end
   end
 end
