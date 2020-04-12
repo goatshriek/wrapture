@@ -100,6 +100,16 @@ class FunctionSpecTest < Minitest::Test
     assert(comment.include?('ParamDocIdentifier'))
   end
 
+  def test_only_variadic_param
+    test_spec = load_fixture('invalid/only_variadic_param')
+
+    error = assert_raises(Wrapture::InvalidSpecKey) do
+      Wrapture::FunctionSpec.new(test_spec)
+    end
+
+    assert(error.message.include?('only param'))
+  end
+
   def test_variadic_functions
     test_specs = load_fixture('variadic_functions')
 

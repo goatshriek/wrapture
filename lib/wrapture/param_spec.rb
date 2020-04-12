@@ -39,6 +39,9 @@ module Wrapture
       elsif spec_list.count { |spec| spec['name'] == '...' }.zero?
         spec_list.map { |spec| normalize_spec_hash(spec) }
       else
+        error_msg = "'...' may not be the only parameter"
+        raise(InvalidSpecKey, error_msg) if spec_list.count == 1
+
         i = spec_list.find_index { |spec| spec['name'] == '...' }
         var = spec_list[i]
 

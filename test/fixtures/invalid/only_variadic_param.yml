@@ -1,0 +1,7 @@
+name: "InvalidVariadicFunction"
+params:
+  - name: "..."
+wrapped-function:
+  name: "underlying_function"
+  params:
+    - name: "equivalent-struct-pointer"
