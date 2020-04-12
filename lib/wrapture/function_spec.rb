@@ -184,7 +184,7 @@ module Wrapture
 
       locals { |declaration| yield "  #{declaration}" }
 
-      yield "va_start(#{@params[-2].name} variadic_args);" if variadic?
+      yield "  va_start( variadic_args, #{@params[-2].name} );" if variadic?
 
       if @wrapped.error_check?
         yield
@@ -195,7 +195,7 @@ module Wrapture
         yield "  #{wrapped_call_expression};"
       end
 
-      yield 'va_end(variadic_args);' if variadic?
+      yield '  va_end( variadic_args );' if variadic?
 
       if @spec['return']['type'] == SELF_REFERENCE_KEYWORD
         yield '  return *this;'
