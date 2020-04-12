@@ -119,6 +119,8 @@ class FunctionSpecTest < Minitest::Test
       spec.declaration do |line|
         assert(line.include?('...'))
       end
+
+      assert(spec.definition_includes.include?('stdarg.h'))
     end
   end
 

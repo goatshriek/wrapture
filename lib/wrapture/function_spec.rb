@@ -124,6 +124,7 @@ module Wrapture
       includes = @wrapped.includes
       includes.concat(@spec['return']['includes'])
       @params.each { |param| includes.concat(param.includes) }
+      includes << 'stdarg.h' if variadic?
       includes.uniq
     end
 
