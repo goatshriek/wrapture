@@ -121,6 +121,12 @@ class FunctionSpecTest < Minitest::Test
       end
 
       assert(spec.definition_includes.include?('stdarg.h'))
+
+      spec.definition('NoSuchClass') do |line|
+        code = line.strip
+
+        assert(code.include?('va_list')) if code.include?('underlying')
+      end
     end
   end
 

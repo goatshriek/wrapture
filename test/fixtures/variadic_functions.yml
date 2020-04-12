@@ -6,7 +6,6 @@
   wrapped-function:
     name: "underlying_function"
     params:
-      - value: "equivalent-struct-pointer"
       - value: "app_name"
       - value: "..."
 - name: "VariadicFunctionMultipleEllipses"
@@ -18,6 +17,5 @@
   wrapped-function:
     name: "underlying_function"
     params:
-      - value: "equivalent-struct-pointer"
       - value: "app_name"
       - value: "..."
