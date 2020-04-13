@@ -35,14 +35,6 @@ timing is often left out to prevent folks from feeling cheated if something
 takes longer than expected.
 
 ## 0.4.0 (next minor release)
- * [ADD] **Variadic function generation**
-   C++ functions may have a final parameter named `...` to allow an arbitrary
-   number of arguments. This requires some special handling by Wrapture to allow
-   the spec to define how the parameters should be handled, for example by
-   passing them to a function expecting a `va_list` parameter that needs be
-   started first. Parameter packs also handle this use case and are typically
-   preferred, but these will be added in a separate feature (currently
-   unallocated).
  * [ADD] **Wrapping of enumerations as enum classes in C++**
    C code may use enumerations to facilitate readable code using a known set of
    values. However, use of C-style enumerations in C++ does not provide any sort

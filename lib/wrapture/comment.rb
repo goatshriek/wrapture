@@ -29,14 +29,25 @@ module Wrapture
       raise InvalidDoc, 'a doc must be a string' unless doc.is_a?(String)
     end
 
-    # Creates a comment from a string.
-    def initialize(comment)
-      @text = comment
+    # The raw text of the comment.
+    attr_reader :text
+
+    # Creates a comment from a string. If the provided string is nil, then an
+    # empty string is used.
+    def initialize(comment = '')
+      @text = comment.nil? ? '' : comment
+    end
+
+    # True if this comment is empty, false otherwise.
+    def empty?
+      @text.empty?
     end
 
     # Yields each line of the comment formatted as specified.
     def format(line_prefix: '// ', first_line: nil, last_line: nil,
                max_line_length: 80)
+      return if @text.empty?
+
       yield first_line if first_line
 
       paragraphs(max_line_length - line_prefix.length) do |line|

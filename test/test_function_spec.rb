@@ -100,6 +100,38 @@ class FunctionSpecTest < Minitest::Test
     assert(comment.include?('ParamDocIdentifier'))
   end
 
+  def test_only_variadic_param
+    test_spec = load_fixture('invalid/only_variadic_param')
+
+    error = assert_raises(Wrapture::InvalidSpecKey) do
+      Wrapture::FunctionSpec.new(test_spec)
+    end
+
+    assert(error.message.include?('only param'))
+  end
+
+  def test_variadic_functions
+    test_specs = load_fixture('variadic_functions')
+
+    test_specs.each do |test_spec|
+      spec = Wrapture::FunctionSpec.new(test_spec)
+
+      spec.declaration do |line|
+        assert(line.include?('...'))
+      end
+
+      assert(spec.signature.end_with?('... )'))
+
+      assert(spec.definition_includes.include?('stdarg.h'))
+
+      spec.definition('NoSuchClass') do |line|
+        code = line.strip
+
+        assert(code.include?('variadic_args')) if code.include?('underlying')
+      end
+    end
+  end
+
   def test_versioned_function
     test_spec = load_fixture('versioned_function')
 

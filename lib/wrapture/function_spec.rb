@@ -21,6 +21,7 @@
 require 'wrapture/comment'
 require 'wrapture/constants'
 require 'wrapture/errors'
+require 'wrapture/param_spec'
 require 'wrapture/scope'
 require 'wrapture/wrapped_function_spec'
 
@@ -36,18 +37,10 @@ module Wrapture
       Comment.validate_doc(spec['doc']) if spec.key?('doc')
 
       normalized = spec.dup
-      param_types = {}
 
       normalized['version'] = Wrapture.spec_version(spec)
       normalized['virtual'] = Wrapture.normalize_boolean(spec, 'virtual')
-
-      normalized['params'] ||= []
-      normalized['params'].each do |param_spec|
-        Comment.validate_doc(param_spec['doc']) if param_spec.key?('doc')
-        param_types[param_spec['name']] = param_spec['type']
-        includes = Wrapture.normalize_includes(param_spec['includes'])
-        param_spec['includes'] = includes
-      end
+      normalized['params'] = ParamSpec.normalize_param_list(spec['params'])
 
       if normalized['return'].nil?
         normalized['return'] = {}
@@ -74,9 +67,16 @@ module Wrapture
     # wrapped-function:: a hash describing the function to be wrapped
     #
     # Each parameter specification must have a 'name' key with the name of the
-    # parameter and a 'type' key with its type. It may optionally have an
-    # 'includes' key with includes that are required (for example to support the
-    # type) and/or a 'doc' key with documentation of the parameter.
+    # parameter and a 'type' key with its type. The type key may be ommitted
+    # if the name of the parameter is '...' in which case the generated function
+    # will be made variadic. It may optionally have an 'includes' key with
+    # includes that are required (for example to support the type) and/or a
+    # 'doc' key with documentation of the parameter.
+    #
+    # Only one parameter named '...' is allowed in a specification. If more than
+    # one is provided, then only the first encountered will be used. This
+    # parameter should also be last - if it is not, it will be moved to the end
+    # of the parameter list during normalization.
     #
     # The wrapped-function must have a 'name' key with the name of the function,
     # and a 'params' key with a list of parameters (each a hash with a 'name'
@@ -102,18 +102,9 @@ module Wrapture
       @owner = owner
       @spec = FunctionSpec.normalize_spec_hash(spec)
       @wrapped = WrappedFunctionSpec.new(spec['wrapped-function'])
+      @params = ParamSpec.new_list(@spec['params'])
       @constructor = constructor
       @destructor = destructor
-
-      comment = String.new
-      comment << @spec['doc'] if @spec.key?('doc')
-      @spec['params'].select { |param| param.key?('doc') }.each do |param|
-        comment << "\n\n@param " << param['name'] << ' ' << param['doc']
-      end
-      if @spec['return'].key?('doc')
-        comment << "\n\n@return " << @spec['return']['doc']
-      end
-      @doc = comment.empty? ? nil : Comment.new(comment)
     end
 
     # True if the function is a constructor, false otherwise.
@@ -124,7 +115,7 @@ module Wrapture
     # A list of includes needed for the declaration of the function.
     def declaration_includes
       includes = @spec['return']['includes'].dup
-      includes.concat(param_includes)
+      @params.each { |param| includes.concat(param.includes) }
       includes.uniq
     end
 
@@ -132,42 +123,28 @@ module Wrapture
     def definition_includes
       includes = @wrapped.includes
       includes.concat(@spec['return']['includes'])
-      includes.concat(param_includes)
+      @params.each { |param| includes.concat(param.includes) }
+      includes << 'stdarg.h' if variadic?
       includes.uniq
-    end
-
-    # A comma-separated list of parameters and resolved types fit for use in a
-    # function signature or declaration.
-    def param_list
-      return 'void' if @spec['params'].empty?
-
-      params = []
-
-      @spec['params'].each do |param|
-        type = resolve_type(param['type'])
-        params << ClassSpec.typed_variable(type, param['name'])
-      end
-
-      params.join(', ')
     end
 
     # Gives an expression for calling a given parameter within this function.
     # Equivalent structs and pointers are resolved, as well as casts between
     # types if they are known within the scope of this function.
     def resolve_wrapped_param(param_spec)
-      used_param = @spec['params'].find { |p| p['name'] == param_spec['value'] }
+      used_param = @params.find { |p| p.name == param_spec['value'] }
 
       if param_spec['value'] == EQUIVALENT_STRUCT_KEYWORD
         @owner.this_struct
       elsif param_spec['value'] == EQUIVALENT_POINTER_KEYWORD
         @owner.this_struct_pointer
-      elsif used_param &&
-            @owner.type?(used_param['type']) &&
-            !param_spec['type'].nil?
-        param_class = @owner.type(used_param['type'])
-        param_class.cast(used_param['name'],
+      elsif param_spec['value'] == '...'
+        'variadic_args'
+      elsif castable?(param_spec)
+        param_class = @owner.type(used_param.type)
+        param_class.cast(used_param.name,
                          param_spec['type'],
-                         used_param['type'])
+                         used_param.type)
       else
         param_spec['value']
       end
@@ -175,13 +152,13 @@ module Wrapture
 
     # The signature of the function.
     def signature
-      "#{@spec['name']}( #{param_list} )"
+      "#{@spec['name']}( #{ParamSpec.signature(@params, self)} )"
     end
 
     # Yields each line of the declaration of the function, including any
     # documentation.
     def declaration
-      @doc&.format_as_doxygen(max_line_length: 76) { |line| yield line }
+      doc.format_as_doxygen(max_line_length: 76) { |line| yield line }
 
       if @constructor || @destructor
         yield "#{signature};"
@@ -203,8 +180,11 @@ module Wrapture
     def definition(class_name)
       yield "#{return_prefix}#{class_name}::#{signature} {"
 
+      locals { |declaration| yield "  #{declaration}" }
+
+      yield "  va_start( variadic_args, #{@params[-2].name} );" if variadic?
+
       if @wrapped.error_check?
-        yield "  #{@wrapped.return_val_type} return_val;"
         yield
         yield "  #{wrapped_call_expression};"
         yield
@@ -213,6 +193,8 @@ module Wrapture
         yield "  #{wrapped_call_expression};"
       end
 
+      yield '  va_end( variadic_args );' if variadic?
+
       if @spec['return']['type'] == SELF_REFERENCE_KEYWORD
         yield '  return *this;'
       end
@@ -220,22 +202,20 @@ module Wrapture
       yield '}'
     end
 
-    # True if the function is virtual.
-    def virtual?
-      @spec['virtual']
-    end
+    # A Comment holding the function documentation.
+    def doc
+      comment = String.new
+      comment << @spec['doc'] if @spec.key?('doc')
 
-    private
+      @params
+        .reject { |param| param.doc.empty? }
+        .each { |param| comment << "\n\n" << param.doc.text }
 
-    # A list of includes needed for the parameters of the function.
-    def param_includes
-      includes = []
-
-      @spec['params'].each do |param_spec|
-        includes.concat(param_spec['includes'])
+      if @spec['return'].key?('doc')
+        comment << "\n\n@return " << @spec['return']['doc']
       end
 
-      includes
+      Comment.new(comment)
     end
 
     # A resolved type name.
@@ -249,6 +229,34 @@ module Wrapture
       else
         type
       end
+    end
+
+    # True if the function is variadic.
+    def variadic?
+      @params.last&.variadic?
+    end
+
+    # True if the function is virtual.
+    def virtual?
+      @spec['virtual']
+    end
+
+    private
+
+    # True if the provided wrapped param spec can be cast to when used in this
+    # function.
+    def castable?(wrapped_param)
+      param = @params.find { |p| p.name == wrapped_param['value'] }
+
+      !param.nil? &&
+        !wrapped_param['type'].nil? &&
+        @owner.type?(param.type)
+    end
+
+    # Yields a declaration of each local variable used by the function.
+    def locals
+      yield 'va_list variadic_args;' if variadic?
+      yield "#{@wrapped.return_val_type} return_val;" if @wrapped.error_check?
     end
 
     # The function to use to create the return value of the function.
