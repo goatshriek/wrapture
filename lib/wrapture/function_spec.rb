@@ -132,7 +132,7 @@ module Wrapture
     # Equivalent structs and pointers are resolved, as well as casts between
     # types if they are known within the scope of this function.
     def resolve_wrapped_param(param_spec)
-      used_param = @spec['params'].find { |p| p['name'] == param_spec['value'] }
+      used_param = @params.find { |p| p.name == param_spec['value'] }
 
       if param_spec['value'] == EQUIVALENT_STRUCT_KEYWORD
         @owner.this_struct
@@ -140,13 +140,11 @@ module Wrapture
         @owner.this_struct_pointer
       elsif param_spec['value'] == '...'
         'variadic_args'
-      elsif used_param &&
-            @owner.type?(used_param['type']) &&
-            !param_spec['type'].nil?
-        param_class = @owner.type(used_param['type'])
-        param_class.cast(used_param['name'],
+      elsif castable?(param_spec)
+        param_class = @owner.type(used_param.type)
+        param_class.cast(used_param.name,
                          param_spec['type'],
-                         used_param['type'])
+                         used_param.type)
       else
         param_spec['value']
       end
@@ -244,6 +242,16 @@ module Wrapture
     end
 
     private
+
+    # True if the provided wrapped param spec can be cast to when used in this
+    # function.
+    def castable?(wrapped_param)
+      param = @params.find { |p| p.name == wrapped_param['value'] }
+
+      !param.nil? &&
+        !wrapped_param['type'].nil? &&
+        @owner.type?(param.type)
+    end
 
     # Yields a declaration of each local variable used by the function.
     def locals
