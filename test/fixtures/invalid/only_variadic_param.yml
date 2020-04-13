@@ -4,4 +4,4 @@ params:
 wrapped-function:
   name: "underlying_function"
   params:
-    - name: "equivalent-struct-pointer"
+    - value: "equivalent-struct-pointer"
