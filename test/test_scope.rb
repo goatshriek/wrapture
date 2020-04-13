@@ -82,6 +82,27 @@ class ScopeTest < Minitest::Test
     end
   end
 
+  def test_scope_with_enum
+    test_spec = load_fixture('scope_with_enum')
+
+    scope = Wrapture::Scope.new(test_spec)
+
+    generated_files = scope.generate_wrappers
+
+    enum_name = test_spec['enums'][0]['name']
+    enum_filename = "#{enum_name}.hpp"
+
+    assert(FileTest.exist?(enum_filename),
+           "enum file '#{enum_filename}' was not created")
+    assert(file_contains_match(enum_filename, enum_name))
+
+    test_spec['enums'][0]['elements'].each do |element|
+      assert(file_contains_match(enum_filename, element['name']))
+    end
+
+    File.delete(*generated_files)
+  end
+
   def test_sequential_class_load
     class_specs = [load_fixture('basic_class'),
                    load_fixture('child_class'),
