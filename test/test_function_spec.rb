@@ -120,6 +120,8 @@ class FunctionSpecTest < Minitest::Test
         assert(line.include?('...'))
       end
 
+      assert(spec.signature.end_with?('... )'))
+
       assert(spec.definition_includes.include?('stdarg.h'))
 
       spec.definition('NoSuchClass') do |line|

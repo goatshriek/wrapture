@@ -19,3 +19,13 @@
     params:
       - value: "app_name"
       - value: "..."
+- name: "VariadicFunctionNotLast"
+  params:
+    - name: "..."
+    - name: "app_name"
+      type: "const char *"
+  wrapped-function:
+    name: "underlying_function"
+    params:
+      - value: "app_name"
+      - value: "..."
