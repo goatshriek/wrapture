@@ -32,7 +32,7 @@ class EnumSpecTest < Minitest::Test
 
     generated_files = spec.generate_wrapper
     assert_equal(1, generated_files.count,
-                 "only one file should have been generated")
+                 'only one file should have been generated')
 
     validate_file_matches_spec(generated_files.first, test_spec)
 
@@ -48,7 +48,7 @@ class EnumSpecTest < Minitest::Test
 
     generated_files = spec.generate_wrapper
     assert_equal(1, generated_files.count,
-                 "only one file should have been generated")
+                 'only one file should have been generated')
 
     validate_file_matches_spec(generated_files.first, test_spec)
 

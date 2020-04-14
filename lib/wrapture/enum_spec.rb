@@ -65,15 +65,24 @@ module Wrapture
 
     # Yields each line of the definition of the wrapper for this enum.
     def definition_contents
-      yield "enum class #{name} {"
-
-      @spec['elements'][0...-1].each do |element|
-        yield "  #{element_definition(element)},"
+      if @spec.key?('namespace')
+        yield "namespace #{@spec['namespace']} {"
+        prefix = '  '
+      else
+        prefix = ''
       end
 
-      yield "  #{element_definition(@spec['elements'].last)}"
+      yield "#{prefix}  enum class #{name} {"
 
-      yield '};'
+      @spec['elements'][0...-1].each do |element|
+        yield "#{prefix}  #{element_definition(element)},"
+      end
+
+      yield "#{prefix}  #{element_definition(@spec['elements'].last)}"
+
+      yield "#{prefix}};"
+
+      yield '}' if @spec.key?('namespace')
     end
 
     # Gives the definition of en element spec.
