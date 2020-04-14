@@ -29,5 +29,34 @@ class EnumSpecTest < Minitest::Test
     spec = Wrapture::EnumSpec.new(test_spec)
 
     assert_equal(test_spec['name'], spec.name)
+
+    generated_files = spec.generate_wrapper
+
+    enum_name = test_spec['name']
+    filename = "#{enum_name}.hpp"
+    assert(FileTest.exist?(filename),
+           "enum file '#{filename}' was not created")
+
+    assert(file_contains_match(filename, enum_name),
+           "the enumeration name ('#{enum_name}') was not found in the file")
+
+    test_spec['elements'].each do |element|
+      assert(file_contains_match(filename, element['name']),
+             "enumeration did not have element '#{element['name']}'")
+    end
+
+    File.delete(*generated_files)
+  end
+
+  def test_no_name
+    test_spec = load_fixture('invalid/enum_with_no_name')
+
+    error = assert_raises(Wrapture::MissingSpecKey) do
+      Wrapture::EnumSpec.new(test_spec)
+    end
+
+    %w[name required].each do |keyword|
+      assert(error.message.include?(keyword))
+    end
   end
 end

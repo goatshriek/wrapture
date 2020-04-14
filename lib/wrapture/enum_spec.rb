@@ -28,8 +28,12 @@ module Wrapture
     end
 
     # Normalizes a hash specification of an enumeration in place. Normalization
-    # will remove duplicate entries in include lists.
+    # will remove duplicate entries in include lists and check for a name key.
     def self.normalize_spec_hash!(spec)
+      unless spec.key?('name')
+        raise MissingSpecKey, 'a name is required for enumerations'
+      end
+
       spec['includes'] = Wrapture.normalize_includes(spec['includes'])
       spec
     end
@@ -39,9 +43,46 @@ module Wrapture
       @spec = EnumSpec.normalize_spec_hash(spec)
     end
 
+    # Generates the wrapper definition file.
+    def generate_wrapper
+      filename = "#{@spec['name']}.hpp"
+
+      File.open(filename, 'w') do |file|
+        definition_contents do |line|
+          file.puts(line)
+        end
+      end
+
+      [filename]
+    end
+
     # The name of the enumeration.
     def name
       @spec['name']
+    end
+
+    private
+
+    # Yields each line of the definition of the wrapper for this enum.
+    def definition_contents
+      yield "enum class #{name} {"
+
+      @spec['elements'][0...-1].each do |element|
+        yield "  #{element_definition(element)},"
+      end
+
+      yield "  #{element_definition(@spec['elements'].last)}"
+
+      yield '};'
+    end
+
+    # Gives the definition of en element spec.
+    def element_definition(element)
+      if element.key?('value')
+        "#{element['name']} = #{element['value']}"
+      else
+        element['name']
+      end
     end
   end
 end
