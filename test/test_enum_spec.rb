@@ -31,19 +31,26 @@ class EnumSpecTest < Minitest::Test
     assert_equal(test_spec['name'], spec.name)
 
     generated_files = spec.generate_wrapper
+    assert_equal(1, generated_files.count,
+                 "only one file should have been generated")
 
-    enum_name = test_spec['name']
-    filename = "#{enum_name}.hpp"
-    assert(FileTest.exist?(filename),
-           "enum file '#{filename}' was not created")
+    validate_file_matches_spec(generated_files.first, test_spec)
 
-    assert(file_contains_match(filename, enum_name),
-           "the enumeration name ('#{enum_name}') was not found in the file")
+    File.delete(*generated_files)
+  end
 
-    test_spec['elements'].each do |element|
-      assert(file_contains_match(filename, element['name']),
-             "enumeration did not have element '#{element['name']}'")
-    end
+  def test_enum_with_namespace
+    test_spec = load_fixture('enum_with_namespace')
+
+    spec = Wrapture::EnumSpec.new(test_spec)
+
+    assert_equal(test_spec['name'], spec.name)
+
+    generated_files = spec.generate_wrapper
+    assert_equal(1, generated_files.count,
+                 "only one file should have been generated")
+
+    validate_file_matches_spec(generated_files.first, test_spec)
 
     File.delete(*generated_files)
   end
@@ -57,6 +64,30 @@ class EnumSpecTest < Minitest::Test
 
     %w[name required].each do |keyword|
       assert(error.message.include?(keyword))
+    end
+  end
+
+  def validate_file_matches_spec(filename, spec_hash)
+    enum_name = spec_hash['name']
+
+    expected_filename = "#{enum_name}.hpp"
+    assert_equal(expected_filename, filename)
+
+    assert(FileTest.exist?(filename),
+           "enum file '#{filename}' was not created")
+
+    if spec_hash.key?('namespace')
+      namespace = spec_hash['namespace']
+      assert(file_contains_match(filename, namespace),
+             "the enum did not reference the namespace '#{namespace}'")
+    end
+
+    assert(file_contains_match(filename, enum_name),
+           "the enumeration name ('#{enum_name}') was not found in the file")
+
+    spec_hash['elements'].each do |element|
+      assert(file_contains_match(filename, element['name']),
+             "enumeration did not have element '#{element['name']}'")
     end
   end
 end

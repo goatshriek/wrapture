@@ -1,4 +1,5 @@
 name: "BasicEnum"
+namespace: "wrapture_test"
 includes:
   - "overall_1.h"
   - "overall_2.h"
