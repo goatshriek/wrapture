@@ -81,6 +81,9 @@ module Wrapture
     def definition_contents
       indent = 0
 
+      yield "#ifndef #{header_guard}"
+      yield "#define #{header_guard}"
+
       definition_includes.each { |filename| yield "#include <#{filename}>" }
 
       if @spec.key?('namespace')
@@ -106,8 +109,10 @@ module Wrapture
 
       indent -= 2
       yield "#{' ' * indent}};"
-
+      yield
       yield '}' if @spec.key?('namespace')
+      yield
+      yield "#endif /* #{header_guard} */"
     end
 
     # A list of the includes needed for the definition of the enumeration.
@@ -131,6 +136,11 @@ module Wrapture
       else
         yield element['name']
       end
+    end
+
+    # The header guard for the enumeration.
+    def header_guard
+      "__#{@spec['name'].upcase}_HPP"
     end
   end
 end

@@ -118,6 +118,9 @@ class EnumSpecTest < Minitest::Test
     assert(FileTest.exist?(filename),
            "enum file '#{filename}' was not created")
 
+    assert(file_contains_match(filename, '#ifndef'),
+           'header guard is missing')
+
     if spec_hash.key?('namespace')
       namespace = spec_hash['namespace']
       assert(file_contains_match(filename, namespace),
