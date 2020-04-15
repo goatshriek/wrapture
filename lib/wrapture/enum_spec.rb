@@ -67,33 +67,44 @@ module Wrapture
 
     # Yields each line of the definition of the wrapper for this enum.
     def definition_contents
+      indent = 0
+
       if @spec.key?('namespace')
         yield "namespace #{@spec['namespace']} {"
-        prefix = '  '
-      else
-        prefix = ''
+        indent += 2
       end
 
-      @doc.format_as_doxygen(max_line_length: 76) { |line| yield line }
-      yield "#{prefix}  enum class #{name} {"
-
-      @spec['elements'][0...-1].each do |element|
-        yield "#{prefix}  #{element_definition(element)},"
+      @doc.format_as_doxygen(max_line_length: 76) do |line|
+        yield "#{' ' * indent}#{line}"
       end
 
-      yield "#{prefix}  #{element_definition(@spec['elements'].last)}"
+      yield "#{' ' * indent}enum class #{name} {"
+      indent += 2
 
-      yield "#{prefix}};"
+      elements = @spec['elements']
+      elements[0...-1].each do |element|
+        element_definition(element) { |line| yield "#{' ' * indent}#{line}," }
+      end
+
+      element_definition(elements.last) do |line|
+        yield "#{' ' * indent}#{line}"
+      end
+
+      indent -= 2
+      yield "#{' ' * indent}};"
 
       yield '}' if @spec.key?('namespace')
     end
 
-    # Gives the definition of en element spec.
+    # Yields each line of the definition of an element.
     def element_definition(element)
+      doc = Comment.new(element.fetch('doc', nil))
+      doc.format_as_doxygen(max_line_length: 74) { |line| yield line }
+
       if element.key?('value')
-        "#{element['name']} = #{element['value']}"
+        yield "#{element['name']} = #{element['value']}"
       else
-        element['name']
+        yield element['name']
       end
     end
   end
