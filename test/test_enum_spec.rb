@@ -36,6 +36,11 @@ class EnumSpecTest < Minitest::Test
 
     validate_file_matches_spec(generated_files.first, test_spec)
 
+    includes = get_include_list(generated_files.first)
+    assert_includes(includes, 'overall_1.h')
+    assert_includes(includes, 'overall_2.h')
+    assert_includes(includes, 'val_1.h')
+
     File.delete(*generated_files)
   end
 
@@ -58,6 +63,16 @@ class EnumSpecTest < Minitest::Test
     File.delete(*generated_files)
   end
 
+  def test_elements_not_array
+    test_spec = load_fixture('invalid/enum_with_non_array_elements')
+
+    error = assert_raises(Wrapture::InvalidSpecKey) do
+      Wrapture::EnumSpec.new(test_spec)
+    end
+
+    %w[elements array].each { |word| assert(error.message.include?(word)) }
+  end
+
   def test_enum_with_namespace
     test_spec = load_fixture('enum_with_namespace')
 
@@ -74,16 +89,24 @@ class EnumSpecTest < Minitest::Test
     File.delete(*generated_files)
   end
 
-  def test_no_name
-    test_spec = load_fixture('invalid/enum_with_no_name')
+  def test_no_elements
+    test_spec = load_fixture('invalid/enum_without_elements')
 
     error = assert_raises(Wrapture::MissingSpecKey) do
       Wrapture::EnumSpec.new(test_spec)
     end
 
-    %w[name required].each do |keyword|
-      assert(error.message.include?(keyword))
+    %w[elements required].each { |word| assert(error.message.include?(word)) }
+  end
+
+  def test_no_name
+    test_spec = load_fixture('invalid/enum_without_name')
+
+    error = assert_raises(Wrapture::MissingSpecKey) do
+      Wrapture::EnumSpec.new(test_spec)
     end
+
+    %w[name required].each { |word| assert(error.message.include?(word)) }
   end
 
   def validate_file_matches_spec(filename, spec_hash)

@@ -34,7 +34,19 @@ module Wrapture
         raise MissingSpecKey, 'a name is required for enumerations'
       end
 
+      if spec.key?('elements')
+        unless spec['elements'].is_a?(Array)
+          raise InvalidSpecKey, 'the elements key must be an array'
+        end
+      else
+        raise MissingSpecKey, 'elements are required for enumerations'
+      end
+
       spec['includes'] = Wrapture.normalize_includes(spec['includes'])
+      spec['elements'].each do |element|
+        element['includes'] = Wrapture.normalize_includes(element['includes'])
+      end
+
       spec
     end
 
@@ -69,6 +81,8 @@ module Wrapture
     def definition_contents
       indent = 0
 
+      definition_includes.each { |filename| yield "#include <#{filename}>" }
+
       if @spec.key?('namespace')
         yield "namespace #{@spec['namespace']} {"
         indent += 2
@@ -94,6 +108,17 @@ module Wrapture
       yield "#{' ' * indent}};"
 
       yield '}' if @spec.key?('namespace')
+    end
+
+    # A list of the includes needed for the definition of the enumeration.
+    def definition_includes
+      includes = @spec['includes'].dup
+
+      @spec['elements'].each do |element|
+        includes.concat(element['includes'])
+      end
+
+      includes.uniq
     end
 
     # Yields each line of the definition of an element.
