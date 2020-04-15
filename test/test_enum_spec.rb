@@ -39,6 +39,25 @@ class EnumSpecTest < Minitest::Test
     File.delete(*generated_files)
   end
 
+  def test_documentation
+    test_spec = load_fixture('documented_enum')
+
+    spec = Wrapture::EnumSpec.new(test_spec)
+
+    generated_files = spec.generate_wrapper
+
+    filename = generated_files.first
+    assert(file_contains_match(filename, test_spec['doc']),
+           'the doc for the enum was not in the definition')
+
+    test_spec['elements'].each do |elem|
+      assert(file_contains_match(filename, elem['doc']),
+             "the doc for #{elem['name']} was not in the definition")
+    end
+
+    File.delete(*generated_files)
+  end
+
   def test_enum_with_namespace
     test_spec = load_fixture('enum_with_namespace')
 

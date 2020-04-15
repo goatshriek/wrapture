@@ -1,0 +1,7 @@
+name: "DocumentedEnum"
+doc: "mainEnumID"
+elements:
+  - name: "THING_1"
+    doc: "thing1ID"
+  - name: "THING_2"
+    doc: "thing2ID"

@@ -41,6 +41,8 @@ module Wrapture
     # Creates an enumeration specification based on the provided hash spec.
     def initialize(spec)
       @spec = EnumSpec.normalize_spec_hash(spec)
+
+      @doc = Comment.new(@spec.fetch('doc', nil))
     end
 
     # Generates the wrapper definition file.
@@ -72,6 +74,7 @@ module Wrapture
         prefix = ''
       end
 
+      @doc.format_as_doxygen(max_line_length: 76) { |line| yield line }
       yield "#{prefix}  enum class #{name} {"
 
       @spec['elements'][0...-1].each do |element|
