@@ -83,11 +83,14 @@ module Wrapture
 
       yield "#ifndef #{header_guard}"
       yield "#define #{header_guard}"
+      yield
 
       definition_includes.each { |filename| yield "#include <#{filename}>" }
+      yield
 
       if @spec.key?('namespace')
         yield "namespace #{@spec['namespace']} {"
+        yield
         indent += 2
       end
 
@@ -100,9 +103,11 @@ module Wrapture
 
       elements = @spec['elements']
       elements[0...-1].each do |element|
+        element_doc(element) { |line| yield "#{' ' * indent}#{line}" }
         element_definition(element) { |line| yield "#{' ' * indent}#{line}," }
       end
 
+      element_doc(elements.last) { |line| yield "#{' ' * indent}#{line}" }
       element_definition(elements.last) do |line|
         yield "#{' ' * indent}#{line}"
       end
@@ -128,14 +133,17 @@ module Wrapture
 
     # Yields each line of the definition of an element.
     def element_definition(element)
-      doc = Comment.new(element.fetch('doc', nil))
-      doc.format_as_doxygen(max_line_length: 74) { |line| yield line }
-
       if element.key?('value')
         yield "#{element['name']} = #{element['value']}"
       else
         yield element['name']
       end
+    end
+
+    # Yields each line of the documentation for an element.
+    def element_doc(element)
+      doc = Comment.new(element.fetch('doc', nil))
+      doc.format_as_doxygen(max_line_length: 74) { |line| yield line }
     end
 
     # The header guard for the enumeration.

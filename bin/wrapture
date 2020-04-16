@@ -30,11 +30,11 @@ ARGV.each do |spec_file|
     scope << Wrapture::TemplateSpec.new(temp_spec)
   end
 
-  spec['classes'].each do |class_spec|
+  spec.fetch('classes', []).each do |class_spec|
     scope.add_class_spec_hash(class_spec)
   end
 
-  spec['enums'].each do |enum_spec|
+  spec.fetch('enums', []).each do |enum_spec|
     scope.add_enum_spec_hash(enum_spec)
   end
 end
