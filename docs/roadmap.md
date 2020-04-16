@@ -34,13 +34,6 @@ project team is not currently big enough to realistically make any promises, so
 timing is often left out to prevent folks from feeling cheated if something
 takes longer than expected.
 
-## 0.4.0 (next minor release)
- * [ADD] **Support for function pointer types**
-   Function pointers are common in C code, especially when it is trying to
-   emulate object-oriented or functional programming techniques. Supporting
-   these types in the library will allow target languages to wrap C libraries
-   that make use of function pointers.
-
 ## 0.5.0
  * [ADD] **Python class generation**
    Python is a commonly used language in a variety of applications, and

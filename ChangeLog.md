@@ -27,6 +27,7 @@ fixes, check out the
  - Support for ruby 2.7.
  - Functions may name the last parameter `...` to generate a variadic function.
  - Enumerations can be wrapped by providing an `enums` list in a spec or scope.
+ - Support for function pointer types.
 
 ### Fixed
  - Classes with no `name` member raise a MissingSpecKey exception.
