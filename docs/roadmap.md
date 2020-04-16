@@ -35,12 +35,6 @@ timing is often left out to prevent folks from feeling cheated if something
 takes longer than expected.
 
 ## 0.4.0 (next minor release)
- * [ADD] **Wrapping of enumerations as enum classes in C++**
-   C code may use enumerations to facilitate readable code using a known set of
-   values. However, use of C-style enumerations in C++ does not provide any sort
-   of type safety or scoping capability. A way to wrap native C enumerations
-   into an `enum class` in C++ would allow generated code to follow C++
-   standards practices and feel more native to users.
  * [ADD] **Support for function pointer types**
    Function pointers are common in C code, especially when it is trying to
    emulate object-oriented or functional programming techniques. Supporting
@@ -62,6 +56,9 @@ takes longer than expected.
    currently. However, if it is needed for some other functionality in the
    future then this behavior will conflict, and is therefore being preemptively
    removed.
+ * [DEPRECATE] **Use of `generate_wrappers` functions**
+   These methods should be replaced with the singular `generate_wrapper` method,
+   which functions identically.
 
 ## 1.1.0
  * [ADD] **Generation of function that runs the wrapped code on everything in a
@@ -76,6 +73,8 @@ takes longer than expected.
 ## 2.0.0
  * [REMOVE] **Use of `name` key instead of `value` in wrapped function parameter
    specs**
+   Removing previously deprecated feature.
+ * [REMOVE] **`generate_wrappers` functions**
    Removing previously deprecated feature.
 
 ## Unallocated to a release

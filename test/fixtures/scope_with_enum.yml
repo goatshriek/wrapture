@@ -1,0 +1,22 @@
+enums:
+  - name: "BasicEnum"
+    namespace: "wrapture_test"
+    elements:
+      - name: "VALUE_1"
+      - name: "VALUE_2"
+      - name: "VALUE_3"
+classes:
+  - name: "BasicClass"
+    namespace: "wrapture_test"
+    type: "pointer"
+    equivalent-struct:
+      name: "basic_struct"
+      includes: "basic_struct.h"
+    functions:
+      - name: "do_stuff"
+        return:
+          type: "self-reference"
+        wrapped-function:
+          name: "do_stuff_with_basic_struct"
+          params:
+            - value: "equivalent-struct-pointer"

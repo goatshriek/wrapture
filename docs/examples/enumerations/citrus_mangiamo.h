@@ -1,0 +1,12 @@
+#ifndef __CITRUS_MANGIAMO_H
+#define __CITRUS_MANGIAMO_H
+
+enum citrus_mangiamo_fruits {
+  MANGIAMO_GRAPEFRUIT = 41,
+  MANGIAMO_LIME = 42,
+  MANGIAMO_LEMON = 43,
+  MANGIAMO_ORANGE = 44,
+  MANGIAMO_TANGELO = 45
+};
+
+#endif /* __CITRUS_MANGIAMO_H */

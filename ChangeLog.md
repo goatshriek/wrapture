@@ -9,7 +9,7 @@ For a detailed look at the project's future, including planned features and bug
 fixes, check out the
 [roadmap](https://github.com/goatshriek/wrapture/blob/master/docs/roadmap.md).
 
-## [0.4.0] - 2020-04-13
+## [0.4.0] - 2020-04-16
 ### Added
  - Inequality conditions for rules (less-than, less-than-equal, greater-than,
    greater-than-equal).
@@ -26,6 +26,7 @@ fixes, check out the
    their equivalent structs.
  - Support for ruby 2.7.
  - Functions may name the last parameter `...` to generate a variadic function.
+ - Enumerations can be wrapped by providing an `enums` list in a spec or scope.
 
 ### Fixed
  - Classes with no `name` member raise a MissingSpecKey exception.

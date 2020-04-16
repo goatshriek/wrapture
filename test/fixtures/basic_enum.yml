@@ -1,0 +1,11 @@
+name: "BasicEnum"
+includes:
+  - "overall_1.h"
+  - "overall_2.h"
+elements:
+  - name: "element_1"
+    value: 9
+    includes: "val_1.h"
+  - name: "element_2"
+    value: 3
+  - name: "element_3"
