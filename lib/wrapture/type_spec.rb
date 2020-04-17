@@ -21,22 +21,28 @@
 module Wrapture
   # A description of a type used in a specification.
   class TypeSpec
-    # Returns a normalized copy of a hash specification of a type. See
-    # normalize_spec_hash! for details.
+    # Returns a normalized copy of the hash specification of a type in +spec+.
+    # See normalize_spec_hash! for details.
     def self.normalize_spec_hash(spec)
       normalize_spec_hash!(Marshal.load(Marshal.dump(spec)))
     end
 
-    # Normalizes a hash specification of a type in place. This will normalize
-    # the include list.
+    # Normalizes the hash specification of a type in +spec+ in place. This will
+    # normalize the include list.
     def self.normalize_spec_hash!(spec)
       spec['includes'] = Wrapture.normalize_includes(spec['includes'])
       spec
     end
 
-    # Creates a parameter specification based on the provided hash spec.
+    # Creates a parameter specification based on the provided hash +spec+.
+    # +spec+ can be a string instead of a hash, in which case it will be used
+    # as the name of the type.
     def initialize(spec)
-      @spec = TypeSpec.normalize_spec_hash(spec)
+      @spec = if spec.is_a?(String)
+                {'name' => spec}
+              else
+                TypeSpec.normalize_spec_hash(spec)
+              end
     end
 
     # A list of includes needed for this type.
