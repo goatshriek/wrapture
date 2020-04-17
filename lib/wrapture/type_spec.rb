@@ -38,8 +38,10 @@ module Wrapture
     # +spec+ can be a string instead of a hash, in which case it will be used
     # as the name of the type.
     def initialize(spec)
-      @spec = if spec.is_a?(String)
-                {'name' => spec}
+      @spec = if spec.nil?
+                { 'name' => 'void' }
+              elsif spec.is_a?(String)
+                { 'name' => spec }
               else
                 TypeSpec.normalize_spec_hash(spec)
               end
@@ -48,6 +50,11 @@ module Wrapture
     # A list of includes needed for this type.
     def includes
       @spec['includes']
+    end
+
+    # A string with a declaration of a variable named +name+ of this type.
+    def variable(name)
+      "#{@spec['name']}#{' ' unless @spec['name'].end_with?('*')}#{name}"
     end
   end
 end
