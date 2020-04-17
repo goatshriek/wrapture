@@ -47,9 +47,34 @@ module Wrapture
               end
     end
 
+    # True if this type is an equivalent struct pointer reference.
+    def equivalent_pointer?
+      @spec['name'] == EQUIVALENT_POINTER_KEYWORD
+    end
+
+    # True if this type is an equivalent struct reference.
+    def equivalent_struct?
+      @spec['name'] == EQUIVALENT_STRUCT_KEYWORD
+    end
+
     # A list of includes needed for this type.
     def includes
       @spec['includes']
+    end
+
+    # The name of the type.
+    def name
+      @spec['name']
+    end
+
+    # True if this type is a pointer.
+    def pointer?
+      @spec['name'].end_with?('*')
+    end
+
+    # True if this type is a reference to a class instance.
+    def self?
+      @spec['name'] == SELF_REFERENCE_KEYWORD
     end
 
     # A string with a declaration of a variable named +name+ of this type.

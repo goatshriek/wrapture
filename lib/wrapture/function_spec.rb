@@ -103,6 +103,7 @@ module Wrapture
       @spec = FunctionSpec.normalize_spec_hash(spec)
       @wrapped = WrappedFunctionSpec.new(spec['wrapped-function'])
       @params = ParamSpec.new_list(@spec['params'])
+      @return_type = TypeSpec.new(@spec['return']['type'])
       @constructor = constructor
       @destructor = destructor
     end
@@ -218,16 +219,16 @@ module Wrapture
       Comment.new(comment)
     end
 
-    # A resolved type name.
+    # A resolved type name, given a TypeSpec +type+.
     def resolve_type(type)
-      if type == EQUIVALENT_STRUCT_KEYWORD
+      if type.equivalent_struct?
         "struct #{@owner.struct_name}"
-      elsif type == EQUIVALENT_POINTER_KEYWORD
+      elsif type.equivalent_pointer?
         "struct #{@owner.struct_name} *"
-      elsif type == SELF_REFERENCE_KEYWORD
+      elsif type.self?
         "#{@owner.name}&"
       else
-        type
+        type.name
       end
     end
 
@@ -274,10 +275,10 @@ module Wrapture
     def return_prefix
       if @constructor || @destructor
         ''
-      elsif @spec['return']['type'].end_with?('*')
-        @spec['return']['type']
+      elsif @return_type.pointer?
+        resolve_type(@return_type)
       else
-        "#{resolve_type(@spec['return']['type'])} "
+        "#{resolve_type(@return_type)} "
       end
     end
 

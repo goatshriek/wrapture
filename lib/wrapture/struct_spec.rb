@@ -69,7 +69,7 @@ module Wrapture
       members = []
 
       @spec['members'].each do |member|
-        members << ClassSpec.typed_variable(member['type'], member['name'])
+        members << TypeSpec.new(member['type']).variable(member['name'])
       end
 
       members.join ', '

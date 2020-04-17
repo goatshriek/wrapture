@@ -110,11 +110,5 @@ module Wrapture
     def type?(type)
       @classes.any? { |class_spec| class_spec.name == base_type(type) }
     end
-
-    private
-
-    def base_type(type)
-      type.delete('&*').strip
-    end
   end
 end

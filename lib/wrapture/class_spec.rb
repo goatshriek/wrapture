@@ -75,11 +75,6 @@ module Wrapture
       end
     end
 
-    # Returns a string of the variable with it's type, properly formatted.
-    def self.typed_variable(type, name)
-      "#{type}#{' ' unless type.pointer?}#{name}"
-    end
-
     # The underlying struct of this class.
     attr_reader :struct
 

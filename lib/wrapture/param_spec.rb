@@ -118,13 +118,13 @@ module Wrapture
     end
 
     # The parameter type and name, suitable for use in a function signature or
-    # declaration. The owner argument must be the FunctionSpec that the
-    # parameter belongs to.
+    # declaration. +owner+ must be the FunctionSpec that the parameter belongs
+    # to.
     def signature(owner)
       if variadic?
         '...'
       else
-        ClassSpec.typed_variable(owner.resolve_type(type), name)
+        @type.variable(name)
       end
     end
 
