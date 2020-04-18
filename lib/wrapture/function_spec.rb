@@ -196,9 +196,7 @@ module Wrapture
 
       yield '  va_end( variadic_args );' if variadic?
 
-      if @return_type.self?
-        yield '  return *this;'
-      end
+      yield '  return *this;' if @return_type.self?
 
       yield '}'
     end
