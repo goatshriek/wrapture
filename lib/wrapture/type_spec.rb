@@ -37,14 +37,14 @@ module Wrapture
     # Creates a parameter specification based on the provided hash +spec+.
     # +spec+ can be a string instead of a hash, in which case it will be used
     # as the name of the type.
-    def initialize(spec)
-      @spec = if spec.nil?
-                { 'name' => 'void' }
-              elsif spec.is_a?(String)
-                { 'name' => spec }
-              else
-                TypeSpec.normalize_spec_hash(spec)
-              end
+    def initialize(spec = 'void')
+      actual_spec = if spec.is_a?(String)
+                      { 'name' => spec }
+                    else
+                      spec
+                    end
+
+      @spec = TypeSpec.normalize_spec_hash(actual_spec)
     end
 
     # Creates a new TypeSpec within the scope of +owner+ that will be directly

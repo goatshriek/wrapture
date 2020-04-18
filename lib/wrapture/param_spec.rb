@@ -109,7 +109,7 @@ module Wrapture
 
     # A list of includes needed for this parameter.
     def includes
-      @spec['includes']
+      @spec['includes'].dup.concat(@type.includes)
     end
 
     # The name of the parameter.
