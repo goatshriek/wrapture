@@ -67,12 +67,12 @@ module Wrapture
       Comment.validate_doc(spec['doc']) if spec.key?('doc')
       spec['includes'] = Wrapture.normalize_includes(spec['includes'])
 
-      unless spec.key?('type') || spec['name'] == '...'
+      spec['type'] = '...' if spec['name'] == '...'
+
+      unless spec.key?('type')
         missing_type_msg = 'parameters must have a type key defined'
         raise(MissingSpecKey, missing_type_msg)
       end
-
-      spec['type'] = '...' if spec['name'] == '...'
 
       spec
     end
@@ -95,7 +95,7 @@ module Wrapture
     # Creates a parameter specification based on the provided hash spec.
     def initialize(spec)
       @spec = ParamSpec.normalize_spec_hash(spec)
-      @type = TypeSpec.new(spec['type'])
+      @type = TypeSpec.new(@spec['type'])
     end
 
     # A Comment holding the parameter documentation.
@@ -121,16 +121,12 @@ module Wrapture
     # declaration. +owner+ must be the FunctionSpec that the parameter belongs
     # to.
     def signature(owner)
-      if variadic?
-        '...'
-      else
-        @type.variable(name)
-      end
+      @type.absolute(owner).variable(name)
     end
 
     # True if this parameter is variadic (the name is equal to '...').
     def variadic?
-      name == '...'
+      @type.variadic?
     end
   end
 end

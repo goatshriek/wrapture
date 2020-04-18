@@ -47,14 +47,26 @@ module Wrapture
               end
     end
 
+    # Creates a new TypeSpec within the scope of +owner+ that will be directly
+    # usable. This will replace equivalent structs, pointers, and self
+    # references with a usable type name.
+    def absolute(owner)
+      TypeSpec.new(owner.resolve_type(self))
+    end
+
+    # The name of this type with all special characters removed.
+    def base
+      name.delete('*&').strip
+    end
+
     # True if this type is an equivalent struct pointer reference.
     def equivalent_pointer?
-      @spec['name'] == EQUIVALENT_POINTER_KEYWORD
+      name == EQUIVALENT_POINTER_KEYWORD
     end
 
     # True if this type is an equivalent struct reference.
     def equivalent_struct?
-      @spec['name'] == EQUIVALENT_STRUCT_KEYWORD
+      name == EQUIVALENT_STRUCT_KEYWORD
     end
 
     # A list of includes needed for this type.
@@ -69,17 +81,26 @@ module Wrapture
 
     # True if this type is a pointer.
     def pointer?
-      @spec['name'].end_with?('*')
+      name.end_with?('*')
     end
 
     # True if this type is a reference to a class instance.
     def self?
-      @spec['name'] == SELF_REFERENCE_KEYWORD
+      name == SELF_REFERENCE_KEYWORD
     end
 
-    # A string with a declaration of a variable named +name+ of this type.
-    def variable(name)
-      "#{@spec['name']}#{' ' unless @spec['name'].end_with?('*')}#{name}"
+    # A string with a declaration of a variable named +var_name+ of this type.
+    def variable(var_name)
+      if variadic?
+        '...'
+      else
+        "#{name}#{' ' unless name.end_with?('*')}#{var_name}"
+      end
+    end
+
+    # True if this type is a variadic parameter type (name is equal to +...+).
+    def variadic?
+      name == '...'
     end
   end
 end

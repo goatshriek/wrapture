@@ -196,7 +196,7 @@ module Wrapture
 
       yield '  va_end( variadic_args );' if variadic?
 
-      if @spec['return']['type'] == SELF_REFERENCE_KEYWORD
+      if @return_type.self?
         yield '  return *this;'
       end
 

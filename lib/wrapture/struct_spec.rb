@@ -79,7 +79,7 @@ module Wrapture
     # values if provided, separated by commas.
     def member_list_with_defaults
       @spec['members'].map do |member|
-        member_str = ClassSpec.typed_variable(member['type'], member['name'])
+        member_str = TypeSpec.new(member['type']).variable(member['name'])
 
         if member.key?('default-value')
           default_value = member['default-value']
