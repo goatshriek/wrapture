@@ -62,6 +62,23 @@ class FunctionSpecTest < Minitest::Test
     end
   end
 
+  def test_function_pointer_argument
+    test_spec = load_fixture('function_pointer_argument')
+
+    spec = Wrapture::FunctionSpec.new(test_spec)
+
+    arg_type = 'const char * ( *my_func_ptr )( int, int, void * )'
+    spec.definition('NoSuchClass') do |line|
+      next if line.nil?
+
+      code = line.strip
+
+      if code.include?('FunctionPointerArgument')
+        assert(code.include?(arg_type))
+      end
+    end
+  end
+
   def test_future_spec_version
     test_spec = load_fixture('future_version_function')
 

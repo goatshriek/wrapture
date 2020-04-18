@@ -29,6 +29,19 @@ module Wrapture
   # A description of a function to be generated, including details about the
   # underlying implementation.
   class FunctionSpec
+    # Returns a copy of the return type specification +spec+.
+    def self.normalize_return_hash(spec)
+      if spec.nil?
+        { 'type' => 'void', 'includes' => [] }
+      else
+        normalized = Marshal.load(Marshal.dump(spec))
+        Comment.validate_doc(spec['doc']) if spec.key?('doc')
+        normalized['type'] ||= 'void'
+        normalized['includes'] = Wrapture.normalize_includes(spec['includes'])
+        normalized
+      end
+    end
+
     # Normalizes a hash specification of a function. Normalization will check
     # for things like invalid keys, duplicate entries in include lists, and will
     # set missing keys to their default values (for example, an empty list if no
@@ -41,17 +54,7 @@ module Wrapture
       normalized['version'] = Wrapture.spec_version(spec)
       normalized['virtual'] = Wrapture.normalize_boolean(spec, 'virtual')
       normalized['params'] = ParamSpec.normalize_param_list(spec['params'])
-
-      if normalized['return'].nil?
-        normalized['return'] = {}
-        normalized['return']['type'] = 'void'
-        normalized['return']['includes'] = []
-      else
-        Comment.validate_doc(spec['return']['doc']) if spec.key?('doc')
-        normalized['return']['type'] ||= 'void'
-        includes = Wrapture.normalize_includes(spec['return']['includes'])
-        normalized['return']['includes'] = includes
-      end
+      normalized['return'] = normalize_return_hash(spec['return'])
 
       overload = Wrapture.normalize_boolean(normalized['return'], 'overloaded')
       normalized['return']['overloaded'] = overload
@@ -220,13 +223,13 @@ module Wrapture
     # A resolved type name, given a TypeSpec +type+.
     def resolve_type(type)
       if type.equivalent_struct?
-        "struct #{@owner.struct_name}"
+        TypeSpec.new("struct #{@owner.struct_name}")
       elsif type.equivalent_pointer?
-        "struct #{@owner.struct_name} *"
+        TypeSpec.new("struct #{@owner.struct_name} *")
       elsif type.self?
-        "#{@owner.name}&"
+        TypeSpec.new("#{@owner.name}&")
       else
-        type.name
+        type
       end
     end
 
@@ -274,9 +277,9 @@ module Wrapture
       if @constructor || @destructor
         ''
       elsif @return_type.pointer?
-        resolve_type(@return_type)
+        resolve_type(@return_type).name
       else
-        "#{resolve_type(@return_type)} "
+        "#{resolve_type(@return_type).name} "
       end
     end
 

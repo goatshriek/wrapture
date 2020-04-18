@@ -51,7 +51,7 @@ module Wrapture
     # usable. This will replace equivalent structs, pointers, and self
     # references with a usable type name.
     def absolute(owner)
-      TypeSpec.new(owner.resolve_type(self))
+      owner.resolve_type(self)
     end
 
     # The name of this type with all special characters removed.
@@ -67,6 +67,11 @@ module Wrapture
     # True if this type is an equivalent struct reference.
     def equivalent_struct?
       name == EQUIVALENT_STRUCT_KEYWORD
+    end
+
+    # True if this type is a function.
+    def function?
+      @spec.key?('function')
     end
 
     # A list of includes needed for this type.
@@ -90,9 +95,19 @@ module Wrapture
     end
 
     # A string with a declaration of a variable named +var_name+ of this type.
-    def variable(var_name)
+    def variable(var_name = nil)
       if variadic?
         '...'
+      elsif var_name.nil?
+        name
+      elsif function?
+        func = @spec['function']
+        return_spec = FunctionSpec.normalize_return_hash(func['return'])
+        return_portion = TypeSpec.new(return_spec['type']).variable(return_spec.fetch('name', nil))
+        signature_portion = func.fetch('params', [])
+          .map { |param| TypeSpec.new(param['type']).variable(param.fetch('name', nil)) }
+          .join(', ')
+        "#{return_portion} ( *#{var_name} )( #{signature_portion} )"
       else
         "#{name}#{' ' unless name.end_with?('*')}#{var_name}"
       end
