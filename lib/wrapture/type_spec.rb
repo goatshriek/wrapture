@@ -96,11 +96,8 @@ module Wrapture
       if function?
         func_type = @spec['function']
         return_spec = FunctionSpec.normalize_return_hash(func_type['return'])
-        return_portion = TypeSpec.new(return_spec['type']).variable(return_spec.fetch('name', nil))
-        signature_portion = func_type.fetch('params', [])
-          .map { |param| TypeSpec.new(param['type']).variable(param.fetch('name', nil)) }
-          .join(', ')
-        "#{return_portion} ( *#{func_name} )( #{func.param_list} )( #{signature_portion} )"
+        ret_type = TypeSpec.new(return_spec['type']).name
+        "#{ret_type} ( *#{func_name} )( #{func.param_list} )( #{param_list} )"
       else
         "#{name}#{' ' unless pointer?}#{func_name}( #{func.param_list} )"
       end
@@ -120,11 +117,8 @@ module Wrapture
       elsif function?
         func = @spec['function']
         return_spec = FunctionSpec.normalize_return_hash(func['return'])
-        return_portion = TypeSpec.new(return_spec['type']).variable(return_spec.fetch('name', nil))
-        signature_portion = func.fetch('params', [])
-          .map { |param| TypeSpec.new(param['type']).variable(param.fetch('name', nil)) }
-          .join(', ')
-        "#{return_portion} ( *#{var_name} )( #{signature_portion} )"
+        return_portion = TypeSpec.new(return_spec['type']).name
+        "#{return_portion} ( *#{var_name} )( #{param_list} )"
       else
         "#{name}#{' ' unless name.end_with?('*')}#{var_name}"
       end
@@ -133,6 +127,17 @@ module Wrapture
     # True if this type is a variadic parameter type (name is equal to +...+).
     def variadic?
       name == '...'
+    end
+
+    private
+
+    # The parameter list of this function pointer.
+    def param_list
+      var_list = @spec['function'].fetch('params', []).map do |param|
+        TypeSpec.new(param['type']).variable(param.fetch('name', nil))
+      end
+
+      var_list.join(', ')
     end
   end
 end
