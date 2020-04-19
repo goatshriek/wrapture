@@ -326,7 +326,7 @@ module Wrapture
       @functions.each do |func|
         yield
 
-        func.definition(@spec['name']) do |def_line|
+        func.definition do |def_line|
           yield "  #{def_line}"
         end
       end

@@ -192,9 +192,7 @@ module Wrapture
     end
 
     # Gives the definition of the function in a block, line by line.
-    def definition(class_name=nil)
-      puts "don't need class_name #{class_name}"
-
+    def definition
       effective_name = if @owner.is_a?(ClassSpec)
                          "#{@owner.name}::#{name}"
                        else

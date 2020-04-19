@@ -53,7 +53,7 @@ class FunctionSpecTest < Minitest::Test
     spec = Wrapture::FunctionSpec.new(test_spec)
 
     throw_code = 'throw CodeException( return_val )'
-    spec.definition('NoSuchClass') do |line|
+    spec.definition do |line|
       next if line.nil?
 
       code = line.strip
@@ -79,7 +79,7 @@ class FunctionSpecTest < Minitest::Test
       end
     end
 
-    spec.definition('NoSuchClass') do |line|
+    spec.definition do |line|
       next if line.nil?
 
       code = line.strip
@@ -132,7 +132,7 @@ class FunctionSpecTest < Minitest::Test
     spec = Wrapture::FunctionSpec.new(test_spec)
 
     call = test_spec['wrapped-function']['name']
-    spec.definition('NoSuchClass') do |line|
+    spec.definition do |line|
       code = line.strip
 
       assert(code.start_with?("return #{call}")) if code.start_with?('return')
@@ -180,7 +180,7 @@ class FunctionSpecTest < Minitest::Test
 
       assert(spec.definition_includes.include?('stdarg.h'))
 
-      spec.definition('NoSuchClass') do |line|
+      spec.definition do |line|
         code = line.strip
 
         assert(code.include?('variadic_args')) if code.include?('underlying')
