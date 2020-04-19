@@ -142,6 +142,15 @@ module Wrapture
       ParamSpec.signature(@params, self)
     end
 
+    # The name of the function with the class name, if it exists.
+    def qualified_name
+      if @owner.is_a?(ClassSpec)
+        "#{@owner.name}::#{name}"
+      else
+        name
+      end
+    end
+
     # Gives an expression for calling a given parameter within this function.
     # Equivalent structs and pointers are resolved, as well as casts between
     # types if they are known within the scope of this function.
@@ -187,19 +196,13 @@ module Wrapture
                           ''
                         end
 
-      abs_return = @return_type.absolute(self)
-      yield "#{modifier_prefix}#{abs_return.return_expression(self)};"
+      yield "#{modifier_prefix}#{absolute_return.return_expression(self)};"
     end
 
     # Gives the definition of the function in a block, line by line.
     def definition
-      effective_name = if @owner.is_a?(ClassSpec)
-                         "#{@owner.name}::#{name}"
-                       else
-                         name
-                       end
-      abs_return = @return_type.absolute(self)
-      yield "#{abs_return.return_expression(self, func_name: effective_name)} {"
+      decl = absolute_return.return_expression(self, func_name: qualified_name)
+      yield "#{decl} {"
 
       locals { |declaration| yield "  #{declaration}" }
 
@@ -261,6 +264,11 @@ module Wrapture
     end
 
     private
+
+    # The absolute type of the return type.
+    def absolute_return
+      @return_type.absolute(self)
+    end
 
     # True if the provided wrapped param spec can be cast to when used in this
     # function.
