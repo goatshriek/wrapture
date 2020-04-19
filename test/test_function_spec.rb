@@ -68,6 +68,17 @@ class FunctionSpecTest < Minitest::Test
     spec = Wrapture::FunctionSpec.new(test_spec)
 
     arg_type = 'const char * ( *my_func_ptr )( int, int, void * )'
+
+    spec.declaration do |line|
+      next if line.nil?
+
+      code = line.strip
+
+      if code.include?('FunctionPointerArgument')
+        assert(code.include?(arg_type))
+      end
+    end
+
     spec.definition('NoSuchClass') do |line|
       next if line.nil?
 
@@ -92,6 +103,17 @@ class FunctionSpecTest < Minitest::Test
 
       if code.include?('FunctionPointerReturn')
         assert_equal(expected_declaration, code)
+      end
+    end
+
+    expected_definition = 'const char * ( *FunctionPointerReturn )( const char *my_string )( int, int, void * ) {'
+    spec.definition do |line|
+      next if line.nil?
+
+      code = line.strip
+
+      if code.include?('FunctionPointerReturn')
+        assert_equal(expected_definition, code)
       end
     end
   end

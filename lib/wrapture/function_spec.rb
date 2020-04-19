@@ -191,9 +191,17 @@ module Wrapture
       yield "#{modifier_prefix}#{abs_return.return_expression(self)};"
     end
 
-    # Gives the definition of the function to a block, line by line.
-    def definition(class_name)
-      yield "#{return_prefix}#{class_name}::#{signature} {"
+    # Gives the definition of the function in a block, line by line.
+    def definition(class_name=nil)
+      puts "don't need class_name #{class_name}"
+
+      effective_name = if @owner.is_a?(ClassSpec)
+                         "#{@owner.name}::#{name}"
+                       else
+                         name
+                       end
+      abs_return = @return_type.absolute(self)
+      yield "#{abs_return.return_expression(self, func_name: effective_name)} {"
 
       locals { |declaration| yield "  #{declaration}" }
 
@@ -280,17 +288,6 @@ module Wrapture
         "new#{@spec['return']['type'].chomp('*').strip} ( #{value} )"
       else
         "#{@spec['return']['type']} ( #{value} )"
-      end
-    end
-
-    # The return type prefix to use for the function definition.
-    def return_prefix
-      if @constructor || @destructor
-        ''
-      elsif @return_type.pointer?
-        resolve_type(@return_type).name
-      else
-        "#{resolve_type(@return_type).name} "
       end
     end
 

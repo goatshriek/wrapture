@@ -90,8 +90,9 @@ module Wrapture
     end
 
     # A string with a declaration of FunctionSpec +func+ with this type as the
-    # return value.
-    def return_expression(func)
+    # return value. +func_name+ can be provided to override the plain function
+    # name, for example if a class name needs to be included.
+    def return_expression(func, func_name: func.name)
       if function?
         func_type = @spec['function']
         return_spec = FunctionSpec.normalize_return_hash(func_type['return'])
@@ -99,9 +100,9 @@ module Wrapture
         signature_portion = func_type.fetch('params', [])
           .map { |param| TypeSpec.new(param['type']).variable(param.fetch('name', nil)) }
           .join(', ')
-        "#{return_portion} ( *#{func.name} )( #{func.param_list} )( #{signature_portion} )"
+        "#{return_portion} ( *#{func_name} )( #{func.param_list} )( #{signature_portion} )"
       else
-        "#{name}#{' ' unless pointer?}#{func.signature}"
+        "#{name}#{' ' unless pointer?}#{func_name}( #{func.param_list} )"
       end
     end
 
