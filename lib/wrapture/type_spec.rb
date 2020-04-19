@@ -90,8 +90,8 @@ module Wrapture
     end
 
     # A string with a declaration of FunctionSpec +func+ with this type as the
-    # return value. +func_name+ can be provided to override the plain function
-    # name, for example if a class name needs to be included.
+    # return value. +func_name+ can be provided to override the function name,
+    # for example if a class name needs to be included.
     def return_expression(func, func_name: func.name)
       if function?
         func_type = @spec['function']
