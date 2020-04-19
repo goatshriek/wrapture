@@ -79,6 +79,23 @@ class FunctionSpecTest < Minitest::Test
     end
   end
 
+  def test_function_pointer_return
+    test_spec = load_fixture('function_pointer_return')
+
+    spec = Wrapture::FunctionSpec.new(test_spec)
+
+    expected_declaration = 'const char * ( *FunctionPointerReturn )( const char *my_string )( int, int, void * );'
+    spec.declaration do |line|
+      next if line.nil?
+
+      code = line.strip
+
+      if code.include?('FunctionPointerReturn')
+        assert_equal(expected_declaration, code)
+      end
+    end
+  end
+
   def test_future_spec_version
     test_spec = load_fixture('future_version_function')
 

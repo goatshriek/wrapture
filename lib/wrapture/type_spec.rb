@@ -89,6 +89,22 @@ module Wrapture
       name.end_with?('*')
     end
 
+    # A string with a declaration of FunctionSpec +func+ with this type as the
+    # return value.
+    def return_expression(func)
+      if function?
+        func_type = @spec['function']
+        return_spec = FunctionSpec.normalize_return_hash(func_type['return'])
+        return_portion = TypeSpec.new(return_spec['type']).variable(return_spec.fetch('name', nil))
+        signature_portion = func_type.fetch('params', [])
+          .map { |param| TypeSpec.new(param['type']).variable(param.fetch('name', nil)) }
+          .join(', ')
+        "#{return_portion} ( *#{func.name} )( #{func.param_list} )( #{signature_portion} )"
+      else
+        "#{name}#{' ' unless pointer?}#{func.signature}"
+      end
+    end
+
     # True if this type is a reference to a class instance.
     def self?
       name == SELF_REFERENCE_KEYWORD

@@ -1,0 +1,17 @@
+name: "FunctionPointerReturn"
+params:
+  - name: "my_string"
+    type: "const char *"
+return:
+  type:
+    function:
+      params:
+        - type: "int"
+        - type: "int"
+        - type: "void *"
+      return:
+        type: "const char *"
+wrapped-function:
+  name: "underlying_function"
+  params:
+    - value: "my_string"

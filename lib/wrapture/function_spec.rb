@@ -132,6 +132,16 @@ module Wrapture
       includes.uniq
     end
 
+    # The name of the function.
+    def name
+      @spec['name']
+    end
+
+    # A string with the parameter list for this function.
+    def param_list
+      ParamSpec.signature(@params, self)
+    end
+
     # Gives an expression for calling a given parameter within this function.
     # Equivalent structs and pointers are resolved, as well as casts between
     # types if they are known within the scope of this function.
@@ -156,7 +166,7 @@ module Wrapture
 
     # The signature of the function.
     def signature
-      "#{@spec['name']}( #{ParamSpec.signature(@params, self)} )"
+      "#{name}( #{param_list} )"
     end
 
     # Yields each line of the declaration of the function, including any
@@ -177,7 +187,8 @@ module Wrapture
                           ''
                         end
 
-      yield "#{modifier_prefix}#{return_prefix}#{signature};"
+      abs_return = @return_type.absolute(self)
+      yield "#{modifier_prefix}#{abs_return.return_expression(self)};"
     end
 
     # Gives the definition of the function to a block, line by line.
