@@ -69,6 +69,14 @@ module Wrapture
   class NoNamespace < WraptureError
   end
 
+  # The spec cannot be defined due to missing information.
+  class UndefinableSpec < WraptureError
+    # Creates an UndefinableSpec with error +message+.
+    def initialize(message)
+      super(message)
+    end
+  end
+
   # The spec version is not supported by this version of Wrapture.
   class UnsupportedSpecVersion < WraptureError
   end

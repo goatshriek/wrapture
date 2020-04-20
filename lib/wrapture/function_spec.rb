@@ -104,7 +104,9 @@ module Wrapture
                    destructor: false)
       @owner = owner
       @spec = FunctionSpec.normalize_spec_hash(spec)
-      @wrapped = WrappedFunctionSpec.new(spec['wrapped-function'])
+      @wrapped = if @spec.key?('wrapped-function')
+                   WrappedFunctionSpec.new(@spec['wrapped-function'])
+                 end
       @params = ParamSpec.new_list(@spec['params'])
       @return_type = TypeSpec.new(@spec['return']['type'])
       @constructor = constructor
@@ -121,6 +123,14 @@ module Wrapture
       includes = @spec['return']['includes'].dup
       @params.each { |param| includes.concat(param.includes) }
       includes.uniq
+    end
+
+    # True if this function can be defined.
+    def definable?
+      definable_check
+      true
+    rescue UndefinableSpec
+      false
     end
 
     # A list of includes needed for the definition of the function.
@@ -201,6 +211,8 @@ module Wrapture
 
     # Gives the definition of the function in a block, line by line.
     def definition
+      definable_check
+
       decl = absolute_return.return_expression(self, func_name: qualified_name)
       yield "#{decl} {"
 
@@ -278,6 +290,13 @@ module Wrapture
       !param.nil? &&
         !wrapped_param['type'].nil? &&
         @owner.type?(param.type)
+    end
+
+    # Raises an exception if this function cannot be defined as is.
+    def definable_check
+      if @wrapped.nil?
+        raise UndefinableSpec, 'no wrapped function waws specified'
+      end
     end
 
     # Yields a declaration of each local variable used by the function.
