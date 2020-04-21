@@ -100,10 +100,9 @@ module Wrapture
       current_spec = @spec
       while current_spec.is_a?(Hash) && current_spec.key?('function')
         name_part.prepend('( *')
-        param_part.prepend(')') unless param_part.empty?
 
         temp_func_spec = FunctionSpec.new(current_spec['function'])
-        param_part.prepend(" )( #{temp_func_spec.param_list} )")
+        param_part.concat(" )( #{temp_func_spec.param_list} )")
 
         current_spec = current_spec.dig('function', 'return', 'type')
         ret_part = current_spec

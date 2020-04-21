@@ -102,7 +102,7 @@ class FunctionSpecTest < Minitest::Test
 
       code = line.strip
 
-      if code.include?('FunctionPointerReturn')
+      if code.include?(test_spec['name'])
         assert_equal(expected_declaration, code)
       end
     end
@@ -114,7 +114,7 @@ class FunctionSpecTest < Minitest::Test
 
       code = line.strip
 
-      if code.include?('FunctionPointerReturn')
+      if code.include?(test_spec['name'])
         assert_equal(expected_definition, code)
       end
     end
@@ -138,6 +138,23 @@ class FunctionSpecTest < Minitest::Test
       code = line.strip
 
       assert(code.start_with?("return #{call}")) if code.start_with?('return')
+    end
+  end
+
+  def test_nested_function_pointer_return
+    test_spec = load_fixture('nested_function_pointer_return')
+
+    spec = Wrapture::FunctionSpec.new(test_spec)
+
+    expected_declaration = 'int ( *( *NestedFunctionPointerReturn( const char *my_string ) )( int, int, void * ) )( const char *, int );'
+    spec.declaration do |line|
+      next if line.nil?
+
+      code = line.strip
+
+      if code.include?(test_spec['name'])
+        assert_equal(expected_declaration, code)
+      end
     end
   end
 
