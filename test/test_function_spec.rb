@@ -146,7 +146,9 @@ class FunctionSpecTest < Minitest::Test
 
     spec = Wrapture::FunctionSpec.new(test_spec)
 
-    expected_declaration = 'int ( *( *NestedFunctionPointerReturn( const char *my_string ) )( int, int, void * ) )( const char *, int );'
+    expected_declaration = 'int ( *( *NestedFunctionPointerReturn( const char'\
+                           ' *my_string ) )( int, int, void * ) )( const char'\
+                           ' *, int );'
     spec.declaration do |line|
       next if line.nil?
 
