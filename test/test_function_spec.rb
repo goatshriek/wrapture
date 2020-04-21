@@ -95,8 +95,8 @@ class FunctionSpecTest < Minitest::Test
 
     spec = Wrapture::FunctionSpec.new(test_spec)
 
-    expected_declaration = 'const char * ( *FunctionPointerReturn )( const '\
-                           'char *my_string )( int, int, void * );'
+    expected_declaration = 'const char *( *FunctionPointerReturn( const '\
+                           'char *my_string ) )( int, int, void * );'
     spec.declaration do |line|
       next if line.nil?
 
@@ -107,8 +107,8 @@ class FunctionSpecTest < Minitest::Test
       end
     end
 
-    expected_definition = 'const char * ( *FunctionPointerReturn )( const '\
-                          'char *my_string )( int, int, void * ) {'
+    expected_definition = 'const char *( *FunctionPointerReturn( const '\
+                          'char *my_string ) )( int, int, void * ) {'
     spec.definition do |line|
       next if line.nil?
 

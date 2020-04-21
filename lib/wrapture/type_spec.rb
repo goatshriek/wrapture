@@ -93,14 +93,25 @@ module Wrapture
     # return value. +func_name+ can be provided to override the function name,
     # for example if a class name needs to be included.
     def return_expression(func, func_name: func.name)
-      if function?
-        func_type = @spec['function']
-        return_spec = FunctionSpec.normalize_return_hash(func_type['return'])
-        ret_type = TypeSpec.new(return_spec['type']).name
-        "#{ret_type} ( *#{func_name} )( #{func.param_list} )( #{param_list} )"
-      else
-        "#{name}#{' ' unless pointer?}#{func_name}( #{func.param_list} )"
+      name_part = String.new(func_name || '')
+      param_part = String.new
+      ret_part = name
+
+      current_spec = @spec
+      while current_spec.is_a?(Hash) && current_spec.key?('function')
+        name_part.prepend('( *')
+        param_part.prepend(')') unless param_part.empty?
+
+        temp_func_spec = FunctionSpec.new(current_spec['function'])
+        param_part.prepend(" )( #{temp_func_spec.param_list} )")
+
+        current_spec = current_spec.dig('function', 'return', 'type')
+        ret_part = current_spec
       end
+
+      ret_part << ' ' unless ret_part.end_with?('*')
+
+      "#{ret_part}#{name_part}( #{func.param_list} )#{param_part}"
     end
 
     # True if this type is a reference to a class instance.
