@@ -67,7 +67,7 @@ class FunctionSpecTest < Minitest::Test
 
     spec = Wrapture::FunctionSpec.new(test_spec)
 
-    arg_type = 'const char * ( *my_func_ptr )( int, int, void * )'
+    arg_type = 'const char *( *my_func_ptr )( int, int, void * )'
 
     spec.declaration do |line|
       next if line.nil?
@@ -75,7 +75,8 @@ class FunctionSpecTest < Minitest::Test
       code = line.strip
 
       if code.include?('FunctionPointerArgument')
-        assert(code.include?(arg_type))
+        assert(code.include?(arg_type),
+               "declaration '#{code}' did not include type #{arg_type}")
       end
     end
 
@@ -144,6 +145,25 @@ class FunctionSpecTest < Minitest::Test
       code = line.strip
 
       assert(code.start_with?("return #{call}")) if code.start_with?('return')
+    end
+  end
+
+  def test_nested_function_pointer_argument
+    test_spec = load_fixture('nested_function_pointer_argument')
+
+    spec = Wrapture::FunctionSpec.new(test_spec)
+
+    expected_declaration = 'void NestedFunctionPointerArgument( const char *('\
+                           ' *my_func_ptr )( int, int ( * )( struct special *,'\
+                           ' void * ), void * ) );'
+    spec.declaration do |line|
+      next if line.nil?
+
+      code = line.strip
+
+      if code.include?(test_spec['name'])
+        assert_equal(expected_declaration, code)
+      end
     end
   end
 

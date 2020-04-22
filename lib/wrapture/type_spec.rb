@@ -129,13 +129,15 @@ module Wrapture
     def variable(var_name = nil)
       if variadic?
         '...'
-      elsif var_name.nil?
-        name
       elsif function?
         func = @spec['function']
+        func_name = "( *#{var_name} )" || '(*)'
         return_spec = FunctionSpec.normalize_return_hash(func['return'])
-        return_portion = TypeSpec.new(return_spec['type']).name
-        "#{return_portion} ( *#{var_name} )( #{param_list} )"
+        return_type = TypeSpec.new(return_spec['type'])
+        return_type.return_expression(FunctionSpec.new(func),
+                                      func_name: func_name)
+      elsif var_name.nil?
+        name
       else
         "#{name}#{' ' unless name.end_with?('*')}#{var_name}"
       end
