@@ -122,13 +122,13 @@ module Wrapture
     def declaration_includes
       includes = @spec['return']['includes'].dup
       @params.each { |param| includes.concat(param.includes) }
+      includes.concat(@return_type.includes)
       includes.uniq
     end
 
     # True if this function can be defined.
     def definable?
       definable_check
-      true
     rescue UndefinableSpec
       false
     end
@@ -138,6 +138,7 @@ module Wrapture
       includes = @wrapped.includes
       includes.concat(@spec['return']['includes'])
       @params.each { |param| includes.concat(param.includes) }
+      includes.concat(@return_type.includes)
       includes << 'stdarg.h' if variadic?
       includes.uniq
     end
@@ -292,11 +293,14 @@ module Wrapture
         @owner.type?(param.type)
     end
 
-    # Raises an exception if this function cannot be defined as is.
+    # Raises an exception if this function cannot be defined as is. Returns
+    # true otherwise.
     def definable_check
       if @wrapped.nil?
         raise UndefinableSpec, 'no wrapped function waws specified'
       end
+
+      true
     end
 
     # Yields a declaration of each local variable used by the function.

@@ -76,7 +76,14 @@ module Wrapture
 
     # A list of includes needed for this type.
     def includes
-      @spec['includes']
+      includes = @spec['includes'].dup
+
+      if function?
+        func = FunctionSpec.new(@spec['function'])
+        includes.concat(func.declaration_includes)
+      end
+
+      includes.uniq
     end
 
     # The name of the type.

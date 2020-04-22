@@ -95,8 +95,11 @@ class FunctionSpecTest < Minitest::Test
 
     spec = Wrapture::FunctionSpec.new(test_spec)
 
+    assert_includes(spec.declaration_includes, 'overall_inc_1.h')
+    assert_includes(spec.declaration_includes, 'special_inc_1.h')
+
     expected_declaration = 'const char *( *FunctionPointerReturn( const '\
-                           'char *my_string ) )( int, int, void * );'
+                           'char *my_string ) )( int, int, struct special * );'
     spec.declaration do |line|
       next if line.nil?
 
@@ -107,8 +110,11 @@ class FunctionSpecTest < Minitest::Test
       end
     end
 
+    assert_includes(spec.definition_includes, 'overall_inc_1.h')
+    assert_includes(spec.definition_includes, 'special_inc_1.h')
+
     expected_definition = 'const char *( *FunctionPointerReturn( const '\
-                          'char *my_string ) )( int, int, void * ) {'
+                          'char *my_string ) )( int, int, struct special * ) {'
     spec.definition do |line|
       next if line.nil?
 
@@ -146,9 +152,11 @@ class FunctionSpecTest < Minitest::Test
 
     spec = Wrapture::FunctionSpec.new(test_spec)
 
+    assert_includes(spec.declaration_includes, 'special_inc_1.h')
+
     expected_declaration = 'int ( *( *NestedFunctionPointerReturn( const char'\
-                           ' *my_string ) )( int, int, void * ) )( const char'\
-                           ' *, int );'
+                           ' *my_string ) )( int, int, void * ) )( struct'\
+                           ' special *, int );'
     spec.declaration do |line|
       next if line.nil?
 

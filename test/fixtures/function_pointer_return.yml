@@ -4,11 +4,14 @@ params:
     type: "const char *"
 return:
   type:
+    includes: "overall_inc_1.h"
     function:
       params:
         - type: "int"
         - type: "int"
-        - type: "void *"
+        - type:
+            name: "struct special *"
+            includes: "special_inc_1.h"
       return:
         type: "const char *"
 wrapped-function:

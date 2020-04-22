@@ -13,7 +13,9 @@ return:
         type:
           function:
             params:
-              - type: "const char *"
+              - type:
+                  name: "struct special *"
+                  includes: "special_inc_1.h"
               - type: "int"
             return:
               type: "int"
