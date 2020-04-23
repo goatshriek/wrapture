@@ -47,13 +47,6 @@ module Wrapture
       @spec = TypeSpec.normalize_spec_hash(actual_spec)
     end
 
-    # Creates a new TypeSpec within the scope of +owner+ that will be directly
-    # usable. This will replace equivalent structs, pointers, and self
-    # references with a usable type name.
-    def absolute(owner)
-      owner.resolve_type(self)
-    end
-
     # The name of this type with all special characters removed.
     def base
       name.delete('*&').strip
@@ -96,6 +89,13 @@ module Wrapture
       name.end_with?('*')
     end
 
+    # Creates a new TypeSpec within the scope of +owner+ that will be directly
+    # usable. This will replace equivalent structs, pointers, and self
+    # references with a usable type name.
+    def resolve(owner)
+      owner.resolve_type(self)
+    end
+
     # A string with a declaration of FunctionSpec +func+ with this type as the
     # return value. +func_name+ can be provided to override the function name,
     # for example if a class name needs to be included.
@@ -108,8 +108,8 @@ module Wrapture
       while current_spec.is_a?(Hash) && current_spec.key?('function')
         name_part.prepend('( *')
 
-        temp_func_spec = FunctionSpec.new(current_spec['function'])
-        param_part.concat(" )( #{temp_func_spec.param_list} )")
+        current_func = FunctionSpec.new(current_spec['function'])
+        param_part.concat(" )( #{current_func.param_list} )")
 
         current_spec = current_spec.dig('function', 'return', 'type')
         ret_part = current_spec
@@ -126,13 +126,14 @@ module Wrapture
     end
 
     # A string with a declaration of a variable named +var_name+ of this type.
+    # If +var_name+ is nil then this will simply be a type declaration.
     def variable(var_name = nil)
       if variadic?
         '...'
       elsif function?
         func = FunctionSpec.new(@spec['function'])
         func_name = "( *#{var_name} )" || '(*)'
-        func.return_type.return_expression(func, func_name: func_name)
+        func.return_expression(func_name: func_name)
       elsif var_name.nil?
         name
       else

@@ -68,27 +68,9 @@ class FunctionSpecTest < Minitest::Test
     spec = Wrapture::FunctionSpec.new(test_spec)
 
     arg_type = 'const char *( *my_func_ptr )( int, int, void * )'
-
-    spec.declaration do |line|
-      next if line.nil?
-
-      code = line.strip
-
-      if code.include?('FunctionPointerArgument')
-        assert(code.include?(arg_type),
-               "declaration '#{code}' did not include type #{arg_type}")
-      end
-    end
-
-    spec.definition do |line|
-      next if line.nil?
-
-      code = line.strip
-
-      if code.include?('FunctionPointerArgument')
-        assert(code.include?(arg_type))
-      end
-    end
+    arg_checker = block_includes_proc(arg_type)
+    spec.declaration(&arg_checker)
+    spec.definition(&arg_checker)
   end
 
   def test_function_pointer_return

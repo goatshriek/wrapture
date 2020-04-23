@@ -121,7 +121,7 @@ module Wrapture
     # declaration. +owner+ must be the FunctionSpec that the parameter belongs
     # to.
     def signature(owner)
-      @type.absolute(owner).variable(name)
+      @type.resolve(owner).variable(name)
     end
 
     # True if this parameter is variadic (the name is equal to '...').

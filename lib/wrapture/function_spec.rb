@@ -23,6 +23,7 @@ require 'wrapture/constants'
 require 'wrapture/errors'
 require 'wrapture/param_spec'
 require 'wrapture/scope'
+require 'wrapture/type_spec'
 require 'wrapture/wrapped_function_spec'
 
 module Wrapture
@@ -187,6 +188,12 @@ module Wrapture
       end
     end
 
+    # Calls return_expression on the return type of this function. +func_name+
+    # is passed to return_expression if provided.
+    def return_expression(func_name: name)
+      resolved_return.return_expression(self, func_name: func_name)
+    end
+
     # The signature of the function.
     def signature
       "#{name}( #{param_list} )"
@@ -210,15 +217,14 @@ module Wrapture
                           ''
                         end
 
-      yield "#{modifier_prefix}#{absolute_return.return_expression(self)};"
+      yield "#{modifier_prefix}#{return_expression};"
     end
 
     # Gives the definition of the function in a block, line by line.
     def definition
       definable_check
 
-      decl = absolute_return.return_expression(self, func_name: qualified_name)
-      yield "#{decl} {"
+      yield "#{return_expression(func_name: qualified_name)} {"
 
       locals { |declaration| yield "  #{declaration}" }
 
@@ -256,7 +262,9 @@ module Wrapture
       Comment.new(comment)
     end
 
-    # A resolved type name, given a TypeSpec +type+.
+    # A resolved type, given a TypeSpec +type+. Resolved types will not have any
+    # keywords like +equivalent-struct+, which will be resolved to their
+    # effective type.
     def resolve_type(type)
       if type.equivalent_struct?
         TypeSpec.new("struct #{@owner.struct_name}")
@@ -281,9 +289,9 @@ module Wrapture
 
     private
 
-    # The absolute type of the return type.
-    def absolute_return
-      @return_type.absolute(self)
+    # The resolved type of the return type.
+    def resolved_return
+      @return_type.resolve(self)
     end
 
     # True if the provided wrapped param spec can be cast to when used in this

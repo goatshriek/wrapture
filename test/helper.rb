@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2019 Joel E. Anderson
+# Copyright 2019-2020 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -32,6 +32,11 @@ end
 
 require 'minitest/autorun'
 require 'wrapture'
+
+def block_includes_proc(target)
+  found = false
+  proc { |line| found ||= line.include?(target) }
+end
 
 def count_matches(filename, regex)
   count = 0
