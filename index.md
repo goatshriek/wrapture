@@ -25,7 +25,7 @@ examples:
    that can make large wrapping projects much faster and more maintainable.
 
 If you really want to get into the weeds, you can check out the
-[RDoc documentation](./rdoc/index.html) for all of the details.
+[RDoc documentation](./rdoc) for all of the details.
 
 # The Future
 
