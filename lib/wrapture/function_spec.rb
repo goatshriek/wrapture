@@ -23,12 +23,26 @@ require 'wrapture/constants'
 require 'wrapture/errors'
 require 'wrapture/param_spec'
 require 'wrapture/scope'
+require 'wrapture/type_spec'
 require 'wrapture/wrapped_function_spec'
 
 module Wrapture
   # A description of a function to be generated, including details about the
   # underlying implementation.
   class FunctionSpec
+    # Returns a copy of the return type specification +spec+.
+    def self.normalize_return_hash(spec)
+      if spec.nil?
+        { 'type' => 'void', 'includes' => [] }
+      else
+        normalized = Marshal.load(Marshal.dump(spec))
+        Comment.validate_doc(spec['doc']) if spec.key?('doc')
+        normalized['type'] ||= 'void'
+        normalized['includes'] = Wrapture.normalize_includes(spec['includes'])
+        normalized
+      end
+    end
+
     # Normalizes a hash specification of a function. Normalization will check
     # for things like invalid keys, duplicate entries in include lists, and will
     # set missing keys to their default values (for example, an empty list if no
@@ -41,17 +55,7 @@ module Wrapture
       normalized['version'] = Wrapture.spec_version(spec)
       normalized['virtual'] = Wrapture.normalize_boolean(spec, 'virtual')
       normalized['params'] = ParamSpec.normalize_param_list(spec['params'])
-
-      if normalized['return'].nil?
-        normalized['return'] = {}
-        normalized['return']['type'] = 'void'
-        normalized['return']['includes'] = []
-      else
-        Comment.validate_doc(spec['return']['doc']) if spec.key?('doc')
-        normalized['return']['type'] ||= 'void'
-        includes = Wrapture.normalize_includes(spec['return']['includes'])
-        normalized['return']['includes'] = includes
-      end
+      normalized['return'] = normalize_return_hash(spec['return'])
 
       overload = Wrapture.normalize_boolean(normalized['return'], 'overloaded')
       normalized['return']['overloaded'] = overload
@@ -81,7 +85,9 @@ module Wrapture
     # The wrapped-function must have a 'name' key with the name of the function,
     # and a 'params' key with a list of parameters (each a hash with a 'name'
     # and 'type' key). Optionally, it may also include an 'includes' key with a
-    # list of includes that are needed for this function to compile.
+    # list of includes that are needed for this function to compile. The wrapped
+    # function may be left out entirely, but the function will not be definable
+    # if this is the case.
     #
     # The following keys are optional:
     # doc:: a string containing the documentation for this function
@@ -101,11 +107,17 @@ module Wrapture
                    destructor: false)
       @owner = owner
       @spec = FunctionSpec.normalize_spec_hash(spec)
-      @wrapped = WrappedFunctionSpec.new(spec['wrapped-function'])
+      @wrapped = if @spec.key?('wrapped-function')
+                   WrappedFunctionSpec.new(@spec['wrapped-function'])
+                 end
       @params = ParamSpec.new_list(@spec['params'])
+      @return_type = TypeSpec.new(@spec['return']['type'])
       @constructor = constructor
       @destructor = destructor
     end
+
+    # A TypeSpec describing the return type of this function.
+    attr_reader :return_type
 
     # True if the function is a constructor, false otherwise.
     def constructor?
@@ -116,7 +128,15 @@ module Wrapture
     def declaration_includes
       includes = @spec['return']['includes'].dup
       @params.each { |param| includes.concat(param.includes) }
+      includes.concat(@return_type.includes)
       includes.uniq
+    end
+
+    # True if this function can be defined.
+    def definable?
+      definable_check
+    rescue UndefinableSpec
+      false
     end
 
     # A list of includes needed for the definition of the function.
@@ -124,8 +144,28 @@ module Wrapture
       includes = @wrapped.includes
       includes.concat(@spec['return']['includes'])
       @params.each { |param| includes.concat(param.includes) }
+      includes.concat(@return_type.includes)
       includes << 'stdarg.h' if variadic?
       includes.uniq
+    end
+
+    # The name of the function.
+    def name
+      @spec['name']
+    end
+
+    # A string with the parameter list for this function.
+    def param_list
+      ParamSpec.signature(@params, self)
+    end
+
+    # The name of the function with the class name, if it exists.
+    def qualified_name
+      if @owner.is_a?(ClassSpec)
+        "#{@owner.name}::#{name}"
+      else
+        name
+      end
     end
 
     # Gives an expression for calling a given parameter within this function.
@@ -150,9 +190,15 @@ module Wrapture
       end
     end
 
+    # Calls return_expression on the return type of this function. +func_name+
+    # is passed to return_expression if provided.
+    def return_expression(func_name: name)
+      resolved_return.return_expression(self, func_name: func_name)
+    end
+
     # The signature of the function.
     def signature
-      "#{@spec['name']}( #{ParamSpec.signature(@params, self)} )"
+      "#{name}( #{param_list} )"
     end
 
     # Yields each line of the declaration of the function, including any
@@ -173,12 +219,14 @@ module Wrapture
                           ''
                         end
 
-      yield "#{modifier_prefix}#{return_prefix}#{signature};"
+      yield "#{modifier_prefix}#{return_expression};"
     end
 
-    # Gives the definition of the function to a block, line by line.
-    def definition(class_name)
-      yield "#{return_prefix}#{class_name}::#{signature} {"
+    # Gives the definition of the function in a block, line by line.
+    def definition
+      definable_check
+
+      yield "#{return_expression(func_name: qualified_name)} {"
 
       locals { |declaration| yield "  #{declaration}" }
 
@@ -195,9 +243,7 @@ module Wrapture
 
       yield '  va_end( variadic_args );' if variadic?
 
-      if @spec['return']['type'] == SELF_REFERENCE_KEYWORD
-        yield '  return *this;'
-      end
+      yield '  return *this;' if @return_type.self?
 
       yield '}'
     end
@@ -218,14 +264,16 @@ module Wrapture
       Comment.new(comment)
     end
 
-    # A resolved type name.
+    # A resolved type, given a TypeSpec +type+. Resolved types will not have any
+    # keywords like +equivalent-struct+, which will be resolved to their
+    # effective type.
     def resolve_type(type)
-      if type == EQUIVALENT_STRUCT_KEYWORD
-        "struct #{@owner.struct_name}"
-      elsif type == EQUIVALENT_POINTER_KEYWORD
-        "struct #{@owner.struct_name} *"
-      elsif type == SELF_REFERENCE_KEYWORD
-        "#{@owner.name}&"
+      if type.equivalent_struct?
+        TypeSpec.new("struct #{@owner.struct_name}")
+      elsif type.equivalent_pointer?
+        TypeSpec.new("struct #{@owner.struct_name} *")
+      elsif type.self?
+        TypeSpec.new("#{@owner.name}&")
       else
         type
       end
@@ -243,6 +291,11 @@ module Wrapture
 
     private
 
+    # The resolved type of the return type.
+    def resolved_return
+      @return_type.resolve(self)
+    end
+
     # True if the provided wrapped param spec can be cast to when used in this
     # function.
     def castable?(wrapped_param)
@@ -251,6 +304,16 @@ module Wrapture
       !param.nil? &&
         !wrapped_param['type'].nil? &&
         @owner.type?(param.type)
+    end
+
+    # Raises an exception if this function cannot be defined as is. Returns
+    # true otherwise.
+    def definable_check
+      if @wrapped.nil?
+        raise UndefinableSpec, 'no wrapped function was specified'
+      end
+
+      true
     end
 
     # Yields a declaration of each local variable used by the function.
@@ -267,17 +330,6 @@ module Wrapture
         "new#{@spec['return']['type'].chomp('*').strip} ( #{value} )"
       else
         "#{@spec['return']['type']} ( #{value} )"
-      end
-    end
-
-    # The return type prefix to use for the function definition.
-    def return_prefix
-      if @constructor || @destructor
-        ''
-      elsif @spec['return']['type'].end_with?('*')
-        @spec['return']['type']
-      else
-        "#{resolve_type(@spec['return']['type'])} "
       end
     end
 

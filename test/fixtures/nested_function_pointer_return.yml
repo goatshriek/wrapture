@@ -1,0 +1,25 @@
+name: "NestedFunctionPointerReturn"
+params:
+  - name: "my_string"
+    type: "const char *"
+return:
+  type:
+    function:
+      params:
+        - type: "int"
+        - type: "int"
+        - type: "void *"
+      return:
+        type:
+          function:
+            params:
+              - type:
+                  name: "struct special *"
+                  includes: "special_inc_1.h"
+              - type: "int"
+            return:
+              type: "int"
+wrapped-function:
+  name: "underlying_function"
+  params:
+    - value: "my_string"
