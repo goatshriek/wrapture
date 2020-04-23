@@ -16,8 +16,9 @@ begin
   require 'rdoc/task'
 
   RDoc::Task.new do |rdoc|
-    rdoc.rdoc_files = ['lib']
+    rdoc.rdoc_files = ['lib', 'README.md']
     rdoc.rdoc_dir = 'docs/html'
+    rdoc.main = 'README.md'
   end
 rescue LoadError
   puts 'could not load rdoc module'
