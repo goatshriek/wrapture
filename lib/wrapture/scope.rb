@@ -18,8 +18,6 @@
 # limitations under the License.
 #++
 
-require 'wrapture/enum_spec'
-
 module Wrapture
   # Describes a scope of one or more class specifications.
   class Scope

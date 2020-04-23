@@ -2,6 +2,7 @@
 
 # frozen_string_literal: true
 
+#--
 # Copyright 2019-2020 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,12 +16,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-require 'wrapture/comment'
-require 'wrapture/constant_spec'
-require 'wrapture/constants'
-require 'wrapture/function_spec'
-require 'wrapture/normalize'
+#++
 
 module Wrapture
   # A description of a class, including its constants, functions, and other
