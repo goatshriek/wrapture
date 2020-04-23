@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="UTF-8">
+
+<title>class Wrapture::RuleSpec - RDoc Documentation</title>
+
+<script type="text/javascript">
+  var rdoc_rel_prefix = "../";
+  var index_rel_prefix = "../";
+</script>
+
+<script src="../js/navigation.js" defer></script>
+<script src="../js/search.js" defer></script>
+<script src="../js/search_index.js" defer></script>
+<script src="../js/searcher.js" defer></script>
+<script src="../js/darkfish.js" defer></script>
+
+<link href="../css/fonts.css" rel="stylesheet">
+<link href="../css/rdoc.css" rel="stylesheet">
+
+
+
+
+<body id="top" role="document" class="class">
+<nav role="navigation">
+  <div id="project-navigation">
+    <div id="home-section" role="region" title="Quick navigation" class="nav-section">
+  <h2>
+    <a href="../index.html" rel="home">Home</a>
+  </h2>
+
+  <div id="table-of-contents-navigation">
+    <a href="../table_of_contents.html#pages">Pages</a>
+    <a href="../table_of_contents.html#classes">Classes</a>
+    <a href="../table_of_contents.html#methods">Methods</a>
+  </div>
+</div>
+
+    <div id="search-section" role="search" class="project-section initially-hidden">
+  <form action="#" method="get" accept-charset="utf-8">
+    <div id="search-field-wrapper">
+      <input id="search-field" role="combobox" aria-label="Search"
+             aria-autocomplete="list" aria-controls="search-results"
+             type="text" name="search" placeholder="Search" spellcheck="false"
+             title="Type to search, Up and Down to navigate, Enter to load">
+    </div>
+
+    <ul id="search-results" aria-label="Search Results"
+        aria-busy="false" aria-expanded="false"
+        aria-atomic="false" class="initially-hidden"></ul>
+  </form>
+</div>
+
+  </div>
+
+  
+
+  <div id="class-metadata">
+    
+    <div id="parent-class-section" class="nav-section">
+  <h3>Parent</h3>
+
+  
+  <p class="link">Object
+  
+</div>
+
+    
+    
+    <!-- Method Quickref -->
+<div id="method-list-section" class="nav-section">
+  <h3>Methods</h3>
+
+  <ul class="link-list" role="directory">
+    
+    <li ><a href="#method-c-new">::new</a>
+    
+    <li ><a href="#method-c-normalize_spec_hash">::normalize_spec_hash</a>
+    
+    <li ><a href="#method-i-check">#check</a>
+    
+  </ul>
+</div>
+
+  </div>
+</nav>
+
+<main role="main" aria-labelledby="class-Wrapture::RuleSpec">
+  <h1 id="class-Wrapture::RuleSpec" class="class">
+    class Wrapture::RuleSpec
+  </h1>
+
+  <section class="description">
+    
+<p>A condition (or set of conditions) that a struct or its members must meet in order to conform to a given specification. This allows a single struct type to be equivalent to some class specifications, but not others.</p>
+
+  </section>
+
+  
+  <section id="5Buntitled-5D" class="documentation-section">
+    
+
+    
+
+    
+    <section class="constants-list">
+      <header>
+        <h3>Constants</h3>
+      </header>
+      <dl>
+      
+        <dt id="CONDITIONS">CONDITIONS
+        
+        <dd><p>A map of condition strings to their operators.</p>
+        
+      
+      </dl>
+    </section>
+    
+
+    
+
+    
+     <section id="public-class-5Buntitled-5D-method-details" class="method-section">
+       <header>
+         <h3>Public Class Methods</h3>
+       </header>
+
+    
+      <div id="method-c-new" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">new</span><span
+            class="method-args">(spec)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Creates a rule spec based on the provided spec.</p>
+
+<p>The hash must have the following keys:</p>
+<dl class="rdoc-list note-list"><dt>member-name
+<dd>
+<p>the name of the struct member the rule applies to</p>
+</dd><dt>condition
+<dd>
+<p>the condition this rule uses (supported values are keys in the RuleSpec::CONDITIONS map, with the mapped values being the operator they translate to)</p>
+</dd><dt>value
+<dd>
+<p>the value to use in the condition check</p>
+</dd></dl>
+          
+          
+
+          
+          <div class="method-source-code" id="new-source">
+            <pre><span class="ruby-comment"># File lib/wrapture/rule_spec.rb, line 75</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">initialize</span>(<span class="ruby-identifier">spec</span>)
+  <span class="ruby-ivar">@spec</span> = <span class="ruby-constant">RuleSpec</span>.<span class="ruby-identifier">normalize_spec_hash</span>(<span class="ruby-identifier">spec</span>)
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-c-normalize_spec_hash" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">normalize_spec_hash</span><span
+            class="method-args">(spec)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Normalizes a hash specification of a rule. Normalization checks for invalid keys and unrecognized conditions.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="normalize_spec_hash-source">
+            <pre><span class="ruby-comment"># File lib/wrapture/rule_spec.rb, line 36</span>
+<span class="ruby-keyword">def</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier ruby-title">normalize_spec_hash</span>(<span class="ruby-identifier">spec</span>)
+  <span class="ruby-identifier">normalized</span> = <span class="ruby-identifier">spec</span>.<span class="ruby-identifier">dup</span>
+
+  <span class="ruby-identifier">required_keys</span> = <span class="ruby-keyword">if</span> <span class="ruby-identifier">spec</span>.<span class="ruby-identifier">key?</span>(<span class="ruby-string">&#39;member-name&#39;</span>)
+                    <span class="ruby-identifier">normalized</span>[<span class="ruby-string">&#39;type&#39;</span>] = <span class="ruby-string">&#39;struct-member&#39;</span>
+                    <span class="ruby-node">%w[member-name condition value]</span>.<span class="ruby-identifier">freeze</span>
+                  <span class="ruby-keyword">else</span>
+                    <span class="ruby-identifier">normalized</span>[<span class="ruby-string">&#39;type&#39;</span>] = <span class="ruby-string">&#39;expression&#39;</span>
+                    <span class="ruby-node">%w[left-expression condition right-expression]</span>.<span class="ruby-identifier">freeze</span>
+                  <span class="ruby-keyword">end</span>
+
+  <span class="ruby-identifier">missing_keys</span> = <span class="ruby-identifier">required_keys</span> <span class="ruby-operator">-</span> <span class="ruby-identifier">spec</span>.<span class="ruby-identifier">keys</span>
+  <span class="ruby-keyword">unless</span> <span class="ruby-identifier">missing_keys</span>.<span class="ruby-identifier">empty?</span>
+    <span class="ruby-identifier">missing_msg</span> = <span class="ruby-node">&quot;required keys are missing: #{missing_keys.join(&#39;, &#39;)}&quot;</span>
+    <span class="ruby-identifier">raise</span>(<span class="ruby-constant">MissingSpecKey</span>, <span class="ruby-identifier">missing_msg</span>)
+  <span class="ruby-keyword">end</span>
+
+  <span class="ruby-identifier">extra_keys</span> = <span class="ruby-identifier">spec</span>.<span class="ruby-identifier">keys</span> <span class="ruby-operator">-</span> <span class="ruby-identifier">required_keys</span>
+  <span class="ruby-keyword">unless</span> <span class="ruby-identifier">extra_keys</span>.<span class="ruby-identifier">empty?</span>
+    <span class="ruby-identifier">extra_msg</span> = <span class="ruby-node">&quot;these keys are unrecognized: #{extra_keys.join(&#39;, &#39;)}&quot;</span>
+    <span class="ruby-identifier">raise</span>(<span class="ruby-constant">InvalidSpecKey</span>, <span class="ruby-identifier">extra_msg</span>)
+  <span class="ruby-keyword">end</span>
+
+  <span class="ruby-keyword">unless</span> <span class="ruby-constant">RuleSpec</span><span class="ruby-operator">::</span><span class="ruby-constant">CONDITIONS</span>.<span class="ruby-identifier">keys</span>.<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">spec</span>[<span class="ruby-string">&#39;condition&#39;</span>])
+    <span class="ruby-identifier">condition_msg</span> = <span class="ruby-node">&quot;#{spec[&#39;condition&#39;]} is an invalid condition&quot;</span>
+    <span class="ruby-identifier">raise</span>(<span class="ruby-constant">InvalidSpecKey</span>, <span class="ruby-identifier">condition_msg</span>)
+  <span class="ruby-keyword">end</span>
+
+  <span class="ruby-identifier">normalized</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+    </section>
+  
+     <section id="public-instance-5Buntitled-5D-method-details" class="method-section">
+       <header>
+         <h3>Public Instance Methods</h3>
+       </header>
+
+    
+      <div id="method-i-check" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">check</span><span
+            class="method-args">(variable: nil)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>A string containing a check for a struct of the given name for this rule.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="check-source">
+            <pre><span class="ruby-comment"># File lib/wrapture/rule_spec.rb, line 80</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">check</span>(<span class="ruby-value">variable:</span> <span class="ruby-keyword">nil</span>)
+  <span class="ruby-identifier">condition</span> = <span class="ruby-constant">RuleSpec</span><span class="ruby-operator">::</span><span class="ruby-constant">CONDITIONS</span>[<span class="ruby-ivar">@spec</span>[<span class="ruby-string">&#39;condition&#39;</span>]]
+
+  <span class="ruby-keyword">if</span> <span class="ruby-ivar">@spec</span>[<span class="ruby-string">&#39;type&#39;</span>] <span class="ruby-operator">==</span> <span class="ruby-string">&#39;struct-member&#39;</span>
+    <span class="ruby-node">&quot;#{variable}-&gt;#{@spec[&#39;member-name&#39;]} #{condition} #{@spec[&#39;value&#39;]}&quot;</span>
+  <span class="ruby-keyword">else</span>
+    <span class="ruby-identifier">left</span> = <span class="ruby-ivar">@spec</span>[<span class="ruby-string">&#39;left-expression&#39;</span>]
+    <span class="ruby-identifier">right</span> = <span class="ruby-ivar">@spec</span>[<span class="ruby-string">&#39;right-expression&#39;</span>]
+    <span class="ruby-node">&quot;#{left} #{condition} #{right}&quot;</span>.<span class="ruby-identifier">sub</span>(<span class="ruby-constant">RETURN_VALUE_KEYWORD</span>, <span class="ruby-string">&#39;return_val&#39;</span>)
+  <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+    </section>
+  
+  </section>
+
+</main>
+
+
+<footer id="validator-badges" role="contentinfo">
+  <p><a href="https://validator.w3.org/check/referer">Validate</a>
+  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.1.2.
+  <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
+</footer>
+

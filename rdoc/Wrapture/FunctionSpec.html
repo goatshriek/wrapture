@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="UTF-8">
+
+<title>class Wrapture::FunctionSpec - RDoc Documentation</title>
+
+<script type="text/javascript">
+  var rdoc_rel_prefix = "../";
+  var index_rel_prefix = "../";
+</script>
+
+<script src="../js/navigation.js" defer></script>
+<script src="../js/search.js" defer></script>
+<script src="../js/search_index.js" defer></script>
+<script src="../js/searcher.js" defer></script>
+<script src="../js/darkfish.js" defer></script>
+
+<link href="../css/fonts.css" rel="stylesheet">
+<link href="../css/rdoc.css" rel="stylesheet">
+
+
+
+
+<body id="top" role="document" class="class">
+<nav role="navigation">
+  <div id="project-navigation">
+    <div id="home-section" role="region" title="Quick navigation" class="nav-section">
+  <h2>
+    <a href="../index.html" rel="home">Home</a>
+  </h2>
+
+  <div id="table-of-contents-navigation">
+    <a href="../table_of_contents.html#pages">Pages</a>
+    <a href="../table_of_contents.html#classes">Classes</a>
+    <a href="../table_of_contents.html#methods">Methods</a>
+  </div>
+</div>
+
+    <div id="search-section" role="search" class="project-section initially-hidden">
+  <form action="#" method="get" accept-charset="utf-8">
+    <div id="search-field-wrapper">
+      <input id="search-field" role="combobox" aria-label="Search"
+             aria-autocomplete="list" aria-controls="search-results"
+             type="text" name="search" placeholder="Search" spellcheck="false"
+             title="Type to search, Up and Down to navigate, Enter to load">
+    </div>
+
+    <ul id="search-results" aria-label="Search Results"
+        aria-busy="false" aria-expanded="false"
+        aria-atomic="false" class="initially-hidden"></ul>
+  </form>
+</div>
+
+  </div>
+
+  
+
+  <div id="class-metadata">
+    
+    <div id="parent-class-section" class="nav-section">
+  <h3>Parent</h3>
+
+  
+  <p class="link">Object
+  
+</div>
+
+    
+    
+    <!-- Method Quickref -->
+<div id="method-list-section" class="nav-section">
+  <h3>Methods</h3>
+
+  <ul class="link-list" role="directory">
+    
+    <li ><a href="#method-c-new">::new</a>
+    
+    <li ><a href="#method-c-normalize_return_hash">::normalize_return_hash</a>
+    
+    <li ><a href="#method-c-normalize_spec_hash">::normalize_spec_hash</a>
+    
+    <li ><a href="#method-i-constructor-3F">#constructor?</a>
+    
+    <li ><a href="#method-i-declaration">#declaration</a>
+    
+    <li ><a href="#method-i-declaration_includes">#declaration_includes</a>
+    
+    <li ><a href="#method-i-definable-3F">#definable?</a>
+    
+    <li ><a href="#method-i-definition">#definition</a>
+    
+    <li ><a href="#method-i-definition_includes">#definition_includes</a>
+    
+    <li ><a href="#method-i-doc">#doc</a>
+    
+    <li ><a href="#method-i-name">#name</a>
+    
+    <li ><a href="#method-i-param_list">#param_list</a>
+    
+    <li ><a href="#method-i-qualified_name">#qualified_name</a>
+    
+    <li ><a href="#method-i-resolve_type">#resolve_type</a>
+    
+    <li ><a href="#method-i-resolve_wrapped_param">#resolve_wrapped_param</a>
+    
+    <li ><a href="#method-i-return_expression">#return_expression</a>
+    
+    <li ><a href="#method-i-signature">#signature</a>
+    
+    <li ><a href="#method-i-variadic-3F">#variadic?</a>
+    
+    <li ><a href="#method-i-virtual-3F">#virtual?</a>
+    
+  </ul>
+</div>
+
+  </div>
+</nav>
+
+<main role="main" aria-labelledby="class-Wrapture::FunctionSpec">
+  <h1 id="class-Wrapture::FunctionSpec" class="class">
+    class Wrapture::FunctionSpec
+  </h1>
+
+  <section class="description">
+    
+<p>A description of a function to be generated, including details about the underlying implementation.</p>
+
+  </section>
+
+  
+  <section id="5Buntitled-5D" class="documentation-section">
+    
+
+    
+
+    
+
+    
+    <section class="attribute-method-details" class="method-section">
+      <header>
+        <h3>Attributes</h3>
+      </header>
+
+      
+      <div id="attribute-i-return_type" class="method-detail">
+        <div class="method-heading attribute-method-heading">
+          <span class="method-name">return_type</span><span
+            class="attribute-access-type">[R]</span>
+        </div>
+
+        <div class="method-description">
+        
+        <p>A <a href="TypeSpec.html"><code>TypeSpec</code></a> describing the return type of this function.</p>
+        
+        </div>
+      </div>
+      
+    </section>
+    
+
+    
+     <section id="public-class-5Buntitled-5D-method-details" class="method-section">
+       <header>
+         <h3>Public Class Methods</h3>
+       </header>
+
+    
+      <div id="method-c-new" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">new</span><span
+            class="method-args">(spec, owner = Scope.new, constructor: false, destructor: false)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Creates a function spec based on the provided function spec.</p>
+
+<p>The hash must have the following keys:</p>
+<dl class="rdoc-list note-list"><dt>name
+<dd>
+<p>the name of the function</p>
+</dd><dt>params
+<dd>
+<p>a list of parameter specifications</p>
+</dd><dt>wrapped-function
+<dd>
+<p>a hash describing the function to be wrapped</p>
+</dd></dl>
+
+<p>Each parameter specification must have a &#39;name&#39; key with the name of the parameter and a &#39;type&#39; key with its type. The type key may be ommitted if the name of the parameter is &#39;…&#39; in which case the generated function will be made variadic. It may optionally have an &#39;includes&#39; key with includes that are required (for example to support the type) and/or a &#39;doc&#39; key with documentation of the parameter.</p>
+
+<p>Only one parameter named &#39;…&#39; is allowed in a specification. If more than one is provided, then only the first encountered will be used. This parameter should also be last - if it is not, it will be moved to the end of the parameter list during normalization.</p>
+
+<p>The wrapped-function must have a &#39;name&#39; key with the name of the function, and a &#39;params&#39; key with a list of parameters (each a hash with a &#39;name&#39; and &#39;type&#39; key). Optionally, it may also include an &#39;includes&#39; key with a list of includes that are needed for this function to compile. The wrapped function may be left out entirely, but the function will not be definable if this is the case.</p>
+
+<p>The following keys are optional:</p>
+<dl class="rdoc-list note-list"><dt>doc
+<dd>
+<p>a string containing the documentation for this function</p>
+</dd><dt>return
+<dd>
+<p>a specification of the return value for this function</p>
+</dd><dt>static
+<dd>
+<p>set to true if this is a static function</p>
+</dd></dl>
+
+<p>The return specification may have either a &#39;type&#39; key with the name of the type the function returns, and/or a &#39;doc&#39; key with documentation on the return value itself. If neither of these is needed, then the return specification may simply be omitted.</p>
+
+<p>The &#39;type&#39; key of the return spec may also be set to &#39;self-reference&#39; which will have the function return a reference to the instance it was called on. Of course, this cannot be used from a function that is not a class method.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="new-source">
+            <pre><span class="ruby-comment"># File lib/wrapture/function_spec.rb, line 98</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">initialize</span>(<span class="ruby-identifier">spec</span>, <span class="ruby-identifier">owner</span> = <span class="ruby-constant">Scope</span>.<span class="ruby-identifier">new</span>, <span class="ruby-value">constructor:</span> <span class="ruby-keyword">false</span>,
+               <span class="ruby-value">destructor:</span> <span class="ruby-keyword">false</span>)
+  <span class="ruby-ivar">@owner</span> = <span class="ruby-identifier">owner</span>
+  <span class="ruby-ivar">@spec</span> = <span class="ruby-constant">FunctionSpec</span>.<span class="ruby-identifier">normalize_spec_hash</span>(<span class="ruby-identifier">spec</span>)
+  <span class="ruby-ivar">@wrapped</span> = <span class="ruby-keyword">if</span> <span class="ruby-ivar">@spec</span>.<span class="ruby-identifier">key?</span>(<span class="ruby-string">&#39;wrapped-function&#39;</span>)
+               <span class="ruby-constant">WrappedFunctionSpec</span>.<span class="ruby-identifier">new</span>(<span class="ruby-ivar">@spec</span>[<span class="ruby-string">&#39;wrapped-function&#39;</span>])
+             <span class="ruby-keyword">end</span>
+  <span class="ruby-ivar">@params</span> = <span class="ruby-constant">ParamSpec</span>.<span class="ruby-identifier">new_list</span>(<span class="ruby-ivar">@spec</span>[<span class="ruby-string">&#39;params&#39;</span>])
+  <span class="ruby-ivar">@return_type</span> = <span class="ruby-constant">TypeSpec</span>.<span class="ruby-identifier">new</span>(<span class="ruby-ivar">@spec</span>[<span class="ruby-string">&#39;return&#39;</span>][<span class="ruby-string">&#39;type&#39;</span>])
+  <span class="ruby-ivar">@constructor</span> = <span class="ruby-identifier">constructor</span>
+  <span class="ruby-ivar">@destructor</span> = <span class="ruby-identifier">destructor</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-c-normalize_return_hash" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">normalize_return_hash</span><span
+            class="method-args">(spec)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Returns a copy of the return type specification <code>spec</code>.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="normalize_return_hash-source">
+            <pre><span class="ruby-comment"># File lib/wrapture/function_spec.rb, line 26</span>
+<span class="ruby-keyword">def</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier ruby-title">normalize_return_hash</span>(<span class="ruby-identifier">spec</span>)
+  <span class="ruby-keyword">if</span> <span class="ruby-identifier">spec</span>.<span class="ruby-identifier">nil?</span>
+    { <span class="ruby-string">&#39;type&#39;</span> <span class="ruby-operator">=&gt;</span> <span class="ruby-string">&#39;void&#39;</span>, <span class="ruby-string">&#39;includes&#39;</span> <span class="ruby-operator">=&gt;</span> [] }
+  <span class="ruby-keyword">else</span>
+    <span class="ruby-identifier">normalized</span> = <span class="ruby-constant">Marshal</span>.<span class="ruby-identifier">load</span>(<span class="ruby-constant">Marshal</span>.<span class="ruby-identifier">dump</span>(<span class="ruby-identifier">spec</span>))
+    <span class="ruby-constant">Comment</span>.<span class="ruby-identifier">validate_doc</span>(<span class="ruby-identifier">spec</span>[<span class="ruby-string">&#39;doc&#39;</span>]) <span class="ruby-keyword">if</span> <span class="ruby-identifier">spec</span>.<span class="ruby-identifier">key?</span>(<span class="ruby-string">&#39;doc&#39;</span>)
+    <span class="ruby-identifier">normalized</span>[<span class="ruby-string">&#39;type&#39;</span>] <span class="ruby-operator">||=</span> <span class="ruby-string">&#39;void&#39;</span>
+    <span class="ruby-identifier">normalized</span>[<span class="ruby-string">&#39;includes&#39;</span>] = <span class="ruby-constant">Wrapture</span>.<span class="ruby-identifier">normalize_includes</span>(<span class="ruby-identifier">spec</span>[<span class="ruby-string">&#39;includes&#39;</span>])
+    <span class="ruby-identifier">normalized</span>
+  <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-c-normalize_spec_hash" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">normalize_spec_hash</span><span
+            class="method-args">(spec)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Normalizes a hash specification of a function. Normalization will check for things like invalid keys, duplicate entries in include lists, and will set missing keys to their default values (for example, an empty list if no includes are given).</p>
+          
+          
+
+          
+          <div class="method-source-code" id="normalize_spec_hash-source">
+            <pre><span class="ruby-comment"># File lib/wrapture/function_spec.rb, line 42</span>
+<span class="ruby-keyword">def</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier ruby-title">normalize_spec_hash</span>(<span class="ruby-identifier">spec</span>)
+  <span class="ruby-constant">Comment</span>.<span class="ruby-identifier">validate_doc</span>(<span class="ruby-identifier">spec</span>[<span class="ruby-string">&#39;doc&#39;</span>]) <span class="ruby-keyword">if</span> <span class="ruby-identifier">spec</span>.<span class="ruby-identifier">key?</span>(<span class="ruby-string">&#39;doc&#39;</span>)
+
+  <span class="ruby-identifier">normalized</span> = <span class="ruby-identifier">spec</span>.<span class="ruby-identifier">dup</span>
+
+  <span class="ruby-identifier">normalized</span>[<span class="ruby-string">&#39;version&#39;</span>] = <span class="ruby-constant">Wrapture</span>.<span class="ruby-identifier">spec_version</span>(<span class="ruby-identifier">spec</span>)
+  <span class="ruby-identifier">normalized</span>[<span class="ruby-string">&#39;virtual&#39;</span>] = <span class="ruby-constant">Wrapture</span>.<span class="ruby-identifier">normalize_boolean</span>(<span class="ruby-identifier">spec</span>, <span class="ruby-string">&#39;virtual&#39;</span>)
+  <span class="ruby-identifier">normalized</span>[<span class="ruby-string">&#39;params&#39;</span>] = <span class="ruby-constant">ParamSpec</span>.<span class="ruby-identifier">normalize_param_list</span>(<span class="ruby-identifier">spec</span>[<span class="ruby-string">&#39;params&#39;</span>])
+  <span class="ruby-identifier">normalized</span>[<span class="ruby-string">&#39;return&#39;</span>] = <span class="ruby-identifier">normalize_return_hash</span>(<span class="ruby-identifier">spec</span>[<span class="ruby-string">&#39;return&#39;</span>])
+
+  <span class="ruby-identifier">overload</span> = <span class="ruby-constant">Wrapture</span>.<span class="ruby-identifier">normalize_boolean</span>(<span class="ruby-identifier">normalized</span>[<span class="ruby-string">&#39;return&#39;</span>], <span class="ruby-string">&#39;overloaded&#39;</span>)
+  <span class="ruby-identifier">normalized</span>[<span class="ruby-string">&#39;return&#39;</span>][<span class="ruby-string">&#39;overloaded&#39;</span>] = <span class="ruby-identifier">overload</span>
+
+  <span class="ruby-identifier">normalized</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+    </section>
+  
+     <section id="public-instance-5Buntitled-5D-method-details" class="method-section">
+       <header>
+         <h3>Public Instance Methods</h3>
+       </header>
+
+    
+      <div id="method-i-constructor-3F" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">constructor?</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>True if the function is a constructor, false otherwise.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="constructor-3F-source">
+            <pre><span class="ruby-comment"># File lib/wrapture/function_spec.rb, line 115</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">constructor?</span>
+  <span class="ruby-ivar">@constructor</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-declaration" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">declaration</span><span
+            class="method-args">() { |line| ... }</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Yields each line of the declaration of the function, including any documentation.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="declaration-source">
+            <pre><span class="ruby-comment"># File lib/wrapture/function_spec.rb, line 198</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">declaration</span>
+  <span class="ruby-identifier">doc</span>.<span class="ruby-identifier">format_as_doxygen</span>(<span class="ruby-value">max_line_length:</span> <span class="ruby-value">76</span>) { <span class="ruby-operator">|</span><span class="ruby-identifier">line</span><span class="ruby-operator">|</span> <span class="ruby-keyword">yield</span> <span class="ruby-identifier">line</span> }
+
+  <span class="ruby-keyword">if</span> <span class="ruby-ivar">@constructor</span> <span class="ruby-operator">||</span> <span class="ruby-ivar">@destructor</span>
+    <span class="ruby-keyword">yield</span> <span class="ruby-node">&quot;#{signature};&quot;</span>
+    <span class="ruby-keyword">return</span>
+  <span class="ruby-keyword">end</span>
+
+  <span class="ruby-identifier">modifier_prefix</span> = <span class="ruby-keyword">if</span> <span class="ruby-ivar">@spec</span>[<span class="ruby-string">&#39;static&#39;</span>]
+                      <span class="ruby-string">&#39;static &#39;</span>
+                    <span class="ruby-keyword">elsif</span> <span class="ruby-identifier">virtual?</span>
+                      <span class="ruby-string">&#39;virtual &#39;</span>
+                    <span class="ruby-keyword">else</span>
+                      <span class="ruby-string">&#39;&#39;</span>
+                    <span class="ruby-keyword">end</span>
+
+  <span class="ruby-keyword">yield</span> <span class="ruby-node">&quot;#{modifier_prefix}#{return_expression};&quot;</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-declaration_includes" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">declaration_includes</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>A list of includes needed for the declaration of the function.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="declaration_includes-source">
+            <pre><span class="ruby-comment"># File lib/wrapture/function_spec.rb, line 120</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">declaration_includes</span>
+  <span class="ruby-identifier">includes</span> = <span class="ruby-ivar">@spec</span>[<span class="ruby-string">&#39;return&#39;</span>][<span class="ruby-string">&#39;includes&#39;</span>].<span class="ruby-identifier">dup</span>
+  <span class="ruby-ivar">@params</span>.<span class="ruby-identifier">each</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">param</span><span class="ruby-operator">|</span> <span class="ruby-identifier">includes</span>.<span class="ruby-identifier">concat</span>(<span class="ruby-identifier">param</span>.<span class="ruby-identifier">includes</span>) }
+  <span class="ruby-identifier">includes</span>.<span class="ruby-identifier">concat</span>(<span class="ruby-ivar">@return_type</span>.<span class="ruby-identifier">includes</span>)
+  <span class="ruby-identifier">includes</span>.<span class="ruby-identifier">uniq</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-definable-3F" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">definable?</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>True if this function can be defined.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="definable-3F-source">
+            <pre><span class="ruby-comment"># File lib/wrapture/function_spec.rb, line 128</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">definable?</span>
+  <span class="ruby-identifier">definable_check</span>
+<span class="ruby-keyword">rescue</span> <span class="ruby-constant">UndefinableSpec</span>
+  <span class="ruby-keyword">false</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-definition" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">definition</span><span
+            class="method-args">() { |&quot;#{return_expression(func_name: qualified_name)} {&quot;| ... }</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Gives the definition of the function in a block, line by line.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="definition-source">
+            <pre><span class="ruby-comment"># File lib/wrapture/function_spec.rb, line 218</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">definition</span>
+  <span class="ruby-identifier">definable_check</span>
+
+  <span class="ruby-keyword">yield</span> <span class="ruby-node">&quot;#{return_expression(func_name: qualified_name)} {&quot;</span>
+
+  <span class="ruby-identifier">locals</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">declaration</span><span class="ruby-operator">|</span> <span class="ruby-keyword">yield</span> <span class="ruby-node">&quot;  #{declaration}&quot;</span> }
+
+  <span class="ruby-keyword">yield</span> <span class="ruby-node">&quot;  va_start( variadic_args, #{@params[-2].name} );&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">variadic?</span>
+
+  <span class="ruby-keyword">if</span> <span class="ruby-ivar">@wrapped</span>.<span class="ruby-identifier">error_check?</span>
+    <span class="ruby-keyword">yield</span>
+    <span class="ruby-keyword">yield</span> <span class="ruby-node">&quot;  #{wrapped_call_expression};&quot;</span>
+    <span class="ruby-keyword">yield</span>
+    <span class="ruby-ivar">@wrapped</span>.<span class="ruby-identifier">error_check</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">line</span><span class="ruby-operator">|</span> <span class="ruby-keyword">yield</span> <span class="ruby-node">&quot;  #{line}&quot;</span> }
+  <span class="ruby-keyword">else</span>
+    <span class="ruby-keyword">yield</span> <span class="ruby-node">&quot;  #{wrapped_call_expression};&quot;</span>
+  <span class="ruby-keyword">end</span>
+
+  <span class="ruby-keyword">yield</span> <span class="ruby-string">&#39;  va_end( variadic_args );&#39;</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">variadic?</span>
+
+  <span class="ruby-keyword">yield</span> <span class="ruby-string">&#39;  return *this;&#39;</span> <span class="ruby-keyword">if</span> <span class="ruby-ivar">@return_type</span>.<span class="ruby-identifier">self?</span>
+
+  <span class="ruby-keyword">yield</span> <span class="ruby-string">&#39;}&#39;</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-definition_includes" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">definition_includes</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>A list of includes needed for the definition of the function.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="definition_includes-source">
+            <pre><span class="ruby-comment"># File lib/wrapture/function_spec.rb, line 135</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">definition_includes</span>
+  <span class="ruby-identifier">includes</span> = <span class="ruby-ivar">@wrapped</span>.<span class="ruby-identifier">includes</span>
+  <span class="ruby-identifier">includes</span>.<span class="ruby-identifier">concat</span>(<span class="ruby-ivar">@spec</span>[<span class="ruby-string">&#39;return&#39;</span>][<span class="ruby-string">&#39;includes&#39;</span>])
+  <span class="ruby-ivar">@params</span>.<span class="ruby-identifier">each</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">param</span><span class="ruby-operator">|</span> <span class="ruby-identifier">includes</span>.<span class="ruby-identifier">concat</span>(<span class="ruby-identifier">param</span>.<span class="ruby-identifier">includes</span>) }
+  <span class="ruby-identifier">includes</span>.<span class="ruby-identifier">concat</span>(<span class="ruby-ivar">@return_type</span>.<span class="ruby-identifier">includes</span>)
+  <span class="ruby-identifier">includes</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-string">&#39;stdarg.h&#39;</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">variadic?</span>
+  <span class="ruby-identifier">includes</span>.<span class="ruby-identifier">uniq</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-doc" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">doc</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>A <a href="Comment.html"><code>Comment</code></a> holding the function documentation.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="doc-source">
+            <pre><span class="ruby-comment"># File lib/wrapture/function_spec.rb, line 244</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">doc</span>
+  <span class="ruby-identifier">comment</span> = <span class="ruby-constant">String</span>.<span class="ruby-identifier">new</span>
+  <span class="ruby-identifier">comment</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-ivar">@spec</span>[<span class="ruby-string">&#39;doc&#39;</span>] <span class="ruby-keyword">if</span> <span class="ruby-ivar">@spec</span>.<span class="ruby-identifier">key?</span>(<span class="ruby-string">&#39;doc&#39;</span>)
+
+  <span class="ruby-ivar">@params</span>
+    .<span class="ruby-identifier">reject</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">param</span><span class="ruby-operator">|</span> <span class="ruby-identifier">param</span>.<span class="ruby-identifier">doc</span>.<span class="ruby-identifier">empty?</span> }
+    .<span class="ruby-identifier">each</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">param</span><span class="ruby-operator">|</span> <span class="ruby-identifier">comment</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-string">&quot;\n\n&quot;</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">param</span>.<span class="ruby-identifier">doc</span>.<span class="ruby-identifier">text</span> }
+
+  <span class="ruby-keyword">if</span> <span class="ruby-ivar">@spec</span>[<span class="ruby-string">&#39;return&#39;</span>].<span class="ruby-identifier">key?</span>(<span class="ruby-string">&#39;doc&#39;</span>)
+    <span class="ruby-identifier">comment</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-string">&quot;\n\n@return &quot;</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-ivar">@spec</span>[<span class="ruby-string">&#39;return&#39;</span>][<span class="ruby-string">&#39;doc&#39;</span>]
+  <span class="ruby-keyword">end</span>
+
+  <span class="ruby-constant">Comment</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">comment</span>)
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-name" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">name</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>The name of the function.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="name-source">
+            <pre><span class="ruby-comment"># File lib/wrapture/function_spec.rb, line 145</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">name</span>
+  <span class="ruby-ivar">@spec</span>[<span class="ruby-string">&#39;name&#39;</span>]
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-param_list" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">param_list</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>A string with the parameter list for this function.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="param_list-source">
+            <pre><span class="ruby-comment"># File lib/wrapture/function_spec.rb, line 150</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">param_list</span>
+  <span class="ruby-constant">ParamSpec</span>.<span class="ruby-identifier">signature</span>(<span class="ruby-ivar">@params</span>, <span class="ruby-keyword">self</span>)
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-qualified_name" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">qualified_name</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>The name of the function with the class name, if it exists.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="qualified_name-source">
+            <pre><span class="ruby-comment"># File lib/wrapture/function_spec.rb, line 155</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">qualified_name</span>
+  <span class="ruby-keyword">if</span> <span class="ruby-ivar">@owner</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">ClassSpec</span>)
+    <span class="ruby-node">&quot;#{@owner.name}::#{name}&quot;</span>
+  <span class="ruby-keyword">else</span>
+    <span class="ruby-identifier">name</span>
+  <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-resolve_type" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">resolve_type</span><span
+            class="method-args">(type)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>A resolved type, given a <a href="TypeSpec.html"><code>TypeSpec</code></a> <code>type</code>. Resolved types will not have any keywords like <code>equivalent-struct</code>, which will be resolved to their effective type.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="resolve_type-source">
+            <pre><span class="ruby-comment"># File lib/wrapture/function_spec.rb, line 262</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">resolve_type</span>(<span class="ruby-identifier">type</span>)
+  <span class="ruby-keyword">if</span> <span class="ruby-identifier">type</span>.<span class="ruby-identifier">equivalent_struct?</span>
+    <span class="ruby-constant">TypeSpec</span>.<span class="ruby-identifier">new</span>(<span class="ruby-node">&quot;struct #{@owner.struct_name}&quot;</span>)
+  <span class="ruby-keyword">elsif</span> <span class="ruby-identifier">type</span>.<span class="ruby-identifier">equivalent_pointer?</span>
+    <span class="ruby-constant">TypeSpec</span>.<span class="ruby-identifier">new</span>(<span class="ruby-node">&quot;struct #{@owner.struct_name} *&quot;</span>)
+  <span class="ruby-keyword">elsif</span> <span class="ruby-identifier">type</span>.<span class="ruby-identifier">self?</span>
+    <span class="ruby-constant">TypeSpec</span>.<span class="ruby-identifier">new</span>(<span class="ruby-node">&quot;#{@owner.name}&amp;&quot;</span>)
+  <span class="ruby-keyword">else</span>
+    <span class="ruby-identifier">type</span>
+  <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-resolve_wrapped_param" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">resolve_wrapped_param</span><span
+            class="method-args">(param_spec)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Gives an expression for calling a given parameter within this function. Equivalent structs and pointers are resolved, as well as casts between types if they are known within the scope of this function.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="resolve_wrapped_param-source">
+            <pre><span class="ruby-comment"># File lib/wrapture/function_spec.rb, line 166</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">resolve_wrapped_param</span>(<span class="ruby-identifier">param_spec</span>)
+  <span class="ruby-identifier">used_param</span> = <span class="ruby-ivar">@params</span>.<span class="ruby-identifier">find</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">p</span><span class="ruby-operator">|</span> <span class="ruby-identifier">p</span>.<span class="ruby-identifier">name</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">param_spec</span>[<span class="ruby-string">&#39;value&#39;</span>] }
+
+  <span class="ruby-keyword">if</span> <span class="ruby-identifier">param_spec</span>[<span class="ruby-string">&#39;value&#39;</span>] <span class="ruby-operator">==</span> <span class="ruby-constant">EQUIVALENT_STRUCT_KEYWORD</span>
+    <span class="ruby-ivar">@owner</span>.<span class="ruby-identifier">this_struct</span>
+  <span class="ruby-keyword">elsif</span> <span class="ruby-identifier">param_spec</span>[<span class="ruby-string">&#39;value&#39;</span>] <span class="ruby-operator">==</span> <span class="ruby-constant">EQUIVALENT_POINTER_KEYWORD</span>
+    <span class="ruby-ivar">@owner</span>.<span class="ruby-identifier">this_struct_pointer</span>
+  <span class="ruby-keyword">elsif</span> <span class="ruby-identifier">param_spec</span>[<span class="ruby-string">&#39;value&#39;</span>] <span class="ruby-operator">==</span> <span class="ruby-string">&#39;...&#39;</span>
+    <span class="ruby-string">&#39;variadic_args&#39;</span>
+  <span class="ruby-keyword">elsif</span> <span class="ruby-identifier">castable?</span>(<span class="ruby-identifier">param_spec</span>)
+    <span class="ruby-identifier">param_class</span> = <span class="ruby-ivar">@owner</span>.<span class="ruby-identifier">type</span>(<span class="ruby-identifier">used_param</span>.<span class="ruby-identifier">type</span>)
+    <span class="ruby-identifier">param_class</span>.<span class="ruby-identifier">cast</span>(<span class="ruby-identifier">used_param</span>.<span class="ruby-identifier">name</span>,
+                     <span class="ruby-identifier">param_spec</span>[<span class="ruby-string">&#39;type&#39;</span>],
+                     <span class="ruby-identifier">used_param</span>.<span class="ruby-identifier">type</span>)
+  <span class="ruby-keyword">else</span>
+    <span class="ruby-identifier">param_spec</span>[<span class="ruby-string">&#39;value&#39;</span>]
+  <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-return_expression" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">return_expression</span><span
+            class="method-args">(func_name: name)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Calls <a href="FunctionSpec.html#method-i-return_expression"><code>return_expression</code></a> on the return type of this function. <code>func_name</code> is passed to <a href="FunctionSpec.html#method-i-return_expression"><code>return_expression</code></a> if provided.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="return_expression-source">
+            <pre><span class="ruby-comment"># File lib/wrapture/function_spec.rb, line 187</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">return_expression</span>(<span class="ruby-value">func_name:</span> <span class="ruby-identifier">name</span>)
+  <span class="ruby-identifier">resolved_return</span>.<span class="ruby-identifier">return_expression</span>(<span class="ruby-keyword">self</span>, <span class="ruby-value">func_name:</span> <span class="ruby-identifier">func_name</span>)
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-signature" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">signature</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>The signature of the function.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="signature-source">
+            <pre><span class="ruby-comment"># File lib/wrapture/function_spec.rb, line 192</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">signature</span>
+  <span class="ruby-node">&quot;#{name}( #{param_list} )&quot;</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-variadic-3F" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">variadic?</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>True if the function is variadic.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="variadic-3F-source">
+            <pre><span class="ruby-comment"># File lib/wrapture/function_spec.rb, line 275</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">variadic?</span>
+  <span class="ruby-ivar">@params</span>.<span class="ruby-identifier">last</span>&amp;.<span class="ruby-identifier">variadic?</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-virtual-3F" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">virtual?</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>True if the function is virtual.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="virtual-3F-source">
+            <pre><span class="ruby-comment"># File lib/wrapture/function_spec.rb, line 280</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">virtual?</span>
+  <span class="ruby-ivar">@spec</span>[<span class="ruby-string">&#39;virtual&#39;</span>]
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+    </section>
+  
+  </section>
+
+</main>
+
+
+<footer id="validator-badges" role="contentinfo">
+  <p><a href="https://validator.w3.org/check/referer">Validate</a>
+  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.1.2.
+  <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
+</footer>
+

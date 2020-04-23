@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="UTF-8">
+
+<title>class Wrapture::TemplateSpec - RDoc Documentation</title>
+
+<script type="text/javascript">
+  var rdoc_rel_prefix = "../";
+  var index_rel_prefix = "../";
+</script>
+
+<script src="../js/navigation.js" defer></script>
+<script src="../js/search.js" defer></script>
+<script src="../js/search_index.js" defer></script>
+<script src="../js/searcher.js" defer></script>
+<script src="../js/darkfish.js" defer></script>
+
+<link href="../css/fonts.css" rel="stylesheet">
+<link href="../css/rdoc.css" rel="stylesheet">
+
+
+
+
+<body id="top" role="document" class="class">
+<nav role="navigation">
+  <div id="project-navigation">
+    <div id="home-section" role="region" title="Quick navigation" class="nav-section">
+  <h2>
+    <a href="../index.html" rel="home">Home</a>
+  </h2>
+
+  <div id="table-of-contents-navigation">
+    <a href="../table_of_contents.html#pages">Pages</a>
+    <a href="../table_of_contents.html#classes">Classes</a>
+    <a href="../table_of_contents.html#methods">Methods</a>
+  </div>
+</div>
+
+    <div id="search-section" role="search" class="project-section initially-hidden">
+  <form action="#" method="get" accept-charset="utf-8">
+    <div id="search-field-wrapper">
+      <input id="search-field" role="combobox" aria-label="Search"
+             aria-autocomplete="list" aria-controls="search-results"
+             type="text" name="search" placeholder="Search" spellcheck="false"
+             title="Type to search, Up and Down to navigate, Enter to load">
+    </div>
+
+    <ul id="search-results" aria-label="Search Results"
+        aria-busy="false" aria-expanded="false"
+        aria-atomic="false" class="initially-hidden"></ul>
+  </form>
+</div>
+
+  </div>
+
+  
+<div class="nav-section">
+  <h3>Table of Contents</h3>
+
+  <ul class="link-list" role="directory">
+    <li><a href="#class-Wrapture::TemplateSpec-label-Basic+Usage">Basic Usage</a>
+    <li><a href="#class-Wrapture::TemplateSpec-label-Usage+in+Arrays">Usage in Arrays</a>
+    <li><a href="#class-Wrapture::TemplateSpec-label-Usage+in+other+Templates">Usage in other Templates</a>
+    <li><a href="#class-Wrapture::TemplateSpec-label-Parameters">Parameters</a>
+    <li><a href="#class-Wrapture::TemplateSpec-label-Parameter+Replacement">Parameter Replacement</a>
+  </ul>
+</div>
+
+
+  <div id="class-metadata">
+    
+    <div id="parent-class-section" class="nav-section">
+  <h3>Parent</h3>
+
+  
+  <p class="link">Object
+  
+</div>
+
+    
+    
+    <!-- Method Quickref -->
+<div id="method-list-section" class="nav-section">
+  <h3>Methods</h3>
+
+  <ul class="link-list" role="directory">
+    
+    <li ><a href="#method-c-new">::new</a>
+    
+    <li ><a href="#method-c-param-3F">::param?</a>
+    
+    <li ><a href="#method-c-replace_all_uses">::replace_all_uses</a>
+    
+    <li ><a href="#method-c-replace_param">::replace_param</a>
+    
+    <li ><a href="#method-c-replace_param-21">::replace_param!</a>
+    
+    <li ><a href="#method-i-direct_use-3F">#direct_use?</a>
+    
+    <li ><a href="#method-i-instantiate">#instantiate</a>
+    
+    <li ><a href="#method-i-name">#name</a>
+    
+    <li ><a href="#method-i-replace_uses">#replace_uses</a>
+    
+    <li ><a href="#method-i-use-3F">#use?</a>
+    
+  </ul>
+</div>
+
+  </div>
+</nav>
+
+<main role="main" aria-labelledby="class-Wrapture::TemplateSpec">
+  <h1 id="class-Wrapture::TemplateSpec" class="class">
+    class Wrapture::TemplateSpec
+  </h1>
+
+  <section class="description">
+    
+<p>A template that can be referenced in other specs.</p>
+
+<p>Templates provide a way to re-use common specification portions without needing to repeat them everywhere they&#39;re needed. For example, if the error handling code within a wrapped library is the same for most functions, it can be defined once in a template and then simply referenced in each function specification that needs it. Not only does this reduce the size of the specifications, but it also allows changes to be made in one place instead of many.</p>
+
+<h1 id="class-Wrapture::TemplateSpec-label-Basic+Usage">Basic Usage<span><a href="#class-Wrapture::TemplateSpec-label-Basic+Usage">&para;</a> <a href="#top">&uarr;</a></span></h1>
+
+<p>Templates are defined in a top-level <code>templates</code> member of a specification, which holds an array of templates. Each template has only two properties: <code>name</code> which holds the name of the template that is used to invoke it from other specifications, and <code>value</code> which holds the object(s) to insert when the template is used.</p>
+
+<p>Templates can be used at any point in a specification by including a Hash member named <code>use-template</code> which is itself a Hash containing a <code>name</code> member and optionally a parameter list (see below). When a spec is created in a scope that has a template with the given name, the <code>use-template</code> object will be replaced with the template contents. Other members of the Hash will be left intact.</p>
+
+<p>To illustrate, consider a template defined with some normal class properties for a library:</p>
+
+<pre>name: &quot;standard-class-properties&quot;
+value:
+  namespace: &quot;wrapturedemo&quot;
+  type: &quot;pointer&quot;</pre>
+
+<p>This could then used in a class specification like this:</p>
+
+<pre>classes:
+  - name: &quot;ClassA&quot;
+    use-template:
+      name: &quot;standard-class-properties&quot;
+  - name: &quot;ClassB&quot;
+    use-template:
+      name: &quot;standard-class-properties&quot;</pre>
+
+<p>Which would result in an effective class specification of this:</p>
+
+<pre>classes:
+  - name: &quot;ClassA&quot;
+    namespace: &quot;wrapturedemo&quot;
+    type: &quot;pointer&quot;
+  - name: &quot;ClassB&quot;
+    namespace: &quot;wrapturedemo&quot;
+    type: &quot;pointer&quot;</pre>
+
+<p>Note that the properties included in the template were added to the other members of the object. If there is a conflict between members, the member of the invoking specification will override the template&#39;s member.</p>
+
+<p>In templates that don&#39;t have any parameters, you can save a small bit of typing by simply setting the value of the <code>use-template</code> member to the name of the template directly. So, the previous invocation would become this:</p>
+
+<pre>classes:
+  - name: &quot;ClassA&quot;
+    use-template: &quot;standard-class-properties&quot;
+  - name: &quot;ClassB&quot;
+    use-template: &quot;standard-class-properties&quot;</pre>
+
+<h2 id="class-Wrapture::TemplateSpec-label-Usage+in+Arrays">Usage in Arrays<span><a href="#class-Wrapture::TemplateSpec-label-Usage+in+Arrays">&para;</a> <a href="#top">&uarr;</a></span></h2>
+
+<p>In some cases, you may want a template to expand to an array of elements that are added to an existing array. This can be accomplished by invoking the template in its own list element and making sure that the <code>use-template</code> member is the only member of the hash. This will result in the template result being inserted into the list at the point of the template invocation. Consider this example specification snippet:</p>
+
+<pre>templates:
+  - name: &quot;default-includes&quot;
+    value:
+      - &quot;struct_decls.h&quot;
+      - &quot;error_handling.h&quot;
+      - &quot;macros.h&quot;
+classes:
+  - name: &quot;StupendousMan&quot;
+    equivalent-struct:
+      name: &quot;stupendous_man&quot;
+      includes:
+        - &quot;man.h&quot;
+        - use-template:
+            name: &quot;default-includes&quot;
+        - &quot;stupendous.h&quot;</pre>
+
+<p>This would result in an include list containing this:</p>
+
+<pre>includes:
+  - &quot;man.h&quot;
+  - &quot;struct_decls.h&quot;
+  - &quot;error_handling.h&quot;
+  - &quot;macros.h&quot;
+  - &quot;stupendous.h&quot;</pre>
+
+<p>Note that this behavior means that if your intention is to make a list element itself include a list, then you will need to put the template invocation into its own list, like this:</p>
+
+<pre>my_list:
+  - &quot;element-1&quot;
+  - &quot;element-2&quot;
+  -
+    - use-template:
+        name: &quot;list-template&quot;</pre>
+
+<h2 id="class-Wrapture::TemplateSpec-label-Usage+in+other+Templates">Usage in other Templates<span><a href="#class-Wrapture::TemplateSpec-label-Usage+in+other+Templates">&para;</a> <a href="#top">&uarr;</a></span></h2>
+
+<p>Templates may reference other templates within themselves. There is no limit to this nesting, which means that it is quite possible for a careless developer to get himself into trouble, for example by recursively referencing a template from itself. Responsible usage of this functionality is left to the users.</p>
+
+<p>There are no guarantees made about the order in which templates are expanded. This is an attempt to keep template usage simple and direct.</p>
+
+<h1 id="class-Wrapture::TemplateSpec-label-Parameters">Parameters<span><a href="#class-Wrapture::TemplateSpec-label-Parameters">&para;</a> <a href="#top">&uarr;</a></span></h1>
+
+<p>Templates may contain any number of parameters that can be supplied upon invocation. The supplied parameters are then used to replace values in the template upon template invocation. This allows templates to be reusable in a wider variety of situations where they may be a small number of differences between invocations, but not significant.</p>
+
+<p>Paremeters are signified within a template by using a hash that has a <code>is-param</code> member set to true, and a <code>name</code> member containing the name of the parameter. In the template invocation, a <code>params</code> member is supplied which contains a list of parameter names and values to substitute for them.</p>
+
+<p>A simple use of template parameters is shown here, where a template is used to wrap functions which differ only in the name of the underlying wrapped function:</p>
+
+<pre>templates:
+  - name: &quot;simple-function&quot;
+    value:
+      wrapped-function:
+        name:
+          is-param: true
+          name: &quot;wrapped-function&quot;
+        params:
+          - value: &quot;equivalent-struct-pointer&quot;
+classes:
+  - name: &quot;StupendousMan&quot;
+    functions:
+      - name: &quot;crawl&quot;
+        use-template:
+          name: &quot;simple-function&quot;
+          params:
+            name: &quot;wrapped-function&quot;
+            value: &quot;stupendous_man_crawl&quot;
+      - name: &quot;walk&quot;
+        use-template:
+          name: &quot;simple-function&quot;
+          params:
+            name: &quot;wrapped-function&quot;
+            value: &quot;stupendous_man_walk&quot;
+      - name: &quot;run&quot;
+        use-template:
+          name: &quot;simple-function&quot;
+          params:
+            name: &quot;wrapped-function&quot;
+            value: &quot;stupendous_man_run&quot;</pre>
+
+<p>The above would result in a class specification of this:</p>
+
+<pre>name: &quot;StupendousMan&quot;
+functions:
+  - name: &quot;crawl&quot;
+    wrapped-function:
+          name: &quot;stupendous_man_crawl&quot;
+          params:
+            - value: &quot;equivalent-struct-pointer&quot;
+  - name: &quot;walk&quot;
+    wrapped-function:
+          name: &quot;stupendous_man_walk&quot;
+          params:
+            - value: &quot;equivalent-struct-pointer&quot;
+  - name: &quot;run&quot;
+    wrapped-function:
+          name: &quot;stupendous_man_run&quot;
+          params:
+            - value: &quot;equivalent-struct-pointer&quot;</pre>
+
+<h2 id="class-Wrapture::TemplateSpec-label-Parameter+Replacement">Parameter Replacement<span><a href="#class-Wrapture::TemplateSpec-label-Parameter+Replacement">&para;</a> <a href="#top">&uarr;</a></span></h2>
+
+<p>The rules for parameter replacement are not as complex as for template invocation, as they are intended to hold single values rather than heirarchical object structures. Replacement of a parameter simply replaces the hash containing the <code>is-param</code> member with the given parameter of the same name. Objects may be supplied instead of single values, but they will be inserted directly into the position rather than merged with other hash or array members. If the more complex merging functionality is needed, then consider invoking a template instead of using a parameter.</p>
+
+  </section>
+
+  
+  <section id="5Buntitled-5D" class="documentation-section">
+    
+
+    
+
+    
+
+    
+
+    
+     <section id="public-class-5Buntitled-5D-method-details" class="method-section">
+       <header>
+         <h3>Public Class Methods</h3>
+       </header>
+
+    
+      <div id="method-c-new" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">new</span><span
+            class="method-args">(spec)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Creates a new template with the given hash spec.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="new-source">
+            <pre><span class="ruby-comment"># File lib/wrapture/template_spec.rb, line 300</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">initialize</span>(<span class="ruby-identifier">spec</span>)
+  <span class="ruby-ivar">@spec</span> = <span class="ruby-identifier">spec</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-c-param-3F" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">param?</span><span
+            class="method-args">(spec, param_name)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>True if the provided spec is a template parameter with the given name.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="param-3F-source">
+            <pre><span class="ruby-comment"># File lib/wrapture/template_spec.rb, line 242</span>
+<span class="ruby-keyword">def</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier ruby-title">param?</span>(<span class="ruby-identifier">spec</span>, <span class="ruby-identifier">param_name</span>)
+  <span class="ruby-identifier">spec</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Hash</span>) <span class="ruby-operator">&amp;&amp;</span>
+    <span class="ruby-identifier">spec</span>.<span class="ruby-identifier">key?</span>(<span class="ruby-string">&#39;is-param&#39;</span>) <span class="ruby-operator">&amp;&amp;</span>
+    <span class="ruby-identifier">spec</span>[<span class="ruby-string">&#39;is-param&#39;</span>] <span class="ruby-operator">&amp;&amp;</span>
+    <span class="ruby-identifier">spec</span>[<span class="ruby-string">&#39;name&#39;</span>] <span class="ruby-operator">==</span> <span class="ruby-identifier">param_name</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-c-replace_all_uses" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">replace_all_uses</span><span
+            class="method-args">(spec, *templates)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Replaces all instances of the given templates in the provided spec. This is done recursively until no more changes can be made. Returns true if any changes were made, false otherwise.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="replace_all_uses-source">
+            <pre><span class="ruby-comment"># File lib/wrapture/template_spec.rb, line 224</span>
+<span class="ruby-keyword">def</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier ruby-title">replace_all_uses</span>(<span class="ruby-identifier">spec</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">templates</span>)
+  <span class="ruby-keyword">return</span> <span class="ruby-keyword">false</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">spec</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Hash</span>) <span class="ruby-operator">||</span> <span class="ruby-identifier">spec</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Array</span>)
+
+  <span class="ruby-identifier">changed</span> = <span class="ruby-keyword">false</span>
+  <span class="ruby-identifier">loop</span> <span class="ruby-keyword">do</span>
+    <span class="ruby-identifier">changes</span> = <span class="ruby-identifier">templates</span>.<span class="ruby-identifier">collect</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">temp</span><span class="ruby-operator">|</span>
+      <span class="ruby-identifier">temp</span>.<span class="ruby-identifier">replace_uses</span>(<span class="ruby-identifier">spec</span>)
+    <span class="ruby-keyword">end</span>
+
+    <span class="ruby-identifier">changed</span> = <span class="ruby-keyword">true</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">changes</span>.<span class="ruby-identifier">any?</span>
+
+    <span class="ruby-keyword">break</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">changes</span>.<span class="ruby-identifier">any?</span>
+  <span class="ruby-keyword">end</span>
+
+  <span class="ruby-identifier">changed</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-c-replace_param" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">replace_param</span><span
+            class="method-args">(spec, param_name, param_value)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Creates a new spec based on the given one with all instances of a parameter with the given name replaced with the given value.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="replace_param-source">
+            <pre><span class="ruby-comment"># File lib/wrapture/template_spec.rb, line 251</span>
+<span class="ruby-keyword">def</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier ruby-title">replace_param</span>(<span class="ruby-identifier">spec</span>, <span class="ruby-identifier">param_name</span>, <span class="ruby-identifier">param_value</span>)
+  <span class="ruby-identifier">new_spec</span> = <span class="ruby-constant">Marshal</span>.<span class="ruby-identifier">load</span>(<span class="ruby-constant">Marshal</span>.<span class="ruby-identifier">dump</span>(<span class="ruby-identifier">spec</span>))
+  <span class="ruby-identifier">replace_param!</span>(<span class="ruby-identifier">new_spec</span>, <span class="ruby-identifier">param_name</span>, <span class="ruby-identifier">param_value</span>)
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-c-replace_param-21" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">replace_param!</span><span
+            class="method-args">(spec, param_name, param_value)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Replaces all instances of a parameter with the given name with the given value in the provided spec.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="replace_param-21-source">
+            <pre><span class="ruby-comment"># File lib/wrapture/template_spec.rb, line 258</span>
+<span class="ruby-keyword">def</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier ruby-title">replace_param!</span>(<span class="ruby-identifier">spec</span>, <span class="ruby-identifier">param_name</span>, <span class="ruby-identifier">param_value</span>)
+  <span class="ruby-keyword">if</span> <span class="ruby-identifier">spec</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Hash</span>)
+    <span class="ruby-identifier">replace_param_in_hash</span>(<span class="ruby-identifier">spec</span>, <span class="ruby-identifier">param_name</span>, <span class="ruby-identifier">param_value</span>)
+  <span class="ruby-keyword">elsif</span> <span class="ruby-identifier">spec</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Array</span>)
+    <span class="ruby-identifier">replace_param_in_array</span>(<span class="ruby-identifier">spec</span>, <span class="ruby-identifier">param_name</span>, <span class="ruby-identifier">param_value</span>)
+  <span class="ruby-keyword">else</span>
+    <span class="ruby-identifier">spec</span>
+  <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+    </section>
+  
+     <section id="public-instance-5Buntitled-5D-method-details" class="method-section">
+       <header>
+         <h3>Public Instance Methods</h3>
+       </header>
+
+    
+      <div id="method-i-direct_use-3F" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">direct_use?</span><span
+            class="method-args">(spec)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>True if the given spec is a reference to this template that will be completely replaced by the template. A direct use can be recognized as a hash with only a &#39;use-template&#39; key and no others.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="direct_use-3F-source">
+            <pre><span class="ruby-comment"># File lib/wrapture/template_spec.rb, line 307</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">direct_use?</span>(<span class="ruby-identifier">spec</span>)
+  <span class="ruby-identifier">use?</span>(<span class="ruby-identifier">spec</span>) <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">spec</span>.<span class="ruby-identifier">length</span> <span class="ruby-operator">==</span> <span class="ruby-value">1</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-instantiate" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">instantiate</span><span
+            class="method-args">(params = nil)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Returns a spec hash of this template with the provided parameters substituted.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="instantiate-source">
+            <pre><span class="ruby-comment"># File lib/wrapture/template_spec.rb, line 313</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">instantiate</span>(<span class="ruby-identifier">params</span> = <span class="ruby-keyword">nil</span>)
+  <span class="ruby-identifier">result_spec</span> = <span class="ruby-constant">Marshal</span>.<span class="ruby-identifier">load</span>(<span class="ruby-constant">Marshal</span>.<span class="ruby-identifier">dump</span>(<span class="ruby-ivar">@spec</span>[<span class="ruby-string">&#39;value&#39;</span>]))
+
+  <span class="ruby-keyword">return</span> <span class="ruby-identifier">result_spec</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">params</span>.<span class="ruby-identifier">nil?</span>
+
+  <span class="ruby-identifier">params</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">param</span><span class="ruby-operator">|</span>
+    <span class="ruby-constant">TemplateSpec</span>.<span class="ruby-identifier">replace_param!</span>(<span class="ruby-identifier">result_spec</span>, <span class="ruby-identifier">param</span>[<span class="ruby-string">&#39;name&#39;</span>], <span class="ruby-identifier">param</span>[<span class="ruby-string">&#39;value&#39;</span>])
+  <span class="ruby-keyword">end</span>
+
+  <span class="ruby-identifier">result_spec</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-name" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">name</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>The name of the template.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="name-source">
+            <pre><span class="ruby-comment"># File lib/wrapture/template_spec.rb, line 326</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">name</span>
+  <span class="ruby-ivar">@spec</span>[<span class="ruby-string">&#39;name&#39;</span>]
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-replace_uses" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">replace_uses</span><span
+            class="method-args">(spec)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Replaces all references to this template with an instantiation of it in the given spec. Returns true if any changes were made, false otherwise.</p>
+
+<p>Recursive template uses will not be replaced by this function. If multiple replacements are needed, then you will need to call this function multiple times.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="replace_uses-source">
+            <pre><span class="ruby-comment"># File lib/wrapture/template_spec.rb, line 336</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">replace_uses</span>(<span class="ruby-identifier">spec</span>)
+  <span class="ruby-keyword">if</span> <span class="ruby-identifier">spec</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Hash</span>)
+    <span class="ruby-identifier">replace_uses_in_hash</span>(<span class="ruby-identifier">spec</span>)
+  <span class="ruby-keyword">elsif</span> <span class="ruby-identifier">spec</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Array</span>)
+    <span class="ruby-identifier">replace_uses_in_array</span>(<span class="ruby-identifier">spec</span>)
+  <span class="ruby-keyword">else</span>
+    <span class="ruby-keyword">false</span>
+  <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-use-3F" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">use?</span><span
+            class="method-args">(spec)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>True if the given spec is a reference to this template.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="use-3F-source">
+            <pre><span class="ruby-comment"># File lib/wrapture/template_spec.rb, line 347</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">use?</span>(<span class="ruby-identifier">spec</span>)
+  <span class="ruby-keyword">return</span> <span class="ruby-keyword">false</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">spec</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Hash</span>) <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">spec</span>.<span class="ruby-identifier">key?</span>(<span class="ruby-constant">TEMPLATE_USE_KEYWORD</span>)
+
+  <span class="ruby-identifier">invocation</span> = <span class="ruby-identifier">spec</span>[<span class="ruby-constant">TEMPLATE_USE_KEYWORD</span>]
+  <span class="ruby-keyword">if</span> <span class="ruby-identifier">invocation</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">String</span>)
+    <span class="ruby-identifier">invocation</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">name</span>
+  <span class="ruby-keyword">elsif</span> <span class="ruby-identifier">invocation</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Hash</span>)
+    <span class="ruby-keyword">unless</span> <span class="ruby-identifier">invocation</span>.<span class="ruby-identifier">key?</span>(<span class="ruby-string">&#39;name&#39;</span>)
+      <span class="ruby-identifier">error_message</span> = <span class="ruby-node">&quot;invocations of #{TEMPLATE_USE_KEYWORD} must have a &quot;</span>\
+                      <span class="ruby-string">&#39;name member&#39;</span>
+      <span class="ruby-identifier">raise</span> <span class="ruby-constant">InvalidTemplateUsage</span>, <span class="ruby-identifier">error_message</span>
+    <span class="ruby-keyword">end</span>
+
+    <span class="ruby-identifier">invocation</span>[<span class="ruby-string">&#39;name&#39;</span>] <span class="ruby-operator">==</span> <span class="ruby-identifier">name</span>
+  <span class="ruby-keyword">else</span>
+    <span class="ruby-identifier">error_message</span> = <span class="ruby-node">&quot;#{TEMPLATE_USE_KEYWORD} must either be a String or a &quot;</span>\
+                    <span class="ruby-string">&#39;Hash&#39;</span>
+    <span class="ruby-identifier">raise</span> <span class="ruby-constant">InvalidTemplateUsage</span>, <span class="ruby-identifier">error_message</span>
+  <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+    </section>
+  
+  </section>
+
+</main>
+
+
+<footer id="validator-badges" role="contentinfo">
+  <p><a href="https://validator.w3.org/check/referer">Validate</a>
+  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.1.2.
+  <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
+</footer>
+

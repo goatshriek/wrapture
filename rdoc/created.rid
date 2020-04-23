@@ -1,0 +1,20 @@
+Thu, 23 Apr 2020 15:22:46 -0400
+lib/wrapture/action_spec.rb	Thu, 23 Apr 2020 12:56:16 -0400
+lib/wrapture/class_spec.rb	Thu, 23 Apr 2020 12:56:19 -0400
+lib/wrapture/comment.rb	Mon, 13 Apr 2020 14:43:08 -0400
+lib/wrapture/constants.rb	Thu, 19 Mar 2020 20:51:03 -0400
+lib/wrapture/constant_spec.rb	Thu, 23 Apr 2020 12:56:19 -0400
+lib/wrapture/enum_spec.rb	Thu, 16 Apr 2020 17:33:33 -0400
+lib/wrapture/errors.rb	Thu, 23 Apr 2020 12:56:19 -0400
+lib/wrapture/function_spec.rb	Thu, 23 Apr 2020 12:56:30 -0400
+lib/wrapture/normalize.rb	Thu, 23 Apr 2020 12:56:16 -0400
+lib/wrapture/param_spec.rb	Thu, 23 Apr 2020 12:56:19 -0400
+lib/wrapture/rule_spec.rb	Thu, 23 Apr 2020 12:56:16 -0400
+lib/wrapture/scope.rb	Thu, 23 Apr 2020 12:56:19 -0400
+lib/wrapture/struct_spec.rb	Thu, 23 Apr 2020 12:56:19 -0400
+lib/wrapture/template_spec.rb	Thu, 23 Apr 2020 12:56:16 -0400
+lib/wrapture/type_spec.rb	Thu, 23 Apr 2020 12:56:19 -0400
+lib/wrapture/version.rb	Thu, 23 Apr 2020 12:56:16 -0400
+lib/wrapture/wrapped_function_spec.rb	Thu, 23 Apr 2020 12:56:16 -0400
+lib/wrapture.rb	Thu, 23 Apr 2020 12:56:19 -0400
+README.md	Wed, 01 Jan 2020 16:51:20 -0500
