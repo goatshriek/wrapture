@@ -66,6 +66,12 @@ takes longer than expected.
    provided items. This change will add an option to a function spec that will
    trigger generation of a second function which takes a list parameter and runs
    the original function on each item in the list.
+ * [ADD] **Type aliasing**
+   Some languages have the ability to create a nickname or alias for types so
+   that code can be simple and readable. A key could be added to type specs to
+   allow such an alias to be created for generated types. This would make the
+   resulting code more usable in some cases, such as when using function
+   pointers in C++.
 
 ## 2.0.0
  * [REMOVE] **Use of `name` key instead of `value` in wrapped function parameter
