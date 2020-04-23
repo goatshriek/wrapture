@@ -147,16 +147,5 @@ module Wrapture
     def variadic?
       name == '...'
     end
-
-    private
-
-    # The parameter list of this function pointer.
-    def param_list
-      var_list = @spec['function'].fetch('params', []).map do |param|
-        TypeSpec.new(param['type']).variable(param.fetch('name', nil))
-      end
-
-      var_list.join(', ')
-    end
   end
 end
