@@ -215,6 +215,18 @@ class FunctionSpecTest < Minitest::Test
     assert(error.message.include?('only param'))
   end
 
+  def test_undefinable
+    test_spec = load_fixture('undefinable_function')
+
+    spec = Wrapture::FunctionSpec.new(test_spec)
+
+    refute(spec.definable?)
+
+    assert_raises(Wrapture::UndefinableSpec) do
+      spec.definition { |line| }
+    end
+  end
+
   def test_variadic_functions
     test_specs = load_fixture('variadic_functions')
 

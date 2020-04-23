@@ -297,7 +297,7 @@ module Wrapture
     # true otherwise.
     def definable_check
       if @wrapped.nil?
-        raise UndefinableSpec, 'no wrapped function waws specified'
+        raise UndefinableSpec, 'no wrapped function was specified'
       end
 
       true
