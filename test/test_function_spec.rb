@@ -129,15 +129,9 @@ class FunctionSpecTest < Minitest::Test
     expected_declaration = 'void NestedFunctionPointerArgument( const char *('\
                            ' *my_func_ptr )( int, int ( * )( struct special *,'\
                            ' void * ), void * ) );'
-    spec.declaration do |line|
-      next if line.nil?
 
-      code = line.strip
-
-      if code.include?(test_spec['name'])
-        assert_equal(expected_declaration, code)
-      end
-    end
+    lines = spec.declaration(&block_collector)
+    assert(lines.any? { |line| line.include?(expected_declaration) })
   end
 
   def test_nested_function_pointer_return
@@ -150,15 +144,9 @@ class FunctionSpecTest < Minitest::Test
     expected_declaration = 'int ( *( *NestedFunctionPointerReturn( const char'\
                            ' *my_string ) )( int, int, void * ) )( struct'\
                            ' special *, int );'
-    spec.declaration do |line|
-      next if line.nil?
 
-      code = line.strip
-
-      if code.include?(test_spec['name'])
-        assert_equal(expected_declaration, code)
-      end
-    end
+    lines = spec.declaration(&block_collector)
+    assert(lines.any? { |line| line.include?(expected_declaration) })
   end
 
   def test_only_documented_params
