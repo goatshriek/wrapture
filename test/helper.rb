@@ -33,6 +33,34 @@ end
 require 'minitest/autorun'
 require 'wrapture'
 
+def all_spec_includes(spec)
+  return [] unless spec.is_a?(Hash) || spec.is_a?(Array)
+
+  includes = []
+
+  if spec.is_a?(Array)
+    spec.each do |item|
+      includes.concat(all_spec_includes(item))
+    end
+
+    return includes
+  end
+
+  spec.each_pair do |key, value|
+    if key == 'includes'
+      if value.is_a?(Array)
+        includes.concat(value)
+      else
+        includes << value
+      end
+    end
+
+    includes.concat(all_spec_includes(value))
+  end
+
+  includes
+end
+
 def block_collector
   lines = []
   proc { |line| lines << line }
