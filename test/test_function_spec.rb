@@ -68,9 +68,12 @@ class FunctionSpecTest < Minitest::Test
     spec = Wrapture::FunctionSpec.new(test_spec)
 
     arg_type = 'const char *( *my_func_ptr )( int, int, void * )'
-    arg_checker = block_includes_proc(arg_type)
-    spec.declaration(&arg_checker)
-    spec.definition(&arg_checker)
+
+    lines = spec.declaration(&block_collector)
+    assert(lines.any? { |line| line.include?(arg_type) })
+
+    lines = spec.definition(&block_collector)
+    assert(lines.any? { |line| line.include?(arg_type) })
   end
 
   def test_function_pointer_return
@@ -83,30 +86,18 @@ class FunctionSpecTest < Minitest::Test
 
     expected_declaration = 'const char *( *FunctionPointerReturn( const '\
                            'char *my_string ) )( int, int, struct special * );'
-    spec.declaration do |line|
-      next if line.nil?
 
-      code = line.strip
-
-      if code.include?(test_spec['name'])
-        assert_equal(expected_declaration, code)
-      end
-    end
+    lines = spec.declaration(&block_collector)
+    assert(lines.any? { |line| line.include?(expected_declaration) })
 
     assert_includes(spec.definition_includes, 'overall_inc_1.h')
     assert_includes(spec.definition_includes, 'special_inc_1.h')
 
     expected_definition = 'const char *( *FunctionPointerReturn( const '\
                           'char *my_string ) )( int, int, struct special * ) {'
-    spec.definition do |line|
-      next if line.nil?
 
-      code = line.strip
-
-      if code.include?(test_spec['name'])
-        assert_equal(expected_definition, code)
-      end
-    end
+    lines = spec.definition(&block_collector)
+    assert(lines.any? { |line| line.include?(expected_definition) })
   end
 
   def test_future_spec_version

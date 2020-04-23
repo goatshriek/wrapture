@@ -33,9 +33,9 @@ end
 require 'minitest/autorun'
 require 'wrapture'
 
-def block_includes_proc(target)
-  found = false
-  proc { |line| found ||= line.include?(target) }
+def block_collector
+  lines = []
+  proc { |line| lines << line }
 end
 
 def count_matches(filename, regex)
