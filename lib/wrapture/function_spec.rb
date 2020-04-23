@@ -85,7 +85,9 @@ module Wrapture
     # The wrapped-function must have a 'name' key with the name of the function,
     # and a 'params' key with a list of parameters (each a hash with a 'name'
     # and 'type' key). Optionally, it may also include an 'includes' key with a
-    # list of includes that are needed for this function to compile.
+    # list of includes that are needed for this function to compile. The wrapped
+    # function may be left out entirely, but the function will not be definable
+    # if this is the case.
     #
     # The following keys are optional:
     # doc:: a string containing the documentation for this function
