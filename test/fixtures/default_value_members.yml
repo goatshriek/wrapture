@@ -23,7 +23,9 @@ equivalent-struct:
 functions:
   - name: "WrappedFunction"
     return:
-      type: "DefaultMembersClass"
+      type:
+        name: "DefaultMembersClass"
+        includes: "DefaultMembersClass.hpp"
     wrapped-function:
       name: "native_function"
       params:

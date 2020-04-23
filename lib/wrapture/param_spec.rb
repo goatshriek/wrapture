@@ -18,6 +18,8 @@
 # limitations under the License.
 #++
 
+require 'wrapture/type_spec'
+
 module Wrapture
   # A description of a parameter used in a generated function.
   class ParamSpec
@@ -52,20 +54,22 @@ module Wrapture
       end
     end
 
-    # Returns a normalized copy of a hash specification of a parameter.
-    # Normalization will remove duplicate entries from include lists and
-    # validate key values.
+    # Returns a normalized copy of the hash specification of a parameter in
+    # +spec+. See normalize_spec_hash! for details.
     def self.normalize_spec_hash(spec)
       normalize_spec_hash!(Marshal.load(Marshal.dump(spec)))
     end
 
-    # Normalizes a hash specification of a parameter in place. See
-    # normalize_spec_hash for details.
+    # Normalizes the hash specification of a parameter in +spec+ in place.
+    # Normalization will remove duplicate entries from include lists and
+    # validate that required key values are set.
     def self.normalize_spec_hash!(spec)
       Comment.validate_doc(spec['doc']) if spec.key?('doc')
       spec['includes'] = Wrapture.normalize_includes(spec['includes'])
 
-      unless spec.key?('type') || spec['name'] == '...'
+      spec['type'] = '...' if spec['name'] == '...'
+
+      unless spec.key?('type')
         missing_type_msg = 'parameters must have a type key defined'
         raise(MissingSpecKey, missing_type_msg)
       end
@@ -85,9 +89,13 @@ module Wrapture
       end
     end
 
+    # The type of the parameter.
+    attr_reader :type
+
     # Creates a parameter specification based on the provided hash spec.
     def initialize(spec)
       @spec = ParamSpec.normalize_spec_hash(spec)
+      @type = TypeSpec.new(@spec['type'])
     end
 
     # A Comment holding the parameter documentation.
@@ -101,7 +109,7 @@ module Wrapture
 
     # A list of includes needed for this parameter.
     def includes
-      @spec['includes']
+      @spec['includes'].dup.concat(@type.includes)
     end
 
     # The name of the parameter.
@@ -110,26 +118,15 @@ module Wrapture
     end
 
     # The parameter type and name, suitable for use in a function signature or
-    # declaration. The owner argument must be the FunctionSpec that the
-    # parameter belongs to.
+    # declaration. +owner+ must be the FunctionSpec that the parameter belongs
+    # to.
     def signature(owner)
-      if variadic?
-        '...'
-      else
-        ClassSpec.typed_variable(owner.resolve_type(type), name)
-      end
-    end
-
-    # The type of the parameter as listed in the spec. Note that this may need
-    # to be resolved based on context, for example, if it is a reference to a
-    # class's equivalent struct.
-    def type
-      @spec['type']
+      @type.resolve(owner).variable(name)
     end
 
     # True if this parameter is variadic (the name is equal to '...').
     def variadic?
-      name == '...'
+      @type.variadic?
     end
   end
 end

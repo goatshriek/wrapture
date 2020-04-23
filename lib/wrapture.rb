@@ -32,6 +32,7 @@ module Wrapture
   require 'wrapture/scope'
   require 'wrapture/struct_spec'
   require 'wrapture/template_spec'
+  require 'wrapture/type_spec'
   require 'wrapture/version'
   require 'wrapture/wrapped_function_spec'
 end

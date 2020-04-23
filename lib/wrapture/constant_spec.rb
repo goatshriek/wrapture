@@ -50,6 +50,7 @@ module Wrapture
     def initialize(spec)
       @spec = ConstantSpec.normalize_spec_hash(spec)
       @doc = @spec.key?('doc') ? Comment.new(@spec['doc']) : nil
+      @type = TypeSpec.new(@spec['type'])
     end
 
     # A list of includes needed for the declaration of this constant.
@@ -66,8 +67,7 @@ module Wrapture
     # documentation.
     def declaration
       @doc&.format_as_doxygen(max_line_length: 76) { |line| yield line }
-      type_and_name = ClassSpec.typed_variable(@spec['type'], @spec['name'])
-      yield "static const #{type_and_name};"
+      yield "static const #{@type.variable(@spec['name'])};"
     end
 
     # The definition of this constant.

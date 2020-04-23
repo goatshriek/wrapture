@@ -71,11 +71,6 @@ module Wrapture
       end
     end
 
-    # Returns a string of the variable with it's type, properly formatted.
-    def self.typed_variable(type, name)
-      "#{type}#{' ' unless type.end_with?('*')}#{name}"
-    end
-
     # The underlying struct of this class.
     attr_reader :struct
 
@@ -137,7 +132,7 @@ module Wrapture
     # specified type. Optionally the from parameter may hold the type of the
     # instance, either a reference or a pointer.
     def cast(instance, to, from = name)
-      member_access = from.end_with?('*') ? '->' : '.'
+      member_access = from.pointer? ? '->' : '.'
 
       struct = "struct #{@struct.name}"
 
@@ -327,7 +322,7 @@ module Wrapture
       @functions.each do |func|
         yield
 
-        func.definition(@spec['name']) do |def_line|
+        func.definition do |def_line|
           yield "  #{def_line}"
         end
       end
@@ -368,7 +363,7 @@ module Wrapture
       return unless @struct
 
       if child?
-        parent_spec = @scope.type(parent_name)
+        parent_spec = @scope.type(TypeSpec.new(parent_name))
         member_reusable = !parent_spec.nil? &&
                           parent_spec.struct_name == @struct.name &&
                           parent_spec.pointer_wrapper? == pointer_wrapper?
@@ -529,7 +524,7 @@ module Wrapture
     # empty string if not.
     def pointer_constructor_initializer
       if pointer_wrapper? && child?
-        parent_spec = @scope.type(parent_name)
+        parent_spec = @scope.type(TypeSpec.new(parent_name))
         parent_usable = !parent_spec.nil? &&
                         parent_spec.pointer_wrapper? &&
                         parent_spec.struct_name == @struct.name

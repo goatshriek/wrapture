@@ -34,13 +34,6 @@ project team is not currently big enough to realistically make any promises, so
 timing is often left out to prevent folks from feeling cheated if something
 takes longer than expected.
 
-## 0.4.0 (next minor release)
- * [ADD] **Support for function pointer types**
-   Function pointers are common in C code, especially when it is trying to
-   emulate object-oriented or functional programming techniques. Supporting
-   these types in the library will allow target languages to wrap C libraries
-   that make use of function pointers.
-
 ## 0.5.0
  * [REMOVE] **Support for Ruby 2.3**
    Several gems in use (rubocop and simplecov, for example) require Ruby 2.4 for
@@ -73,6 +66,12 @@ takes longer than expected.
    provided items. This change will add an option to a function spec that will
    trigger generation of a second function which takes a list parameter and runs
    the original function on each item in the list.
+ * [ADD] **Type aliasing**
+   Some languages have the ability to create a nickname or alias for types so
+   that code can be simple and readable. A key could be added to type specs to
+   allow such an alias to be created for generated types. This would make the
+   resulting code more usable in some cases, such as when using function
+   pointers in C++.
 
 ## 2.0.0
  * [REMOVE] **Use of `name` key instead of `value` in wrapped function parameter
