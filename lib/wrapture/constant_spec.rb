@@ -18,9 +18,6 @@
 # limitations under the License.
 #++
 
-require 'wrapture/comment'
-require 'wrapture/normalize'
-
 module Wrapture
   # A description of a constant.
   class ConstantSpec

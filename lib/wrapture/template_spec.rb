@@ -18,8 +18,6 @@
 # limitations under the License.
 #++
 
-require 'wrapture/constants'
-
 module Wrapture
   # A template that can be referenced in other specs.
   #

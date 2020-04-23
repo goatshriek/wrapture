@@ -18,14 +18,6 @@
 # limitations under the License.
 #++
 
-require 'wrapture/comment'
-require 'wrapture/constants'
-require 'wrapture/errors'
-require 'wrapture/param_spec'
-require 'wrapture/scope'
-require 'wrapture/type_spec'
-require 'wrapture/wrapped_function_spec'
-
 module Wrapture
   # A description of a function to be generated, including details about the
   # underlying implementation.
