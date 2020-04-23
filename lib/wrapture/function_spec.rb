@@ -113,6 +113,9 @@ module Wrapture
       @destructor = destructor
     end
 
+    # A TypeSpec describing the return type of this function.
+    attr_reader :return_type
+
     # True if the function is a constructor, false otherwise.
     def constructor?
       @constructor

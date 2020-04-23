@@ -130,12 +130,9 @@ module Wrapture
       if variadic?
         '...'
       elsif function?
-        func = @spec['function']
+        func = FunctionSpec.new(@spec['function'])
         func_name = "( *#{var_name} )" || '(*)'
-        return_spec = FunctionSpec.normalize_return_hash(func['return'])
-        return_type = TypeSpec.new(return_spec['type'])
-        return_type.return_expression(FunctionSpec.new(func),
-                                      func_name: func_name)
+        func.return_type.return_expression(func, func_name: func_name)
       elsif var_name.nil?
         name
       else
