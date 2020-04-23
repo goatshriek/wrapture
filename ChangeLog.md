@@ -5,9 +5,32 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
- - Ruby class generation.
- - Python class generation.
- - Perl class generation.
+For a detailed look at the project's future, including planned features and bug
+fixes, check out the
+[roadmap](https://github.com/goatshriek/wrapture/blob/master/docs/roadmap.md).
+
+## [0.4.0] - 2020-04-23
+### Added
+ - Inequality conditions for rules (less-than, less-than-equal, greater-than,
+   greater-than-equal).
+ - Classes who's parent wraps the same equivalent struct will re-use the
+   equivalent pointer member of the parent class.
+ - Pointer classes who's parent wraps the same equivalent struct will use the
+   parent's pointer constructor as the initializer for their own pointer
+   constructor.
+ - Classes may be defined without an equivalent struct.
+ - Specs can contain templatized sections to avoid duplicated sections.
+ - Documentation can be added to generated classes, functions, and constants.
+ - Return type may be `self-reference` to facilitate method chaining.
+ - Conversions can be made from references and pointers to wrapped classes to
+   their equivalent structs.
+ - Support for ruby 2.7.
+ - Functions may name the last parameter `...` to generate a variadic function.
+ - Enumerations can be wrapped by providing an `enums` list in a spec or scope.
+ - Support for function pointer types via new TypeSpec class.
+
+### Fixed
+ - Classes with no `name` member raise a MissingSpecKey exception.
 
 ## [0.3.0] - 2020-01-01
 ### Added

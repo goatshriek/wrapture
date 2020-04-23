@@ -13,6 +13,22 @@ class ConstantSpecTest < Minitest::Test
     Wrapture::ConstantSpec.new(test_spec)
   end
 
+  def test_documentation
+    test_spec = load_fixture('documented_constant')
+
+    constant = Wrapture::ConstantSpec.new(test_spec)
+
+    comment = String.new
+    constant.declaration do |line|
+      next if line.nil? || !line.lstrip.start_with?('/**', '*')
+
+      comment << line << "\n"
+    end
+
+    refute(comment.empty?)
+    assert(comment.include?('ConstantDocIdentifier'))
+  end
+
   def test_future_spec_version
     test_spec = load_fixture('future_version_constant')
 

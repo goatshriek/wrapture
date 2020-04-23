@@ -1,0 +1,8 @@
+places:
+  - "nevada"
+  - "california"
+  - "florida"
+use-template: "test-hash-template"
+other-stuff:
+  - "thing-103"
+  - use-template: "test-array-template"

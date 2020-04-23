@@ -1,0 +1,5 @@
+name: "BasicEnum"
+includes:
+  - "overall_1.h"
+  - "overall_2.h"
+elements: "this should be an array!"

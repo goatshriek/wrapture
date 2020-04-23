@@ -1,0 +1,8 @@
+name: "test-hash-template"
+value:
+  key-1: 3
+  key-2: "thing"
+  key-3:
+    - "list"
+    - "of"
+    - "stuff"

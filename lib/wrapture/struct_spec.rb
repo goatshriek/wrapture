@@ -2,7 +2,8 @@
 
 # frozen_string_literal: true
 
-# Copyright 2019 Joel E. Anderson
+#--
+# Copyright 2019-2020 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,6 +16,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+#++
 
 module Wrapture
   # A description of a struct.
@@ -69,7 +71,7 @@ module Wrapture
       members = []
 
       @spec['members'].each do |member|
-        members << ClassSpec.typed_variable(member['type'], member['name'])
+        members << TypeSpec.new(member['type']).variable(member['name'])
       end
 
       members.join ', '
@@ -79,7 +81,7 @@ module Wrapture
     # values if provided, separated by commas.
     def member_list_with_defaults
       @spec['members'].map do |member|
-        member_str = ClassSpec.typed_variable(member['type'], member['name'])
+        member_str = TypeSpec.new(member['type']).variable(member['name'])
 
         if member.key?('default-value')
           default_value = member['default-value']

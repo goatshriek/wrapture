@@ -7,51 +7,63 @@ classes:
       - name: "AddPool"
         params:
           - name: "new_pool"
-            type: "Pool"
-            includes: "Pool.hpp"
+            type:
+              name: "Pool"
+              includes: "Pool.hpp"
         wrapped-function:
           name: "add_pool_to_gym"
           params:
             - name: "gym"
               type: "equivalent-struct-pointer"
             - name: "new_pool"
-              type: "struct gym_pool *"
+              type:
+                name: "struct gym_pool *"
+                includes: "gym.h"
       - name: "AddPoolCopy"
         params:
           - name: "original_pool"
-            type: "Pool"
-            includes: "Pool.hpp"
+            type:
+              name: "Pool"
+              includes: "Pool.hpp"
         wrapped-function:
           name: "copy_pool_to_gym"
           params:
             - name: "gym"
               type: "equivalent-struct-pointer"
             - name: "original_pool"
-              type: "struct gym_pool"
+              type:
+                name: "struct gym_pool"
+                includes: "gym.h"
       - name: "AddTrack"
         params:
           - name: "new_track"
-            type: "Track"
-            includes: "Track.hpp"
+            type:
+              name: "Track"
+              includes: "Track.hpp"
         wrapped-function:
           name: "add_track_to_gym"
           params:
             - name: "gym"
               type: "equivalent-struct-pointer"
             - name: "new_track"
-              type: "struct gym_track *"
+              type:
+                name: "struct gym_track *"
+                includes: "gym.h"
       - name: "AddTrackCopy"
         params:
           - name: "original_track"
-            type: "Track"
-            includes: "Track.hpp"
+            type:
+              name: "Track"
+              includes: "Track.hpp"
         wrapped-function:
           name: "copy_track_to_gym"
           params:
             - name: "gym"
               type: "equivalent-struct-pointer"
             - name: "original_track"
-              type: "struct gym_track"
+              type:
+                name: "struct gym_track"
+                includes: "gym.h"
   - name: "Pool"
     namespace: "wrapture_test"
     equivalent-struct:

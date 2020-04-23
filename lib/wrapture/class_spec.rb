@@ -2,6 +2,7 @@
 
 # frozen_string_literal: true
 
+#--
 # Copyright 2019-2020 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,11 +16,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-require 'wrapture/constant_spec'
-require 'wrapture/constants'
-require 'wrapture/function_spec'
-require 'wrapture/normalize'
+#++
 
 module Wrapture
   # A description of a class, including its constants, functions, and other
@@ -34,6 +31,9 @@ module Wrapture
     # it uses an unsupported version type, then an exception is raised.
     def self.normalize_spec_hash(spec)
       raise NoNamespace unless spec.key?('namespace')
+      raise MissingSpecKey, 'name key is required' unless spec.key?('name')
+
+      Comment.validate_doc(spec['doc']) if spec.key?('doc')
 
       normalized = spec.dup
       normalized.default = []
@@ -71,11 +71,6 @@ module Wrapture
       end
     end
 
-    # Returns a string of the variable with it's type, properly formatted.
-    def self.typed_variable(type, name)
-      "#{type}#{' ' unless type.end_with?('*')}#{name}"
-    end
-
     # The underlying struct of this class.
     attr_reader :struct
 
@@ -89,14 +84,20 @@ module Wrapture
     # equivalent-struct:: a hash describing the struct this class wraps
     #
     # The following keys are optional:
+    # doc:: a string containing the documentation for this class
     # constructors:: a list of function specs that can create this class
     # destructor:: a function spec for the destructor of the class
     # functions:: a list of function specs
     # constants:: a list of constant specs
     def initialize(spec, scope: Scope.new)
-      @spec = ClassSpec.normalize_spec_hash(spec)
+      @spec = Marshal.load(Marshal.dump(spec))
+      TemplateSpec.replace_all_uses(@spec, *scope.templates)
 
-      @struct = StructSpec.new @spec[EQUIVALENT_STRUCT_KEYWORD]
+      @spec = ClassSpec.normalize_spec_hash(@spec)
+
+      @struct = if @spec.key?(EQUIVALENT_STRUCT_KEYWORD)
+                  StructSpec.new(@spec[EQUIVALENT_STRUCT_KEYWORD])
+                end
 
       @functions = @spec['constructors'].map do |constructor_spec|
         full_spec = constructor_spec.dup
@@ -121,30 +122,25 @@ module Wrapture
         ConstantSpec.new(constant_spec)
       end
 
+      @doc = @spec.key?('doc') ? Comment.new(@spec['doc']) : nil
+
       scope << self
       @scope = scope
     end
 
-    # Returns a cast of an instance of this class to the provided type, if
-    # possible.
-    def cast_to(name, type)
+    # Returns a cast of an instance of this class with the provided name to the
+    # specified type. Optionally the from parameter may hold the type of the
+    # instance, either a reference or a pointer.
+    def cast(instance, to, from = name)
+      member_access = from.pointer? ? '->' : '.'
+
       struct = "struct #{@struct.name}"
 
-      if [EQUIVALENT_STRUCT_KEYWORD, struct].include?(type)
-        equivalent_struct(name)
-      elsif [EQUIVALENT_POINTER_KEYWORD, "#{struct} *"].include?(type)
-        equivalent_struct_pointer(name)
+      if [EQUIVALENT_STRUCT_KEYWORD, struct].include?(to)
+        "#{'*' if pointer_wrapper?}#{instance}#{member_access}equivalent"
+      elsif [EQUIVALENT_POINTER_KEYWORD, "#{struct} *"].include?(to)
+        "#{'&' unless pointer_wrapper?}#{instance}#{member_access}equivalent"
       end
-    end
-
-    # The equivalent struct of this class from an instance of it.
-    def equivalent_struct(instance_name)
-      "#{'*' if pointer_wrapper?}#{instance_name}.equivalent"
-    end
-
-    # A pointer to the equivalent struct of this class from an instance of it.
-    def equivalent_struct_pointer(instance_name)
-      "#{'&' unless pointer_wrapper?}#{instance_name}.equivalent"
     end
 
     # Generates the wrapper class declaration and definition files.
@@ -163,7 +159,7 @@ module Wrapture
     # class cannot have any rules in its equivalent struct, or it will not be
     # overloaded.
     def overloads?(parent_spec)
-      return false unless parent_spec.struct.rules.empty?
+      return false unless parent_spec.struct&.rules&.empty?
 
       parent_spec.struct.name == struct_name &&
         parent_spec.name == parent_name &&
@@ -172,7 +168,12 @@ module Wrapture
 
     # The name of the parent of this class, or nil if there is no parent.
     def parent_name
-      @spec['parent']['name'] if @spec.key?('parent')
+      @spec['parent']['name'] if child?
+    end
+
+    # Determines if this class is a wrapper for a struct pointer or not.
+    def pointer_wrapper?
+      @spec['type'] == 'pointer'
     end
 
     # The name of the equivalent struct of this class.
@@ -208,6 +209,11 @@ module Wrapture
 
     private
 
+    # True if the class has a parent.
+    def child?
+      @spec.key?('parent')
+    end
+
     # Gives the content of the class declaration to a block, line by line.
     def declaration_contents
       yield "#ifndef #{header_guard}"
@@ -222,7 +228,8 @@ module Wrapture
       yield "namespace #{@spec['namespace']} {"
       yield
 
-      parent = if @spec.key?('parent')
+      documentation { |line| yield "  #{line}" }
+      parent = if child?
                  ": public #{parent_name} "
                else
                  ''
@@ -233,23 +240,25 @@ module Wrapture
 
       yield unless @constants.empty?
       @constants.each do |const|
-        yield "    #{const.declaration};"
+        const.declaration { |line| yield "    #{line}" }
       end
 
       yield
-      yield "    #{@struct.declaration equivalent_name};"
+      equivalent_member_declaration { |line| yield "    #{line}" }
       yield
 
       member_constructor_declaration { |line| yield "    #{line}" }
 
       pointer_constructor_declaration { |line| yield "    #{line}" }
 
-      yield "    #{struct_constructor_signature};" unless pointer_wrapper?
+      unless !@struct || pointer_wrapper?
+        yield "    #{struct_constructor_signature};"
+      end
 
       overload_declaration { |line| yield "    #{line}" }
 
       @functions.each do |func|
-        yield "    #{func.declaration};"
+        func.declaration { |line| yield "    #{line}" }
       end
 
       yield '  };' # end of class
@@ -263,7 +272,7 @@ module Wrapture
     def declaration_includes
       includes = @spec['includes'].dup
 
-      includes.concat(@struct.includes)
+      includes.concat(@struct.includes) if @struct
 
       @functions.each do |func|
         includes.concat(func.declaration_includes)
@@ -273,7 +282,7 @@ module Wrapture
         includes.concat(const.declaration_includes)
       end
 
-      includes.concat(@spec['parent']['includes']) if @spec.key?('parent')
+      includes.concat(@spec['parent']['includes']) if child?
 
       includes.uniq
     end
@@ -296,7 +305,7 @@ module Wrapture
 
       pointer_constructor_definition { |line| yield "  #{line}" }
 
-      unless pointer_wrapper?
+      unless pointer_wrapper? || !@struct
         yield
         yield "  #{@spec['name']}::#{struct_constructor_signature} {"
 
@@ -313,7 +322,7 @@ module Wrapture
       @functions.each do |func|
         yield
 
-        func.definition(@spec['name']) do |def_line|
+        func.definition do |def_line|
           yield "  #{def_line}"
         end
       end
@@ -339,6 +348,29 @@ module Wrapture
       includes.concat(overload_definition_includes)
 
       includes.uniq
+    end
+
+    # Yields the class documentation one line at a time.
+    def documentation
+      @doc&.format_as_doxygen(max_line_length: 78) { |line| yield line }
+    end
+
+    # Yields the declaration of the equivalent member if this class has one.
+    #
+    # A class might not have an equivalent member if it is able to use the
+    # parent class's, for example if the child class wraps the same struct.
+    def equivalent_member_declaration
+      return unless @struct
+
+      if child?
+        parent_spec = @scope.type(TypeSpec.new(parent_name))
+        member_reusable = !parent_spec.nil? &&
+                          parent_spec.struct_name == @struct.name &&
+                          parent_spec.pointer_wrapper? == pointer_wrapper?
+        return if member_reusable
+      end
+
+      yield "#{@struct.declaration(equivalent_name)};"
     end
 
     # Gives the name of the equivalent struct.
@@ -380,7 +412,7 @@ module Wrapture
     # Yields the declaration of the member constructor for a class. This will be
     # empty if the wrapped struct is a pointer wrapper.
     def member_constructor_declaration
-      return unless @struct.members?
+      return unless @struct&.members?
 
       yield "#{@spec['name']}( #{@struct.member_list_with_defaults} );"
     end
@@ -388,7 +420,7 @@ module Wrapture
     # Yields the definition of the member constructor for a class. This will be
     # empty if the wrapped struct is a pointer wrapper.
     def member_constructor_definition
-      return unless @struct.members?
+      return unless @struct&.members?
 
       yield "#{@spec['name']}::#{@spec['name']}( #{@struct.member_list} ) {"
 
@@ -440,9 +472,12 @@ module Wrapture
 
     # Yields the declaration of the pointer constructor for a class.
     #
-    # If there is already a constructor provided with this signature, then this
-    # function will return with no output.
+    # If this class does not have an equivalent struct, or if there is already
+    # a constructor defined with this signature, then this function will return
+    # with no output.
     def pointer_constructor_declaration
+      return unless @struct
+
       signature_prefix = "#{@spec['name']}( #{@struct.pointer_declaration('')}"
       return if @functions.any? do |func|
         func.constructor? && func.signature.start_with?(signature_prefix)
@@ -453,21 +488,25 @@ module Wrapture
 
     # Yields the definition of the pointer constructor for a class.
     #
-    # If there is already a constructor provided with this signature, then this
-    # function will return with no output.
+    # If this class has no equivalent struct, or if there is already a
+    # constructor provided with this signature, then this function will return
+    # with no output.
     #
     # If this is a pointer wrapper class, then the constructor will simply set
-    # the underlying pointer to the provied one, and return the new object.
+    # the underlying pointer to the provided one, and return the new object.
     #
     # If this is a struct wrapper class, then a constructor will be created that
     # sets each member of the wrapped struct to the provided value.
     def pointer_constructor_definition
+      return unless @struct
+
       signature_prefix = "#{@spec['name']}( #{@struct.pointer_declaration('')}"
       return if @functions.any? do |func|
         func.constructor? && func.signature.start_with?(signature_prefix)
       end
 
-      yield "#{@spec['name']}::#{pointer_constructor_signature} {"
+      initializer = pointer_constructor_initializer
+      yield "#{@spec['name']}::#{pointer_constructor_signature} #{initializer}{"
 
       if pointer_wrapper?
         yield '  this->equivalent = equivalent;'
@@ -481,14 +520,23 @@ module Wrapture
       yield '}'
     end
 
+    # The initializer for the pointer constructor, if one is available, or an
+    # empty string if not.
+    def pointer_constructor_initializer
+      if pointer_wrapper? && child?
+        parent_spec = @scope.type(TypeSpec.new(parent_name))
+        parent_usable = !parent_spec.nil? &&
+                        parent_spec.pointer_wrapper? &&
+                        parent_spec.struct_name == @struct.name
+        return ": #{parent_name}( equivalent ) " if parent_usable
+      end
+
+      ''
+    end
+
     # The signature of the constructor given an equivalent strucct pointer.
     def pointer_constructor_signature
       "#{@spec['name']}( #{@struct.pointer_declaration 'equivalent'} )"
-    end
-
-    # Determines if this class is a wrapper for a struct pointer or not.
-    def pointer_wrapper?
-      @spec['type'] == 'pointer'
     end
 
     # The signature of the constructor given an equivalent struct type.

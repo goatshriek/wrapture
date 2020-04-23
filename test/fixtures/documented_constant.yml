@@ -1,0 +1,5 @@
+name: "TEST_CONSTANT"
+doc: "the most magical number of all times. ConstantDocIdentifier"
+type: "int"
+value: "455"
+includes: "my_include.h"

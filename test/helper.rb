@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2019 Joel E. Anderson
+# Copyright 2019-2020 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -32,6 +32,39 @@ end
 
 require 'minitest/autorun'
 require 'wrapture'
+
+def all_spec_includes(spec)
+  return [] unless spec.is_a?(Hash) || spec.is_a?(Array)
+
+  includes = []
+
+  if spec.is_a?(Array)
+    spec.each do |item|
+      includes.concat(all_spec_includes(item))
+    end
+
+    return includes
+  end
+
+  spec.each_pair do |key, value|
+    if key == 'includes'
+      if value.is_a?(Array)
+        includes.concat(value)
+      else
+        includes << value
+      end
+    end
+
+    includes.concat(all_spec_includes(value))
+  end
+
+  includes
+end
+
+def block_collector
+  lines = []
+  proc { |line| lines << line }
+end
 
 def count_matches(filename, regex)
   count = 0
@@ -136,9 +169,12 @@ def validate_indentation(filename)
 end
 
 def validate_members(spec, filename)
-  return unless spec['equivalent-struct']['members']
+  return unless spec.key?('equivalent-struct')
 
-  first_member_name = spec['equivalent-struct']['members'][0]['name']
+  equiv_struct = spec['equivalent-struct']
+  return unless equiv_struct['members']
+
+  first_member_name = equiv_struct['members'][0]['name']
 
   fail_msg = 'no constructor for struct members generated'
   assert file_contains_match(filename, first_member_name), fail_msg

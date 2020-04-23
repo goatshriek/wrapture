@@ -1,0 +1,15 @@
+templates:
+  - name: "common-function"
+    value:
+      name: "func_name"
+      wrapped-function:
+        name: "low_level_func"
+        params:
+          - value: "equivalent-struct-pointer"
+classes:
+  - name: ""
+    namespace: "wrapture_test"
+    equivalent-struct:
+      name: "simple_struct"
+    functions:
+      - use-template: "common-function"

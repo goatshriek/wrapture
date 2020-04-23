@@ -20,7 +20,7 @@ source 'https://rubygems.org'
 
 gemspec
 
-gem 'json', '>= 1.8', '<= 2.2' # needed for truffleruby to work
+gem 'json', '>= 1.8', '<= 2.3'
 
 group :development do
   gem 'rake', '>= 0.9.2'
@@ -29,7 +29,10 @@ end
 
 group :test do
   gem 'codecov', '>= 0.1.14', require: false
-  gem 'minitest', '>= 5.9', '< 5.12' # 5.12+ cause problems with rbx 4
-  gem 'rubocop', '>= 0.69', require: false
-  gem 'simplecov', '>= 0.16.1', require: false
+  # minitest at or above 5.12 cause problems with rbx 4
+  gem 'minitest', '>= 5.9', '< 5.12'
+  # rubocop at or above 0.82 requires ruby 2.4
+  gem 'rubocop', '>= 0.69', '< 0.82', require: false
+  # simplecov above 0.17.1 requires ruby 2.4
+  gem 'simplecov', '>= 0.16.1', '<= 0.17.1', require: false
 end

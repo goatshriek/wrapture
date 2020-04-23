@@ -1,4 +1,20 @@
+# SPDX-License-Identifier: Apache-2.0
+
 # frozen_string_literal: true
+
+# Copyright 2019-2020 Joel E. Anderson
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 require 'helper'
 
@@ -10,6 +26,12 @@ class ClassSpecTest < Minitest::Test
   def test_invalid_type
     assert_raises(Wrapture::InvalidSpecKey) do
       Wrapture::ClassSpec.new(load_fixture('invalid_type_class'))
+    end
+  end
+
+  def test_no_name
+    assert_raises(Wrapture::MissingSpecKey) do
+      Wrapture::ClassSpec.new(load_fixture('no_name_class'))
     end
   end
 
@@ -81,6 +103,37 @@ class ClassSpecTest < Minitest::Test
     validate_wrapper_results(test_spec, classes)
 
     File.delete(*classes)
+  end
+
+  def test_class_with_documentation
+    test_spec = load_fixture('documented_class')
+
+    spec = Wrapture::ClassSpec.new(test_spec)
+
+    generated_files = spec.generate_wrappers
+    validate_wrapper_results(test_spec, generated_files)
+
+    File.open('DocumentedClass.hpp').each do |line|
+      if line.lstrip.start_with?('/**', '*')
+        refute(line.chomp.end_with?(' '))
+        assert(line.chomp.length <= 80)
+      end
+    end
+
+    assert(file_contains_match('DocumentedClass.hpp', '\s\*$'))
+
+    File.delete(*generated_files)
+  end
+
+  def test_class_with_no_struct
+    test_spec = load_fixture('no_struct_class')
+
+    spec = Wrapture::ClassSpec.new(test_spec)
+
+    generated_files = spec.generate_wrappers
+    validate_wrapper_results(test_spec, generated_files)
+
+    File.delete(*generated_files)
   end
 
   def test_class_with_static_function

@@ -2,6 +2,7 @@
 
 # frozen_string_literal: true
 
+#--
 # Copyright 2019 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,8 +16,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-require 'wrapture/version'
+#++
 
 module Wrapture
   # Normalizes a spec key to be boolean, raising an error if it is not. Keys

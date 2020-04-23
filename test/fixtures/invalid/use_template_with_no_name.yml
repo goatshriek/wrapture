@@ -1,0 +1,11 @@
+templates:
+  - name: "better-than-a-horse"
+    value:
+      clarification: "with no name, that is"
+classes:
+  - name: "TemplateWithNoName"
+    namespace: "wrapture_test"
+    use-template:
+      params:
+        - name: "what to do"
+          value: "what to do"

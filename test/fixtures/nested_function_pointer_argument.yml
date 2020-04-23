@@ -1,0 +1,22 @@
+name: "NestedFunctionPointerArgument"
+params:
+  - name: "my_func_ptr"
+    type:
+      function:
+        params:
+          - type: "int"
+          - type:
+              function:
+                params:
+                  - type: "struct special *"
+                    includes: "special_inc_1.h"
+                  - type: "void *"
+                return:
+                  type: "int"
+          - type: "void *"
+        return:
+          type: "const char *"
+wrapped-function:
+  name: "underlying_function"
+  params:
+    - value: "my_func_ptr"

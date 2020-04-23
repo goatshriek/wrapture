@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2019 Joel E. Anderson
+# Copyright 2019-2020 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,15 +19,20 @@
 # Classes and functions for generating language wrappers
 module Wrapture
   require 'wrapture/action_spec'
+  require 'wrapture/comment'
   require 'wrapture/constant_spec'
   require 'wrapture/constants'
   require 'wrapture/class_spec'
+  require 'wrapture/enum_spec'
   require 'wrapture/errors'
   require 'wrapture/function_spec'
   require 'wrapture/normalize'
   require 'wrapture/rule_spec'
+  require 'wrapture/param_spec'
   require 'wrapture/scope'
   require 'wrapture/struct_spec'
+  require 'wrapture/template_spec'
+  require 'wrapture/type_spec'
   require 'wrapture/version'
   require 'wrapture/wrapped_function_spec'
 end

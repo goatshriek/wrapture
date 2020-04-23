@@ -18,8 +18,8 @@
 
 Gem::Specification.new do |spec|
   spec.name        =  'wrapture'
-  spec.version     =  '0.3.0'
-  spec.date        =  '2020-01-01'
+  spec.version     =  '0.4.0'
+  spec.date        =  '2020-04-23'
   spec.summary     =  'wrap C in C++'
   spec.description =  'Wraps C code in C++.'
   spec.authors     =  ['Joel Anderson']
@@ -38,6 +38,7 @@ Gem::Specification.new do |spec|
     spec.metadata = {
       'bug_tracker_uri' => 'https://github.com/goatshriek/wrapture/issues',
       'changelog_uri' => 'https://github.com/goatshriek/wrapture/blob/master/ChangeLog.md',
+      'documentation_uri' => 'https://goatshriek.github.io/wrapture/rdoc/',
       'source_code_uri' => 'https://github.com/goatshriek/wrapture/'
     }
   end

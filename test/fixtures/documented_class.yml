@@ -1,0 +1,12 @@
+name: "DocumentedClass"
+namespace: "wrapture_test"
+doc: |2
+  DocumentedClass is a simple wrapper class that demonstrates how documentation
+  works in generated wrappers. This documentation will be added into the
+  declaration of the class, and can then be picked up by documentation
+  generators like Doxygen.
+  
+  Multiple paragraphs should be fully supported by this documentation style.
+  This will result in multiple paragraphs in the generated output.
+equivalent-struct:
+  name: "documented"

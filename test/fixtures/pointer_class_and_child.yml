@@ -1,0 +1,15 @@
+version: "0.4.0"
+classes:
+  - name: "ParentPointer"
+    namespace: "wrapture_test"
+    type: "pointer"
+    equivalent-struct:
+      name: "wrapped_struct"
+  - name: "ChildPointer"
+    namespace: "wrapture_test"
+    type: "pointer"
+    parent:
+      name: "ParentPointer"
+      includes: "ParentPointer.hpp"
+    equivalent-struct:
+      name: "wrapped_struct"

@@ -1,0 +1,15 @@
+name: "FunctionPointerArgument"
+params:
+  - name: "my_func_ptr"
+    type:
+      function:
+        params:
+          - type: "int"
+          - type: "int"
+          - type: "void *"
+        return:
+          type: "const char *"
+wrapped-function:
+  name: "underlying_function"
+  params:
+    - value: "my_func_ptr"
