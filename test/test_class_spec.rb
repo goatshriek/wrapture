@@ -113,10 +113,11 @@ class ClassSpecTest < Minitest::Test
     assert(file_contains_match(source_file, spec_regex),
            "the spec constructor had a return type specified when defined")
 
-    destructor_regex = /^\s#{class_name}::~#{class_name}/
+    destructor_regex = /^\s*#{class_name}::~#{class_name}/
     assert(file_contains_match(source_file, destructor_regex),
            "the destructor had a return type specified when defined")
 
+    wrapped_function = test_spec['constructors'][0]['wrapped-function']
     assert(file_contains_match(source_file, /= #{wrapped_function['name']}/))
 
     File.delete(*generated_files)
