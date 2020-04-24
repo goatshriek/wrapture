@@ -78,8 +78,8 @@ class ClassSpecTest < Minitest::Test
 
     spec = Wrapture::ClassSpec.new(test_spec)
 
-    classes = spec.generate_wrappers
-    validate_wrapper_results(test_spec, classes)
+    generated_files = spec.generate_wrappers
+    validate_wrapper_results(test_spec, generated_files)
 
     class_name = test_spec['name']
     header_file = "#{class_name}.hpp"
@@ -98,11 +98,12 @@ class ClassSpecTest < Minitest::Test
 
     source_file = "#{class_name}.cpp"
     includes = get_include_list(source_file)
-    wrapped_function = test_spec['constructors'][0]['wrapped-function']
-    assert_includes(includes, wrapped_function['includes'])
+    all_spec_includes(test_spec).each do |inc|
+      assert_includes(includes, inc)
+    end
 
     forbidden = Wrapture::EQUIVALENT_STRUCT_KEYWORD
-    assert(!file_contains_match(source_file, forbidden))
+    refute(file_contains_match(source_file, forbidden))
 
     member_regex = /^\s*#{class_name}::#{class_name}\( int member/
     assert(file_contains_match(source_file, member_regex),
@@ -118,7 +119,7 @@ class ClassSpecTest < Minitest::Test
 
     assert(file_contains_match(source_file, /= #{wrapped_function['name']}/))
 
-    File.delete(*classes)
+    File.delete(*generated_files)
   end
 
   def test_class_with_constant
