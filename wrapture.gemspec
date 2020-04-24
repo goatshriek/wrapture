@@ -24,11 +24,11 @@ Gem::Specification.new do |spec|
   spec.description =  'Wraps C code in C++.'
   spec.authors     =  ['Joel Anderson']
   spec.email       =  'joelanderson333@gmail.com'
-  spec.files       =  Dir.glob('{lib,bin}/**/*').reject do |file|
-    File.directory? file
+  spec.files       =  Dir.glob('{lib,bin}/**/*').reject do |file_or_dir|
+    File.directory?(file_or_dir)
   end
   spec.executables << 'wrapture'
-  spec.homepage    =  'http://rubygems.org/gems/wrapture'
+  spec.homepage    =  'https://goatshriek.github.io/wrapture/'
   spec.license     =  'Apache-2.0'
 
   spec.required_ruby_version = '>= 2.4'
