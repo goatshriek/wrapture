@@ -18,8 +18,8 @@
 
 Gem::Specification.new do |spec|
   spec.name        =  'wrapture'
-  spec.version     =  '0.4.0'
-  spec.date        =  '2020-04-23'
+  spec.version     =  '0.4.1'
+  spec.date        =  '2020-04-24'
   spec.summary     =  'wrap C in C++'
   spec.description =  'Wraps C code in C++.'
   spec.authors     =  ['Joel Anderson']
