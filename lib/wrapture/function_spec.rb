@@ -203,11 +203,6 @@ module Wrapture
     def declaration
       doc.format_as_doxygen(max_line_length: 76) { |line| yield line }
 
-      if @constructor || @destructor
-        yield "#{signature};"
-        return
-      end
-
       modifier_prefix = if @spec['static']
                           'static '
                         elsif virtual?
