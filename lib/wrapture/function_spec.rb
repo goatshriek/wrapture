@@ -186,7 +186,7 @@ module Wrapture
     # is passed to return_expression if provided.
     def return_expression(func_name: name)
       if @constructor || @destructor
-        return signature(func_name: func_name) 
+        return signature(func_name: func_name)
       end
 
       resolved_return.return_expression(self, func_name: func_name)
