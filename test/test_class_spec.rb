@@ -81,7 +81,22 @@ class ClassSpecTest < Minitest::Test
     classes = spec.generate_wrappers
     validate_wrapper_results(test_spec, classes)
 
-    source_file = "#{test_spec['name']}.cpp"
+    class_name = test_spec['name']
+    header_file = "#{class_name}.hpp"
+
+    member_regex = /^\s*#{class_name}\( int member/
+    assert(file_contains_match(header_file, member_regex),
+           "the member constructor had a return type specified in the header")
+
+    spec_regex = /^\s*#{class_name}\( struct/
+    assert(file_contains_match(header_file, spec_regex),
+           "the spec constructor had a return type specified in the header")
+
+    destructor_regex = /^\s*~#{class_name}/
+    assert(file_contains_match(header_file, destructor_regex),
+           "the destructor had a return type specified in the header")
+
+    source_file = "#{class_name}.cpp"
     includes = get_include_list(source_file)
     wrapped_function = test_spec['constructors'][0]['wrapped-function']
     assert_includes(includes, wrapped_function['includes'])
@@ -89,18 +104,17 @@ class ClassSpecTest < Minitest::Test
     forbidden = Wrapture::EQUIVALENT_STRUCT_KEYWORD
     assert(!file_contains_match(source_file, forbidden))
 
-    class_name = test_spec['name']
     member_regex = /^\s*#{class_name}::#{class_name}\( int member/
     assert(file_contains_match(source_file, member_regex),
-           "the member constructor had a return type specified")
+           "the member constructor had a return type specified when defined")
 
     spec_regex = /^\s*#{class_name}::#{class_name}\( struct/
     assert(file_contains_match(source_file, spec_regex),
-           "the spec constructor had a return type specified")
+           "the spec constructor had a return type specified when defined")
 
     destructor_regex = /^\s#{class_name}::~#{class_name}/
     assert(file_contains_match(source_file, destructor_regex),
-           "the destructor had a return type specified")
+           "the destructor had a return type specified when defined")
 
     assert(file_contains_match(source_file, /= #{wrapped_function['name']}/))
 
