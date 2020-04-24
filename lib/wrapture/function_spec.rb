@@ -185,23 +185,23 @@ module Wrapture
     # Calls return_expression on the return type of this function. +func_name+
     # is passed to return_expression if provided.
     def return_expression(func_name: name)
-      resolved_return.return_expression(self, func_name: func_name)
+      if @constructor || @destructor
+        signature(func_name: func_name)
+      else
+        resolved_return.return_expression(self, func_name: func_name)
+      end
     end
 
-    # The signature of the function.
-    def signature
-      "#{name}( #{param_list} )"
+    # The signature of the function. +func_name+ can be used to override the
+    # function name if needed, for example if a class name qualifier is needed.
+    def signature(func_name: name)
+      "#{func_name}( #{param_list} )"
     end
 
     # Yields each line of the declaration of the function, including any
     # documentation.
     def declaration
       doc.format_as_doxygen(max_line_length: 76) { |line| yield line }
-
-      if @constructor || @destructor
-        yield "#{signature};"
-        return
-      end
 
       modifier_prefix = if @spec['static']
                           'static '

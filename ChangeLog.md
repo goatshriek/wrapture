@@ -9,6 +9,11 @@ For a detailed look at the project's future, including planned features and bug
 fixes, check out the
 [roadmap](https://github.com/goatshriek/wrapture/blob/master/docs/roadmap.md).
 
+## [0.4.1] - 2020-04-24
+### Fixed
+ - Constructor and destructor definitions no longer have a type of 'void'
+   provided ([issue #72](https://github.com/goatshriek/wrapture/issues/72)).
+
 ## [0.4.0] - 2020-04-23
 ### Added
  - Inequality conditions for rules (less-than, less-than-equal, greater-than,
