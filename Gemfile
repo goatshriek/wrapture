@@ -37,5 +37,9 @@ group :test do
   # expected 0) (ArgumentError)
   # see the following travis build for an example:
   # https://travis-ci.org/github/goatshriek/wrapture/jobs/679280059
+  # this is due to a compatibility issue with truffleruby that will be fixed in
+  # version 20.1.0, and the upper limit can be removed after that
+  # see https://github.com/oracle/truffleruby/issues/1899 for a similar issue
+  # with another project
   gem 'simplecov', '>= 0.16.1', '< 0.18', require: false
 end
