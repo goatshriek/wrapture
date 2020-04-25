@@ -14,8 +14,6 @@ rvm:
 matrix:
   allow_failures:
     - os: linux
-      rvm: rbx-3
-    - os: linux
       rvm: rbx-4
   include:
     - os: linux
@@ -32,7 +30,7 @@ matrix:
     - os: linux
       dist: trusty
       rvm: rbx-4
-#      gemfile: gemfiles/minimal.gemfile
+      gemfile: gemfiles/minimal.gemfile
 
 before_install:
   - if [[ ! $TRAVIS_RUBY_VERSION =~ "rbx" ]]; then gem update --system --no-document; fi
