@@ -32,5 +32,5 @@ group :test do
   # minitest at or above 5.12 cause problems with rbx 4
   gem 'minitest', '>= 5.9', '< 5.12'
   gem 'rubocop', '>= 0.69', require: false
-  gem 'simplecov', '>= 0.16.1', require: false
+  gem 'simplecov', '>= 0.16.1', '< 0.18', require: false
 end
