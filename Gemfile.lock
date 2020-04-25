@@ -22,7 +22,7 @@ GEM
       ast (~> 2.4.0)
     rainbow (3.0.0)
     rake (13.0.1)
-    rdoc (6.1.2)
+    rdoc (6.2.1)
     rexml (3.2.4)
     rubocop (0.82.0)
       jaro_winkler (~> 1.5.1)
@@ -51,7 +51,7 @@ DEPENDENCIES
   json (>= 1.8, <= 2.3)
   minitest (>= 5.9, < 5.12)
   rake (>= 0.9.2)
-  rdoc (>= 6.0, < 6.2)
+  rdoc (>= 6.0)
   rubocop (>= 0.69)
   simplecov (>= 0.16.1, <= 0.17.1)
   wrapture!
