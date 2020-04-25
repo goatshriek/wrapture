@@ -20,7 +20,7 @@
 
 module Wrapture
   # the current version of Wrapture
-  VERSION = '0.4.1'
+  VERSION = '0.5.0'
 
   # Returns true if the version of the spec is supported by this version of
   # Wrapture. Otherwise returns false.

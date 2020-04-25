@@ -1,3 +1,9 @@
+AllCops:
+  TargetRubyVersion: 2.4
+
+Layout/SpaceAroundMethodCallOperator:
+  Enabled: true
+
 Lint/RaiseException:
   Enabled: true
 
@@ -15,6 +21,9 @@ Metrics/MethodLength:
 
 Style/Documentation:
   Enabled: false
+
+Style/ExponentialNotation:
+  Enabled: true
 
 Style/GuardClause:
   Enabled: false

@@ -9,6 +9,10 @@ For a detailed look at the project's future, including planned features and bug
 fixes, check out the
 [roadmap](https://github.com/goatshriek/wrapture/blob/master/docs/roadmap.md).
 
+## [0.5.0] - 2020-04-25
+### Removed
+ - Ruby 2.3 is no longer supported.
+
 ## [0.4.1] - 2020-04-24
 ### Fixed
  - Constructor and destructor definitions no longer have a type of 'void'

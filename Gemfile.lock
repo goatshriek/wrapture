@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    wrapture (0.4.1)
+    wrapture (0.5.0)
 
 GEM
   remote: https://rubygems.org/
@@ -22,9 +22,9 @@ GEM
       ast (~> 2.4.0)
     rainbow (3.0.0)
     rake (13.0.1)
-    rdoc (6.1.2)
+    rdoc (6.2.1)
     rexml (3.2.4)
-    rubocop (0.81.0)
+    rubocop (0.82.0)
       jaro_winkler (~> 1.5.1)
       parallel (~> 1.10)
       parser (>= 2.7.0.1)
@@ -51,9 +51,9 @@ DEPENDENCIES
   json (>= 1.8, <= 2.3)
   minitest (>= 5.9, < 5.12)
   rake (>= 0.9.2)
-  rdoc (>= 6.0, < 6.2)
-  rubocop (>= 0.69, < 0.82)
-  simplecov (>= 0.16.1, <= 0.17.1)
+  rdoc (>= 6.0)
+  rubocop (>= 0.69)
+  simplecov (>= 0.16.1, < 0.18)
   wrapture!
 
 BUNDLED WITH

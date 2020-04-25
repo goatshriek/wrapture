@@ -35,10 +35,6 @@ timing is often left out to prevent folks from feeling cheated if something
 takes longer than expected.
 
 ## 0.5.0
- * [REMOVE] **Support for Ruby 2.3**
-   Several gems in use (rubocop and simplecov, for example) require Ruby 2.4 for
-   their newest versions. Dropping support for Ruby 2.3 will allow the project
-   to make use of features in the latest versions, for example new rubocop cops.
  * [ADD] **Python class generation**
    Python is a commonly used language in a variety of applications, and
    extension of C code into it is estimated to be a valuable feature.

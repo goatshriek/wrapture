@@ -24,15 +24,22 @@ gem 'json', '>= 1.8', '<= 2.3'
 
 group :development do
   gem 'rake', '>= 0.9.2'
-  gem 'rdoc', '>= 6.0', '< 6.2' # 6.2 requires >= ruby 2.4.0
+  gem 'rdoc', '>= 6.0'
 end
 
 group :test do
   gem 'codecov', '>= 0.1.14', require: false
   # minitest at or above 5.12 cause problems with rbx 4
   gem 'minitest', '>= 5.9', '< 5.12'
-  # rubocop at or above 0.82 requires ruby 2.4
-  gem 'rubocop', '>= 0.69', '< 0.82', require: false
-  # simplecov above 0.17.1 requires ruby 2.4
-  gem 'simplecov', '>= 0.16.1', '<= 0.17.1', require: false
+  gem 'rubocop', '>= 0.69', require: false
+  # using simplecov 0.18 causes the following problem with truffleruby:
+  # lib/simplecov.rb:236:in `floor': wrong number of arguments (given 1,
+  # expected 0) (ArgumentError)
+  # see the following travis build for an example:
+  # https://travis-ci.org/github/goatshriek/wrapture/jobs/679280059
+  # this is due to a compatibility issue with truffleruby that will be fixed in
+  # version 20.1.0, and the upper limit can be removed after that
+  # see https://github.com/oracle/truffleruby/issues/1899 for a similar issue
+  # with another project
+  gem 'simplecov', '>= 0.16.1', '< 0.18', require: false
 end
