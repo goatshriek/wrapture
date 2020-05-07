@@ -35,12 +35,6 @@ timing is often left out to prevent folks from feeling cheated if something
 takes longer than expected.
 
 ## 0.4.2
- * [FIX] **Functions returning function pointers are invalid**
-   Definitions of functions that return a function pointer are incorrectly
-   generated, dumping the contents of the TypeSpec hash directly into the code.
-   For more details, see
-   [issue #76](https://github.com/goatshriek/wrapture/issues/76) on the project
-   Github site.
  * [FIX] **Return value variable declarations incorrect when using keywords**
    Return values are incorrectly typed using the wrapture keyword when the
    return type is given as one. This is most apparent in constructor
