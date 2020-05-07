@@ -102,6 +102,8 @@ class FunctionSpecTest < Minitest::Test
 
     lines = spec.definition(&block_collector)
     assert(lines.any? { |line| line.include?(expected_definition) })
+    refute(lines.any? { |line| line.include?('=>') },
+           'a rocket operator was found in the output code')
   end
 
   def test_future_spec_version
