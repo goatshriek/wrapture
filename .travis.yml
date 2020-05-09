@@ -17,7 +17,7 @@ matrix:
       rvm: rbx-4
   include:
     - os: linux
-      dist: trusty
+      dist: xenial
       rvm: 2.7
       addons:
         sonarcloud:
@@ -28,7 +28,7 @@ matrix:
         sonarcloud:
           organization: "goatshriek-github"
     - os: linux
-      dist: trusty
+      dist: xenial
       rvm: rbx-4
       gemfile: gemfiles/minimal.gemfile
 
