@@ -20,6 +20,9 @@ fixes, check out the
    ([issue #77](https://github.com/goatshriek/wrapture/issues/77)).
  - The list `Wrapture::KEYWORDS` now contains the value in
    `Wrapture::SELF_REFERENCE_KEYWORD`.
+ - `throw-exception` actions with no parameters for the constructor no longer
+   cause an error
+   ([issue #78](https://github.com/goatshriek/wrapture/issues/78)).
 
 ## [0.4.1] - 2020-04-24
 ### Fixed
