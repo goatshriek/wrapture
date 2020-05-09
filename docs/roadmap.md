@@ -34,14 +34,6 @@ project team is not currently big enough to realistically make any promises, so
 timing is often left out to prevent folks from feeling cheated if something
 takes longer than expected.
 
-## 0.4.2
- * [FIX] **Exception actions with no parameters cannot be taken**
-   If a `throw-exception` action is defined with a constructor that does not
-   take any parameters, then an Exception is raised when the take method is
-   called on the ActionSpec instance. For more details, see
-   [issue #78](https://github.com/goatshriek/wrapture/issues/78) on the project
-   Github site.
-
 ## 0.5.0
  * [REMOVE] **Support for Ruby 2.3**
    Several gems in use (rubocop and simplecov, for example) require Ruby 2.4 for
