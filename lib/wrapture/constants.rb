@@ -36,5 +36,6 @@ module Wrapture
 
   # A list of all keywords.
   KEYWORDS = [EQUIVALENT_STRUCT_KEYWORD, EQUIVALENT_POINTER_KEYWORD,
-              RETURN_VALUE_KEYWORD, TEMPLATE_USE_KEYWORD].freeze
+              SELF_REFERENCE_KEYWORD, RETURN_VALUE_KEYWORD,
+              TEMPLATE_USE_KEYWORD].freeze
 end
