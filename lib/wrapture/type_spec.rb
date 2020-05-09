@@ -54,6 +54,20 @@ module Wrapture
       @spec = TypeSpec.normalize_spec_hash(actual_spec)
     end
 
+    # Compares this TypeSpec with either another TypeSpec, or with a String
+    # holding the name of a type.
+    #
+    # Added in release 0.4.2.
+    def ==(type)
+      if type.is_a?(TypeSpec)
+        name == type.name
+      elsif type.is_a?(String)
+        name == type
+      else
+        false
+      end
+    end
+
     # The name of this type with all special characters removed.
     def base
       name.delete('*&').strip

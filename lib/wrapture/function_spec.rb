@@ -320,7 +320,7 @@ module Wrapture
 
     # The function to use to create the return value of the function.
     def return_cast(value)
-      if @spec['return']['type'] == @wrapped.return_val_type
+      if @return_type == @wrapped.return_val_type
         value
       elsif @spec['return']['overloaded']
         "new#{@spec['return']['type'].chomp('*').strip} ( #{value} )"
