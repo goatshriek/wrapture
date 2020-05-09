@@ -35,13 +35,6 @@ timing is often left out to prevent folks from feeling cheated if something
 takes longer than expected.
 
 ## 0.4.2
- * [FIX] **Return value variable declarations incorrect when using keywords**
-   Return values are incorrectly typed using the wrapture keyword when the
-   return type is given as one. This is most apparent in constructor
-   definitions, which specify the return type so that the equivalent struct
-   pointer can be set appropriately. For more details, see
-   [issue #77](https://github.com/goatshriek/wrapture/issues/77) on the project
-   Github site.
  * [FIX] **Exception actions with no parameters cannot be taken**
    If a `throw-exception` action is defined with a constructor that does not
    take any parameters, then an Exception is raised when the take method is

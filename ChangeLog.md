@@ -14,6 +14,10 @@ fixes, check out the
  - Functions that return function pointers now cast the return correctly instead
    of containing non-valid code
    ([issue #76](https://github.com/goatshriek/wrapture/issues/76)).
+ - Return value types are now valid types when they are given using a special
+   keyword in the spec, such as `equivalent-struct-pointer`. The types are now
+   resolved based on the keyword if one is used
+   ([issue #77](https://github.com/goatshriek/wrapture/issues/77)).
 
 ## [0.4.1] - 2020-04-24
 ### Fixed
