@@ -113,7 +113,7 @@ module Wrapture
 
     # A TypeSpec describing the type of the return value.
     #
-    # Changed in 0.4.2 to return a TypeSpec instead of a String.
+    # Changed in release 0.4.2 to return a TypeSpec instead of a String.
     def return_val_type
       TypeSpec.new(@spec['return']['type'])
     end
