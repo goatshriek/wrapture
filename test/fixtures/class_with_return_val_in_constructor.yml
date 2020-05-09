@@ -1,0 +1,28 @@
+name: "ClassWithReturnActionInConstructor"
+namespace: "wrapture_test"
+equivalent_struct:
+  name: "irrelevant"
+constructors:
+  - wrapped-function:
+      name: "wrapped_constructor"
+      params:
+        - name: "name"
+          type: "const char *"
+      return:
+        type: "equivalent-struct-pointer"
+      error-check:
+        rules:
+          - left-expression: "return-value"
+            condition: "equals"
+            right-expression: "NULL"
+        error-action:
+          name: "throw-exception"
+          constructor:
+            name: "throwMyException"
+            params:
+              - value: "name"
+destructor:
+  wrapped-function:
+    name: "wrapped_destructor"
+    params:
+      - value: "equivalent-struct-pointer"

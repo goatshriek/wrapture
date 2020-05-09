@@ -43,6 +43,17 @@ class ClassSpecTest < Minitest::Test
     refute_nil normalized_spec
   end
 
+  def test_return_val_in_constructor
+    test_spec = load_fixture('class_with_return_val_in_constructor')
+
+    spec = Wrapture::ClassSpec.new(test_spec)
+    generated_files = spec.generate_wrappers
+
+    validate_wrapper_results(test_spec, generated_files)
+
+    File.delete(*generated_files)
+  end
+
   def test_future_spec_version
     test_spec = load_fixture('future_version_class')
 
