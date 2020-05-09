@@ -18,6 +18,8 @@ fixes, check out the
    keyword in the spec, such as `equivalent-struct-pointer`. The types are now
    resolved based on the keyword if one is used
    ([issue #77](https://github.com/goatshriek/wrapture/issues/77)).
+ - The list `Wrapture::KEYWORDS` now contains the value in
+   `Wrapture::SELF_REFERENCE_KEYWORD`.
 
 ## [0.4.1] - 2020-04-24
 ### Fixed
