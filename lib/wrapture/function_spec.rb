@@ -321,7 +321,7 @@ module Wrapture
       elsif @spec['return']['overloaded']
         "new#{@spec['return']['type'].chomp('*').strip} ( #{value} )"
       else
-        "#{@spec['return']['type']} ( #{value} )"
+        resolved_return.cast_expression(value)
       end
     end
 

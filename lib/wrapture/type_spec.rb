@@ -59,6 +59,13 @@ module Wrapture
       name.delete('*&').strip
     end
 
+    # An expression casting the result of a given expression into this type.
+    #
+    # Added in release 0.4.2.
+    def cast_expression(expression)
+      "( #{variable} )( #{expression} )"
+    end
+
     # True if this type is an equivalent struct pointer reference.
     def equivalent_pointer?
       name == EQUIVALENT_POINTER_KEYWORD
