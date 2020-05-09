@@ -77,7 +77,14 @@ module Wrapture
     end
 
     # A string containing a check for a struct of the given name for this rule.
-    def check(variable: nil)
+    #
+    # +variable+ can be provided to provide the variable holding a struct
+    # pointer for +struct-member+ rules.
+    #
+    # +return_val+ is used as the replacement for a return value signified by
+    # the use of RETURN_VALUE_KEYWORD in the spec. If not specified it defaults
+    # to +'return_val'+.
+    def check(variable: nil, return_val: 'return_val')
       condition = RuleSpec::CONDITIONS[@spec['condition']]
 
       if @spec['type'] == 'struct-member'
@@ -85,7 +92,7 @@ module Wrapture
       else
         left = @spec['left-expression']
         right = @spec['right-expression']
-        "#{left} #{condition} #{right}".sub(RETURN_VALUE_KEYWORD, 'return_val')
+        "#{left} #{condition} #{right}".sub(RETURN_VALUE_KEYWORD, return_val)
       end
     end
   end
