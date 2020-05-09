@@ -311,7 +311,11 @@ module Wrapture
     # Yields a declaration of each local variable used by the function.
     def locals
       yield 'va_list variadic_args;' if variadic?
-      yield "#{@wrapped.return_val_type} return_val;" if @wrapped.error_check?
+
+      if @wrapped.error_check?
+        wrapped_type = resolve_type(@wrapped.return_val_type)
+        yield "#{wrapped_type.variable('return_val')};"
+      end
     end
 
     # The function to use to create the return value of the function.

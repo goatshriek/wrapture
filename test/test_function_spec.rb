@@ -119,7 +119,7 @@ class FunctionSpecTest < Minitest::Test
 
     spec = Wrapture::FunctionSpec.new(test_spec)
 
-    call = test_spec['wrapped-function']['name']
+    call = "( const char * )( #{test_spec['wrapped-function']['name']}"
     spec.definition do |line|
       code = line.strip
 

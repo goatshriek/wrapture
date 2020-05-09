@@ -111,9 +111,11 @@ module Wrapture
       includes
     end
 
-    # A string with the type of the return value.
+    # A TypeSpec describing the type of the return value.
+    #
+    # Changed in 0.4.2 to return a TypeSpec instead of a String.
     def return_val_type
-      @spec['return']['type']
+      TypeSpec.new(@spec['return']['type'])
     end
   end
 end
