@@ -54,6 +54,14 @@ module Wrapture
       @spec = TypeSpec.normalize_spec_hash(actual_spec)
     end
 
+    # Compares this TypeSpec with +other+. Comparison happens by converting each
+    # object to a string using to_s and comparing.
+    #
+    # Added in release 0.4.2.
+    def ==(other)
+      to_s == other.to_s
+    end
+
     # The name of this type with all special characters removed.
     def base
       name.delete('*&').strip
@@ -137,6 +145,13 @@ module Wrapture
     # True if this type is a reference to a class instance.
     def self?
       name == SELF_REFERENCE_KEYWORD
+    end
+
+    # Gives a string representation of this type (its name).
+    #
+    # Added in release 0.4.2.
+    def to_s
+      name
     end
 
     # A string with a declaration of a variable named +var_name+ of this type.

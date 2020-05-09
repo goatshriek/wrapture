@@ -95,6 +95,17 @@ def get_include_list(filename)
   includes
 end
 
+def refute_keywords_found(filename)
+  File.open(filename) do |file|
+    file.each do |line|
+      Wrapture::KEYWORDS.each do |keyword|
+        refute(line.include?(keyword),
+               "#{filename} had keyword '#{keyword}' on line #{file.lineno}")
+      end
+    end
+  end
+end
+
 def validate_class_wrapper(spec, file_list)
   refute_nil(file_list)
   refute_empty(file_list)
@@ -119,6 +130,7 @@ def validate_declaration_file(spec)
   validate_indentation filename
   validate_members(spec, filename)
   validate_namespace(spec, filename)
+  refute_keywords_found(filename)
 end
 
 def validate_definition_file(spec)
@@ -144,6 +156,7 @@ def validate_definition_file(spec)
 
   validate_indentation filename
   validate_namespace(spec, filename)
+  refute_keywords_found(filename)
 end
 
 def validate_indentation(filename)
