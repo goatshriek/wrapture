@@ -95,5 +95,18 @@ module Wrapture
         "#{left} #{condition} #{right}".sub(RETURN_VALUE_KEYWORD, return_val)
       end
     end
+
+    # True if this rule requires a return value. This is equivalent to checking
+    # for the presence of RETURN_VALUE_KEYWORD in any of the expressions.
+    #
+    # This method was added in release 0.4.2.
+    def use_return?
+      if @spec['type'] == 'struct-member'
+        @spec['value'] == RETURN_VALUE_KEYWORD
+      else
+        [@spec['left-expression'],
+         @spec['right-expression']].include?(RETURN_VALUE_KEYWORD)
+      end
+    end
   end
 end

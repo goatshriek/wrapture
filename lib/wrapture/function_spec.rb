@@ -228,7 +228,9 @@ module Wrapture
         yield
         yield "  #{wrapped_call_expression};"
         yield
-        @wrapped.error_check { |line| yield "  #{line}" }
+        @wrapped.error_check(return_val: return_variable) do |line|
+          yield "  #{line}"
+        end
       else
         yield "  #{wrapped_call_expression};"
       end
@@ -283,11 +285,6 @@ module Wrapture
 
     private
 
-    # The resolved type of the return type.
-    def resolved_return
-      @return_type.resolve(self)
-    end
-
     # True if the provided wrapped param spec can be cast to when used in this
     # function.
     def castable?(wrapped_param)
@@ -312,10 +309,15 @@ module Wrapture
     def locals
       yield 'va_list variadic_args;' if variadic?
 
-      if @wrapped.error_check?
+      if @wrapped.use_return? && !@constructor
         wrapped_type = resolve_type(@wrapped.return_val_type)
         yield "#{wrapped_type.variable('return_val')};"
       end
+    end
+
+    # The resolved type of the return type.
+    def resolved_return
+      @return_type.resolve(self)
     end
 
     # The function to use to create the return value of the function.
@@ -326,6 +328,15 @@ module Wrapture
         "new#{@spec['return']['type'].chomp('*').strip} ( #{value} )"
       else
         resolved_return.cast_expression(value)
+      end
+    end
+
+    # The name of the variable holding the return value.
+    def return_variable
+      if @constructor
+        'this->equivalent'
+      else
+        'return_val'
       end
     end
 
