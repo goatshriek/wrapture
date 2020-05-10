@@ -83,7 +83,7 @@ module Wrapture
     #
     # +return_val+ is used as the replacement for a return value signified by
     # the use of RETURN_VALUE_KEYWORD in the spec. If not specified it defaults
-    # to +'return_val'+.
+    # to +'return_val'+. This parameter was added in release 0.4.2.
     def check(variable: nil, return_val: 'return_val')
       condition = RuleSpec::CONDITIONS[@spec['condition']]
 
