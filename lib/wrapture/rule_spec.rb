@@ -64,14 +64,23 @@ module Wrapture
       normalized
     end
 
-    # Creates a rule spec based on the provided spec.
+    # Creates a rule spec based on the provided spec. Rules may be one of a
+    # number of different varieties.
     #
-    # The hash must have the following keys:
+    # Available conditions are available in the RuleSpec::CONDITIONS map, with
+    # the mapped values being the operate each one translates to.
+    #
+    # For a rule that checks a struct member against a given value (a
+    # +struct-member+ rule):
     # member-name:: the name of the struct member the rule applies to
-    # condition:: the condition this rule uses (supported values are keys in the
-    #             RuleSpec::CONDITIONS map, with the mapped values being the
-    #             operator they translate to)
+    # condition:: the condition this rule uses
     # value:: the value to use in the condition check
+    #
+    # For a rule that compares two expressions against one another (an
+    # +expression+ rule):
+    # left-expression:: the left expression in the comparison
+    # condition:: the condition this rule uses
+    # right-expression:: the right expression in the comparison
     def initialize(spec)
       @spec = RuleSpec.normalize_spec_hash(spec)
     end
@@ -101,12 +110,9 @@ module Wrapture
     #
     # This method was added in release 0.4.2.
     def use_return?
-      if @spec['type'] == 'struct-member'
-        @spec['value'] == RETURN_VALUE_KEYWORD
-      else
+      @spec['type'] == 'expression' &&
         [@spec['left-expression'],
          @spec['right-expression']].include?(RETURN_VALUE_KEYWORD)
-      end
     end
   end
 end
