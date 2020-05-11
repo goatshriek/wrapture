@@ -24,8 +24,8 @@ examples:
  * **[Templates](./examples/templates.html)** Define reusable specifications
    that can make large wrapping projects much faster and more maintainable.
 
-If you really want to get into the weeds, you can check out the
-[RDoc documentation](./rdoc) for all of the details.
+If you really want to get into the weeds, you can check out the current
+[RDoc documentation](./rdoc/latest) for all of the details.
 
 # The Future
 

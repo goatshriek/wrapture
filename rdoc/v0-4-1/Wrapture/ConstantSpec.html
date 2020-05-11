@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="UTF-8">
+
+<title>class Wrapture::ConstantSpec - RDoc Documentation</title>
+
+<script type="text/javascript">
+  var rdoc_rel_prefix = "../";
+  var index_rel_prefix = "../";
+</script>
+
+<script src="../js/navigation.js" defer></script>
+<script src="../js/search.js" defer></script>
+<script src="../js/search_index.js" defer></script>
+<script src="../js/searcher.js" defer></script>
+<script src="../js/darkfish.js" defer></script>
+
+<link href="../css/fonts.css" rel="stylesheet">
+<link href="../css/rdoc.css" rel="stylesheet">
+
+
+
+
+<body id="top" role="document" class="class">
+<nav role="navigation">
+  <div id="project-navigation">
+    <div id="home-section" role="region" title="Quick navigation" class="nav-section">
+  <h2>
+    <a href="../index.html" rel="home">Home</a>
+  </h2>
+
+  <div id="table-of-contents-navigation">
+    <a href="../table_of_contents.html#pages">Pages</a>
+    <a href="../table_of_contents.html#classes">Classes</a>
+    <a href="../table_of_contents.html#methods">Methods</a>
+  </div>
+</div>
+
+    <div id="search-section" role="search" class="project-section initially-hidden">
+  <form action="#" method="get" accept-charset="utf-8">
+    <div id="search-field-wrapper">
+      <input id="search-field" role="combobox" aria-label="Search"
+             aria-autocomplete="list" aria-controls="search-results"
+             type="text" name="search" placeholder="Search" spellcheck="false"
+             title="Type to search, Up and Down to navigate, Enter to load">
+    </div>
+
+    <ul id="search-results" aria-label="Search Results"
+        aria-busy="false" aria-expanded="false"
+        aria-atomic="false" class="initially-hidden"></ul>
+  </form>
+</div>
+
+  </div>
+
+  
+
+  <div id="class-metadata">
+    
+    <div id="parent-class-section" class="nav-section">
+  <h3>Parent</h3>
+
+  
+  <p class="link">Object
+  
+</div>
+
+    
+    
+    <!-- Method Quickref -->
+<div id="method-list-section" class="nav-section">
+  <h3>Methods</h3>
+
+  <ul class="link-list" role="directory">
+    
+    <li ><a href="#method-c-new">::new</a>
+    
+    <li ><a href="#method-c-normalize_spec_hash">::normalize_spec_hash</a>
+    
+    <li ><a href="#method-i-declaration">#declaration</a>
+    
+    <li ><a href="#method-i-declaration_includes">#declaration_includes</a>
+    
+    <li ><a href="#method-i-definition">#definition</a>
+    
+    <li ><a href="#method-i-definition_includes">#definition_includes</a>
+    
+  </ul>
+</div>
+
+  </div>
+</nav>
+
+<main role="main" aria-labelledby="class-Wrapture::ConstantSpec">
+  <h1 id="class-Wrapture::ConstantSpec" class="class">
+    class Wrapture::ConstantSpec
+  </h1>
+
+  <section class="description">
+    
+<p>A description of a constant.</p>
+
+  </section>
+
+  
+  <section id="5Buntitled-5D" class="documentation-section">
+    
+
+    
+
+    
+
+    
+
+    
+     <section id="public-class-5Buntitled-5D-method-details" class="method-section">
+       <header>
+         <h3>Public Class Methods</h3>
+       </header>
+
+    
+      <div id="method-c-new" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">new</span><span
+            class="method-args">(spec)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Creates a constant spec based on the provided hash spec</p>
+
+<p>The hash must have the following keys:</p>
+<dl class="rdoc-list note-list"><dt>name
+<dd>
+<p>the name of the constant</p>
+</dd><dt>type
+<dd>
+<p>the type of the constant</p>
+</dd><dt>value
+<dd>
+<p>the value to assign to the constant</p>
+</dd><dt>includes
+<dd>
+<p>a list of includes that need to be added in order for this</p>
+</dd></dl>
+
+<p>constant to be valid (for example, includes for the type and value).</p>
+
+<p>The following keys are optional:</p>
+<dl class="rdoc-list note-list"><dt>doc
+<dd>
+<p>a string containing the documentation for this constant</p>
+</dd></dl>
+          
+          
+
+          
+          <div class="method-source-code" id="new-source">
+            <pre><span class="ruby-comment"># File lib/wrapture/constant_spec.rb, line 50</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">initialize</span>(<span class="ruby-identifier">spec</span>)
+  <span class="ruby-ivar">@spec</span> = <span class="ruby-constant">ConstantSpec</span>.<span class="ruby-identifier">normalize_spec_hash</span>(<span class="ruby-identifier">spec</span>)
+  <span class="ruby-ivar">@doc</span> = <span class="ruby-ivar">@spec</span>.<span class="ruby-identifier">key?</span>(<span class="ruby-string">&#39;doc&#39;</span>) <span class="ruby-operator">?</span> <span class="ruby-constant">Comment</span>.<span class="ruby-identifier">new</span>(<span class="ruby-ivar">@spec</span>[<span class="ruby-string">&#39;doc&#39;</span>]) <span class="ruby-operator">:</span> <span class="ruby-keyword">nil</span>
+  <span class="ruby-ivar">@type</span> = <span class="ruby-constant">TypeSpec</span>.<span class="ruby-identifier">new</span>(<span class="ruby-ivar">@spec</span>[<span class="ruby-string">&#39;type&#39;</span>])
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-c-normalize_spec_hash" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">normalize_spec_hash</span><span
+            class="method-args">(spec)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Normalizes a hash specification of a constant. Normalization will check for things like invalid keys, duplicate entries in include lists, and will set missing keys to their default value (for example, an empty list if no includes are given).</p>
+          
+          
+
+          
+          <div class="method-source-code" id="normalize_spec_hash-source">
+            <pre><span class="ruby-comment"># File lib/wrapture/constant_spec.rb, line 28</span>
+<span class="ruby-keyword">def</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier ruby-title">normalize_spec_hash</span>(<span class="ruby-identifier">spec</span>)
+  <span class="ruby-constant">Comment</span>.<span class="ruby-identifier">validate_doc</span>(<span class="ruby-identifier">spec</span>[<span class="ruby-string">&#39;doc&#39;</span>]) <span class="ruby-keyword">if</span> <span class="ruby-identifier">spec</span>.<span class="ruby-identifier">key?</span>(<span class="ruby-string">&#39;doc&#39;</span>)
+
+  <span class="ruby-identifier">normalized</span> = <span class="ruby-identifier">spec</span>.<span class="ruby-identifier">dup</span>
+
+  <span class="ruby-identifier">normalized</span>[<span class="ruby-string">&#39;version&#39;</span>] = <span class="ruby-constant">Wrapture</span>.<span class="ruby-identifier">spec_version</span>(<span class="ruby-identifier">spec</span>)
+  <span class="ruby-identifier">normalized</span>[<span class="ruby-string">&#39;includes&#39;</span>] = <span class="ruby-constant">Wrapture</span>.<span class="ruby-identifier">normalize_includes</span> <span class="ruby-identifier">spec</span>[<span class="ruby-string">&#39;includes&#39;</span>]
+
+  <span class="ruby-identifier">normalized</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+    </section>
+  
+     <section id="public-instance-5Buntitled-5D-method-details" class="method-section">
+       <header>
+         <h3>Public Instance Methods</h3>
+       </header>
+
+    
+      <div id="method-i-declaration" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">declaration</span><span
+            class="method-args">() { |line| ... }</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Yields each line of the declaration of this constant, including any documentation.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="declaration-source">
+            <pre><span class="ruby-comment"># File lib/wrapture/constant_spec.rb, line 68</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">declaration</span>
+  <span class="ruby-ivar">@doc</span>&amp;.<span class="ruby-identifier">format_as_doxygen</span>(<span class="ruby-value">max_line_length:</span> <span class="ruby-value">76</span>) { <span class="ruby-operator">|</span><span class="ruby-identifier">line</span><span class="ruby-operator">|</span> <span class="ruby-keyword">yield</span> <span class="ruby-identifier">line</span> }
+  <span class="ruby-keyword">yield</span> <span class="ruby-node">&quot;static const #{@type.variable(@spec[&#39;name&#39;])};&quot;</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-declaration_includes" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">declaration_includes</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>A list of includes needed for the declaration of this constant.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="declaration_includes-source">
+            <pre><span class="ruby-comment"># File lib/wrapture/constant_spec.rb, line 57</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">declaration_includes</span>
+  <span class="ruby-ivar">@spec</span>[<span class="ruby-string">&#39;includes&#39;</span>].<span class="ruby-identifier">dup</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-definition" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">definition</span><span
+            class="method-args">(class_name)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>The definition of this constant.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="definition-source">
+            <pre><span class="ruby-comment"># File lib/wrapture/constant_spec.rb, line 74</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">definition</span>(<span class="ruby-identifier">class_name</span>)
+  <span class="ruby-identifier">expanded_name</span> = <span class="ruby-node">&quot;#{class_name}::#{@spec[&#39;name&#39;]}&quot;</span>
+  <span class="ruby-node">&quot;const #{@spec[&#39;type&#39;]} #{expanded_name} = #{@spec[&#39;value&#39;]}&quot;</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-definition_includes" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">definition_includes</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>A list of includes needed for the definition of this constant.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="definition_includes-source">
+            <pre><span class="ruby-comment"># File lib/wrapture/constant_spec.rb, line 62</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">definition_includes</span>
+  <span class="ruby-ivar">@spec</span>[<span class="ruby-string">&#39;includes&#39;</span>].<span class="ruby-identifier">dup</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+    </section>
+  
+  </section>
+
+</main>
+
+
+<footer id="validator-badges" role="contentinfo">
+  <p><a href="https://validator.w3.org/check/referer">Validate</a>
+  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.1.2.
+  <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
+</footer>
+

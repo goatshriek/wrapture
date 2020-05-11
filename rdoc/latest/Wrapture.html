@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="UTF-8">
+
+<title>module Wrapture - RDoc Documentation</title>
+
+<script type="text/javascript">
+  var rdoc_rel_prefix = "./";
+  var index_rel_prefix = "./";
+</script>
+
+<script src="./js/navigation.js" defer></script>
+<script src="./js/search.js" defer></script>
+<script src="./js/search_index.js" defer></script>
+<script src="./js/searcher.js" defer></script>
+<script src="./js/darkfish.js" defer></script>
+
+<link href="./css/fonts.css" rel="stylesheet">
+<link href="./css/rdoc.css" rel="stylesheet">
+
+
+
+
+<body id="top" role="document" class="module">
+<nav role="navigation">
+  <div id="project-navigation">
+    <div id="home-section" role="region" title="Quick navigation" class="nav-section">
+  <h2>
+    <a href="./index.html" rel="home">Home</a>
+  </h2>
+
+  <div id="table-of-contents-navigation">
+    <a href="./table_of_contents.html#pages">Pages</a>
+    <a href="./table_of_contents.html#classes">Classes</a>
+    <a href="./table_of_contents.html#methods">Methods</a>
+  </div>
+</div>
+
+    <div id="search-section" role="search" class="project-section initially-hidden">
+  <form action="#" method="get" accept-charset="utf-8">
+    <div id="search-field-wrapper">
+      <input id="search-field" role="combobox" aria-label="Search"
+             aria-autocomplete="list" aria-controls="search-results"
+             type="text" name="search" placeholder="Search" spellcheck="false"
+             title="Type to search, Up and Down to navigate, Enter to load">
+    </div>
+
+    <ul id="search-results" aria-label="Search Results"
+        aria-busy="false" aria-expanded="false"
+        aria-atomic="false" class="initially-hidden"></ul>
+  </form>
+</div>
+
+  </div>
+
+  
+
+  <div id="class-metadata">
+    
+    
+    
+    
+    <!-- Method Quickref -->
+<div id="method-list-section" class="nav-section">
+  <h3>Methods</h3>
+
+  <ul class="link-list" role="directory">
+    
+    <li ><a href="#method-c-normalize_boolean">::normalize_boolean</a>
+    
+    <li ><a href="#method-c-normalize_includes">::normalize_includes</a>
+    
+    <li ><a href="#method-c-spec_version">::spec_version</a>
+    
+    <li ><a href="#method-c-supports_version-3F">::supports_version?</a>
+    
+  </ul>
+</div>
+
+  </div>
+</nav>
+
+<main role="main" aria-labelledby="module-Wrapture">
+  <h1 id="module-Wrapture" class="module">
+    module Wrapture
+  </h1>
+
+  <section class="description">
+    
+<p>Classes and functions for generating language wrappers</p>
+
+  </section>
+
+  
+  <section id="5Buntitled-5D" class="documentation-section">
+    
+
+    
+
+    
+    <section class="constants-list">
+      <header>
+        <h3>Constants</h3>
+      </header>
+      <dl>
+      
+        <dt id="EQUIVALENT_POINTER_KEYWORD">EQUIVALENT_POINTER_KEYWORD
+        
+        <dd><p>A string denoting a pointer to an equivalent struct type or value.</p>
+        
+      
+        <dt id="EQUIVALENT_STRUCT_KEYWORD">EQUIVALENT_STRUCT_KEYWORD
+        
+        <dd><p>A string denoting an equivalent struct type or value.</p>
+        
+      
+        <dt id="KEYWORDS">KEYWORDS
+        
+        <dd><p>A list of all keywords.</p>
+        
+      
+        <dt id="RETURN_VALUE_KEYWORD">RETURN_VALUE_KEYWORD
+        
+        <dd><p>A string denoting the return value of a wrapped function call.</p>
+        
+      
+        <dt id="SELF_REFERENCE_KEYWORD">SELF_REFERENCE_KEYWORD
+        
+        <dd><p>A string denoting a reference to the object a method is called on.</p>
+        
+      
+        <dt id="TEMPLATE_USE_KEYWORD">TEMPLATE_USE_KEYWORD
+        
+        <dd><p>A string denoting a reference to a template.</p>
+        
+      
+        <dt id="VERSION">VERSION
+        
+        <dd><p>the current version of <a href="Wrapture.html"><code>Wrapture</code></a></p>
+        
+      
+      </dl>
+    </section>
+    
+
+    
+
+    
+     <section id="public-class-5Buntitled-5D-method-details" class="method-section">
+       <header>
+         <h3>Public Class Methods</h3>
+       </header>
+
+    
+      <div id="method-c-normalize_boolean" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">normalize_boolean</span><span
+            class="method-args">(spec, key)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Normalizes a spec key to be boolean, raising an error if it is not. Keys that are not present are defaulted to false.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="normalize_boolean-source">
+            <pre><span class="ruby-comment"># File lib/wrapture/normalize.rb, line 24</span>
+<span class="ruby-keyword">def</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier ruby-title">normalize_boolean</span>(<span class="ruby-identifier">spec</span>, <span class="ruby-identifier">key</span>)
+  <span class="ruby-identifier">is_boolean</span> = [<span class="ruby-keyword">true</span>, <span class="ruby-keyword">false</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">spec</span>[<span class="ruby-identifier">key</span>])
+  <span class="ruby-identifier">error_msg</span> = <span class="ruby-node">&quot;&#39;#{key}&#39; key may only be true or false&quot;</span>
+  <span class="ruby-identifier">raise</span>(<span class="ruby-constant">InvalidSpecKey</span>, <span class="ruby-identifier">error_msg</span>) <span class="ruby-keyword">unless</span> <span class="ruby-operator">!</span><span class="ruby-identifier">spec</span>.<span class="ruby-identifier">key?</span>(<span class="ruby-identifier">key</span>) <span class="ruby-operator">||</span> <span class="ruby-identifier">is_boolean</span>
+
+  <span class="ruby-identifier">spec</span>.<span class="ruby-identifier">key?</span>(<span class="ruby-identifier">key</span>) <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">spec</span>[<span class="ruby-identifier">key</span>]
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-c-normalize_includes" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">normalize_includes</span><span
+            class="method-args">(includes)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Normalizes an include list for an element. A single string will be converted into an array containing the single string, and a nil will be converted to an empty array.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="normalize_includes-source">
+            <pre><span class="ruby-comment"># File lib/wrapture/normalize.rb, line 35</span>
+<span class="ruby-keyword">def</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier ruby-title">normalize_includes</span>(<span class="ruby-identifier">includes</span>)
+  <span class="ruby-keyword">if</span> <span class="ruby-identifier">includes</span>.<span class="ruby-identifier">nil?</span>
+    []
+  <span class="ruby-keyword">elsif</span> <span class="ruby-identifier">includes</span>.<span class="ruby-identifier">is_a?</span> <span class="ruby-constant">String</span>
+    [<span class="ruby-identifier">includes</span>]
+  <span class="ruby-keyword">else</span>
+    <span class="ruby-identifier">includes</span>.<span class="ruby-identifier">uniq</span>
+  <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-c-spec_version" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">spec_version</span><span
+            class="method-args">(spec)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Returns the spec version for the provided spec. If the version is not provided in the spec, the newest version that the spec is compliant with will be returned instead.</p>
+
+<p>If this spec uses a version unsupported by this version of <a href="Wrapture.html"><code>Wrapture</code></a> or the spec is otherwise invalid, an exception is raised.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="spec_version-source">
+            <pre><span class="ruby-comment"># File lib/wrapture/normalize.rb, line 51</span>
+<span class="ruby-keyword">def</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier ruby-title">spec_version</span>(<span class="ruby-identifier">spec</span>)
+  <span class="ruby-keyword">if</span> <span class="ruby-identifier">spec</span>.<span class="ruby-identifier">key?</span>(<span class="ruby-string">&#39;version&#39;</span>) <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-operator">!</span><span class="ruby-constant">Wrapture</span>.<span class="ruby-identifier">supports_version?</span>(<span class="ruby-identifier">spec</span>[<span class="ruby-string">&#39;version&#39;</span>])
+    <span class="ruby-identifier">raise</span> <span class="ruby-constant">UnsupportedSpecVersion</span>
+  <span class="ruby-keyword">end</span>
+
+  <span class="ruby-keyword">if</span> <span class="ruby-identifier">spec</span>.<span class="ruby-identifier">key?</span>(<span class="ruby-string">&#39;version&#39;</span>)
+    <span class="ruby-identifier">spec</span>[<span class="ruby-string">&#39;version&#39;</span>]
+  <span class="ruby-keyword">else</span>
+    <span class="ruby-constant">Wrapture</span><span class="ruby-operator">::</span><span class="ruby-constant">VERSION</span>
+  <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-c-supports_version-3F" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">supports_version?</span><span
+            class="method-args">(version)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Returns true if the version of the spec is supported by this version of <a href="Wrapture.html"><code>Wrapture</code></a>. Otherwise returns false.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="supports_version-3F-source">
+            <pre><span class="ruby-comment"># File lib/wrapture/version.rb, line 27</span>
+<span class="ruby-keyword">def</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier ruby-title">supports_version?</span>(<span class="ruby-identifier">version</span>)
+  <span class="ruby-identifier">wrapture_version</span> = <span class="ruby-constant">Gem</span><span class="ruby-operator">::</span><span class="ruby-constant">Version</span>.<span class="ruby-identifier">new</span>(<span class="ruby-constant">Wrapture</span><span class="ruby-operator">::</span><span class="ruby-constant">VERSION</span>)
+  <span class="ruby-identifier">spec_version</span> = <span class="ruby-constant">Gem</span><span class="ruby-operator">::</span><span class="ruby-constant">Version</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">version</span>)
+
+  <span class="ruby-identifier">spec_version</span> <span class="ruby-operator">&lt;=</span> <span class="ruby-identifier">wrapture_version</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+    </section>
+  
+  </section>
+
+</main>
+
+
+<footer id="validator-badges" role="contentinfo">
+  <p><a href="https://validator.w3.org/check/referer">Validate</a>
+  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.1.2.
+  <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
+</footer>
+
