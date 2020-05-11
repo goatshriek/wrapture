@@ -36,6 +36,14 @@ class ActionSpecTest < Minitest::Test
     assert(action.include?('throw NewCustomException'))
   end
 
+  def test_exception_without_params
+    test_spec = load_fixture('exception_action_without_params')
+
+    spec = Wrapture::ActionSpec.new(test_spec)
+
+    assert_match(/#{test_spec['constructor']['name']}\(\s*\)/, spec.take)
+  end
+
   def test_extra_key
     test_spec = load_fixture('extra_key_action')
 

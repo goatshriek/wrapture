@@ -43,6 +43,23 @@ class ClassSpecTest < Minitest::Test
     refute_nil normalized_spec
   end
 
+  def test_return_val_in_constructor
+    test_spec = load_fixture('class_with_return_val_in_constructor')
+
+    spec = Wrapture::ClassSpec.new(test_spec)
+    generated_files = spec.generate_wrappers
+
+    validate_wrapper_results(test_spec, generated_files)
+
+    source_file = "#{test_spec['name']}.cpp"
+    assert(file_contains_match(source_file, 'this->equivalent == NULL'),
+           'no error check against the equivalent struct was found')
+    refute(file_contains_match(source_file, 'return_val'),
+           'a return value variable was still generated')
+
+    File.delete(*generated_files)
+  end
+
   def test_future_spec_version
     test_spec = load_fixture('future_version_class')
 
