@@ -9,7 +9,7 @@ For a detailed look at the project's future, including planned features and bug
 fixes, check out the
 [roadmap](https://github.com/goatshriek/wrapture/blob/master/docs/roadmap.md).
 
-## [0.4.2] - 2020-05-10
+## [0.4.2] - 2020-05-11
 ### Fixed
  - Functions that return function pointers now cast the return correctly instead
    of containing non-valid code
