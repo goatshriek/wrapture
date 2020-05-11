@@ -64,20 +64,36 @@ module Wrapture
       normalized
     end
 
-    # Creates a rule spec based on the provided spec.
+    # Creates a rule spec based on the provided spec. Rules may be one of a
+    # number of different varieties.
     #
-    # The hash must have the following keys:
+    # Available conditions are available in the RuleSpec::CONDITIONS map, with
+    # the mapped values being the operate each one translates to.
+    #
+    # For a rule that checks a struct member against a given value (a
+    # +struct-member+ rule):
     # member-name:: the name of the struct member the rule applies to
-    # condition:: the condition this rule uses (supported values are keys in the
-    #             RuleSpec::CONDITIONS map, with the mapped values being the
-    #             operator they translate to)
+    # condition:: the condition this rule uses
     # value:: the value to use in the condition check
+    #
+    # For a rule that compares two expressions against one another (an
+    # +expression+ rule):
+    # left-expression:: the left expression in the comparison
+    # condition:: the condition this rule uses
+    # right-expression:: the right expression in the comparison
     def initialize(spec)
       @spec = RuleSpec.normalize_spec_hash(spec)
     end
 
     # A string containing a check for a struct of the given name for this rule.
-    def check(variable: nil)
+    #
+    # +variable+ can be provided to provide the variable holding a struct
+    # pointer for +struct-member+ rules.
+    #
+    # +return_val+ is used as the replacement for a return value signified by
+    # the use of RETURN_VALUE_KEYWORD in the spec. If not specified it defaults
+    # to +'return_val'+. This parameter was added in release 0.4.2.
+    def check(variable: nil, return_val: 'return_val')
       condition = RuleSpec::CONDITIONS[@spec['condition']]
 
       if @spec['type'] == 'struct-member'
@@ -85,8 +101,18 @@ module Wrapture
       else
         left = @spec['left-expression']
         right = @spec['right-expression']
-        "#{left} #{condition} #{right}".sub(RETURN_VALUE_KEYWORD, 'return_val')
+        "#{left} #{condition} #{right}".sub(RETURN_VALUE_KEYWORD, return_val)
       end
+    end
+
+    # True if this rule requires a return value. This is equivalent to checking
+    # for the presence of RETURN_VALUE_KEYWORD in any of the expressions.
+    #
+    # This method was added in release 0.4.2.
+    def use_return?
+      @spec['type'] == 'expression' &&
+        [@spec['left-expression'],
+         @spec['right-expression']].include?(RETURN_VALUE_KEYWORD)
     end
   end
 end

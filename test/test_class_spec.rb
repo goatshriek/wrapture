@@ -51,6 +51,12 @@ class ClassSpecTest < Minitest::Test
 
     validate_wrapper_results(test_spec, generated_files)
 
+    source_file = "#{test_spec['name']}.cpp"
+    assert(file_contains_match(source_file, 'this->equivalent == NULL'),
+           'no error check against the equivalent struct was found')
+    refute(file_contains_match(source_file, 'return_val'),
+           'a return value variable was still generated')
+
     File.delete(*generated_files)
   end
 

@@ -9,7 +9,7 @@ For a detailed look at the project's future, including planned features and bug
 fixes, check out the
 [roadmap](https://github.com/goatshriek/wrapture/blob/master/docs/roadmap.md).
 
-## [0.4.2] - 2020-05-09
+## [0.4.2] - 2020-05-11
 ### Fixed
  - Functions that return function pointers now cast the return correctly instead
    of containing non-valid code
@@ -23,6 +23,9 @@ fixes, check out the
  - `throw-exception` actions with no parameters for the constructor no longer
    cause an error
    ([issue #78](https://github.com/goatshriek/wrapture/issues/78)).
+ - Return values are correctly switched to the equivalent struct in
+   constructors instead of using `return_val`, which was not actually set
+   ([issue #84](https://github.com/goatshriek/wrapture/issues/84)).
 
 ## [0.4.1] - 2020-04-24
 ### Fixed
