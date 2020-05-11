@@ -285,6 +285,11 @@ module Wrapture
 
     private
 
+    # The resolved type of the return type.
+    def resolved_return
+      @return_type.resolve(self)
+    end
+
     # True if the provided wrapped param spec can be cast to when used in this
     # function.
     def castable?(wrapped_param)
@@ -313,11 +318,6 @@ module Wrapture
         wrapped_type = resolve_type(@wrapped.return_val_type)
         yield "#{wrapped_type.variable('return_val')};"
       end
-    end
-
-    # The resolved type of the return type.
-    def resolved_return
-      @return_type.resolve(self)
     end
 
     # The function to use to create the return value of the function.
