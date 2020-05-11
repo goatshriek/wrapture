@@ -9,6 +9,24 @@ For a detailed look at the project's future, including planned features and bug
 fixes, check out the
 [roadmap](https://github.com/goatshriek/wrapture/blob/master/docs/roadmap.md).
 
+## [0.4.2] - 2020-05-11
+### Fixed
+ - Functions that return function pointers now cast the return correctly instead
+   of containing non-valid code
+   ([issue #76](https://github.com/goatshriek/wrapture/issues/76)).
+ - Return value types are now valid types when they are given using a special
+   keyword in the spec, such as `equivalent-struct-pointer`. The types are now
+   resolved based on the keyword if one is used
+   ([issue #77](https://github.com/goatshriek/wrapture/issues/77)).
+ - The list `Wrapture::KEYWORDS` now contains the value in
+   `Wrapture::SELF_REFERENCE_KEYWORD`.
+ - `throw-exception` actions with no parameters for the constructor no longer
+   cause an error
+   ([issue #78](https://github.com/goatshriek/wrapture/issues/78)).
+ - Return values are correctly switched to the equivalent struct in
+   constructors instead of using `return_val`, which was not actually set
+   ([issue #84](https://github.com/goatshriek/wrapture/issues/84)).
+
 ## [0.4.1] - 2020-04-24
 ### Fixed
  - Constructor and destructor definitions no longer have a type of 'void'

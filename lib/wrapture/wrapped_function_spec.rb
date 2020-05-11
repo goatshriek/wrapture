@@ -88,10 +88,14 @@ module Wrapture
     # Yields each line of the error check and any actions taken for this wrapped
     # function. If this function does not have any error check defined, then
     # this function returns without yielding anything.
-    def error_check
+    #
+    # +return_val+ is used as the replacement for a return value signified by
+    # the use of RETURN_VALUE_KEYWORD in the spec. If not specified it defaults
+    # to +'return_val'+. This parameter was added in release 0.4.2.
+    def error_check(return_val: 'return_val')
       return if @error_rules.empty?
 
-      checks = @error_rules.map(&:check)
+      checks = @error_rules.map { |rule| rule.check(return_val: return_val) }
       yield "if( #{checks.join(' && ')} ){"
       yield "  #{@error_action.take};"
       yield '}'
@@ -111,9 +115,20 @@ module Wrapture
       includes
     end
 
-    # A string with the type of the return value.
+    # A TypeSpec describing the type of the return value.
+    #
+    # Changed in release 0.4.2 to return a TypeSpec instead of a String.
     def return_val_type
-      @spec['return']['type']
+      TypeSpec.new(@spec['return']['type'])
+    end
+
+    # True if calling this wrapped function needs to save/use the return value
+    # for error checking. This is equivalent to checking all error rules for the
+    # use of RETURN_VALUE_KEYWORD.
+    #
+    # This method was added in release 0.4.2.
+    def use_return?
+      @error_rules.any?(&:use_return?)
     end
   end
 end

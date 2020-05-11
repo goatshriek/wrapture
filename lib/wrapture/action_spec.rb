@@ -40,8 +40,8 @@ module Wrapture
         raise(InvalidSpecKey, extra_msg)
       end
 
-      includes = Wrapture.normalize_includes(spec['constructor']['includes'])
-      normalized['constructor']['includes'] = includes
+      func_spec = WrappedFunctionSpec.normalize_spec_hash(spec['constructor'])
+      normalized['constructor'] = func_spec
 
       normalized
     end

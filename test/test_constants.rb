@@ -2,8 +2,7 @@
 
 # frozen_string_literal: true
 
-#--
-# Copyright 2019-2020 Joel E. Anderson
+# Copyright 2020 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,18 +15,18 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#++
 
-module Wrapture
-  # the current version of Wrapture
-  VERSION = '0.4.2'
+require 'helper'
 
-  # Returns true if the version of the spec is supported by this version of
-  # Wrapture. Otherwise returns false.
-  def self.supports_version?(version)
-    wrapture_version = Gem::Version.new(Wrapture::VERSION)
-    spec_version = Gem::Version.new(version)
+require 'fixture'
+require 'minitest/autorun'
+require 'wrapture'
 
-    spec_version <= wrapture_version
+class ConstantsTest < Minitest::Test
+  def test_keywords_array
+    keywords = Wrapture.constants.select { |sym| sym.to_s.end_with?('KEYWORD') }
+    keywords.each do |word|
+      assert_includes(Wrapture::KEYWORDS, Wrapture.const_get(word))
+    end
   end
 end
