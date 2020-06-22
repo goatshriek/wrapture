@@ -49,4 +49,6 @@ script:
   - gem install wrapture
 
 after_success:
+  - VERSION=$(ruby -I ./lib -r wrapture -e "puts Wrapture::VERSION")
+  - echo "sonar.projectVersion=$VERSION" >> sonar-project.properties
   - sonar-scanner
