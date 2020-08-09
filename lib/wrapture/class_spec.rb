@@ -479,8 +479,6 @@ module Wrapture
                parent_spec.pointer_wrapper? &&
                parent_spec.struct_name == @struct.name
       end
-
-      return false
     end
 
     # Yields the declaration of the pointer constructor for a class.
