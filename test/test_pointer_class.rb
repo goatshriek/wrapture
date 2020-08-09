@@ -85,4 +85,21 @@ class ClassSpecTest < Minitest::Test
 
     File.delete(*classes)
   end
+
+  def test_pointer_class_and_child_with_different_struct
+    test_spec = load_fixture('pointer_class_and_child_with_different_struct')
+
+    spec = Wrapture::Scope.new(test_spec)
+
+    classes = spec.generate_wrappers
+    validate_wrapper_results(test_spec, classes)
+
+    equivalent_signature = 'struct wrapped_struct \*equivalent;'
+    refute(file_contains_match('ChildPointer.hpp', equivalent_signature))
+
+    parent_initializer = 'equivalent \) : ParentPointer\('
+    refute(file_contains_match('ChildPointer.cpp', parent_initializer))
+
+    File.delete(*classes)
+  end
 end
