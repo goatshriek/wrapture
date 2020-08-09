@@ -1,23 +1,24 @@
 AllCops:
   TargetRubyVersion: 2.4
+  NewCops: enable
 
-Layout/SpaceAroundMethodCallOperator:
-  Enabled: true
-
-Lint/RaiseException:
-  Enabled: true
-
-Lint/StructNewOverride:
-  Enabled: true
+Layout/LineLength:
+  Max: 80
 
 Metrics/AbcSize:
-  Max: 48
+  Max: 60
 
 Metrics/ClassLength:
   Max: 350
 
+Metrics/CyclomaticComplexity:
+  Max: 9
+
 Metrics/MethodLength:
   Max: 55
+
+Metrics/PerceivedComplexity:
+  Max: 10
 
 Style/Documentation:
   Enabled: false
@@ -27,12 +28,3 @@ Style/ExponentialNotation:
 
 Style/GuardClause:
   Enabled: false
-
-Style/HashEachMethods:
-  Enabled: true
-
-Style/HashTransformKeys:
-  Enabled: true
-
-Style/HashTransformValues:
-  Enabled: true

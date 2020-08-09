@@ -198,10 +198,10 @@ module Wrapture
       "#{func_name}( #{param_list} )"
     end
 
-    # Yields each line of the declaration of the function, including any
-    # documentation.
-    def declaration
-      doc.format_as_doxygen(max_line_length: 76) { |line| yield line }
+    # Calls the given block once for each line of the declaration of the
+    # function, including any documentation.
+    def declaration(&block)
+      doc.format_as_doxygen(max_line_length: 76) { |line| block.call(line) }
 
       modifier_prefix = if @spec['static']
                           'static '
@@ -211,7 +211,7 @@ module Wrapture
                           ''
                         end
 
-      yield "#{modifier_prefix}#{return_expression};"
+      block.call("#{modifier_prefix}#{return_expression};")
     end
 
     # Gives the definition of the function in a block, line by line.

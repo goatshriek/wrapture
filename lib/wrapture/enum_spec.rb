@@ -140,10 +140,11 @@ module Wrapture
       end
     end
 
-    # Yields each line of the documentation for an element.
-    def element_doc(element)
+    # Calls the given block once for each line of the documentation for an
+    # element.
+    def element_doc(element, &block)
       doc = Comment.new(element.fetch('doc', nil))
-      doc.format_as_doxygen(max_line_length: 74) { |line| yield line }
+      doc.format_as_doxygen(max_line_length: 74) { |line| block.call(line) }
     end
 
     # The header guard for the enumeration.

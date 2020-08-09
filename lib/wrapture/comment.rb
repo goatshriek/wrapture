@@ -57,11 +57,12 @@ module Wrapture
       yield last_line if last_line
     end
 
-    # Yields each line of the comment formatted using Doxygen style.
-    def format_as_doxygen(max_line_length: 80)
+    # Calls the given block for each line of the comment formatted using Doxygen
+    # style.
+    def format_as_doxygen(max_line_length: 80, &block)
       format(line_prefix: ' * ', first_line: '/**',
              last_line: ' */', max_line_length: max_line_length) do |line|
-        yield line
+        block.call(line)
       end
     end
 
@@ -93,7 +94,7 @@ module Wrapture
         line.scan(/\S+/) do |word|
           if running_line.length + word.length > line_length
             yield running_line
-            running_line = word + ' '
+            running_line = String.new("#{word} ")
           else
             running_line << word << ' '
           end

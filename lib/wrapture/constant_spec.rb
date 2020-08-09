@@ -63,11 +63,11 @@ module Wrapture
       @spec['includes'].dup
     end
 
-    # Yields each line of the declaration of this constant, including any
-    # documentation.
-    def declaration
-      @doc&.format_as_doxygen(max_line_length: 76) { |line| yield line }
-      yield "static const #{@type.variable(@spec['name'])};"
+    # Calls the given block once for each line of the declaration of this
+    # constant, including any documentation.
+    def declaration(&block)
+      @doc&.format_as_doxygen(max_line_length: 76) { |line| block.call(line) }
+      block.call("static const #{@type.variable(@spec['name'])};")
     end
 
     # The definition of this constant.
