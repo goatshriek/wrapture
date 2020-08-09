@@ -470,6 +470,19 @@ module Wrapture
       @scope.overloads(self).map { |overload| "#{overload.name}.hpp" }
     end
 
+    # The initializer for the pointer constructor, if one is available, or an
+    # empty string if not.
+    def parent_provides_initializer?
+      if pointer_wrapper? && child?
+        parent_spec = @scope.type(TypeSpec.new(parent_name))
+        return !parent_spec.nil? &&
+               parent_spec.pointer_wrapper? &&
+               parent_spec.struct_name == @struct.name
+      end
+
+      return false
+    end
+
     # Yields the declaration of the pointer constructor for a class.
     #
     # If this class does not have an equivalent struct, or if there is already
@@ -523,15 +536,11 @@ module Wrapture
     # The initializer for the pointer constructor, if one is available, or an
     # empty string if not.
     def pointer_constructor_initializer
-      if pointer_wrapper? && child?
-        parent_spec = @scope.type(TypeSpec.new(parent_name))
-        parent_usable = !parent_spec.nil? &&
-                        parent_spec.pointer_wrapper? &&
-                        parent_spec.struct_name == @struct.name
-        return ": #{parent_name}( equivalent ) " if parent_usable
+      if parent_provides_initializer?
+        ": #{parent_name}( equivalent ) "
+      else
+        ''
       end
-
-      ''
     end
 
     # The signature of the constructor given an equivalent strucct pointer.
