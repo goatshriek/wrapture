@@ -350,9 +350,9 @@ module Wrapture
       includes.uniq
     end
 
-    # Yields the class documentation one line at a time.
-    def documentation
-      @doc&.format_as_doxygen(max_line_length: 78) { |line| yield line }
+    # Calls the given block for each line of the class documentation.
+    def documentation(&block)
+      @doc&.format_as_doxygen(max_line_length: 78) { |line| block.call(line) }
     end
 
     # Yields the declaration of the equivalent member if this class has one.

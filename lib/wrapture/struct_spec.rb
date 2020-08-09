@@ -88,7 +88,7 @@ module Wrapture
 
           member_str += ' = '
           member_str += if member['type'] == 'const char *'
-                          '"' + default_value + '"'
+                          "\"#{default_value}\""
                         elsif member['type'].end_with?('char')
                           "'#{default_value}'"
                         else

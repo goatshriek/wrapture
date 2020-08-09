@@ -256,9 +256,10 @@ module Wrapture
     # Replaces all instances of a parameter with the given name with the given
     # value in the provided spec.
     def self.replace_param!(spec, param_name, param_value)
-      if spec.is_a?(Hash)
+      case spec
+      when Hash
         replace_param_in_hash(spec, param_name, param_value)
-      elsif spec.is_a?(Array)
+      when Array
         replace_param_in_array(spec, param_name, param_value)
       else
         spec
@@ -334,9 +335,10 @@ module Wrapture
     # multiple replacements are needed, then you will need to call this function
     # multiple times.
     def replace_uses(spec)
-      if spec.is_a?(Hash)
+      case spec
+      when Hash
         replace_uses_in_hash(spec)
-      elsif spec.is_a?(Array)
+      when Array
         replace_uses_in_array(spec)
       else
         false
@@ -348,9 +350,10 @@ module Wrapture
       return false unless spec.is_a?(Hash) && spec.key?(TEMPLATE_USE_KEYWORD)
 
       invocation = spec[TEMPLATE_USE_KEYWORD]
-      if invocation.is_a?(String)
+      case invocation
+      when String
         invocation == name
-      elsif invocation.is_a?(Hash)
+      when Hash
         unless invocation.key?('name')
           error_message = "invocations of #{TEMPLATE_USE_KEYWORD} must have a "\
                           'name member'
