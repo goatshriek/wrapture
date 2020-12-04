@@ -1,5 +1,6 @@
 # Wrapture
 
+[![Github Actions Build Status](https://github.com/goatshriek/wrapture/workflows/build/badge.svg)](https://github.com/goatshriek/wrapture/actions?query=workflow%3Abuild)
 [![Coverage Report](https://codecov.io/gh/goatshriek/wrapture/branch/latest/graph/badge.svg)](https://codecov.io/gh/goatshriek/wrapture)
 [![SonarCloud Status](https://sonarcloud.io/api/project_badges/measure?project=wrapture&metric=alert_status)](https://sonarcloud.io/dashboard?id=wrapture)
 [![Apache 2.0 License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
