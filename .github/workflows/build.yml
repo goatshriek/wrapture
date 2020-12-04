@@ -6,35 +6,36 @@ on:
       - latest
       - release
 jobs:
-  build:
-    - runs-on: ubuntu-20.04
-      strategy:
-        matrix:
-          ruby: ['2.4', '2.5', '2.6', '2.7', 'jruby', 'truffleruby']
-      name: ruby ${{ matrix.ruby }}
-      steps:
-        - uses: actions/checkout@v2
-        - uses: ruby/setup-ruby@v1
-          with:
-            ruby-version: ${{ matrix.ruby }}
-        - name: Install Dependencies
-          run: bundle install
-        - name: Run Tests
-          run: bundle exec rake test
-        - name: Build Gem
-          run: gem build wrapture.gemspec
-        - name: Install Gem
-          run: gem install wrapture
-    - runs-on: ubuntu-20.04
-      name: code analysis
-      steps:
-        - uses: actions/checkout@v2
-        - uses: ruby/setup-ruby@v1
-          with:
-            ruby-version: '2.7'
-        - name: Install Dependencies
-          run: bundle install
-        - name: Run Rubocop
-          run: bundle exec rubocop --parallel
-        - name: Check RDoc Coverage
-          run: bundle exec rdoc --coverage-report lib
+  matrix-builds:
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        ruby: ['2.4', '2.5', '2.6', '2.7', 'jruby', 'truffleruby']
+    name: ruby ${{ matrix.ruby }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+      - name: Install Dependencies
+        run: bundle install
+      - name: Run Tests
+        run: bundle exec rake test
+      - name: Build Gem
+        run: gem build wrapture.gemspec
+      - name: Install Gem
+        run: gem install wrapture
+  code-analysis:
+    runs-on: ubuntu-20.04
+    name: code analysis
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '2.7'
+      - name: Install Dependencies
+        run: bundle install
+      - name: Run Rubocop
+        run: bundle exec rubocop --parallel
+      - name: Check RDoc Coverage
+        run: bundle exec rdoc --coverage-report lib
