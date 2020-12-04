@@ -10,11 +10,11 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        ruby: ['2.4', '2.5', '2.6', '2.7']
+        ruby: ['2.4', '2.5', '2.6', '2.7', 'jruby', 'truffleruby']
     name: ruby ${{ matrix.ruby }}}
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-ruby@v1
+      - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
       - name: Install Dependencies
