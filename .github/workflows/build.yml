@@ -21,8 +21,6 @@ jobs:
         run: bundle install --retry=3
       - name: Run Tests
         run: bundle exec rake test
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
       - name: Build Gem
         run: gem build wrapture.gemspec
       - name: Install Gem
