@@ -18,7 +18,7 @@ jobs:
         with:
           ruby-version: ${{ matrix.ruby }}
       - name: Install Dependencies
-        run: bundle install
+        run: bundle install --retry=3
       - name: Run Tests
         run: bundle exec rake test
         env:
