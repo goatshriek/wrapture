@@ -25,18 +25,10 @@ module Wrapture
 
   # A documentation string is invalid.
   class InvalidDoc < WraptureError
-    # Creates an InvalidDoc with the given message.
-    def initialize(message)
-      super(message)
-    end
   end
 
   # A template has been invoked in an unsupported way.
   class InvalidTemplateUsage < WraptureError
-    # Creates an InvalidTemplateUsage with the given message.
-    def initialize(message)
-      super(message)
-    end
   end
 
   # The spec has a key that is not valid.
@@ -59,10 +51,6 @@ module Wrapture
 
   # The spec is missing a key that is required.
   class MissingSpecKey < WraptureError
-    # Creates a MissingSpecKey with the given message.
-    def initialize(message)
-      super(message)
-    end
   end
 
   # Missing a namespace in the class spec
@@ -71,10 +59,6 @@ module Wrapture
 
   # The spec cannot be defined due to missing information.
   class UndefinableSpec < WraptureError
-    # Creates an UndefinableSpec with error +message+.
-    def initialize(message)
-      super(message)
-    end
   end
 
   # The spec version is not supported by this version of Wrapture.

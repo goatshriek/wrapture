@@ -193,7 +193,7 @@ class FunctionSpecTest < Minitest::Test
     refute(spec.definable?)
 
     assert_raises(Wrapture::UndefinableSpec) do
-      spec.definition { |line| }
+      spec.definition { flunk('unreachable') }
     end
   end
 
