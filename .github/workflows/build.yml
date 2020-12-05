@@ -1,0 +1,54 @@
+name: build
+on:
+  push:
+  pull_request:
+    branches:
+      - latest
+      - release
+jobs:
+  matrix-builds:
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        ruby: ['2.4', '2.5', '2.6', '2.7', 'jruby', 'truffleruby-head']
+    name: ruby ${{ matrix.ruby }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+      - name: Install Dependencies
+        run: |
+          bundle install
+      - name: Run Tests
+        run: bundle exec rake test
+      - name: Build Gem
+        run: gem build wrapture.gemspec
+      - name: Install Gem
+        run: gem install wrapture
+  code-analysis:
+    runs-on: ubuntu-20.04
+    name: code analysis
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '2.7'
+      - name: Install Dependencies
+        run: bundle install
+      - name: Run Rubocop
+        run: bundle exec rubocop --parallel
+      - name: Check RDoc Coverage
+        run: bundle exec rdoc --coverage-report lib
+      - name: Sonarcloud Analysis
+        run: |
+          VERSION=$(ruby -I ./lib -r wrapture -e "puts Wrapture::VERSION")
+          echo "sonar.projectVersion=$VERSION" >> sonar-project.properties
+          wget -q https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.5.0.2216-linux.zip
+          unzip -qq -o sonar-scanner-cli-4.5.0.2216-linux.zip
+          chmod +x sonar-scanner-4.5.0.2216-linux/bin/sonar-scanner
+          sonar-scanner-4.5.0.2216-linux/bin/sonar-scanner
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONARQUBE_SCANNER_PARAMS: '{"sonar.host.url":"https://sonarcloud.io"}'

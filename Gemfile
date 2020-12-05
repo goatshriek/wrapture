@@ -32,14 +32,6 @@ group :test do
   # minitest at or above 5.12 cause problems with rbx 4
   gem 'minitest', '>= 5.9', '< 5.12'
   gem 'rubocop', '>= 0.69', require: false
-  # using simplecov 0.18 causes the following problem with truffleruby:
-  # lib/simplecov.rb:236:in `floor': wrong number of arguments (given 1,
-  # expected 0) (ArgumentError)
-  # see the following travis build for an example:
-  # https://travis-ci.org/github/goatshriek/wrapture/jobs/679280059
-  # this is due to a compatibility issue with truffleruby that will be fixed in
-  # version 20.1.0, and the upper limit can be removed after that
-  # see https://github.com/oracle/truffleruby/issues/1899 for a similar issue
-  # with another project
-  gem 'simplecov', '>= 0.16.1', '< 0.18', require: false
+  # simplecov 0.19 and above require ruby 2.5
+  gem 'simplecov', '>= 0.16.1', '< 0.19', require: false
 end
