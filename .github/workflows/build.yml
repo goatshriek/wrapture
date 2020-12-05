@@ -21,6 +21,7 @@ jobs:
         run: bundle install
       - name: Run Tests
         run: bundle exec rake test
+      - uses: codecov/codecov-action@v1
       - name: Build Gem
         run: gem build wrapture.gemspec
       - name: Install Gem
