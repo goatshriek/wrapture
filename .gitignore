@@ -1,3 +1,6 @@
 coverage/*
 docs/html/*
 *.gem
+
+# ignore ctags files
+tags
