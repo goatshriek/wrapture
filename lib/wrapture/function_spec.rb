@@ -237,7 +237,11 @@ module Wrapture
 
       yield '  va_end( variadic_args );' if variadic?
 
-      yield '  return *this;' if @return_type.self?
+      if @return_type.self?
+        yield '  return *this;'
+      elsif @spec['return']['type'] != 'void' && !returns_call_result?
+        yield '  return return_val;'
+      end
 
       yield '}'
     end
@@ -285,9 +289,11 @@ module Wrapture
 
     private
 
-    # The resolved type of the return type.
-    def resolved_return
-      @return_type.resolve(self)
+    # True if the return value of the wrapped call needs to be captured in a
+    # local variable.
+    def capture_return?
+      !@constructor &&
+      @wrapped.use_return? || (!@return_type.self? && @spec['return']['type'] != 'void' && !returns_call_result?)
     end
 
     # True if the provided wrapped param spec can be cast to when used in this
@@ -314,10 +320,15 @@ module Wrapture
     def locals
       yield 'va_list variadic_args;' if variadic?
 
-      if @wrapped.use_return? && !@constructor
+      if capture_return?
         wrapped_type = resolve_type(@wrapped.return_val_type)
         yield "#{wrapped_type.variable('return_val')};"
       end
+    end
+
+    # The resolved type of the return type.
+    def resolved_return
+      @return_type.resolve(self)
     end
 
     # The function to use to create the return value of the function.
@@ -340,10 +351,13 @@ module Wrapture
       end
     end
 
-    # True if the function returns the result of the wrapped function call.
+    # True if the function returns the result of the wrapped function call
+    # directly without any after actions.
     def returns_call_result?
-      !@constructor && !@destructor &&
-        !%w[void self-reference].include?(@spec['return']['type'])
+      !@constructor &&
+        !@destructor &&
+        !%w[void self-reference].include?(@spec['return']['type']) &&
+        !@wrapped.error_check?
     end
 
     # The expression containing the call to the underlying wrapped function.

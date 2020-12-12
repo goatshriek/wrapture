@@ -63,7 +63,7 @@ end
 
 def block_collector
   lines = []
-  proc { |line| lines << line }
+  proc { |line| lines << line unless line.nil? }
 end
 
 def count_matches(filename, regex)
