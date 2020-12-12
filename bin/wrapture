@@ -26,6 +26,10 @@ scope = Wrapture::Scope.new
 ARGV.each do |spec_file|
   spec = YAML.load_file(spec_file)
 
+  if spec.key?('version') && !Wrapture.supports_version?(spec['version'])
+    raise Wrapture::UnsupportedSpecVersion
+  end
+
   spec.fetch('templates', []).each do |temp_spec|
     scope << Wrapture::TemplateSpec.new(temp_spec)
   end
