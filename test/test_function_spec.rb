@@ -26,7 +26,8 @@ class FunctionSpecTest < Minitest::Test
   def test_basic_new
     test_spec = load_fixture('basic_function')
 
-    Wrapture::FunctionSpec.new(test_spec)
+    spec = Wrapture::FunctionSpec.new(test_spec)
+    spec.definition(&block_collector)
   end
 
   def test_documentation
@@ -60,6 +61,16 @@ class FunctionSpecTest < Minitest::Test
 
       assert(code.include?(throw_code)) if code.start_with?('throw')
     end
+  end
+
+  def test_exception_without_return_val
+    test_spec = load_fixture('exception_check_without_return_val')
+
+    spec = Wrapture::FunctionSpec.new(test_spec)
+
+    lines = spec.definition(&block_collector)
+    assert(lines.any? { |line| line.end_with?('int return_val;') })
+    assert(lines.any? { |line| line.end_with?('return return_val;') })
   end
 
   def test_function_pointer_argument

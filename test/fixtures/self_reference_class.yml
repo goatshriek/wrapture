@@ -1,11 +1,11 @@
-name: "BasicClass"
+name: "SelfReferenceClass"
 namespace: "wrapture_test"
 includes: "class_include.h"
 equivalent-struct:
   name: "basic_struct"
   includes: "folder/include_file_1.h"
 functions:
-  - name: "BasicFunction1"
+  - name: "SelfReferenceFunction"
     params:
       - name: "app_name"
         type: "const char *"

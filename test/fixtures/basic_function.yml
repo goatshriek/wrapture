@@ -8,5 +8,4 @@ wrapped-function:
     - "folder/include_file_2.h"
     - "folder/include_file_3.h"
   params:
-    - name: "equivalent-struct-pointer"
     - name: "app_name"

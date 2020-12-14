@@ -19,7 +19,7 @@
 Gem::Specification.new do |spec|
   spec.name        =  'wrapture'
   spec.version     =  '0.5.0'
-  spec.date        =  '2020-05-11'
+  spec.date        =  '2020-12-14'
   spec.summary     =  'wrap C in C++'
   spec.description =  'Wraps C code in C++.'
   spec.authors     =  ['Joel Anderson']
@@ -32,7 +32,7 @@ Gem::Specification.new do |spec|
   spec.license     =  'Apache-2.0'
 
   spec.required_ruby_version = '>= 2.4'
-  spec.add_development_dependency 'bundler', '>= 1.6.4', '< 2.2'
+  spec.add_development_dependency 'bundler', '>= 1.6.4', '< 2.3'
 
   if spec.respond_to?(:metadata)
     spec.metadata = {

@@ -39,6 +39,7 @@ class SelfReferenceTest < Minitest::Test
 
     source_file = "#{test_spec['name']}.cpp"
     assert(file_contains_match(source_file, /return \*this;/))
+    refute(file_contains_match(source_file, 'return_val'))
 
     File.delete(*generated_files)
   end
