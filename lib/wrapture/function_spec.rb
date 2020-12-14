@@ -239,7 +239,7 @@ module Wrapture
 
       if @return_type.self?
         yield '  return *this;'
-      elsif @spec['return']['type'] != 'void' && !returns_call_result?
+      elsif @spec['return']['type'] != 'void' && !returns_call_directly?
         yield '  return return_val;'
       end
 
@@ -293,7 +293,7 @@ module Wrapture
     # local variable.
     def capture_return?
       !@constructor &&
-      @wrapped.use_return? || (!@return_type.self? && @spec['return']['type'] != 'void' && !returns_call_result?)
+        @wrapped.use_return? || returns_return_val?
     end
 
     # True if the provided wrapped param spec can be cast to when used in this
@@ -353,11 +353,18 @@ module Wrapture
 
     # True if the function returns the result of the wrapped function call
     # directly without any after actions.
-    def returns_call_result?
+    def returns_call_directly?
       !@constructor &&
         !@destructor &&
         !%w[void self-reference].include?(@spec['return']['type']) &&
         !@wrapped.error_check?
+    end
+
+    # True if the function returns the return_val variable.
+    def returns_return_val?
+      !@return_type.self? &&
+        @spec['return']['type'] != 'void' &&
+        !returns_call_directly?
     end
 
     # The expression containing the call to the underlying wrapped function.
@@ -368,7 +375,7 @@ module Wrapture
         "this->equivalent = #{call}"
       elsif @wrapped.error_check?
         "return_val = #{call}"
-      elsif returns_call_result?
+      elsif returns_call_directly?
         "return #{return_cast(call)}"
       else
         call

@@ -69,8 +69,8 @@ class FunctionSpecTest < Minitest::Test
     spec = Wrapture::FunctionSpec.new(test_spec)
 
     lines = spec.definition(&block_collector)
-    assert(lines.any? { |line| line.end_with?('int return_val;') } )
-    assert(lines.any? { |line| line.end_with?('return return_val;') } )
+    assert(lines.any? { |line| line.end_with?('int return_val;') })
+    assert(lines.any? { |line| line.end_with?('return return_val;') })
   end
 
   def test_function_pointer_argument
