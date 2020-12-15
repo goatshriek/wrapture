@@ -9,9 +9,10 @@ For a detailed look at the project's future, including planned features and bug
 fixes, check out the
 [roadmap](https://github.com/goatshriek/wrapture/blob/master/docs/roadmap.md).
 
-## [0.5.0] - 2020-12-14
+## [0.5.0] - 2020-12-15
 ### Fixed
  - Return values are now properly declared, captured, and returned as needed.
+ - `bin/wrapture` now checks the version number of specs it processes.
 
 ### Removed
  - Ruby 2.3 is no longer supported.
