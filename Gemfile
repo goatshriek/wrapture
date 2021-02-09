@@ -24,6 +24,7 @@ group :test do
   gem 'codecov', '>= 0.1.14', require: false
   # minitest at or above 5.12 cause problems with rbx 4
   gem 'minitest', '>= 5.9', '< 5.12'
+  gem 'rbs'
   gem 'rubocop', '>= 0.69', require: false
   # simplecov 0.19 and above require ruby 2.5
   gem 'simplecov', '>= 0.16.1', '< 0.19', require: false
