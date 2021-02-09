@@ -27,13 +27,13 @@ jobs:
       - name: Install Gem
         run: gem install wrapture
   code-analysis:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     name: code analysis
     steps:
       - uses: actions/checkout@v2
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '2.7'
+          ruby-version: '3.0'
       - name: Install Dependencies
         run: bundle install
       - name: Run Rubocop
