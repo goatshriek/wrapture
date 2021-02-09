@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2019-2020 Joel E. Anderson
+# Copyright 2019-2021 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@
 
 module Wrapture
   # the current version of Wrapture
-  VERSION = '0.5.0'
+  VERSION = '0.6.0'
 
   # Returns true if the version of the spec is supported by this version of
   # Wrapture. Otherwise returns false.

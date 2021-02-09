@@ -7,10 +7,10 @@ on:
       - release
 jobs:
   matrix-builds:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
-        ruby: ['2.4', '2.5', '2.6', '2.7', 'jruby', 'truffleruby-head']
+        ruby: ['2.4', '2.5', '2.6', '2.7', '3.0', 'jruby', 'truffleruby-head']
     name: ruby ${{ matrix.ruby }}
     steps:
       - uses: actions/checkout@v2
