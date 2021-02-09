@@ -1,0 +1,11 @@
+module Wrapture
+  class ActionSpec
+    def self.normalize_spec_hash: (untyped spec) -> untyped
+
+    def initialize: (untyped spec) -> untyped
+
+    def includes: () -> untyped
+
+    def take: () -> ::String
+  end
+end
