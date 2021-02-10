@@ -1,0 +1,50 @@
+module Wrapture
+  class ClassSpec
+    @spec: untyped
+    @functions: untyped
+    @constants: untyped
+    @doc: nil
+    @scope: untyped
+
+    def self.normalize_spec_hash: (untyped spec) -> untyped
+    def self.effective_type: (untyped spec) -> String
+    attr_reader struct: nil
+    def initialize: (untyped spec, ?scope: untyped) -> void
+    def cast: (untyped instance_name, untyped to, untyped from) -> String
+    def generate_wrappers: -> [String, String]
+    def name: -> untyped
+    def overloads?: (untyped parent_spec) -> false
+    def parent_name: -> nil
+    def pointer_wrapper?: -> untyped
+    def struct_name: -> untyped
+    def this_struct: -> String
+    def this_struct_pointer: -> String
+    def type: (untyped type_) -> untyped
+    def type?: (untyped type_) -> untyped
+
+    private
+    def child?: -> untyped
+    def declaration_contents: { (?String) -> nil } -> nil
+    def declaration_includes: -> untyped
+    def definition_contents: { (?String) -> nil } -> nil
+    def definition_includes: -> Array[String]
+    def documentation: { (untyped) -> nil } -> nil
+    def equivalent_member_declaration: { (String) -> nil } -> nil
+    def equivalent_name: -> String
+    def generate_declaration_file: -> String
+    def generate_definition_file: -> String
+    def header_guard: -> String
+    def member_constructor_declaration: { (String) -> nil } -> nil
+    def member_constructor_definition: { (String) -> nil } -> nil
+    def overload_declaration: { (String) -> nil } -> nil
+    def overload_definition: { (?String) -> nil } -> nil
+    def overload_definition_includes: -> untyped
+    def parent_provides_initializer?: -> false
+    def pointer_constructor_declaration: { (String) -> nil } -> nil
+    def pointer_constructor_definition: { (String) -> nil } -> nil
+    def pointer_constructor_initializer: -> String
+    def pointer_constructor_signature: -> String
+    def struct_constructor_signature: -> String
+    def this_member: (untyped member) -> String
+  end
+end

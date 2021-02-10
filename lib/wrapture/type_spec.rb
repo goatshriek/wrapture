@@ -143,7 +143,7 @@ module Wrapture
     end
 
     # True if this type is a reference to a class instance.
-    def self?
+    def self_reference?
       name == SELF_REFERENCE_KEYWORD
     end
 

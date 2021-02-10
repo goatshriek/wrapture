@@ -1,0 +1,18 @@
+module Wrapture
+  class Scope
+    @version: untyped
+
+    attr_reader classes: Array[bot]
+    attr_reader enums: Array[bot]
+    attr_reader templates: Array[bot]
+    def initialize: (?nil spec) -> nil
+    def <<: (untyped spec) -> Array[bot]?
+    def add_class_spec_hash: (untyped spec) -> untyped
+    def add_enum_spec_hash: (untyped spec) -> Array[bot]
+    def generate_wrappers: -> Array[untyped]
+    def overloads: (untyped parent) -> Array[bot]
+    def overloads?: (untyped parent) -> bool
+    def type: (untyped type_) -> nil
+    def type?: (untyped type_) -> bool
+  end
+end

@@ -1,0 +1,5 @@
+module Wrapture
+  def self.normalize_boolean: (untyped spec, untyped key) -> untyped
+  def self.normalize_includes: (untyped includes) -> Array[untyped]
+  def self.spec_version: (untyped spec) -> untyped
+end

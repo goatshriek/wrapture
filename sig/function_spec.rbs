@@ -1,0 +1,43 @@
+module Wrapture
+  class FunctionSpec
+    @owner: untyped
+    @spec: untyped
+    @wrapped: untyped
+    @params: Array[Wrapture::ParamSpec]
+    @constructor: bool
+    @destructor: bool
+
+    def self.normalize_return_hash: (Hash[String, untyped] spec) -> Hash[String, untyped]
+    def self.normalize_spec_hash: (Hash[String, untyped] spec) -> Hash[String, untyped]
+    def initialize: (untyped spec, ?untyped owner, ?constructor: bool, ?destructor: bool) -> void
+    attr_reader return_type: untyped
+    def constructor?: -> boolish
+    def declaration_includes: -> untyped
+    def definable?: -> bool
+    def definition_includes: -> untyped
+    def name: -> untyped
+    def param_list: -> untyped
+    def qualified_name: -> String
+    def resolve_wrapped_param: (untyped param_spec) -> String
+    def return_expression: (?func_name: String) -> String
+    def signature: (?func_name: String) -> String
+    def declaration: { (String) -> void } -> untyped
+    def definition: { (String) -> void } -> untyped
+    def doc: -> untyped
+    def resolve_type: (untyped type_) -> untyped
+    def variadic?: -> bool
+    def virtual?: -> bool
+
+    private
+    def capture_return?: -> bool
+    def castable?: (untyped wrapped_param) -> boolish
+    def definable_check: -> true
+    def locals: { (String) -> untyped } -> nil
+    def resolved_return: -> untyped
+    def return_cast: (untyped value) -> String
+    def return_variable: -> String
+    def returns_call_directly?: -> bool
+    def returns_return_val?: -> bool
+    def wrapped_call_expression: -> String
+  end
+end

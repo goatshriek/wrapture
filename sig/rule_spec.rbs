@@ -1,0 +1,11 @@
+module Wrapture
+  class RuleSpec
+    CONDITIONS: Hash[String, String]
+    @spec: untyped
+
+    def self.normalize_spec_hash: (untyped spec) -> untyped
+    def initialize: (untyped spec) -> untyped
+    def check: (?variable: nil, ?return_val: String) -> String
+    def use_return?: -> bool
+  end
+end
