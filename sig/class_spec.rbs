@@ -10,7 +10,7 @@ module Wrapture
     def self.effective_type: (untyped spec) -> String
     attr_reader struct: nil
     def initialize: (untyped spec, ?scope: untyped) -> void
-    def cast: (untyped instance_name, untyped to, untyped from) -> String
+    def cast: (untyped var_name, untyped to, untyped from) -> String
     def generate_wrappers: -> [String, String]
     def name: -> untyped
     def overloads?: (untyped parent_spec) -> false

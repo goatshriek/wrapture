@@ -131,15 +131,15 @@ module Wrapture
     # Returns a cast of an instance of this class with the provided name to the
     # specified type. Optionally the from parameter may hold the type of the
     # instance, either a reference or a pointer.
-    def cast(instance_name, to, from = name)
+    def cast(var_name, to, from = name)
       member_access = from.pointer? ? '->' : '.'
 
       struct = "struct #{@struct.name}"
 
       if [EQUIVALENT_STRUCT_KEYWORD, struct].include?(to)
-        "#{'*' if pointer_wrapper?}#{instance_name}#{member_access}equivalent"
+        "#{'*' if pointer_wrapper?}#{var_name}#{member_access}equivalent"
       elsif [EQUIVALENT_POINTER_KEYWORD, "#{struct} *"].include?(to)
-        "#{'&' unless pointer_wrapper?}#{instance_name}#{member_access}equivalent"
+        "#{'&' unless pointer_wrapper?}#{var_name}#{member_access}equivalent"
       end
     end
 
