@@ -9,6 +9,11 @@ For a detailed look at the project's future, including planned features and bug
 fixes, check out the
 [roadmap](https://github.com/goatshriek/wrapture/blob/master/docs/roadmap.md).
 
+## [0.6.0 - 2021-02-10
+### Added
+ - Support for Ruby 3.0
+ - RBS signatures.
+
 ## [0.5.0] - 2020-12-15
 ### Fixed
  - Return values are now properly declared, captured, and returned as needed.
