@@ -13,6 +13,6 @@ module Wrapture
     def includes: -> untyped
     def name: -> untyped
     def signature: (untyped owner) -> untyped
-    def variadic?: -> untyped
+    def variadic?: -> bool
   end
 end

@@ -5,15 +5,15 @@ module Wrapture
 
     def self.normalize_spec_hash: (untyped spec) -> untyped
     def self.normalize_spec_hash!: (untyped spec) -> untyped
-    def initialize: (untyped spec) -> untyped
+    def initialize: (untyped spec) -> void
     def generate_wrapper: -> [String]
     def name: -> untyped
 
     private
-    def definition_contents: { (?String) -> nil } -> nil
+    def definition_contents: { (?String) -> void } -> void
     def definition_includes: -> untyped
-    def element_definition: (untyped element) { (String) -> nil } -> nil
-    def element_doc: (untyped element) { (untyped) -> nil } -> untyped
+    def element_definition: (untyped element) { (String) -> void } -> void
+    def element_doc: (untyped element) { (untyped) -> void } -> untyped
     def header_guard: -> String
   end
 end

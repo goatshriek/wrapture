@@ -3,8 +3,8 @@ module Wrapture
     @spec: untyped
     @functions: untyped
     @constants: untyped
-    @doc: nil
-    @scope: untyped
+    @doc: untyped
+    @scope: Wrapture::Scope
 
     def self.normalize_spec_hash: (untyped spec) -> untyped
     def self.effective_type: (untyped spec) -> String
@@ -13,14 +13,14 @@ module Wrapture
     def cast: (untyped var_name, untyped to, untyped from) -> String
     def generate_wrappers: -> [String, String]
     def name: -> untyped
-    def overloads?: (untyped parent_spec) -> false
+    def overloads?: (untyped parent_spec) -> bool
     def parent_name: -> nil
     def pointer_wrapper?: -> untyped
     def struct_name: -> untyped
     def this_struct: -> String
     def this_struct_pointer: -> String
     def type: (untyped type_) -> untyped
-    def type?: (untyped type_) -> untyped
+    def type?: (untyped type_) -> bool
 
     private
     def child?: -> untyped
@@ -39,7 +39,7 @@ module Wrapture
     def overload_declaration: { (String) -> nil } -> nil
     def overload_definition: { (?String) -> nil } -> nil
     def overload_definition_includes: -> untyped
-    def parent_provides_initializer?: -> false
+    def parent_provides_initializer?: -> bool
     def pointer_constructor_declaration: { (String) -> nil } -> nil
     def pointer_constructor_definition: { (String) -> nil } -> nil
     def pointer_constructor_initializer: -> String

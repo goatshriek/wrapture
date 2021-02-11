@@ -1,5 +1,5 @@
 module Wrapture
   VERSION: String
 
-  def self.supports_version?: (untyped version) -> untyped
+  def self.supports_version?: (String version) -> bool
 end

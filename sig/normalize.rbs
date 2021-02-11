@@ -1,5 +1,5 @@
 module Wrapture
-  def self.normalize_boolean: (untyped spec, untyped key) -> untyped
-  def self.normalize_includes: (untyped includes) -> Array[untyped]
-  def self.spec_version: (untyped spec) -> untyped
+  def self.normalize_boolean: (Hash[String, untyped] spec, String key) -> bool
+  def self.normalize_includes: ( (Array[String] | nil) includes) -> Array[String]
+  def self.spec_version: (Hash[String, untyped] spec) -> String
 end

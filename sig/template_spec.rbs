@@ -8,7 +8,7 @@ module Wrapture
     def self.replace_param!: (untyped spec, untyped param_name, untyped param_value) -> untyped
     def self.replace_param_in_array: (untyped spec, untyped param_name, untyped param_value) -> untyped
     def self.replace_param_in_hash: (untyped spec, untyped param_name, untyped param_value) -> untyped
-    def initialize: (untyped spec) -> untyped
+    def initialize: (untyped spec) -> void
     def direct_use?: (untyped spec) -> bool
     def instantiate: (?Hash[String, String] params) -> untyped
     def name: -> untyped
