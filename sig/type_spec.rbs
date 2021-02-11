@@ -1,0 +1,24 @@
+module Wrapture
+  class TypeSpec
+    @spec: untyped
+
+    def self.normalize_spec_hash: (Hash[String, String] | String spec) -> untyped
+    def self.normalize_spec_hash!: (untyped spec) -> untyped
+    def initialize: (?String spec) -> untyped
+    def ==: (untyped other) -> untyped
+    def base: -> untyped
+    def cast_expression: (untyped expression) -> String
+    def equivalent_pointer?: -> bool
+    def equivalent_struct?: -> bool
+    def function?: -> bool
+    def includes: -> untyped
+    def name: -> untyped
+    def pointer?: -> bool
+    def resolve: (untyped owner) -> untyped
+    def return_expression: (untyped func, ?func_name: untyped) -> String
+    def self_reference?: -> bool
+    def to_s: -> String
+    def variable: (?nil var_name) -> String
+    def variadic?: -> bool
+  end
+end

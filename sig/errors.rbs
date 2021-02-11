@@ -1,0 +1,26 @@
+module Wrapture
+  class WraptureError < StandardError
+  end
+
+  class InvalidDoc < WraptureError
+  end
+
+  class InvalidTemplateUsage < WraptureError
+  end
+
+  class InvalidSpecKey < WraptureError
+    def initialize: (untyped message, ?valid_keys: Array[bot]) -> void
+  end
+
+  class MissingSpecKey < WraptureError
+  end
+
+  class NoNamespace < WraptureError
+  end
+
+  class UndefinableSpec < WraptureError
+  end
+
+  class UnsupportedSpecVersion < WraptureError
+  end
+end

@@ -7,10 +7,10 @@ on:
       - release
 jobs:
   matrix-builds:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
-        ruby: ['2.4', '2.5', '2.6', '2.7', 'jruby', 'truffleruby-head']
+        ruby: ['2.4', '2.5', '2.6', '2.7', '3.0', 'jruby', 'truffleruby-head']
     name: ruby ${{ matrix.ruby }}
     steps:
       - uses: actions/checkout@v2
@@ -27,17 +27,19 @@ jobs:
       - name: Install Gem
         run: gem install wrapture
   code-analysis:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     name: code analysis
     steps:
       - uses: actions/checkout@v2
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '2.7'
+          ruby-version: '3.0'
       - name: Install Dependencies
         run: bundle install
       - name: Run Rubocop
         run: bundle exec rubocop --parallel
+      - name: Check RBS
+        run: rbs -I sig/ validate
       - name: Check RDoc Coverage
         run: bundle exec rdoc --coverage-report lib
       - name: Sonarcloud Analysis

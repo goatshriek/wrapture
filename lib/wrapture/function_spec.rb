@@ -237,7 +237,7 @@ module Wrapture
 
       yield '  va_end( variadic_args );' if variadic?
 
-      if @return_type.self?
+      if @return_type.self_reference?
         yield '  return *this;'
       elsif @spec['return']['type'] != 'void' && !returns_call_directly?
         yield '  return return_val;'
@@ -270,7 +270,7 @@ module Wrapture
         TypeSpec.new("struct #{@owner.struct_name}")
       elsif type.equivalent_pointer?
         TypeSpec.new("struct #{@owner.struct_name} *")
-      elsif type.self?
+      elsif type.self_reference?
         TypeSpec.new("#{@owner.name}&")
       else
         type
@@ -362,7 +362,7 @@ module Wrapture
 
     # True if the function returns the return_val variable.
     def returns_return_val?
-      !@return_type.self? &&
+      !@return_type.self_reference? &&
         @spec['return']['type'] != 'void' &&
         !returns_call_directly?
     end

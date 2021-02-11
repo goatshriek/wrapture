@@ -20,13 +20,6 @@ source 'https://rubygems.org'
 
 gemspec
 
-gem 'json', '~> 2.3'
-
-group :development do
-  gem 'rake', '>= 0.9.2'
-  gem 'rdoc', '>= 6.0'
-end
-
 group :test do
   gem 'codecov', '>= 0.1.14', require: false
   # minitest at or above 5.12 cause problems with rbx 4

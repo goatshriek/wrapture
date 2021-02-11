@@ -1,0 +1,18 @@
+module Wrapture
+  class StructSpec
+    @spec: untyped
+
+    def self.normalize_spec_hash: (untyped spec) -> untyped
+    attr_reader rules: untyped
+    def initialize: (untyped spec) -> void
+    def declaration: (untyped name) -> String
+    def includes: -> untyped
+    def member_list: -> String
+    def member_list_with_defaults: -> untyped
+    def members: -> untyped
+    def members?: -> bool
+    def name: -> untyped
+    def pointer_declaration: (untyped name) -> String
+    def rules_check: (untyped name) -> untyped
+  end
+end
