@@ -23,7 +23,7 @@ module Wrapture
     def type?: (untyped type_) -> bool
 
     private
-    def child?: -> untyped
+    def child?: -> bool
     def declaration_contents: { (?String) -> nil } -> nil
     def declaration_includes: -> untyped
     def definition_contents: { (?String) -> nil } -> nil
