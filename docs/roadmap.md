@@ -4,14 +4,6 @@ See below for details about upcoming releases of Wrapture. If you have feedback
 or want to make a suggestion, please submit an issue on the project's
 [Github page](https://github.com/goatshriek/wrapture).
 
-## 0.6.0
- * [ADD] **Python class generation**
-   Python is a commonly used language in a variety of applications, and
-   extension of C code into it is estimated to be a valuable feature.
-   Furthermore, this feature must be added before version 1.0.0 so that any
-   major changes to spec structure can be introduced while still in the initial
-   development stage of [semantic versioning](https://semver.org/).
-
 ## 1.0.0 (next major release)
  * [DEPRECATE] **Use of `name` key instead of `value` in wrapped function
    parameter specs**

@@ -13,6 +13,7 @@ fixes, check out the
 ### Added
  - Support for Ruby 3.0
  - RBS signatures.
+ - Python wrapper generation.
 
 ## [0.5.0] - 2020-12-15
 ### Fixed
