@@ -1,0 +1,7 @@
+module Wrapture
+  module CppWrapper
+    def write_declaration_files: (untyped spec) -> Array[String]
+    def write_definition_files: (untyped spec) -> Array[String]
+    def write_files: (untyped spec) -> Array[String]
+  end
+end

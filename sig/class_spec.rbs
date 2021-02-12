@@ -11,7 +11,6 @@ module Wrapture
     attr_reader struct: nil
     def initialize: (untyped spec, ?scope: untyped) -> void
     def cast: (untyped var_name, untyped to, untyped from) -> String
-    def generate_wrappers: -> [String, String]
     def name: -> untyped
     def overloads?: (untyped parent_spec) -> bool
     def parent_name: -> nil
@@ -31,8 +30,6 @@ module Wrapture
     def documentation: { (untyped) -> nil } -> nil
     def equivalent_member_declaration: { (String) -> nil } -> nil
     def equivalent_name: -> String
-    def generate_declaration_file: -> String
-    def generate_definition_file: -> String
     def header_guard: -> String
     def member_constructor_declaration: { (String) -> nil } -> nil
     def member_constructor_definition: { (String) -> nil } -> nil
