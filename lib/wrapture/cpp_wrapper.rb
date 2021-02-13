@@ -21,16 +21,58 @@
 module Wrapture
   # Tools to create C++ wrappers.
   module CppWrapper
+    # Generates the C++ declaration file for the given spec, returning the name
+    # of the file generated.
+    def write_declaration_file(spec)
+      'filename'
+    end
+
+    # Generates the C++ definition file for the given spec, returning the name
+    # of the file generated.
+    def write_definition_file(spec)
+      'filename'
+    end
+
     # Generates the C++ declaration files for the given spec or scope, returning
     # a list of the files generated.
     def write_declaration_files(spec)
-      ['filename']
+      case spec
+      when Scope
+        files = []
+
+        spec.classes.each do |class_spec|
+          files >> write_declaration_file(class_spec)
+        end
+
+        spec.enums.each do |enum_spec|
+          files >> write_declaration_file(enum_spec)
+        end
+
+        files
+      else
+        [write_declaration_file(spec)]
+      end
     end
 
     # Generates the C++ definition files for the given spec or scope, returning
     # a list of the files generated.
     def write_definition_files(spec)
-      ['filename']
+      case spec
+      when Scope
+        files = []
+
+        spec.classes.each do |class_spec|
+          files >> write_definition_file(class_spec)
+        end
+
+        spec.enums.each do |enum_spec|
+          files >> write_definition_file(enum_spec)
+        end
+
+        files
+      else
+        [write_definition_file(spec)]
+      end
     end
 
     # Generates C++ source files for the given spec or scope, returning a list
