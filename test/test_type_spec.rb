@@ -28,6 +28,6 @@ class TypeSpecTest < Minitest::Test
   end
 
   def test_equality_with_string
-    assert(Wrapture::TypeSpec.new('const char *') == 'const char *')
+    assert_equal('const char *', Wrapture::TypeSpec.new('const char *'))
   end
 end

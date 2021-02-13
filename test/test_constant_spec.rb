@@ -25,8 +25,8 @@ class ConstantSpecTest < Minitest::Test
       comment << line << "\n"
     end
 
-    refute(comment.empty?)
-    assert(comment.include?('ConstantDocIdentifier'))
+    refute_empty(comment)
+    assert_includes(comment, 'ConstantDocIdentifier')
   end
 
   def test_future_spec_version

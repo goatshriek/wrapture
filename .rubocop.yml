@@ -1,3 +1,7 @@
+require:
+  - rubocop-minitest
+  - rubocop-rake
+
 AllCops:
   TargetRubyVersion: 2.4
   NewCops: enable
@@ -18,6 +22,9 @@ Metrics/MethodLength:
   Max: 55
 
 Metrics/PerceivedComplexity:
+  Max: 10
+
+Minitest/MultipleAssertions:
   Max: 10
 
 Style/Documentation:

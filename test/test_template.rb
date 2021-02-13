@@ -83,7 +83,7 @@ class TemplateSpecTest < Minitest::Test
     assert(usage.key?('places'))
     assert(usage.key?('key-1'))
     assert_instance_of(Array, usage['other-stuff'])
-    assert(usage['other-stuff'].include?('thing-2'))
+    assert_includes(usage['other-stuff'], 'thing-2')
   end
 
   def test_no_param_instantiation
@@ -113,12 +113,12 @@ class TemplateSpecTest < Minitest::Test
 
     temp.replace_uses(usage)
 
-    assert(usage.include?('thing-1'))
-    assert(usage.include?('thing-2'))
-    assert(usage.include?('thing-a'))
-    assert(usage.include?('thing-b'))
+    assert_includes(usage, 'thing-1')
+    assert_includes(usage, 'thing-2')
+    assert_includes(usage, 'thing-a')
+    assert_includes(usage, 'thing-b')
     assert(usage.last.is_a?(Hash))
-    assert(usage.last['key-1'] == 'thing-3')
+    assert_equal('thing-3', usage.last['key-1'])
   end
 
   def test_replace_in_hash

@@ -33,7 +33,7 @@ class SelfReferenceTest < Minitest::Test
 
     forbidden = Wrapture::SELF_REFERENCE_KEYWORD
     generated_files.each do |filename|
-      assert(!file_contains_match(filename, forbidden),
+      refute(file_contains_match(filename, forbidden),
              "#{filename} should not contain '#{forbidden}'")
     end
 
