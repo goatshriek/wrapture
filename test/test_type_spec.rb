@@ -24,10 +24,10 @@ require 'wrapture'
 
 class TypeSpecTest < Minitest::Test
   def test_equality_with_int
-    refute(Wrapture::TypeSpec.new('conswt char *') == 3)
+    refute(Wrapture::TypeSpec.new('const char *') == 3)
   end
 
   def test_equality_with_string
-    assert_equal('const char *', Wrapture::TypeSpec.new('const char *'))
+    assert_equal(Wrapture::TypeSpec.new('const char *'), 'const char *')
   end
 end
