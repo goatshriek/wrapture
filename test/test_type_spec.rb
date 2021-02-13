@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2020 Joel E. Anderson
+# Copyright 2020-2021 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ class TypeSpecTest < Minitest::Test
   end
 
   def test_equality_with_string
-    assert_equal(Wrapture::TypeSpec.new('const char *'), 'const char *')
+    type_name = 'const char *'
+    assert_equal(Wrapture::TypeSpec.new(type_name), type_name)
   end
 end
