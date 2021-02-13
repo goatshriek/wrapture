@@ -24,13 +24,13 @@ module Wrapture
     # Generates the C++ declaration file for the given spec, returning the name
     # of the file generated.
     def write_declaration_file(spec)
-      'filename'
+      spec.name
     end
 
     # Generates the C++ definition file for the given spec, returning the name
     # of the file generated.
     def write_definition_file(spec)
-      'filename'
+      spec.name
     end
 
     # Generates the C++ declaration files for the given spec or scope, returning
