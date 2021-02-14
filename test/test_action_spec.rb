@@ -33,7 +33,7 @@ class ActionSpecTest < Minitest::Test
 
     action = spec.take
 
-    assert(action.include?('throw NewCustomException'))
+    assert_includes(action, 'throw NewCustomException')
   end
 
   def test_exception_without_params

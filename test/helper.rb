@@ -99,8 +99,8 @@ def refute_keywords_found(filename)
   File.open(filename) do |file|
     file.each do |line|
       Wrapture::KEYWORDS.each do |keyword|
-        refute(line.include?(keyword),
-               "#{filename} had keyword '#{keyword}' on line #{file.lineno}")
+        err_msg = "#{filename} had keyword '#{keyword}' on line #{file.lineno}"
+        refute_includes(line, keyword, err_msg)
       end
     end
   end
@@ -110,8 +110,8 @@ def validate_class_wrapper(spec, file_list)
   refute_nil(file_list)
   refute_empty(file_list)
 
-  assert(file_list.include?("#{spec['name']}.cpp"))
-  assert(file_list.include?("#{spec['name']}.hpp"))
+  assert_includes(file_list, "#{spec['name']}.cpp")
+  assert_includes(file_list, "#{spec['name']}.hpp")
 
   validate_declaration_file(spec)
   validate_definition_file(spec)
@@ -215,7 +215,7 @@ def validate_wrapper_results(spec, file_list)
       validate_class_wrapper(class_spec, file_list)
     end
   else
-    assert(file_list.length == 2, msg: 'only 2 files expected per class')
+    assert_equal(2, file_list.length, msg: 'only 2 files expected per class')
     validate_class_wrapper(spec, file_list)
   end
 end

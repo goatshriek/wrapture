@@ -70,7 +70,7 @@ class EnumSpecTest < Minitest::Test
       Wrapture::EnumSpec.new(test_spec)
     end
 
-    %w[elements array].each { |word| assert(error.message.include?(word)) }
+    %w[elements array].each { |word| assert_includes(error.message, word) }
   end
 
   def test_enum_with_namespace
@@ -96,7 +96,7 @@ class EnumSpecTest < Minitest::Test
       Wrapture::EnumSpec.new(test_spec)
     end
 
-    %w[elements required].each { |word| assert(error.message.include?(word)) }
+    %w[elements required].each { |word| assert_includes(error.message, word) }
   end
 
   def test_no_name
@@ -106,7 +106,7 @@ class EnumSpecTest < Minitest::Test
       Wrapture::EnumSpec.new(test_spec)
     end
 
-    %w[name required].each { |word| assert(error.message.include?(word)) }
+    %w[name required].each { |word| assert_includes(error.message, word) }
   end
 
   def validate_file_matches_spec(filename, spec_hash)

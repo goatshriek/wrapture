@@ -42,10 +42,10 @@ class FunctionSpecTest < Minitest::Test
       comment << line << "\n"
     end
 
-    refute(comment.empty?)
-    assert(comment.include?('FunctionDocIdentifier'))
-    assert(comment.include?('ParamDocIdentifier'))
-    assert(comment.include?('ReturnDocIdentifier'))
+    refute_empty(comment)
+    assert_includes(comment, 'FunctionDocIdentifier')
+    assert_includes(comment, 'ParamDocIdentifier')
+    assert_includes(comment, 'ReturnDocIdentifier')
   end
 
   def test_exception_throwing_function
@@ -59,7 +59,7 @@ class FunctionSpecTest < Minitest::Test
 
       code = line.strip
 
-      assert(code.include?(throw_code)) if code.start_with?('throw')
+      assert_includes(code, throw_code) if code.start_with?('throw')
     end
   end
 
@@ -182,8 +182,8 @@ class FunctionSpecTest < Minitest::Test
       comment << line << "\n"
     end
 
-    refute(comment.empty?)
-    assert(comment.include?('ParamDocIdentifier'))
+    refute_empty(comment)
+    assert_includes(comment, 'ParamDocIdentifier')
   end
 
   def test_only_variadic_param
@@ -193,7 +193,7 @@ class FunctionSpecTest < Minitest::Test
       Wrapture::FunctionSpec.new(test_spec)
     end
 
-    assert(error.message.include?('only param'))
+    assert_includes(error.message, 'only param')
   end
 
   def test_undefinable
@@ -215,17 +215,17 @@ class FunctionSpecTest < Minitest::Test
       spec = Wrapture::FunctionSpec.new(test_spec)
 
       spec.declaration do |line|
-        assert(line.include?('...'))
+        assert_includes(line, '...')
       end
 
       assert(spec.signature.end_with?('... )'))
 
-      assert(spec.definition_includes.include?('stdarg.h'))
+      assert_includes(spec.definition_includes, 'stdarg.h')
 
       spec.definition do |line|
         code = line.strip
 
-        assert(code.include?('variadic_args')) if code.include?('underlying')
+        assert_includes(code, 'variadic_args') if code.include?('underlying')
       end
     end
   end
