@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2020 Joel E. Anderson
+# Copyright 2020-2021 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,10 +24,11 @@ require 'wrapture'
 
 class TypeSpecTest < Minitest::Test
   def test_equality_with_int
-    refute(Wrapture::TypeSpec.new('conswt char *') == 3)
+    refute(Wrapture::TypeSpec.new('const char *') == 3)
   end
 
   def test_equality_with_string
-    assert(Wrapture::TypeSpec.new('const char *') == 'const char *')
+    type_name = 'const char *'
+    assert_equal(Wrapture::TypeSpec.new(type_name), type_name)
   end
 end

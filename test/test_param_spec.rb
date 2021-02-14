@@ -30,7 +30,7 @@ class ParamSpecTest < Minitest::Test
       Wrapture::ParamSpec.new(test_spec)
     end
 
-    assert(error.message.include?('type'))
+    assert_includes(error.message, 'type')
   end
 
   def test_variadic_parameter

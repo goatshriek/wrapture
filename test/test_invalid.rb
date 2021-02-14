@@ -86,7 +86,7 @@ class InvalidTest < Minitest::Test
       Wrapture::Scope.new(scope_spec)
     end
 
-    assert(error.message.include?(Wrapture::TEMPLATE_USE_KEYWORD))
+    assert_includes(error.message, Wrapture::TEMPLATE_USE_KEYWORD)
   end
 
   def test_use_template_with_no_name
