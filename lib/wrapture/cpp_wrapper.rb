@@ -27,7 +27,7 @@ module Wrapture
       filename = "#{spec.name}.hpp"
 
       File.open(filename, 'w') do |file|
-        file.puts(spec.name)
+        spec.declaration_contents { |line| file.puts(line) }
       end
 
       filename
@@ -39,7 +39,7 @@ module Wrapture
       filename = "#{spec.name}.cpp"
 
       File.open(filename, 'w') do |file|
-        file.puts(spec.name)
+        spec.definition_contents { |line| file.puts(line) }
       end
 
       filename

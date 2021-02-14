@@ -207,13 +207,6 @@ module Wrapture
       @scope.type?(type)
     end
 
-    private
-
-    # True if the class has a parent.
-    def child?
-      @spec.key?('parent')
-    end
-
     # Gives the content of the class declaration to a block, line by line.
     def declaration_contents
       yield "#ifndef #{header_guard}"
@@ -268,25 +261,6 @@ module Wrapture
       yield '#endif' # end of header guard
     end
 
-    # A list of includes needed for the declaration of the class.
-    def declaration_includes
-      includes = @spec['includes'].dup
-
-      includes.concat(@struct.includes) if @struct
-
-      @functions.each do |func|
-        includes.concat(func.declaration_includes)
-      end
-
-      @constants.each do |const|
-        includes.concat(const.declaration_includes)
-      end
-
-      includes.concat(@spec['parent']['includes']) if child?
-
-      includes.uniq
-    end
-
     # Gives the content of the class definition to a block, line by line.
     def definition_contents
       definition_includes.each do |include_file|
@@ -329,6 +303,32 @@ module Wrapture
 
       yield
       yield '}' # end of namespace
+    end
+
+    private
+
+    # True if the class has a parent.
+    def child?
+      @spec.key?('parent')
+    end
+
+    # A list of includes needed for the declaration of the class.
+    def declaration_includes
+      includes = @spec['includes'].dup
+
+      includes.concat(@struct.includes) if @struct
+
+      @functions.each do |func|
+        includes.concat(func.declaration_includes)
+      end
+
+      @constants.each do |const|
+        includes.concat(const.declaration_includes)
+      end
+
+      includes.concat(@spec['parent']['includes']) if child?
+
+      includes.uniq
     end
 
     # A list of includes needed for the definition of the class.
