@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2019-2020 Joel E. Anderson
+# Copyright 2019-2021 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ module Wrapture
   require 'wrapture/constant_spec'
   require 'wrapture/constants'
   require 'wrapture/class_spec'
+  require 'wrapture/cpp_wrapper'
   require 'wrapture/enum_spec'
   require 'wrapture/errors'
   require 'wrapture/function_spec'

@@ -38,7 +38,7 @@ class ScopeTest < Minitest::Test
 
     assert_equal(test_spec['classes'].count, scope.classes.count)
 
-    generated_files = scope.generate_wrappers
+    generated_files = Wrapture::CppWrapper.write_files(scope)
     assert_equal(scope.classes.count, generated_files.count / 2)
 
     File.delete(*generated_files)

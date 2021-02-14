@@ -23,62 +23,37 @@ module Wrapture
   module CppWrapper
     # Generates the C++ declaration file for the given spec, returning the name
     # of the file generated.
-    def write_declaration_file(spec)
-      spec.name
+    def self.write_declaration_file(spec)
+      filename = "#{spec.name}.hpp"
+
+      File.open(filename, 'w') do |file|
+        file.puts(spec.name)
+      end
+
+      filename
     end
 
     # Generates the C++ definition file for the given spec, returning the name
     # of the file generated.
-    def write_definition_file(spec)
-      spec.name
-    end
+    def self.write_definition_file(spec)
+      filename = "#{spec.name}.cpp"
 
-    # Generates the C++ declaration files for the given spec or scope, returning
-    # a list of the files generated.
-    def write_declaration_files(spec)
-      case spec
-      when Scope
-        files = []
-
-        spec.classes.each do |class_spec|
-          files >> write_declaration_file(class_spec)
-        end
-
-        spec.enums.each do |enum_spec|
-          files >> write_declaration_file(enum_spec)
-        end
-
-        files
-      else
-        [write_declaration_file(spec)]
+      File.open(filename, 'w') do |file|
+        file.puts(spec.name)
       end
-    end
 
-    # Generates the C++ definition files for the given spec or scope, returning
-    # a list of the files generated.
-    def write_definition_files(spec)
-      case spec
-      when Scope
-        files = []
-
-        spec.classes.each do |class_spec|
-          files >> write_definition_file(class_spec)
-        end
-
-        spec.enums.each do |enum_spec|
-          files >> write_definition_file(enum_spec)
-        end
-
-        files
-      else
-        [write_definition_file(spec)]
-      end
+      filename
     end
 
     # Generates C++ source files for the given spec or scope, returning a list
     # of the files generated.
-    def write_files(spec)
-      [write_declaration_files(spec), write_definition_files(spec)]
+    def self.write_files(spec)
+      case spec
+      when Scope
+        (spec.classes + spec.enums).flat_map { |item| write_files(item) }
+      else
+        [write_declaration_file(spec), write_definition_file(spec)]
+      end
     end
   end
 end
