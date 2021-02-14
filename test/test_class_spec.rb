@@ -47,8 +47,7 @@ class ClassSpecTest < Minitest::Test
     test_spec = load_fixture('class_with_return_val_in_constructor')
 
     spec = Wrapture::ClassSpec.new(test_spec)
-    generated_files = spec.generate_wrappers
-
+    generated_files = Wrapture::CppWrapper.write_files(spec)
     validate_wrapper_results(test_spec, generated_files)
 
     source_file = "#{test_spec['name']}.cpp"
@@ -73,7 +72,7 @@ class ClassSpecTest < Minitest::Test
 
     spec = Wrapture::ClassSpec.new test_spec
 
-    classes = spec.generate_wrappers
+    classes = Wrapture::CppWrapper.write_files(spec)
     validate_wrapper_results(test_spec, classes)
 
     File.delete(*classes)
@@ -84,7 +83,7 @@ class ClassSpecTest < Minitest::Test
 
     spec = Wrapture::ClassSpec.new(test_spec)
 
-    classes = spec.generate_wrappers
+    classes = Wrapture::CppWrapper.write_files(spec)
     validate_wrapper_results(test_spec, classes)
 
     File.delete(*classes)
@@ -95,7 +94,7 @@ class ClassSpecTest < Minitest::Test
 
     spec = Wrapture::ClassSpec.new(test_spec)
 
-    generated_files = spec.generate_wrappers
+    generated_files = Wrapture::CppWrapper.write_files(spec)
     validate_wrapper_results(test_spec, generated_files)
 
     class_name = test_spec['name']
@@ -143,9 +142,9 @@ class ClassSpecTest < Minitest::Test
   def test_class_with_constant
     test_spec = load_fixture('constant_class')
 
-    spec = Wrapture::ClassSpec.new test_spec
+    spec = Wrapture::ClassSpec.new(test_spec)
 
-    classes = spec.generate_wrappers
+    classes = Wrapture::CppWrapper.write_files(spec)
     validate_wrapper_results(test_spec, classes)
 
     File.delete(*classes)
@@ -156,7 +155,7 @@ class ClassSpecTest < Minitest::Test
 
     spec = Wrapture::ClassSpec.new(test_spec)
 
-    generated_files = spec.generate_wrappers
+    generated_files = Wrapture::CppWrapper.write_files(spec)
     validate_wrapper_results(test_spec, generated_files)
 
     File.open('DocumentedClass.hpp').each do |line|
@@ -176,7 +175,7 @@ class ClassSpecTest < Minitest::Test
 
     spec = Wrapture::ClassSpec.new(test_spec)
 
-    generated_files = spec.generate_wrappers
+    generated_files = Wrapture::CppWrapper.write_files(spec)
     validate_wrapper_results(test_spec, generated_files)
 
     File.delete(*generated_files)
@@ -187,7 +186,7 @@ class ClassSpecTest < Minitest::Test
 
     spec = Wrapture::ClassSpec.new test_spec
 
-    classes = spec.generate_wrappers
+    classes = Wrapture::CppWrapper.write_files(spec)
     validate_wrapper_results(test_spec, classes)
 
     static_function_found = false
@@ -204,7 +203,7 @@ class ClassSpecTest < Minitest::Test
 
     spec = Wrapture::ClassSpec.new(test_spec)
 
-    classes = spec.generate_wrappers
+    classes = Wrapture::CppWrapper.write_files(spec)
     validate_wrapper_results(test_spec, classes)
     assert(file_contains_match('DefaultMembersClass.hpp', 'member_1 = 42'))
 
@@ -216,7 +215,7 @@ class ClassSpecTest < Minitest::Test
 
     spec = Wrapture::ClassSpec.new(test_spec)
 
-    classes = spec.generate_wrappers
+    classes = Wrapture::CppWrapper.write_files(spec)
     validate_wrapper_results(test_spec, classes)
 
     File.delete(*classes)
@@ -227,7 +226,7 @@ class ClassSpecTest < Minitest::Test
 
     spec = Wrapture::ClassSpec.new test_spec
 
-    classes = spec.generate_wrappers
+    classes = Wrapture::CppWrapper.write_files(spec)
     validate_wrapper_results(test_spec, classes)
 
     File.delete(*classes)

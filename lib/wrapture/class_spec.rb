@@ -143,11 +143,6 @@ module Wrapture
       end
     end
 
-    # Generates the wrapper class declaration and definition files.
-    def generate_wrappers
-      [generate_declaration_file, generate_definition_file]
-    end
-
     # The name of the class
     def name
       @spec['name']
@@ -376,32 +371,6 @@ module Wrapture
     # Gives the name of the equivalent struct.
     def equivalent_name
       "#{'*' if pointer_wrapper?}equivalent"
-    end
-
-    # Generates the declaration of the class.
-    def generate_declaration_file
-      filename = "#{@spec['name']}.hpp"
-
-      File.open(filename, 'w') do |file|
-        declaration_contents do |line|
-          file.puts(line)
-        end
-      end
-
-      filename
-    end
-
-    # Generates the definition of the class.
-    def generate_definition_file
-      filename = "#{@spec['name']}.cpp"
-
-      File.open(filename, 'w') do |file|
-        definition_contents do |line|
-          file.puts(line)
-        end
-      end
-
-      filename
     end
 
     # The header guard for the class.

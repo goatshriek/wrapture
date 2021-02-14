@@ -51,7 +51,7 @@ class ScopeTest < Minitest::Test
 
     assert_equal(test_spec['classes'].count, scope.classes.count)
 
-    generated_files = scope.generate_wrappers
+    generated_files = Wrapture::CppWrapper.write_files(scope)
     assert_equal(scope.classes.count, generated_files.count / 2)
 
     File.delete(*generated_files)
@@ -60,20 +60,20 @@ class ScopeTest < Minitest::Test
   def test_templatized_classes
     spec_with_template = load_fixture('scope_with_template')
     scope_with_template = Wrapture::Scope.new(spec_with_template)
-    with_template_files = scope_with_template.generate_wrappers
+    with_template_files = Wrapture::CppWrapper.write_files(scope_with_template)
 
     # rename the files so that they don't overwrite one another
     with_template_files.each { |name| File.rename(name, "#{name}.with") }
 
     spec_without_template = load_fixture('scope_without_template')
     scope_without_template = Wrapture::Scope.new(spec_without_template)
-    without_template_files = scope_without_template.generate_wrappers
+    no_template_files = Wrapture::CppWrapper.write_files(scope_without_template)
 
     # rename the second round of files for consistency
-    without_template_files.each { |name| File.rename(name, "#{name}.without") }
+    no_template_files.each { |name| File.rename(name, "#{name}.without") }
 
     # the same filenames should have been generated
-    assert_equal(with_template_files, without_template_files)
+    assert_equal(with_template_files, no_template_files)
 
     # each of the files should be identical
     with_template_files.each do |name|
@@ -87,7 +87,7 @@ class ScopeTest < Minitest::Test
 
     scope = Wrapture::Scope.new(test_spec)
 
-    generated_files = scope.generate_wrappers
+    generated_files = Wrapture::CppWrapper.write_files(scope)
 
     enum_name = test_spec['enums'][0]['name']
     enum_filename = "#{enum_name}.hpp"
@@ -118,7 +118,7 @@ class ScopeTest < Minitest::Test
     enum_specs.each { |spec| scope.add_enum_spec_hash(spec) }
     assert_equal(enum_specs.count, scope.enums.count)
 
-    generated_files = scope.generate_wrappers
+    generated_files = Wrapture::CppWrapper.write_files(scope)
     expected_count = scope.classes.count * 2 + scope.enums.count
     assert_equal(expected_count, generated_files.count)
 
@@ -132,7 +132,7 @@ class ScopeTest < Minitest::Test
 
     assert_equal(test_spec['classes'].count, scope.classes.count)
 
-    generated_files = scope.generate_wrappers
+    generated_files = Wrapture::CppWrapper.write_files(scope)
     assert_equal(scope.classes.count, generated_files.count / 2)
 
     File.delete(*generated_files)

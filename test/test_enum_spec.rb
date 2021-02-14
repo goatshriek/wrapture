@@ -30,7 +30,7 @@ class EnumSpecTest < Minitest::Test
 
     assert_equal(test_spec['name'], spec.name)
 
-    generated_files = spec.generate_wrapper
+    generated_files = Wrapture::CppWrapper.write_files(spec)
     assert_equal(1, generated_files.count,
                  'only one file should have been generated')
 
@@ -49,7 +49,7 @@ class EnumSpecTest < Minitest::Test
 
     spec = Wrapture::EnumSpec.new(test_spec)
 
-    generated_files = spec.generate_wrapper
+    generated_files = Wrapture::CppWrapper.write_files(spec)
 
     filename = generated_files.first
     assert(file_contains_match(filename, test_spec['doc']),
@@ -80,7 +80,7 @@ class EnumSpecTest < Minitest::Test
 
     assert_equal(test_spec['name'], spec.name)
 
-    generated_files = spec.generate_wrapper
+    generated_files = Wrapture::CppWrapper.write_files(spec)
     assert_equal(1, generated_files.count,
                  'only one file should have been generated')
 

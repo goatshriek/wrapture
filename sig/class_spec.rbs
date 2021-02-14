@@ -20,12 +20,12 @@ module Wrapture
     def this_struct_pointer: -> String
     def type: (untyped type_) -> untyped
     def type?: (untyped type_) -> bool
+    def declaration_contents: { (?String) -> nil } -> nil
+    def definition_contents: { (?String) -> nil } -> nil
 
     private
     def child?: -> bool
-    def declaration_contents: { (?String) -> nil } -> nil
     def declaration_includes: -> untyped
-    def definition_contents: { (?String) -> nil } -> nil
     def definition_includes: -> Array[String]
     def documentation: { (untyped) -> nil } -> nil
     def equivalent_member_declaration: { (String) -> nil } -> nil

@@ -1,6 +1,6 @@
 module Wrapture
   module CppWrapper
-    def self.write_declaration_file: ( (Wrapture::ClassSpec | Wrapture::EnumSpec) spec) -> String
+    def self.write_declaration_file: ( Wrapture::ClassSpec spec) -> String
     def self.write_definition_file: ( (Wrapture::ClassSpec | Wrapture::EnumSpec) spec) -> String
     def self.write_files: ( (Wrapture::Scope | Wrapture::ClassSpec | Wrapture::EnumSpec) spec) -> Array[String]
   end

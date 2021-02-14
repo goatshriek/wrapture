@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2020 Joel E. Anderson
+# Copyright 2020-2021 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -57,25 +57,10 @@ module Wrapture
       @doc = Comment.new(@spec.fetch('doc', nil))
     end
 
-    # Generates the wrapper definition file.
-    def generate_wrapper
-      filename = "#{@spec['name']}.hpp"
-
-      File.open(filename, 'w') do |file|
-        definition_contents do |line|
-          file.puts(line)
-        end
-      end
-
-      [filename]
-    end
-
     # The name of the enumeration.
     def name
       @spec['name']
     end
-
-    private
 
     # Yields each line of the definition of the wrapper for this enum.
     def definition_contents
@@ -119,6 +104,8 @@ module Wrapture
       yield
       yield "#endif /* #{header_guard} */"
     end
+
+    private
 
     # A list of the includes needed for the definition of the enumeration.
     def definition_includes

@@ -74,21 +74,6 @@ module Wrapture
       @enums << EnumSpec.new(spec)
     end
 
-    # Generates the wrapper class files for all classes in the scope.
-    def generate_wrappers
-      files = []
-
-      @classes.each do |class_spec|
-        files.concat(class_spec.generate_wrappers)
-      end
-
-      @enums.each do |enum_spec|
-        files.concat(enum_spec.generate_wrapper)
-      end
-
-      files
-    end
-
     # A list of ClassSpecs in this scope that are overloads of the given class.
     def overloads(parent)
       @classes.select { |class_spec| class_spec.overloads?(parent) }

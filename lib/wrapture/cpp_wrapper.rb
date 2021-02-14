@@ -36,7 +36,11 @@ module Wrapture
     # Generates the C++ definition file for the given spec, returning the name
     # of the file generated.
     def self.write_definition_file(spec)
-      filename = "#{spec.name}.cpp"
+      filename = if spec.is_a?(EnumSpec)
+                   "#{spec.name}.hpp"
+                 else
+                   "#{spec.name}.cpp"
+                 end
 
       File.open(filename, 'w') do |file|
         spec.definition_contents { |line| file.puts(line) }
@@ -51,6 +55,8 @@ module Wrapture
       case spec
       when Scope
         (spec.classes + spec.enums).flat_map { |item| write_files(item) }
+      when EnumSpec
+        [write_definition_file(spec)]
       else
         [write_declaration_file(spec), write_definition_file(spec)]
       end
