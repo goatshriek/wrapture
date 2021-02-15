@@ -21,6 +21,69 @@
 module Wrapture
   # Tools to create C++ wrappers.
   module CppWrapper
+    # Gives each line of the declaration of a spec to the provided block.
+    def self.declare(spec, &block)
+      case spec
+      when ClassSpec
+        declare_class(spec, &block)
+      when EnumSpec
+        declare_enum(spec, &block)
+      when FunctionSpec
+        declare_function(spec, &block)
+      end
+    end
+
+    # Gives each line of the declaration of a ClassSpec to the provided block.
+    def self.declare_class(spec)
+      yield 'line 1'
+      yield 'line 2'
+      yield 'line 3'
+    end
+
+    # Gives each line of the declaration of a EnumSpec to the provided block.
+    def self.declare_enum(spec)
+      yield 'line 1'
+      yield 'line 2'
+      yield 'line 3'
+    end
+
+    # Gives each line of the declaration of a FunctionSpec to the provided
+    # block.
+    def self.declare_function(spec)
+      yield 'line 1'
+      yield 'line 2'
+      yield 'line 3'
+    end
+
+    # Gives each line of the definition of a spec to the provided block.
+    def self.define(spec)
+      yield 'line 1'
+      yield 'line 2'
+      yield 'line 3'
+    end
+
+    # Gives each line of the definition of a ClassSpec to the provided block.
+    def self.define_class(spec)
+      yield 'line 1'
+      yield 'line 2'
+      yield 'line 3'
+    end
+
+    # Gives each line of the definition of a EnumSpec to the provided block.
+    def self.define_enum(spec)
+      yield 'line 1'
+      yield 'line 2'
+      yield 'line 3'
+    end
+
+    # Gives each line of the definition of a FunctionSpec to the provided
+    # block.
+    def self.define_function(spec)
+      yield 'line 1'
+      yield 'line 2'
+      yield 'line 3'
+    end
+
     # Generates the C++ declaration file for the given spec, returning the name
     # of the file generated.
     def self.write_declaration_file(spec)
