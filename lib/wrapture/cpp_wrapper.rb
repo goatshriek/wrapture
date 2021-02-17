@@ -86,10 +86,12 @@ module Wrapture
 
     # Generates the C++ declaration file for the given spec, returning the name
     # of the file generated.
-    def self.write_declaration_file(spec)
+    # +dir+ specifies the directory that the file should be written into. The
+    # default is the current working directory.
+    def self.write_declaration_file(spec, dir: Dir.pwd)
       filename = "#{spec.name}.hpp"
 
-      File.open(filename, 'w') do |file|
+      File.open(File.join(dir, filename), 'w') do |file|
         spec.declaration_contents { |line| file.puts(line) }
       end
 
@@ -98,14 +100,16 @@ module Wrapture
 
     # Generates the C++ definition file for the given spec, returning the name
     # of the file generated.
-    def self.write_definition_file(spec)
+    # +dir+ specifies the directory that the file should be written into. The
+    # default is the current working directory.
+    def self.write_definition_file(spec, dir: Dir.pwd)
       filename = if spec.is_a?(EnumSpec)
                    "#{spec.name}.hpp"
                  else
                    "#{spec.name}.cpp"
                  end
 
-      File.open(filename, 'w') do |file|
+      File.open(File.join(dir, filename), 'w') do |file|
         spec.definition_contents { |line| file.puts(line) }
       end
 
@@ -114,14 +118,17 @@ module Wrapture
 
     # Generates C++ source files for the given spec or scope, returning a list
     # of the files generated.
-    def self.write_files(spec)
+    # +dir+ specifies the directory that the files should be written into. The
+    # default is the current working directory.
+    def self.write_files(spec, dir: Dir.pwd)
       case spec
       when Scope
         (spec.classes + spec.enums).flat_map { |item| write_files(item) }
       when EnumSpec
-        [write_definition_file(spec)]
+        [write_definition_file(spec, dir: dir)]
       else
-        [write_declaration_file(spec), write_definition_file(spec)]
+        [write_declaration_file(spec, dir: dir),
+         write_definition_file(spec, dir: dir)]
       end
     end
   end
