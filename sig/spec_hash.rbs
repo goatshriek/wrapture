@@ -1,0 +1,1 @@
+type spec_hash = Hash[String, (Hash[String, spec_hash] | Array[spec_hash] | String | bool)]

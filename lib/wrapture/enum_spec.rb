@@ -53,7 +53,6 @@ module Wrapture
     # Creates an enumeration specification based on the provided hash spec.
     def initialize(spec)
       @spec = EnumSpec.normalize_spec_hash(spec)
-
       @doc = Comment.new(@spec.fetch('doc', nil))
     end
 
@@ -132,11 +131,6 @@ module Wrapture
     def element_doc(element, &block)
       doc = Comment.new(element.fetch('doc', nil))
       doc.format_as_doxygen(max_line_length: 74) { |line| block.call(line) }
-    end
-
-    # The header guard for the enumeration.
-    def header_guard
-      "__#{@spec['name'].upcase}_HPP"
     end
   end
 end

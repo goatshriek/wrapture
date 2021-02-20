@@ -1,18 +1,17 @@
 module Wrapture
   class EnumSpec
-    @spec: untyped
-    @doc: untyped
+    @spec: spec_hash
+    @doc: Wrapture::Comment
 
-    def self.normalize_spec_hash: (untyped spec) -> untyped
-    def self.normalize_spec_hash!: (untyped spec) -> untyped
-    def initialize: (untyped spec) -> void
-    def name: -> untyped
+    def self.normalize_spec_hash: (spec_hash spec) -> spec_hash
+    def self.normalize_spec_hash!: (spec_hash spec) -> spec_hash
+    def initialize: (spec_hash spec) -> void
+    def name: -> String
     def definition_contents: { (?String) -> void } -> void
 
     private
-    def definition_includes: -> untyped
+    def definition_includes: -> Array[String]
     def element_definition: (untyped element) { (String) -> void } -> void
     def element_doc: (untyped element) { (untyped) -> void } -> untyped
-    def header_guard: -> String
   end
 end

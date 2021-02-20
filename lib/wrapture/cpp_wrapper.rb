@@ -26,8 +26,6 @@ module Wrapture
       case spec
       when ClassSpec
         declare_class(spec, &block)
-      when EnumSpec
-        declare_enum(spec, &block)
       when FunctionSpec
         declare_function(spec, &block)
       end
@@ -35,13 +33,6 @@ module Wrapture
 
     # Gives each line of the declaration of a ClassSpec to the provided block.
     def self.declare_class(spec)
-      yield 'line 1'
-      yield 'line 2'
-      yield 'line 3'
-    end
-
-    # Gives each line of the declaration of a EnumSpec to the provided block.
-    def self.declare_enum(spec)
       yield 'line 1'
       yield 'line 2'
       yield 'line 3'
@@ -82,6 +73,11 @@ module Wrapture
       yield 'line 1'
       yield 'line 2'
       yield 'line 3'
+    end
+
+    # Gives the symbol to use for header guard checks.
+    def header_guard(spec)
+      "#{spec.name.upcase}_HPP"
     end
 
     # Generates the C++ declaration file for the given spec, returning the name

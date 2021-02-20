@@ -1,8 +1,8 @@
 module Wrapture
   class Comment
-    def self.validate_doc: (untyped doc) -> nil
+    def self.validate_doc: (String doc) -> void
     attr_reader text: String
-    def initialize: (?String comment) -> String
+    def initialize: (?String comment) -> void
     def empty?: -> bool
     def format: (?line_prefix: String, ?first_line: String?, ?last_line: String?, ?max_line_length: Integer) ?{ (String) -> untyped } -> nil
     def format_as_doxygen: (?max_line_length: Integer) { (String) -> void } -> nil

@@ -1,13 +1,13 @@
 module Wrapture
   module CppWrapper
-    def self.declare: ( (Wrapture::ClassSpec | Wrapture::EnumSpec | Wrapture::FunctionSpec) spec) { (String) -> void } -> void
+    def self.declare: ( (Wrapture::ClassSpec | Wrapture::FunctionSpec) spec) { (String) -> void } -> void
     def self.declare_class: (Wrapture::ClassSpec spec) { (String) -> void } -> void
-    def self.declare_enum: (Wrapture::EnumSpec spec) { (String) -> void } -> void
     def self.declare_function: (Wrapture::FunctionSpec spec) { (String) -> void } -> void
     def self.define: ( (Wrapture::ClassSpec | Wrapture::EnumSpec | Wrapture::FunctionSpec) spec) { (String) -> void } -> void
     def self.define_class: (Wrapture::ClassSpec spec) { (String) -> void } -> void
     def self.define_enum: (Wrapture::EnumSpec spec) { (String) -> void } -> void
     def self.define_function: (Wrapture::FunctionSpec spec) { (String) -> void } -> void
+    def self.header_guard: ( (Wrapture::ClassSpec | Wrapture::EnumSpec) spec ) -> String
     def self.write_declaration_file: (Wrapture::ClassSpec spec, ?String dir) -> String
     def self.write_definition_file: ( (Wrapture::ClassSpec | Wrapture::EnumSpec) spec, ?String dir) -> String
     def self.write_files: ( (Wrapture::Scope | Wrapture::ClassSpec | Wrapture::EnumSpec) spec, ?String dir) -> Array[String]
