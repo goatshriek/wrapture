@@ -1,5 +1,4 @@
 # Wrapture
-
 [![Github Actions Build Status](https://github.com/goatshriek/wrapture/workflows/build/badge.svg)](https://github.com/goatshriek/wrapture/actions?query=workflow%3Abuild)
 [![Coverage Report](https://codecov.io/gh/goatshriek/wrapture/branch/latest/graph/badge.svg)](https://codecov.io/gh/goatshriek/wrapture)
 [![SonarCloud Status](https://sonarcloud.io/api/project_badges/measure?project=wrapture&metric=alert_status)](https://sonarcloud.io/dashboard?id=wrapture)
@@ -10,8 +9,8 @@ A tool for generating object-oriented language wrappers for C code.
 Wrapture uses YAML files that describe the C code being wrapped and the output
 language interface.
 
-## Installation and Dependencies
 
+## Installation and Dependencies
 Wrapture is available on RubyGems.org and can be installed with a simple:
 
 ```ruby
@@ -26,13 +25,14 @@ language, for example a compiler like `g++`for the C++ examples. You will need
 to install these on your own, as there is currently nothing in Wrapture to
 manage all of the target language environments.
 
-## What about SWIG?
 
-[SWIG](http://www.swig.org) provides a very similar functionality by wrapping C
-code in higher-level languages. SWIG can parse C code and detect functions
-constants, and other symbols to wrap automatically. Wrapture is a simpler and
-more deliberate tool - the author must write an interface description in YAML
-outlining all of these things. This results in a much more concise class
-definition that feels more native to the output language than an auto-generated
-interface. Wrapture also has much more limited language and feature support than
-SWIG.
+## Contributing
+Wrapture is still in the early stages of development, largely being driven by
+support of [stumpless](https://github.com/goatshriek/stumpless). If you'd like
+to contribute, please submit an issue with ideas of features that you think are
+important, or share your thoughts on Twitter with
+[#WraptureGem](https://twitter.com/search?q=%23WraptureGem)!
+
+Once the structure of the project has solkidified, there will be issues for
+contributors of all skill levels to get involved with, so stay tuned!
+
