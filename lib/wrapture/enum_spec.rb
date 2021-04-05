@@ -65,8 +65,8 @@ module Wrapture
     def definition_contents
       indent = 0
 
-      yield "#ifndef #{header_guard}"
-      yield "#define #{header_guard}"
+      yield "#ifndef #{CppWrapper.header_guard(self)}"
+      yield "#define #{CppWrapper.header_guard(self)}"
       yield
 
       definition_includes.each { |filename| yield "#include <#{filename}>" }
@@ -101,7 +101,7 @@ module Wrapture
       yield
       yield '}' if @spec.key?('namespace')
       yield
-      yield "#endif /* #{header_guard} */"
+      yield "#endif /* #{CppWrapper.header_guard(self)} */"
     end
 
     private

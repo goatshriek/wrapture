@@ -11,7 +11,11 @@ module Wrapture
     attr_reader struct: nil
     def initialize: (untyped spec, ?scope: untyped) -> void
     def cast: (untyped var_name, untyped to, untyped from) -> String
-    def name: -> untyped
+    def declaration_includes: -> Array[String]
+    def definition_includes: -> Array[String]
+    def documentation: { (String) -> void } -> void
+    def name: -> String
+    def namespace: -> String
     def overloads?: (untyped parent_spec) -> bool
     def parent_name: -> nil
     def pointer_wrapper?: -> untyped
@@ -25,9 +29,6 @@ module Wrapture
 
     private
     def child?: -> bool
-    def declaration_includes: -> untyped
-    def definition_includes: -> Array[String]
-    def documentation: { (untyped) -> nil } -> nil
     def equivalent_member_declaration: { (String) -> nil } -> nil
     def equivalent_name: -> String
     def header_guard: -> String

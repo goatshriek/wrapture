@@ -143,9 +143,57 @@ module Wrapture
       end
     end
 
-    # The name of the class
+    # A list of includes needed for the declaration of the class.
+    def declaration_includes
+      includes = @spec['includes'].dup
+
+      includes.concat(@struct.includes) if @struct
+
+      @functions.each do |func|
+        includes.concat(func.declaration_includes)
+      end
+
+      @constants.each do |const|
+        includes.concat(const.declaration_includes)
+      end
+
+      includes.concat(@spec['parent']['includes']) if child?
+
+      includes.uniq
+    end
+
+    # A list of includes needed for the definition of the class.
+    def definition_includes
+      includes = ["#{@spec['name']}.hpp"]
+
+      includes.concat(@spec['includes'])
+
+      @functions.each do |func|
+        includes.concat(func.definition_includes)
+      end
+
+      @constants.each do |const|
+        includes.concat(const.definition_includes)
+      end
+
+      includes.concat(overload_definition_includes)
+
+      includes.uniq
+    end
+
+    # Calls the given block for each line of the class documentation.
+    def documentation(&block)
+      @doc&.format_as_doxygen(max_line_length: 78) { |line| block.call(line) }
+    end
+
+    # The name of the class.
     def name
       @spec['name']
+    end
+
+    # The namespace of the class.
+    def namespace
+      @spec['namespace']
     end
 
     # True if this class overloads the given one. A class is considered an
@@ -204,19 +252,6 @@ module Wrapture
 
     # Gives the content of the class declaration to a block, line by line.
     def declaration_contents
-      yield "#ifndef #{header_guard}"
-      yield "#define #{header_guard}"
-
-      yield unless declaration_includes.empty?
-      declaration_includes.each do |include_file|
-        yield "#include <#{include_file}>"
-      end
-
-      yield
-      yield "namespace #{@spec['namespace']} {"
-      yield
-
-      documentation { |line| yield "  #{line}" }
       parent = if child?
                  ": public #{parent_name} "
                else
@@ -250,10 +285,6 @@ module Wrapture
       end
 
       yield '  };' # end of class
-      yield
-      yield '}' # end of namespace
-      yield
-      yield '#endif' # end of header guard
     end
 
     # Gives the content of the class definition to a block, line by line.
@@ -305,49 +336,6 @@ module Wrapture
     # True if the class has a parent.
     def child?
       @spec.key?('parent')
-    end
-
-    # A list of includes needed for the declaration of the class.
-    def declaration_includes
-      includes = @spec['includes'].dup
-
-      includes.concat(@struct.includes) if @struct
-
-      @functions.each do |func|
-        includes.concat(func.declaration_includes)
-      end
-
-      @constants.each do |const|
-        includes.concat(const.declaration_includes)
-      end
-
-      includes.concat(@spec['parent']['includes']) if child?
-
-      includes.uniq
-    end
-
-    # A list of includes needed for the definition of the class.
-    def definition_includes
-      includes = ["#{@spec['name']}.hpp"]
-
-      includes.concat(@spec['includes'])
-
-      @functions.each do |func|
-        includes.concat(func.definition_includes)
-      end
-
-      @constants.each do |const|
-        includes.concat(const.definition_includes)
-      end
-
-      includes.concat(overload_definition_includes)
-
-      includes.uniq
-    end
-
-    # Calls the given block for each line of the class documentation.
-    def documentation(&block)
-      @doc&.format_as_doxygen(max_line_length: 78) { |line| block.call(line) }
     end
 
     # Yields the declaration of the equivalent member if this class has one.

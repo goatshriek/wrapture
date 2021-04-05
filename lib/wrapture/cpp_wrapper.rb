@@ -33,9 +33,26 @@ module Wrapture
 
     # Gives each line of the declaration of a ClassSpec to the provided block.
     def self.declare_class(spec)
-      yield 'line 1'
-      yield 'line 2'
-      yield 'line 3'
+      guard = header_guard(spec)
+
+      yield "#ifndef #{guard}"
+      yield "#define #{guard}"
+      yield ''
+
+      unless spec.declaration_includes.empty?
+        spec.declaration_includes.each { |inc| yield "#include <#{inc}>" }
+        yield ''
+      end
+
+      yield "namespace #{spec.namespace} {"
+      yield ''
+
+      spec.documentation { |line| yield "  #{line}" }
+
+      yield ''
+      yield '}' # end of namespace
+      yield ''
+      yield "#endif /* #{guard} */"
     end
 
     # Gives each line of the declaration of a FunctionSpec to the provided
@@ -76,7 +93,7 @@ module Wrapture
     end
 
     # Gives the symbol to use for header guard checks.
-    def header_guard(spec)
+    def self.header_guard(spec)
       "#{spec.name.upcase}_HPP"
     end
 
@@ -88,7 +105,7 @@ module Wrapture
       filename = "#{spec.name}.hpp"
 
       File.open(File.join(dir, filename), 'w') do |file|
-        spec.declaration_contents { |line| file.puts(line) }
+        declare(spec) { |line| file.puts(line) }
       end
 
       filename
