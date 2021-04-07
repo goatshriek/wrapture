@@ -8,17 +8,20 @@ module Wrapture
 
     def self.normalize_spec_hash: (untyped spec) -> untyped
     def self.effective_type: (untyped spec) -> String
+    attr_reader constants: Array[Wrapture::ConstantSpec]
+    attr_reader functions: Array[Wrapture::FunctionSpec]
     attr_reader struct: nil
-    def initialize: (untyped spec, ?scope: untyped) -> void
+    def initialize: (spec_hash spec, ?scope: untyped) -> void
     def cast: (untyped var_name, untyped to, untyped from) -> String
+    def child?: -> bool
     def declaration_includes: -> Array[String]
     def definition_includes: -> Array[String]
     def documentation: { (String) -> void } -> void
     def name: -> String
     def namespace: -> String
     def overloads?: (untyped parent_spec) -> bool
-    def parent_name: -> nil
-    def pointer_wrapper?: -> untyped
+    def parent_name: -> (String | nil)
+    def pointer_wrapper?: -> bool
     def struct_name: -> untyped
     def this_struct: -> String
     def this_struct_pointer: -> String
@@ -28,7 +31,6 @@ module Wrapture
     def definition_contents: { (?String) -> nil } -> nil
 
     private
-    def child?: -> bool
     def equivalent_member_declaration: { (String) -> nil } -> nil
     def equivalent_name: -> String
     def header_guard: -> String

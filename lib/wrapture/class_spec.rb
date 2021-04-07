@@ -71,6 +71,12 @@ module Wrapture
       end
     end
 
+    # The list of constants in this class.
+    attr_reader :constants
+
+    # The list of functions in this class.
+    attr_reader :functions
+
     # The underlying struct of this class.
     attr_reader :struct
 
@@ -141,6 +147,11 @@ module Wrapture
       elsif [EQUIVALENT_POINTER_KEYWORD, "#{struct} *"].include?(to)
         "#{'&' unless pointer_wrapper?}#{var_name}#{member_access}equivalent"
       end
+    end
+
+    # True if the class has a parent.
+    def child?
+      @spec.key?('parent')
     end
 
     # A list of includes needed for the declaration of the class.
@@ -252,23 +263,7 @@ module Wrapture
 
     # Gives the content of the class declaration to a block, line by line.
     def declaration_contents
-      parent = if child?
-                 ": public #{parent_name} "
-               else
-                 ''
-               end
-      yield "  class #{@spec['name']} #{parent}{"
-
-      yield '  public:'
-
-      yield unless @constants.empty?
-      @constants.each do |const|
-        const.declaration { |line| yield "    #{line}" }
-      end
-
-      yield
       equivalent_member_declaration { |line| yield "    #{line}" }
-      yield
 
       member_constructor_declaration { |line| yield "    #{line}" }
 
@@ -279,12 +274,6 @@ module Wrapture
       end
 
       overload_declaration { |line| yield "    #{line}" }
-
-      @functions.each do |func|
-        func.declaration { |line| yield "    #{line}" }
-      end
-
-      yield '  };' # end of class
     end
 
     # Gives the content of the class definition to a block, line by line.
@@ -332,11 +321,6 @@ module Wrapture
     end
 
     private
-
-    # True if the class has a parent.
-    def child?
-      @spec.key?('parent')
-    end
 
     # Yields the declaration of the equivalent member if this class has one.
     #

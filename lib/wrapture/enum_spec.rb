@@ -64,9 +64,10 @@ module Wrapture
     # Yields each line of the definition of the wrapper for this enum.
     def definition_contents
       indent = 0
+      guard = "#{name.upcase}_HPP"
 
-      yield "#ifndef #{CppWrapper.header_guard(self)}"
-      yield "#define #{CppWrapper.header_guard(self)}"
+      yield "#ifndef #{guard}"
+      yield "#define #{guard}"
       yield
 
       definition_includes.each { |filename| yield "#include <#{filename}>" }
@@ -101,7 +102,7 @@ module Wrapture
       yield
       yield '}' if @spec.key?('namespace')
       yield
-      yield "#endif /* #{CppWrapper.header_guard(self)} */"
+      yield "#endif /* #{guard} */"
     end
 
     private

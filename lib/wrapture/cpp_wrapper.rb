@@ -19,66 +19,163 @@
 #++
 
 module Wrapture
-  # Tools to create C++ wrappers.
-  module CppWrapper
-    # Gives each line of the declaration of a spec to the provided block.
-    def self.declare(spec, &block)
-      case spec
-      when ClassSpec
-        declare_class(spec, &block)
-      when FunctionSpec
-        declare_function(spec, &block)
+  # A wrapper that generates C++ wrappers for given specs.
+  class CppWrapper
+    # Generates C++ source files, returning a list of the files generated. This
+    # is equivalent to instantiating a wrapper with the given spec, and then
+    # calling write_files on that.
+    def self.write_spec_files(spec, **kwargs)
+      wrapper = self.new(spec)
+      wrapper.write_files(**kwargs)
+    end
+
+    # Creates a wrapper for a given spec.
+    def initialize(spec)
+      @spec = spec
+    end
+
+    # Gives a list of ancestor classes of class spec, including a colon prefix,
+    # if the class has ancestors. If not or if this wrapper is not for a class,
+    # an empty string is returned instead.
+    def ancestor_suffix
+      if @spec.is_a?(ClassSpec) && @spec.child?
+        ": public #{@spec.parent_name}"
+      else
+        ''
       end
     end
 
-    # Gives each line of the declaration of a ClassSpec to the provided block.
-    def self.declare_class(spec)
-      guard = header_guard(spec)
+    # Gives each line of the declaration to the provided block.
+    def declare(&block)
+      case @spec
+      when ClassSpec
+        declare_class(&block)
+      when FunctionSpec
+        declare_function(&block)
+      end
+    end
 
-      yield "#ifndef #{guard}"
-      yield "#define #{guard}"
+    # Gives each line of the definition to the provided block.
+    def define(&block)
+      case @spec
+      when ClassSpec
+        define_class(&block)
+      when EnumSpec
+        define_enum(&block)
+      when FunctionSpec
+        define_function(&block)
+      end
+    end
+
+    # Gives the symbol to use for header guard checks.
+    def header_guard
+      "#{@spec.name.upcase}_HPP"
+    end
+
+    # Generates the C++ declaration file, returning the name of the file
+    # generated.
+    # +dir+ specifies the directory that the file should be written into. The
+    # default is the current working directory.
+    def write_declaration_file(dir: Dir.pwd)
+      filename = "#{@spec.name}.hpp"
+
+      File.open(File.join(dir, filename), 'w') do |file|
+        declare { |line| file.puts(line) }
+      end
+
+      filename
+    end
+
+    # Generates the C++ definition file, returning the name of the file
+    # generated.
+    # +dir+ specifies the directory that the file should be written into. The
+    # default is the current working directory.
+    def write_definition_file(dir: Dir.pwd)
+      filename = if @spec.is_a?(EnumSpec)
+                   "#{@spec.name}.hpp"
+                 else
+                   "#{@spec.name}.cpp"
+                 end
+
+      File.open(File.join(dir, filename), 'w') do |file|
+        @spec.definition_contents { |line| file.puts(line) }
+      end
+
+      filename
+    end
+
+    # Generates C++ source files, returning a list of the files generated.
+    # +dir+ specifies the directory that the files should be written into. The
+    # default is the current working directory.
+    def write_files(dir: Dir.pwd)
+      case @spec
+      when Scope
+        (@spec.classes + @spec.enums).flat_map do |item|
+          self.class.write_spec_files(item, dir: dir)
+        end
+      when EnumSpec
+        [write_definition_file(dir: dir)]
+      else
+        [write_declaration_file(dir: dir),
+         write_definition_file(dir: dir)]
+      end
+    end
+
+    private
+
+    # Gives each line of the declaration of a ClassSpec to the provided block.
+    def declare_class
+      yield "#ifndef #{header_guard}"
+      yield "#define #{header_guard}"
       yield ''
 
-      unless spec.declaration_includes.empty?
-        spec.declaration_includes.each { |inc| yield "#include <#{inc}>" }
+      unless @spec.declaration_includes.empty?
+        @spec.declaration_includes.each { |inc| yield "#include <#{inc}>" }
         yield ''
       end
 
-      yield "namespace #{spec.namespace} {"
+      yield "namespace #{@spec.namespace} {"
       yield ''
 
-      spec.documentation { |line| yield "  #{line}" }
+      @spec.documentation { |line| yield "  #{line}" }
+      yield "  class #{@spec.name} #{ancestor_suffix}{"
+      yield '  public:'
 
+      unless @spec.constants.empty?
+        @spec.constants.each do |constant|
+          constant.declaration { |line| yield "    #{line}" }
+        end
+        yield ''
+      end
+
+      @spec.functions.each do |function|
+        function.declaration { |line| yield "    #{line}" }
+      end
+
+      yield '  };' # end of class
       yield ''
       yield '}' # end of namespace
       yield ''
-      yield "#endif /* #{guard} */"
+      yield "#endif /* #{header_guard} */"
     end
 
     # Gives each line of the declaration of a FunctionSpec to the provided
     # block.
-    def self.declare_function(spec)
-      yield 'line 1'
-      yield 'line 2'
-      yield 'line 3'
-    end
-
-    # Gives each line of the definition of a spec to the provided block.
-    def self.define(spec)
+    def declare_function
       yield 'line 1'
       yield 'line 2'
       yield 'line 3'
     end
 
     # Gives each line of the definition of a ClassSpec to the provided block.
-    def self.define_class(spec)
+    def define_class
       yield 'line 1'
       yield 'line 2'
       yield 'line 3'
     end
 
     # Gives each line of the definition of a EnumSpec to the provided block.
-    def self.define_enum(spec)
+    def define_enum
       yield 'line 1'
       yield 'line 2'
       yield 'line 3'
@@ -86,63 +183,10 @@ module Wrapture
 
     # Gives each line of the definition of a FunctionSpec to the provided
     # block.
-    def self.define_function(spec)
+    def define_function
       yield 'line 1'
       yield 'line 2'
       yield 'line 3'
-    end
-
-    # Gives the symbol to use for header guard checks.
-    def self.header_guard(spec)
-      "#{spec.name.upcase}_HPP"
-    end
-
-    # Generates the C++ declaration file for the given spec, returning the name
-    # of the file generated.
-    # +dir+ specifies the directory that the file should be written into. The
-    # default is the current working directory.
-    def self.write_declaration_file(spec, dir: Dir.pwd)
-      filename = "#{spec.name}.hpp"
-
-      File.open(File.join(dir, filename), 'w') do |file|
-        declare(spec) { |line| file.puts(line) }
-      end
-
-      filename
-    end
-
-    # Generates the C++ definition file for the given spec, returning the name
-    # of the file generated.
-    # +dir+ specifies the directory that the file should be written into. The
-    # default is the current working directory.
-    def self.write_definition_file(spec, dir: Dir.pwd)
-      filename = if spec.is_a?(EnumSpec)
-                   "#{spec.name}.hpp"
-                 else
-                   "#{spec.name}.cpp"
-                 end
-
-      File.open(File.join(dir, filename), 'w') do |file|
-        spec.definition_contents { |line| file.puts(line) }
-      end
-
-      filename
-    end
-
-    # Generates C++ source files for the given spec or scope, returning a list
-    # of the files generated.
-    # +dir+ specifies the directory that the files should be written into. The
-    # default is the current working directory.
-    def self.write_files(spec, dir: Dir.pwd)
-      case spec
-      when Scope
-        (spec.classes + spec.enums).flat_map { |item| write_files(item) }
-      when EnumSpec
-        [write_definition_file(spec, dir: dir)]
-      else
-        [write_declaration_file(spec, dir: dir),
-         write_definition_file(spec, dir: dir)]
-      end
     end
   end
 end
