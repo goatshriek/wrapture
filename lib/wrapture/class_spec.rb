@@ -288,8 +288,6 @@ module Wrapture
 
     # Gives the content of the class declaration to a block, line by line.
     def declaration_contents
-      equivalent_member_declaration { |line| yield "    #{line}" }
-
       member_constructor_declaration { |line| yield "    #{line}" }
 
       pointer_constructor_declaration { |line| yield "    #{line}" }
