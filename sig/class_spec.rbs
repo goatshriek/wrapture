@@ -1,15 +1,16 @@
 module Wrapture
   class ClassSpec
-    @spec: untyped
-    @functions: untyped
-    @constants: untyped
-    @doc: untyped
+    @spec: spec_hash
+    @constants: Array[Wrapture::ConstantSpec]
+    @functions: Array[Wrapture::FunctionSpec]
+    @doc: (Wrapture::Comment | nil)
     @scope: Wrapture::Scope
 
     def self.normalize_spec_hash: (untyped spec) -> untyped
     def self.effective_type: (untyped spec) -> String
     attr_reader constants: Array[Wrapture::ConstantSpec]
     attr_reader functions: Array[Wrapture::FunctionSpec]
+    attr_reader scope: Wrapture::Scope
     attr_reader struct: nil
     def initialize: (spec_hash spec, ?scope: untyped) -> void
     def cast: (untyped var_name, untyped to, untyped from) -> String
@@ -17,6 +18,8 @@ module Wrapture
     def declaration_includes: -> Array[String]
     def definition_includes: -> Array[String]
     def documentation: { (String) -> void } -> void
+    def equivalent_member?: -> bool
+    def factory?: -> bool
     def name: -> String
     def namespace: -> String
     def overloads?: (untyped parent_spec) -> bool
@@ -33,12 +36,11 @@ module Wrapture
     private
     def equivalent_member_declaration: { (String) -> nil } -> nil
     def equivalent_name: -> String
+    def factory_definition_includes: -> Array[String]
     def header_guard: -> String
     def member_constructor_declaration: { (String) -> nil } -> nil
     def member_constructor_definition: { (String) -> nil } -> nil
-    def overload_declaration: { (String) -> nil } -> nil
     def overload_definition: { (?String) -> nil } -> nil
-    def overload_definition_includes: -> untyped
     def parent_provides_initializer?: -> bool
     def pointer_constructor_declaration: { (String) -> nil } -> nil
     def pointer_constructor_definition: { (String) -> nil } -> nil

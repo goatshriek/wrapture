@@ -25,7 +25,7 @@ module Wrapture
     # is equivalent to instantiating a wrapper with the given spec, and then
     # calling write_files on that.
     def self.write_spec_files(spec, **kwargs)
-      wrapper = self.new(spec)
+      wrapper = new(spec)
       wrapper.write_files(**kwargs)
     end
 
@@ -148,8 +148,15 @@ module Wrapture
         yield ''
       end
 
+      yield "    #{factory_declaration}" if @spec.factory?
+
       @spec.functions.each do |function|
         function.declaration { |line| yield "    #{line}" }
+      end
+
+      if @spec.equivalent_member?
+        yield ''
+        yield "    #{equivalent_member_declaration}"
       end
 
       yield '  };' # end of class
@@ -187,6 +194,22 @@ module Wrapture
       yield 'line 1'
       yield 'line 2'
       yield 'line 3'
+    end
+
+    # The declaration of the equivalent member of this class.
+    def equivalent_member_declaration
+      if @spec.pointer_wrapper?
+        "#{@spec.struct.pointer_declaration('equivalent')};"
+      else
+        "#{@spec.struct.declaration('equivalent')};"
+      end
+    end
+
+    # The declaration of the factory function for this class which generates
+    # instances of children classes based on a given struct.
+    def factory_declaration
+      param = @spec.struct.pointer_declaration('equivalent')
+      "static #{@spec.name} *new#{@spec.name}( #{param} );"
     end
   end
 end

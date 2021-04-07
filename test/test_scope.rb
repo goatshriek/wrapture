@@ -59,15 +59,15 @@ class ScopeTest < Minitest::Test
 
   def test_templatized_classes
     spec_with_template = load_fixture('scope_with_template')
-    scope_with_template = Wrapture::Scope.new(spec_with_template)
-    with_template_files = Wrapture::CppWrapper.write_spec_files(scope_with_template)
+    scope = Wrapture::Scope.new(spec_with_template)
+    with_template_files = Wrapture::CppWrapper.write_spec_files(scope)
 
     # rename the files so that they don't overwrite one another
     with_template_files.each { |name| File.rename(name, "#{name}.with") }
 
     spec_without_template = load_fixture('scope_without_template')
-    scope_without_template = Wrapture::Scope.new(spec_without_template)
-    no_template_files = Wrapture::CppWrapper.write_spec_files(scope_without_template)
+    scope = Wrapture::Scope.new(spec_without_template)
+    no_template_files = Wrapture::CppWrapper.write_spec_files(scope)
 
     # rename the second round of files for consistency
     no_template_files.each { |name| File.rename(name, "#{name}.without") }

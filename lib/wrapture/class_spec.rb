@@ -77,6 +77,9 @@ module Wrapture
     # The list of functions in this class.
     attr_reader :functions
 
+    # The scope of this class.
+    attr_reader :scope
+
     # The underlying struct of this class.
     attr_reader :struct
 
@@ -187,7 +190,7 @@ module Wrapture
         includes.concat(const.definition_includes)
       end
 
-      includes.concat(overload_definition_includes)
+      includes.concat(factory_definition_includes)
 
       includes.uniq
     end
@@ -195,6 +198,28 @@ module Wrapture
     # Calls the given block for each line of the class documentation.
     def documentation(&block)
       @doc&.format_as_doxygen(max_line_length: 78) { |line| block.call(line) }
+    end
+
+    # True if this class has an underlying equivalent struct member for itself.
+    #
+    # A class might not have an equivalent struct member even though it is
+    # based on a struct. One such example is if it is able to use its parent
+    # class member since the parent wraps the same struct.
+    def equivalent_member?
+      return false unless @struct
+      return true unless child?
+
+      parent_spec = @scope.type(TypeSpec.new(parent_name))
+
+      parent_spec.nil? ||
+        parent_spec.struct_name != struct_name ||
+        parent_spec.pointer_wrapper? != pointer_wrapper?
+    end
+
+    # True if this class can be used as a factory for children classes that it
+    # overloads.
+    def factory?
+      @scope.overloads?(self)
     end
 
     # The name of the class.
@@ -208,10 +233,10 @@ module Wrapture
     end
 
     # True if this class overloads the given one. A class is considered an
-    # overload if its parent is the given class, it has the same equivalent
-    # struct name, and the equivalent struct has a set of rules. The overloaded
-    # class cannot have any rules in its equivalent struct, or it will not be
-    # overloaded.
+    # overload of its parent if it has the same equivalent struct name and
+    # the equivalent struct has a set of rules. The overloaded parent class
+    # cannot have any rules in its equivalent struct or it will not be
+    # considered an overload.
     def overloads?(parent_spec)
       return false unless parent_spec.struct&.rules&.empty?
 
@@ -272,8 +297,6 @@ module Wrapture
       unless !@struct || pointer_wrapper?
         yield "    #{struct_constructor_signature};"
       end
-
-      overload_declaration { |line| yield "    #{line}" }
     end
 
     # Gives the content of the class definition to a block, line by line.
@@ -322,27 +345,14 @@ module Wrapture
 
     private
 
-    # Yields the declaration of the equivalent member if this class has one.
-    #
-    # A class might not have an equivalent member if it is able to use the
-    # parent class's, for example if the child class wraps the same struct.
-    def equivalent_member_declaration
-      return unless @struct
-
-      if child?
-        parent_spec = @scope.type(TypeSpec.new(parent_name))
-        member_reusable = !parent_spec.nil? &&
-                          parent_spec.struct_name == @struct.name &&
-                          parent_spec.pointer_wrapper? == pointer_wrapper?
-        return if member_reusable
-      end
-
-      yield "#{@struct.declaration(equivalent_name)};"
-    end
-
     # Gives the name of the equivalent struct.
     def equivalent_name
       "#{'*' if pointer_wrapper?}equivalent"
+    end
+
+    # A list of the includes needed for the factory function definition.
+    def factory_definition_includes
+      @scope.overloads(self).map { |overload| "#{overload.name}.hpp" }
     end
 
     # The header guard for the class.
@@ -373,19 +383,11 @@ module Wrapture
       yield '}'
     end
 
-    # Yields the declaration of the overload function for this class. If there
-    # is no overload function for this class, then nothing is yielded.
-    def overload_declaration
-      return unless @scope.overloads?(self)
-
-      yield "static #{name} *new#{name}( struct #{@struct.name} *equivalent );"
-    end
-
     # Yields each line of the definition of the overload function, with a
     # leading empty yield. If there is no overload function for this class,
     # then nothing is yielded.
     def overload_definition
-      return unless @scope.overloads?(self)
+      return unless factory?
 
       yield
 
@@ -404,11 +406,6 @@ module Wrapture
       yield "    return new #{name}( equivalent );"
       yield '  }'
       yield '}'
-    end
-
-    # A list of the includes needed for the overload definitions.
-    def overload_definition_includes
-      @scope.overloads(self).map { |overload| "#{overload.name}.hpp" }
     end
 
     # The initializer for the pointer constructor, if one is available, or an

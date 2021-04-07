@@ -16,5 +16,6 @@ module Wrapture
     def define_class: (Wrapture::ClassSpec spec) { (String) -> void } -> void
     def define_enum: (Wrapture::EnumSpec spec) { (String) -> void } -> void
     def define_function: (Wrapture::FunctionSpec spec) { (String) -> void } -> void
+    def factory_declaration: -> String
   end
 end
