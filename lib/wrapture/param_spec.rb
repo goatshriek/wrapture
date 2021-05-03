@@ -121,7 +121,22 @@ module Wrapture
     # declaration. +owner+ must be the FunctionSpec that the parameter belongs
     # to.
     def signature(owner)
-      @type.resolve(owner).variable(name)
+      sig = @type.resolve(owner).variable(name)
+
+      if @spec.key?('default-value')
+        default_value = @spec['default-value']
+
+        sig += ' = '
+        sig += if @spec['type'] == 'const char *'
+                 "\"#{default_value}\""
+               elsif @spec['type'].end_with?('char')
+                 "'#{default_value}'"
+               else
+                 default_value.to_s
+               end
+      end
+
+      sig
     end
 
     # True if this parameter is variadic (the name is equal to '...').

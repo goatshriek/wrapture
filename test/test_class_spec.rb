@@ -205,7 +205,8 @@ class ClassSpecTest < Minitest::Test
 
     classes = Wrapture::CppWrapper.write_spec_files(spec)
     validate_wrapper_results(test_spec, classes)
-    assert(file_contains_match('DefaultMembersClass.hpp', 'member_1 = 42'))
+    assert(file_contains_match('DefaultMembersClass.hpp', 'member_1 = 42'),
+           'default value not present in signature')
 
     File.delete(*classes)
   end

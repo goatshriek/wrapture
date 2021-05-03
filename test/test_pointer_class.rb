@@ -37,23 +37,24 @@ class ClassSpecTest < Minitest::Test
     File.delete(*classes)
   end
 
-  def test_overriding_constructor
-    test_spec = load_fixture('constructor_class')
+  # TODO: this should be removed, since it uses c++ specific types in the spec
+  # def test_overriding_constructor
+  #  test_spec = load_fixture('constructor_class')
 
-    spec = Wrapture::ClassSpec.new(test_spec)
+  #  spec = Wrapture::ClassSpec.new(test_spec)
 
-    classes = Wrapture::CppWrapper.write_spec_files(spec)
-    validate_wrapper_results(test_spec, classes)
+  #  classes = Wrapture::CppWrapper.write_spec_files(spec)
+  #  validate_wrapper_results(test_spec, classes)
 
-    count = 0
-    signature = 'ClassWithConstructor( struct constructed_struct *'
-    File.open('ClassWithConstructor.hpp').each do |line|
-      count += 1 if line.include?(signature)
-    end
-    assert_equal(1, count)
+  #  count = 0
+  #  signature = 'ClassWithConstructor( struct constructed_struct *'
+  #  File.open('ClassWithConstructor.hpp').each do |line|
+  #    count += 1 if line.include?(signature)
+  #  end
+  #  assert_equal(1, count)
 
-    File.delete(*classes)
-  end
+  #  File.delete(*classes)
+  # end
 
   def test_pointer_class
     test_spec = load_fixture('pointer_class')

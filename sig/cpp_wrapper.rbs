@@ -11,6 +11,7 @@ module Wrapture
     def write_files: (?String dir) -> Array[String]
 
     private
+    def class_functions: -> Array[Wrapture::FunctionSpec]
     def declare_class: (Wrapture::ClassSpec spec) { (String) -> void } -> void
     def declare_function: (Wrapture::FunctionSpec spec) { (String) -> void } -> void
     def define_class: (Wrapture::ClassSpec spec) { (String) -> void } -> void

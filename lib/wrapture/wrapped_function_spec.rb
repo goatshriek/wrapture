@@ -58,8 +58,10 @@ module Wrapture
     # supplied as well, and is necessary if an equivalent struct or pointer is
     # to be supplied as the value so that casting can be performed correctly.
     #
-    # The following key is optional:
+    # The following keys are optional:
     # includes:: a list of includes needed for this function
+    # return:: A type specification describing what the function returns. This
+    # is assumed to be 'void' if missing.
     def initialize(spec)
       @spec = self.class.normalize_spec_hash(spec)
 

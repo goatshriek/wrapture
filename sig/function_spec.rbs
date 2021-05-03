@@ -2,7 +2,7 @@ module Wrapture
   class FunctionSpec
     @owner: untyped
     @spec: untyped
-    @wrapped: untyped
+    @wrapped: Wrapture::WrappedFunctionSpec | Array[String] | nil
     @params: Array[Wrapture::ParamSpec]
     @constructor: bool
     @destructor: bool

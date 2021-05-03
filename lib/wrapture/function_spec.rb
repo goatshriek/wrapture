@@ -57,10 +57,37 @@ module Wrapture
 
     # Creates a function spec based on the provided function spec.
     #
-    # The hash must have the following keys:
+    # The hash must have the following key:
     # name:: the name of the function
+    #
+    # The function may also specify what the underlying implementation will be
+    # via one of the following keys. If neither is specified, then the function
+    # will not be considered definable, but may still be declared. Both may not
+    # be specified in the same function.
+    # wrapped-code:: a hash describing raw C code to be wrapped
+    # wrapped-function:: a hash describing a C function to be wrapped
+    #
+    # The wrapped-code hash must have a 'lines' key with a list of lines of code
+    # that will replace the function. It may optionally include an 'includes'
+    # key with a list of includes that are needed for this function to compile,
+    # and/or a 'return' key with a type description of the return value
+    # variable. If this function has a return value, it must be stored in a
+    # variable named 'return_val' at the end of this code. The return statement
+    # itself will be auto-generated, and should _not_ be included in the code
+    # lines provided.
+    #
+    # The wrapped-function hash must have a 'name' key with the name of the
+    # function, and a 'params' key with a list of parameters (each a hash with a
+    # 'name' and 'type' key). Optionally, it may also include an 'includes' key
+    # with a list of includes that are needed for this function to compile,
+    # and/or a 'return' key with a type description of the wrapped function's
+    # return value.
+    #
+    # The following keys are optional:
     # params:: a list of parameter specifications
-    # wrapped-function:: a hash describing the function to be wrapped
+    # doc:: a string containing the documentation for this function
+    # return:: a specification of the return value for this function
+    # static:: set to true if this is a static function
     #
     # Each parameter specification must have a 'name' key with the name of the
     # parameter and a 'type' key with its type. The type key may be ommitted
@@ -73,18 +100,6 @@ module Wrapture
     # one is provided, then only the first encountered will be used. This
     # parameter should also be last - if it is not, it will be moved to the end
     # of the parameter list during normalization.
-    #
-    # The wrapped-function must have a 'name' key with the name of the function,
-    # and a 'params' key with a list of parameters (each a hash with a 'name'
-    # and 'type' key). Optionally, it may also include an 'includes' key with a
-    # list of includes that are needed for this function to compile. The wrapped
-    # function may be left out entirely, but the function will not be definable
-    # if this is the case.
-    #
-    # The following keys are optional:
-    # doc:: a string containing the documentation for this function
-    # return:: a specification of the return value for this function
-    # static:: set to true if this is a static function
     #
     # The return specification may have either a 'type' key with the name of the
     # type the function returns, and/or a 'doc' key with documentation on the
@@ -101,6 +116,8 @@ module Wrapture
       @spec = FunctionSpec.normalize_spec_hash(spec)
       @wrapped = if @spec.key?('wrapped-function')
                    WrappedFunctionSpec.new(@spec['wrapped-function'])
+                 elsif @spec.key?('wrapped-code')
+                   WrappedCodeSpec.new(@spec['wrapped-code'])
                  end
       @params = ParamSpec.new_list(@spec['params'])
       @return_type = TypeSpec.new(@spec['return']['type'])
@@ -223,16 +240,19 @@ module Wrapture
       locals { |declaration| yield "  #{declaration}" }
 
       yield "  va_start( variadic_args, #{@params[-2].name} );" if variadic?
+      yield ''
+
+      if @wrapped.is_a?(WrappedFunctionSpec)
+        yield "  #{wrapped_call_expression};"
+      else
+        @wrapped.lines.each { |line| yield "  #{line}" }
+      end
 
       if @wrapped.error_check?
-        yield
-        yield "  #{wrapped_call_expression};"
-        yield
+        yield ''
         @wrapped.error_check(return_val: return_variable) do |line|
           yield "  #{line}"
         end
-      else
-        yield "  #{wrapped_call_expression};"
       end
 
       yield '  va_end( variadic_args );' if variadic?
@@ -310,7 +330,7 @@ module Wrapture
     # true otherwise.
     def definable_check
       if @wrapped.nil?
-        raise UndefinableSpec, 'no wrapped function was specified'
+        raise UndefinableSpec, 'no wrapped function or code was specified'
       end
 
       true
