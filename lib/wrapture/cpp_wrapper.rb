@@ -146,6 +146,16 @@ module Wrapture
         functions << FunctionSpec.new(spec_hash, @spec, constructor: true)
       end
 
+      if @spec.factory?
+        spec_hash = { 'name' => "new#{@spec.name}",
+                      'static' => true,
+                      'params' => [{ 'name' => 'equivalent',
+                                     'type' => 'equivalent-struct-pointer' }],
+                      'wrapped-code' => { 'lines' => %w[1 2 3] },
+                      'return' => { 'type' => 'equivalent-struct-pointer' } }
+        functions << FunctionSpec.new(spec_hash, @spec, constructor: true)
+      end
+
       functions
     end
 
@@ -173,8 +183,6 @@ module Wrapture
         end
         yield ''
       end
-
-      yield "    #{factory_declaration}" if @spec.factory?
 
       class_functions.each do |function|
         function.declaration { |line| yield "    #{line}" }
@@ -229,13 +237,6 @@ module Wrapture
       else
         "#{@spec.struct.declaration('equivalent')};"
       end
-    end
-
-    # The declaration of the factory function for this class which generates
-    # instances of children classes based on a given struct.
-    def factory_declaration
-      param = @spec.struct.pointer_declaration('equivalent')
-      "static #{@spec.name} *new#{@spec.name}( #{param} );"
     end
   end
 end
