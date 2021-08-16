@@ -4,3 +4,6 @@ docs/html/*
 
 # ignore ctags files
 tags
+
+# ignore ide stuff
+.vscode/*
