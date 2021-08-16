@@ -21,6 +21,14 @@
 module Wrapture
   # A wrapper that generates C++ wrappers for given specs.
   class CppWrapper
+    # Gives each line of the declaration of a spec to the provided block
+    # This is equivalent to instantiating a wrapper with the given spec, and
+    # then calling declare on that.
+    def self.declare_spec(spec, &block)
+      wrapper = new(spec)
+      wrapper.declare(&block)
+    end
+
     # Generates C++ source files, returning a list of the files generated. This
     # is equivalent to instantiating a wrapper with the given spec, and then
     # calling write_files on that.
@@ -185,7 +193,7 @@ module Wrapture
       end
 
       class_functions.each do |function|
-        function.declaration { |line| yield "    #{line}" }
+        self.class.declare_spec(function) { |line| yield "    #{line}" }
       end
 
       if @spec.equivalent_member?
@@ -202,10 +210,8 @@ module Wrapture
 
     # Gives each line of the declaration of a FunctionSpec to the provided
     # block.
-    def declare_function
-      yield 'line 1'
-      yield 'line 2'
-      yield 'line 3'
+    def declare_function(&block)
+      @spec.declaration(&block)
     end
 
     # Gives each line of the definition of a ClassSpec to the provided block.

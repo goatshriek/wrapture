@@ -1,5 +1,6 @@
 module Wrapture
   class CppWrapper
+    def self.declare_spec: ( (Wrapture::ClassSpec | Wrapture::EnumSpec | Wrapture::FunctionSpec | Wrapture::Scope) spec ) { (String) -> void } -> void
     def self.write_spec_files: ( (Wrapture::ClassSpec | Wrapture::EnumSpec | Wrapture::FunctionSpec | Wrapture::Scope) spec, ?String dir) -> Array[String]
     def initialize: ( (Wrapture::ClassSpec | Wrapture::EnumSpec | Wrapture::FunctionSpec | Wrapture::Scope) spec) -> void
     def ancestor_suffix: -> String
