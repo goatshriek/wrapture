@@ -30,7 +30,7 @@ Gem::Specification.new do |spec|
   spec.homepage    =  'https://goatshriek.github.io/wrapture/'
   spec.license     =  'Apache-2.0'
 
-  spec.required_ruby_version = '>= 2.4'
+  spec.required_ruby_version = '>= 2.5'
   spec.add_runtime_dependency 'json', '~> 2.3'
   spec.add_development_dependency 'bundler', '>= 1.6.4', '< 2.3'
   spec.add_development_dependency 'rake', '>= 0.9.2'
