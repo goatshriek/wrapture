@@ -211,7 +211,16 @@ module Wrapture
     # Gives each line of the declaration of a FunctionSpec to the provided
     # block.
     def declare_function(&block)
-      @spec.declaration(&block)
+      @spec.doc.format_as_doxygen(max_line_length: 76) { |line| block.call(line) }
+
+      modifier_prefix = if @spec.static?
+                          'static '
+                        elsif @spec.virtual?
+                          'virtual '
+                        else
+                          ''
+                        end
+      block.call("#{modifier_prefix}#{@spec.return_expression};")
     end
 
     # Gives each line of the definition of a ClassSpec to the provided block.

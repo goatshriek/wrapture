@@ -12,18 +12,19 @@ module Wrapture
     def initialize: (untyped spec, ?untyped owner, ?constructor: bool, ?destructor: bool) -> void
     attr_reader return_type: untyped
     def constructor?: -> boolish
+    def declaration: { (String) -> void } -> untyped
     def declaration_includes: -> untyped
     def definable?: -> bool
+    def definition: { (String) -> void } -> untyped
     def definition_includes: -> untyped
+    def doc: -> untyped
     def name: -> untyped
     def param_list: -> untyped
     def qualified_name: -> String
     def resolve_wrapped_param: (untyped param_spec) -> String
     def return_expression: (?func_name: String) -> String
     def signature: (?func_name: String) -> String
-    def declaration: { (String) -> void } -> untyped
-    def definition: { (String) -> void } -> untyped
-    def doc: -> untyped
+    def static?: -> bool
     def resolve_type: (untyped type_) -> untyped
     def variadic?: -> bool
     def virtual?: -> bool

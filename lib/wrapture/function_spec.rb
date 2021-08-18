@@ -133,6 +133,22 @@ module Wrapture
       @constructor
     end
 
+    # Calls the given block once for each line of the declaration of the
+    # function, including any documentation.
+    def declaration(&block)
+      doc.format_as_doxygen(max_line_length: 76) { |line| block.call(line) }
+
+      modifier_prefix = if @spec['static']
+                          'static '
+                        elsif virtual?
+                          'virtual '
+                        else
+                          ''
+                        end
+
+      block.call("#{modifier_prefix}#{return_expression};")
+    end
+
     # A list of includes needed for the declaration of the function.
     def declaration_includes
       includes = @spec['return']['includes'].dup
@@ -148,6 +164,41 @@ module Wrapture
       false
     end
 
+    # Gives the definition of the function in a block, line by line.
+    def definition
+      definable_check
+
+      yield "#{return_expression(func_name: qualified_name)} {"
+
+      locals { |declaration| yield "  #{declaration}" }
+
+      yield "  va_start( variadic_args, #{@params[-2].name} );" if variadic?
+      yield ''
+
+      if @wrapped.is_a?(WrappedFunctionSpec)
+        yield "  #{wrapped_call_expression};"
+      else
+        @wrapped.lines.each { |line| yield "  #{line}" }
+      end
+
+      if @wrapped.error_check?
+        yield ''
+        @wrapped.error_check(return_val: return_variable) do |line|
+          yield "  #{line}"
+        end
+      end
+
+      yield '  va_end( variadic_args );' if variadic?
+
+      if @return_type.self_reference?
+        yield '  return *this;'
+      elsif @spec['return']['type'] != 'void' && !returns_call_directly?
+        yield '  return return_val;'
+      end
+
+      yield '}'
+    end
+
     # A list of includes needed for the definition of the function.
     def definition_includes
       includes = @wrapped.includes
@@ -156,6 +207,22 @@ module Wrapture
       includes.concat(@return_type.includes)
       includes << 'stdarg.h' if variadic?
       includes.uniq
+    end
+
+    # A Comment holding the function documentation.
+    def doc
+      comment = String.new
+      comment << @spec['doc'] if @spec.key?('doc')
+
+      @params
+        .reject { |param| param.doc.empty? }
+        .each { |param| comment << "\n\n" << param.doc.text }
+
+      if @spec['return'].key?('doc')
+        comment << "\n\n@return " << @spec['return']['doc']
+      end
+
+      Comment.new(comment)
     end
 
     # The name of the function.
@@ -199,6 +266,21 @@ module Wrapture
       end
     end
 
+    # A resolved type, given a TypeSpec +type+. Resolved types will not have any
+    # keywords like +equivalent-struct+, which will be resolved to their
+    # effective type.
+    def resolve_type(type)
+      if type.equivalent_struct?
+        TypeSpec.new("struct #{@owner.struct_name}")
+      elsif type.equivalent_pointer?
+        TypeSpec.new("struct #{@owner.struct_name} *")
+      elsif type.self_reference?
+        TypeSpec.new("#{@owner.name}&")
+      else
+        type
+      end
+    end
+
     # Calls return_expression on the return type of this function. +func_name+
     # is passed to return_expression if provided.
     def return_expression(func_name: name)
@@ -215,86 +297,9 @@ module Wrapture
       "#{func_name}( #{param_list} )"
     end
 
-    # Calls the given block once for each line of the declaration of the
-    # function, including any documentation.
-    def declaration(&block)
-      doc.format_as_doxygen(max_line_length: 76) { |line| block.call(line) }
-
-      modifier_prefix = if @spec['static']
-                          'static '
-                        elsif virtual?
-                          'virtual '
-                        else
-                          ''
-                        end
-
-      block.call("#{modifier_prefix}#{return_expression};")
-    end
-
-    # Gives the definition of the function in a block, line by line.
-    def definition
-      definable_check
-
-      yield "#{return_expression(func_name: qualified_name)} {"
-
-      locals { |declaration| yield "  #{declaration}" }
-
-      yield "  va_start( variadic_args, #{@params[-2].name} );" if variadic?
-      yield ''
-
-      if @wrapped.is_a?(WrappedFunctionSpec)
-        yield "  #{wrapped_call_expression};"
-      else
-        @wrapped.lines.each { |line| yield "  #{line}" }
-      end
-
-      if @wrapped.error_check?
-        yield ''
-        @wrapped.error_check(return_val: return_variable) do |line|
-          yield "  #{line}"
-        end
-      end
-
-      yield '  va_end( variadic_args );' if variadic?
-
-      if @return_type.self_reference?
-        yield '  return *this;'
-      elsif @spec['return']['type'] != 'void' && !returns_call_directly?
-        yield '  return return_val;'
-      end
-
-      yield '}'
-    end
-
-    # A Comment holding the function documentation.
-    def doc
-      comment = String.new
-      comment << @spec['doc'] if @spec.key?('doc')
-
-      @params
-        .reject { |param| param.doc.empty? }
-        .each { |param| comment << "\n\n" << param.doc.text }
-
-      if @spec['return'].key?('doc')
-        comment << "\n\n@return " << @spec['return']['doc']
-      end
-
-      Comment.new(comment)
-    end
-
-    # A resolved type, given a TypeSpec +type+. Resolved types will not have any
-    # keywords like +equivalent-struct+, which will be resolved to their
-    # effective type.
-    def resolve_type(type)
-      if type.equivalent_struct?
-        TypeSpec.new("struct #{@owner.struct_name}")
-      elsif type.equivalent_pointer?
-        TypeSpec.new("struct #{@owner.struct_name} *")
-      elsif type.self_reference?
-        TypeSpec.new("#{@owner.name}&")
-      else
-        type
-      end
+    # True if the function is static.
+    def static?
+      @spec['static']
     end
 
     # True if the function is variadic.
