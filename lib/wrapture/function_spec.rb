@@ -133,22 +133,6 @@ module Wrapture
       @constructor
     end
 
-    # Calls the given block once for each line of the declaration of the
-    # function, including any documentation.
-    def declaration(&block)
-      doc.format_as_doxygen(max_line_length: 76) { |line| block.call(line) }
-
-      modifier_prefix = if @spec['static']
-                          'static '
-                        elsif virtual?
-                          'virtual '
-                        else
-                          ''
-                        end
-
-      block.call("#{modifier_prefix}#{return_expression};")
-    end
-
     # A list of includes needed for the declaration of the function.
     def declaration_includes
       includes = @spec['return']['includes'].dup

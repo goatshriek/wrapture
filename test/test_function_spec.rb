@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2019-2020 Joel E. Anderson
+# Copyright 2019-2021 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ class FunctionSpecTest < Minitest::Test
     spec = Wrapture::FunctionSpec.new(test_spec)
 
     comment = String.new
-    spec.declaration do |line|
+    Wrapture::CppWrapper.declare_spec(spec) do |line|
       next if line.nil? || !line.lstrip.start_with?('/**', '*')
 
       comment << line << "\n"
@@ -85,7 +85,7 @@ class FunctionSpecTest < Minitest::Test
 
     arg_type = 'const char *( *my_func_ptr )( int, int, void * )'
 
-    lines = spec.declaration(&block_collector)
+    lines = Wrapture::CppWrapper.declare_spec(spec, &block_collector)
     assert(lines.any? { |line| line.include?(arg_type) })
 
     lines = spec.definition(&block_collector)
@@ -105,7 +105,7 @@ class FunctionSpecTest < Minitest::Test
     expected_declaration = 'const char *( *FunctionPointerReturn( const '\
                            'char *my_string ) )( int, int, struct special * );'
 
-    lines = spec.declaration(&block_collector)
+    lines = Wrapture::CppWrapper.declare_spec(spec, &block_collector)
     assert(lines.any? { |line| line.include?(expected_declaration) })
 
     expected_definition = 'const char *( *FunctionPointerReturn( const '\
@@ -147,7 +147,7 @@ class FunctionSpecTest < Minitest::Test
                            ' *my_func_ptr )( int, int ( * )( struct special *,'\
                            ' void * ), void * ) );'
 
-    lines = spec.declaration(&block_collector)
+    lines = Wrapture::CppWrapper.declare_spec(spec, &block_collector)
     assert(lines.any? { |line| line.include?(expected_declaration) })
   end
 
@@ -165,7 +165,7 @@ class FunctionSpecTest < Minitest::Test
                            ' *my_string ) )( int, int, void * ) )( struct'\
                            ' special *, int );'
 
-    lines = spec.declaration(&block_collector)
+    lines = Wrapture::CppWrapper.declare_spec(spec, &block_collector)
     assert(lines.any? { |line| line.include?(expected_declaration) })
   end
 
@@ -175,7 +175,7 @@ class FunctionSpecTest < Minitest::Test
     spec = Wrapture::FunctionSpec.new(test_spec)
 
     comment = String.new
-    spec.declaration do |line|
+    Wrapture::CppWrapper.declare_spec(spec) do |line|
       next if line.nil? || !line.lstrip.start_with?('/**', '*')
 
       refute_match(/^\s*\*\s*$/, line)
@@ -214,7 +214,7 @@ class FunctionSpecTest < Minitest::Test
     test_specs.each do |test_spec|
       spec = Wrapture::FunctionSpec.new(test_spec)
 
-      spec.declaration do |line|
+      Wrapture::CppWrapper.declare_spec(spec) do |line|
         assert_includes(line, '...')
       end
 
