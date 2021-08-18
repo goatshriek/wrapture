@@ -30,7 +30,6 @@ module Wrapture
     def this_struct_pointer: -> String
     def type: (untyped type_) -> untyped
     def type?: (untyped type_) -> bool
-    def declaration_contents: { (?String) -> nil } -> nil
     def definition_contents: { (?String) -> nil } -> nil
 
     private

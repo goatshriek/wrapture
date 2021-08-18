@@ -286,17 +286,6 @@ module Wrapture
       @scope.type?(type)
     end
 
-    # Gives the content of the class declaration to a block, line by line.
-    def declaration_contents
-      member_constructor_declaration { |line| yield "    #{line}" }
-
-      pointer_constructor_declaration { |line| yield "    #{line}" }
-
-      unless !@struct || pointer_wrapper?
-        yield "    #{struct_constructor_signature};"
-      end
-    end
-
     # Gives the content of the class definition to a block, line by line.
     def definition_contents
       definition_includes.each do |include_file|
