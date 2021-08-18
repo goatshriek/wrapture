@@ -29,6 +29,14 @@ module Wrapture
       wrapper.declare(&block)
     end
 
+    # Gives each line of the definition of a spec to the provided block
+    # This is equivalent to instantiating a wrapper with the given spec, and
+    # then calling define on that.
+    def self.define_spec(spec, &block)
+      wrapper = new(spec)
+      wrapper.define(&block)
+    end
+
     # Generates C++ source files, returning a list of the files generated. This
     # is equivalent to instantiating a wrapper with the given spec, and then
     # calling write_files on that.

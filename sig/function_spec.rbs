@@ -36,6 +36,7 @@ module Wrapture
     def locals: { (String) -> untyped } -> nil
     def resolved_return: -> untyped
     def return_cast: (untyped value) -> String
+    def return_statement: -> String
     def return_variable: -> String
     def returns_call_directly?: -> bool
     def returns_return_val?: -> bool

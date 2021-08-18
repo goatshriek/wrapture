@@ -174,11 +174,7 @@ module Wrapture
 
       yield '  va_end( variadic_args );' if variadic?
 
-      if @return_type.self_reference?
-        yield '  return *this;'
-      elsif @spec['return']['type'] != 'void' && !returns_call_directly?
-        yield '  return return_val;'
-      end
+      yield "  #{return_statement}"
 
       yield '}'
     end
@@ -272,6 +268,17 @@ module Wrapture
         signature(func_name: func_name)
       else
         resolved_return.return_expression(self, func_name: func_name)
+      end
+    end
+
+    # The return statement used in this function's definition.
+    def return_statement
+      if @return_type.self_reference?
+        'return *this;'
+      elsif @spec['return']['type'] != 'void' && !returns_call_directly?
+        'return return_val;'
+      else
+        ''
       end
     end
 
