@@ -190,7 +190,7 @@ def validate_members(spec, filename)
   first_member_name = equiv_struct['members'][0]['name']
 
   fail_msg = 'no constructor for struct members generated'
-  assert file_contains_match(filename, first_member_name), fail_msg
+  assert(file_contains_match(filename, first_member_name), fail_msg)
 end
 
 def validate_namespace(spec, filename)

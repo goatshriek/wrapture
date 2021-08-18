@@ -24,6 +24,9 @@ Metrics/MethodLength:
 Metrics/PerceivedComplexity:
   Max: 10
 
+Minitest/AssertWithExpectedArgument:
+  Enabled: false
+
 Minitest/MultipleAssertions:
   Max: 10
 
