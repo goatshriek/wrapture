@@ -250,6 +250,18 @@ module Wrapture
       @spec['parent']['name'] if child?
     end
 
+    # True if the parent of this class provides an initializer taking a pointer
+    # to the same equivalent struct type.
+    def parent_provides_initializer?
+      return false if !pointer_wrapper? || !child?
+
+      parent_spec = @scope.type(TypeSpec.new(parent_name))
+
+      !parent_spec.nil? &&
+        parent_spec.pointer_wrapper? &&
+        parent_spec.struct_name == @struct.name
+    end
+
     # Determines if this class is a wrapper for a struct pointer or not.
     def pointer_wrapper?
       @spec['type'] == 'pointer'
@@ -293,7 +305,7 @@ module Wrapture
       end
 
       yield
-      yield "namespace #{@spec['namespace']} {"
+      yield "namespace #{@spec.namespace} {"
 
       yield unless @constants.empty?
       @constants.each do |const|
@@ -395,18 +407,6 @@ module Wrapture
       yield '}'
     end
 
-    # The initializer for the pointer constructor, if one is available, or an
-    # empty string if not.
-    def parent_provides_initializer?
-      return false if !pointer_wrapper? || !child?
-
-      parent_spec = @scope.type(TypeSpec.new(parent_name))
-
-      !parent_spec.nil? &&
-        parent_spec.pointer_wrapper? &&
-        parent_spec.struct_name == @struct.name
-    end
-
     # Yields the declaration of the pointer constructor for a class.
     #
     # If this class does not have an equivalent struct, or if there is already
@@ -455,16 +455,6 @@ module Wrapture
       end
 
       yield '}'
-    end
-
-    # The initializer for the pointer constructor, if one is available, or an
-    # empty string if not.
-    def pointer_constructor_initializer
-      if parent_provides_initializer?
-        ": #{parent_name}( equivalent ) "
-      else
-        ''
-      end
     end
 
     # The signature of the constructor given an equivalent strucct pointer.

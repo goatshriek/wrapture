@@ -24,6 +24,7 @@ module Wrapture
     def namespace: -> String
     def overloads?: (untyped parent_spec) -> bool
     def parent_name: -> (String | nil)
+    def parent_provides_initializer?: -> bool
     def pointer_wrapper?: -> bool
     def struct_name: -> untyped
     def this_struct: -> String
@@ -40,10 +41,8 @@ module Wrapture
     def member_constructor_declaration: { (String) -> nil } -> nil
     def member_constructor_definition: { (String) -> nil } -> nil
     def overload_definition: { (?String) -> nil } -> nil
-    def parent_provides_initializer?: -> bool
     def pointer_constructor_declaration: { (String) -> nil } -> nil
     def pointer_constructor_definition: { (String) -> nil } -> nil
-    def pointer_constructor_initializer: -> String
     def pointer_constructor_signature: -> String
     def struct_constructor_signature: -> String
     def this_member: (untyped member) -> String

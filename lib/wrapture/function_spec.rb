@@ -45,6 +45,7 @@ module Wrapture
       normalized = spec.dup
 
       normalized['version'] = Wrapture.spec_version(spec)
+      normalized['static'] = Wrapture.normalize_boolean(spec, 'static')
       normalized['virtual'] = Wrapture.normalize_boolean(spec, 'virtual')
       normalized['params'] = ParamSpec.normalize_param_list(spec['params'])
       normalized['return'] = normalize_return_hash(spec['return'])
@@ -88,6 +89,7 @@ module Wrapture
     # doc:: a string containing the documentation for this function
     # return:: a specification of the return value for this function
     # static:: set to true if this is a static function
+    # virtual:: set to true if this is a virtual function
     #
     # Each parameter specification must have a 'name' key with the name of the
     # parameter and a 'type' key with its type. The type key may be ommitted
@@ -128,6 +130,9 @@ module Wrapture
     # A TypeSpec describing the return type of this function.
     attr_reader :return_type
 
+    # A WrappedFunctionSpec or WrappedCodeSpec this .
+    attr_reader :wrapped
+
     # True if the function is a constructor, false otherwise.
     def constructor?
       @constructor
@@ -141,16 +146,26 @@ module Wrapture
       includes.uniq
     end
 
-    # True if this function can be defined.
+    # True if this function can be defined, false if not.
     def definable?
-      definable_check
+      definable!
     rescue UndefinableSpec
       false
     end
 
+    # Raises an exception if this function cannot be defined as is. Returns
+    # true otherwise.
+    def definable!
+      if @wrapped.nil?
+        raise UndefinableSpec, 'no wrapped function or code was specified'
+      end
+
+      true
+    end
+
     # Gives the definition of the function in a block, line by line.
     def definition
-      definable_check
+      definable!
 
       yield "#{return_expression(func_name: qualified_name)} {"
 
@@ -203,6 +218,16 @@ module Wrapture
       end
 
       Comment.new(comment)
+    end
+
+    # Yields a declaration of each local variable used by the function.
+    def locals
+      yield 'va_list variadic_args;' if variadic?
+
+      if capture_return?
+        wrapped_type = resolve_type(@wrapped.return_val_type)
+        yield "#{wrapped_type.variable('return_val')};"
+      end
     end
 
     # The name of the function.
@@ -261,6 +286,11 @@ module Wrapture
       end
     end
 
+    # The resolved type of the return type.
+    def resolved_return
+      @return_type.resolve(self)
+    end
+
     # Calls return_expression on the return type of this function. +func_name+
     # is passed to return_expression if provided.
     def return_expression(func_name: name)
@@ -280,6 +310,20 @@ module Wrapture
       else
         ''
       end
+    end
+
+    # True if the return type of this function is overloaded.
+    def return_overloaded?
+      @spec['return']['overloaded']
+    end
+
+    # True if the function returns the result of the wrapped function call
+    # directly without any after actions.
+    def returns_call_directly?
+      !@constructor &&
+        !@destructor &&
+        !%w[void self-reference].include?(@spec['return']['type']) &&
+        !@wrapped.error_check?
     end
 
     # The signature of the function. +func_name+ can be used to override the
@@ -322,31 +366,6 @@ module Wrapture
         @owner.type?(param.type)
     end
 
-    # Raises an exception if this function cannot be defined as is. Returns
-    # true otherwise.
-    def definable_check
-      if @wrapped.nil?
-        raise UndefinableSpec, 'no wrapped function or code was specified'
-      end
-
-      true
-    end
-
-    # Yields a declaration of each local variable used by the function.
-    def locals
-      yield 'va_list variadic_args;' if variadic?
-
-      if capture_return?
-        wrapped_type = resolve_type(@wrapped.return_val_type)
-        yield "#{wrapped_type.variable('return_val')};"
-      end
-    end
-
-    # The resolved type of the return type.
-    def resolved_return
-      @return_type.resolve(self)
-    end
-
     # The function to use to create the return value of the function.
     def return_cast(value)
       if @return_type == @wrapped.return_val_type
@@ -365,15 +384,6 @@ module Wrapture
       else
         'return_val'
       end
-    end
-
-    # True if the function returns the result of the wrapped function call
-    # directly without any after actions.
-    def returns_call_directly?
-      !@constructor &&
-        !@destructor &&
-        !%w[void self-reference].include?(@spec['return']['type']) &&
-        !@wrapped.error_check?
     end
 
     # True if the function returns the return_val variable.

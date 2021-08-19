@@ -1,6 +1,6 @@
 module Wrapture
   class WrappedFunctionSpec
-    @spec: untyped
+    @spec: spec_hash
     @error_rules: untyped
     @error_action: untyped
 

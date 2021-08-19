@@ -114,7 +114,7 @@ module Wrapture
                  end
 
       File.open(File.join(dir, filename), 'w') do |file|
-        @spec.definition_contents { |line| file.puts(line) }
+        self.class.define_spec(@spec) { |line| file.puts(line) }
       end
 
       filename
@@ -145,12 +145,17 @@ module Wrapture
     def class_functions
       functions = @spec.functions.dup
 
+      # this is is a total hack and needs to be replaced with proper
+      # constructor initializer support
+      param_name = "equivalent#{pointer_constructor_initializer}"
+
       if @spec.struct
         spec_hash = { 'name' => @spec.name,
-                      'params' => [{ 'name' => 'equivalent',
+                      'params' => [{ 'name' => param_name,
                                      'type' => 'equivalent-struct-pointer' }],
-                      'wrapped-code' => { 'lines' => %w[1 2 3] },
-                      'return' => { 'type' => 'equivalent-struct-pointer' } }
+                      'wrapped-code' => {
+                        'lines' => ['this->equivalent = equivalent;']
+                      } }
         functions << FunctionSpec.new(spec_hash, @spec, constructor: true)
       end
 
@@ -236,24 +241,65 @@ module Wrapture
 
     # Gives each line of the definition of a ClassSpec to the provided block.
     def define_class
-      yield 'line 1'
-      yield 'line 2'
-      yield 'line 3'
+      @spec.definition_includes.each do |include_file|
+        yield "#include <#{include_file}>"
+      end
+
+      yield ''
+      yield "namespace #{@spec.namespace} {"
+
+      yield unless @spec.constants.empty?
+      @spec.constants.each do |const|
+        yield "  #{const.definition(@spec.name)};"
+      end
+
+      class_functions.each do |function|
+        yield ''
+        self.class.define_spec(function) { |line| yield "  #{line}" }
+      end
+
+      yield ''
+      yield '}' # end of namespace
     end
 
     # Gives each line of the definition of a EnumSpec to the provided block.
-    def define_enum
-      yield 'line 1'
-      yield 'line 2'
-      yield 'line 3'
+    def define_enum(&block)
+      @spec.definition_contents(&block)
     end
 
     # Gives each line of the definition of a FunctionSpec to the provided
     # block.
     def define_function
-      yield 'line 1'
-      yield 'line 2'
-      yield 'line 3'
+      @spec.definable!
+
+      yield "#{@spec.return_expression(func_name: @spec.qualified_name)} {"
+
+      @spec.locals { |declaration| yield "  #{declaration}" }
+      yield ''
+
+      if @spec.variadic?
+        yield "  va_start( variadic_args, #{spec.params[-2].name} );"
+        yield ''
+      end
+
+      if @spec.wrapped.is_a?(WrappedFunctionSpec)
+        yield "  #{wrapped_call_expression};"
+      else
+        @spec.wrapped.lines.each { |line| yield "  #{line}" }
+      end
+
+      if @spec.wrapped.error_check?
+        yield ''
+        @spec.wrapped.error_check(return_val: return_variable) do |line|
+          yield "  #{line}"
+        end
+      end
+
+      yield '  va_end( variadic_args );' if @spec.variadic?
+
+      yield "  #{return_statement}"
+
+      yield '}'
     end
 
     # The declaration of the equivalent member of this class.
@@ -262,6 +308,62 @@ module Wrapture
         "#{@spec.struct.pointer_declaration('equivalent')};"
       else
         "#{@spec.struct.declaration('equivalent')};"
+      end
+    end
+
+    # The initializer for the pointer constructor, if one is available, or an
+    # empty string if not.
+    def pointer_constructor_initializer
+      if @spec.parent_provides_initializer?
+        " ) : #{@spec.parent_name}( equivalent"
+      else
+        ''
+      end
+    end
+
+    # A function to use to create the return value of a function.
+    def return_cast(value)
+      if @spec.return_type == @spec.wrapped.return_val_type
+        value
+      elsif @spec.return_overloaded?
+        "new#{@spec.return_type.name.chomp('*').strip} ( #{value} )"
+      else
+        @spec.resolved_return.cast_expression(value)
+      end
+    end
+
+    # The return statement used in this function's definition.
+    def return_statement
+      if @spec.return_type.self_reference?
+        'return *this;'
+      elsif @spec.return_type.name != 'void' && !@spec.returns_call_directly?
+        'return return_val;'
+      else
+        ''
+      end
+    end
+
+    # The name of the variable holding the return value.
+    def return_variable
+      if @spec.constructor?
+        'this->equivalent'
+      else
+        'return_val'
+      end
+    end
+
+    # The expression containing the call to the underlying wrapped function.
+    def wrapped_call_expression
+      call = @spec.wrapped.call_from(@spec)
+
+      if @spec.constructor?
+        "this->equivalent = #{call}"
+      elsif @spec.wrapped.error_check?
+        "return_val = #{call}"
+      elsif @spec.returns_call_directly?
+        "return #{return_cast(call)}"
+      else
+        call
       end
     end
   end
