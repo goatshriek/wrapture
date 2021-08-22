@@ -31,20 +31,8 @@ module Wrapture
     def this_struct_pointer: -> String
     def type: (untyped type_) -> untyped
     def type?: (untyped type_) -> bool
-    def definition_contents: { (?String) -> nil } -> nil
 
     private
-    def equivalent_member_declaration: { (String) -> nil } -> nil
-    def equivalent_name: -> String
     def factory_definition_includes: -> Array[String]
-    def header_guard: -> String
-    def member_constructor_declaration: { (String) -> nil } -> nil
-    def member_constructor_definition: { (String) -> nil } -> nil
-    def overload_definition: { (?String) -> nil } -> nil
-    def pointer_constructor_declaration: { (String) -> nil } -> nil
-    def pointer_constructor_definition: { (String) -> nil } -> nil
-    def pointer_constructor_signature: -> String
-    def struct_constructor_signature: -> String
-    def this_member: (untyped member) -> String
   end
 end

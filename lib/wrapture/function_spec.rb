@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2019-2020 Joel E. Anderson
+# Copyright 2019-2021 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -166,37 +166,6 @@ module Wrapture
       true
     end
 
-    # Gives the definition of the function in a block, line by line.
-    # def definition
-    #   definable!
-
-    #   yield "#{return_expression(func_name: qualified_name)} {"
-
-    #   locals { |declaration| yield "  #{declaration}" }
-
-    #   yield "  va_start( variadic_args, #{@params[-2].name} );" if variadic?
-    #   yield ''
-
-    #   if @wrapped.is_a?(WrappedFunctionSpec)
-    #     yield "  #{wrapped_call_expression};"
-    #   else
-    #     @wrapped.lines.each { |line| yield "  #{line}" }
-    #   end
-
-    #   if @wrapped.error_check?
-    #     yield ''
-    #     @wrapped.error_check(return_val: return_variable) do |line|
-    #       yield "  #{line}"
-    #     end
-    #   end
-
-    #   yield '  va_end( variadic_args );' if variadic?
-
-    #   yield "  #{return_statement}"
-
-    #   yield '}'
-    # end
-
     # A list of includes needed for the definition of the function.
     def definition_includes
       includes = @wrapped.includes
@@ -304,17 +273,6 @@ module Wrapture
       end
     end
 
-    # The return statement used in this function's definition.
-    def return_statement
-      if @return_type.self_reference?
-        'return *this;'
-      elsif @spec['return']['type'] != 'void' && !returns_call_directly?
-        'return return_val;'
-      else
-        ''
-      end
-    end
-
     # True if the return type of this function is overloaded.
     def return_overloaded?
       @spec['return']['overloaded']
@@ -369,46 +327,11 @@ module Wrapture
         @owner.type?(param.type)
     end
 
-    # The function to use to create the return value of the function.
-    def return_cast(value)
-      if @return_type == @wrapped.return_val_type
-        value
-      elsif @spec['return']['overloaded']
-        "new#{@spec['return']['type'].chomp('*').strip} ( #{value} )"
-      else
-        resolved_return.cast_expression(value)
-      end
-    end
-
-    # The name of the variable holding the return value.
-    def return_variable
-      if @constructor
-        'this->equivalent'
-      else
-        'return_val'
-      end
-    end
-
     # True if the function returns the return_val variable.
     def returns_return_val?
       !@return_type.self_reference? &&
         @spec['return']['type'] != 'void' &&
         !returns_call_directly?
-    end
-
-    # The expression containing the call to the underlying wrapped function.
-    def wrapped_call_expression
-      call = @wrapped.call_from(self)
-
-      if @constructor
-        "this->equivalent = #{call}"
-      elsif @wrapped.error_check?
-        "return_val = #{call}"
-      elsif returns_call_directly?
-        "return #{return_cast(call)}"
-      else
-        call
-      end
     end
   end
 end
