@@ -263,8 +263,46 @@ module Wrapture
     end
 
     # Gives each line of the definition of a EnumSpec to the provided block.
-    def define_enum(&block)
-      @spec.definition_contents(&block)
+    def define_enum
+      indent = 0
+
+      yield "#ifndef #{header_guard}"
+      yield "#define #{header_guard}"
+      yield ''
+
+      @spec.definition_includes.each do |include_file|
+        yield "#include <#{include_file}>"
+      end
+
+      if @spec.namespace?
+        yield ''
+        yield "namespace #{@spec.namespace} {"
+        yield ''
+        indent += 2
+      end
+
+      @spec.doc.format_as_doxygen(max_line_length: 76) do |line|
+        yield "#{' ' * indent}#{line}"
+      end
+
+      yield "#{' ' * indent}enum class #{@spec.name} {"
+      indent += 2
+
+      elements = @spec.elements
+      @spec.elements[0...-1].each do |element|
+        enum_element_doc(element) { |line| yield "#{' ' * indent}#{line}" }
+        yield "#{' ' * indent}#{enum_element_definition(element)},"
+      end
+
+      enum_element_doc(elements.last) { |line| yield "#{' ' * indent}#{line}" }
+      yield "#{' ' * indent}#{enum_element_definition(elements.last)}"
+
+      indent -= 2
+      yield "#{' ' * indent}};"
+      yield
+      yield '}' if @spec.namespace?
+      yield
+      yield "#endif /* #{header_guard} */"
     end
 
     # Gives each line of the definition of a FunctionSpec to the provided
@@ -300,6 +338,22 @@ module Wrapture
       yield "  #{return_statement}"
 
       yield '}'
+    end
+
+    # The definition of an enum element.
+    def enum_element_definition(element)
+      if element.key?('value')
+        "#{element['name']} = #{element['value']}"
+      else
+        element['name']
+      end
+    end
+
+    # Calls the given block once for each line of the documentation for an
+    # element.
+    def enum_element_doc(element, &block)
+      doc = Comment.new(element.fetch('doc', nil))
+      doc.format_as_doxygen(max_line_length: 74) { |line| block.call(line) }
     end
 
     # The declaration of the equivalent member of this class.

@@ -19,6 +19,8 @@ module Wrapture
     def define_class: (Wrapture::ClassSpec spec) { (String) -> void } -> void
     def define_enum: (Wrapture::EnumSpec spec) { (String) -> void } -> void
     def define_function: (Wrapture::FunctionSpec spec) { (String) -> void } -> void
+    def enum_element_definition: (spec_hash element) -> String
+    def enum_element_doc: (spec_hash element) { (String) -> void } -> void
     def equivalent_member_declaration: -> String
     def pointer_constructor_initializer: -> String
     def return_statment: -> String

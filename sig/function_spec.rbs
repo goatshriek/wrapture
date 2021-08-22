@@ -14,7 +14,7 @@ module Wrapture
     attr_reader return_type: Wrapture::TypeSpec
     attr_reader wrapped: Wrapture::WrappedFunctionSpec | Wrapture::WrappedCodeSpec | nil
     def constructor?: -> boolish
-    def declaration_includes: -> untyped
+    def declaration_includes: -> Array[String]
     def definable?: -> bool
     def definable!: -> true
     def definition_includes: -> Array[String]

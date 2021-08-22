@@ -56,56 +56,8 @@ module Wrapture
       @doc = Comment.new(@spec.fetch('doc', nil))
     end
 
-    # The name of the enumeration.
-    def name
-      @spec['name']
-    end
-
-    # Yields each line of the definition of the wrapper for this enum.
-    def definition_contents
-      indent = 0
-      guard = "#{name.upcase}_HPP"
-
-      yield "#ifndef #{guard}"
-      yield "#define #{guard}"
-      yield
-
-      definition_includes.each { |filename| yield "#include <#{filename}>" }
-      yield
-
-      if @spec.key?('namespace')
-        yield "namespace #{@spec['namespace']} {"
-        yield
-        indent += 2
-      end
-
-      @doc.format_as_doxygen(max_line_length: 76) do |line|
-        yield "#{' ' * indent}#{line}"
-      end
-
-      yield "#{' ' * indent}enum class #{name} {"
-      indent += 2
-
-      elements = @spec['elements']
-      elements[0...-1].each do |element|
-        element_doc(element) { |line| yield "#{' ' * indent}#{line}" }
-        element_definition(element) { |line| yield "#{' ' * indent}#{line}," }
-      end
-
-      element_doc(elements.last) { |line| yield "#{' ' * indent}#{line}" }
-      element_definition(elements.last) do |line|
-        yield "#{' ' * indent}#{line}"
-      end
-
-      indent -= 2
-      yield "#{' ' * indent}};"
-      yield
-      yield '}' if @spec.key?('namespace')
-      yield
-      yield "#endif /* #{guard} */"
-    end
-
-    private
+    # The documentation of the enumeration.
+    attr_reader :doc
 
     # A list of the includes needed for the definition of the enumeration.
     def definition_includes
@@ -118,20 +70,26 @@ module Wrapture
       includes.uniq
     end
 
-    # Yields each line of the definition of an element.
-    def element_definition(element)
-      if element.key?('value')
-        yield "#{element['name']} = #{element['value']}"
-      else
-        yield element['name']
-      end
+    # A list of elements in this enumeration.
+    # This should be redefined as a separate type of spec in the long run
+    # instead of being raw hashes.
+    def elements
+      @spec['elements']
     end
 
-    # Calls the given block once for each line of the documentation for an
-    # element.
-    def element_doc(element, &block)
-      doc = Comment.new(element.fetch('doc', nil))
-      doc.format_as_doxygen(max_line_length: 74) { |line| block.call(line) }
+    # The name of the enumeration.
+    def name
+      @spec['name']
+    end
+
+    # The namespace of the enumeration, or nil if it does not have one.
+    def namespace
+      @spec.fetch('namespace', nil)
+    end
+
+    # True if the enumeration has a namespace, false if not.
+    def namespace?
+      @spec.key?('namespace')
     end
   end
 end
