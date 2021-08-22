@@ -27,7 +27,7 @@ class FunctionSpecTest < Minitest::Test
     test_spec = load_fixture('basic_function')
 
     spec = Wrapture::FunctionSpec.new(test_spec)
-    spec.definition(&block_collector)
+    Wrapture::CppWrapper.define_spec(spec, &block_collector)
   end
 
   def test_documentation
@@ -54,7 +54,7 @@ class FunctionSpecTest < Minitest::Test
     spec = Wrapture::FunctionSpec.new(test_spec)
 
     throw_code = 'throw CodeException( return_val )'
-    spec.definition do |line|
+    Wrapture::CppWrapper.define_spec(spec) do |line|
       next if line.nil?
 
       code = line.strip
@@ -68,7 +68,7 @@ class FunctionSpecTest < Minitest::Test
 
     spec = Wrapture::FunctionSpec.new(test_spec)
 
-    lines = spec.definition(&block_collector)
+    lines = Wrapture::CppWrapper.define_spec(spec, &block_collector)
     assert(lines.any? { |line| line.end_with?('int return_val;') })
     assert(lines.any? { |line| line.end_with?('return return_val;') })
   end
@@ -88,7 +88,7 @@ class FunctionSpecTest < Minitest::Test
     lines = Wrapture::CppWrapper.declare_spec(spec, &block_collector)
     assert(lines.any? { |line| line.include?(arg_type) })
 
-    lines = spec.definition(&block_collector)
+    lines = Wrapture::CppWrapper.define_spec(spec, &block_collector)
     assert(lines.any? { |line| line.include?(arg_type) })
   end
 
@@ -111,7 +111,7 @@ class FunctionSpecTest < Minitest::Test
     expected_definition = 'const char *( *FunctionPointerReturn( const '\
                           'char *my_string ) )( int, int, struct special * ) {'
 
-    lines = spec.definition(&block_collector)
+    lines = Wrapture::CppWrapper.define_spec(spec, &block_collector)
     assert(lines.any? { |line| line.include?(expected_definition) })
     refute(lines.any? { |line| line.include?('=>') },
            'a rocket operator was found in the output code')
@@ -131,7 +131,7 @@ class FunctionSpecTest < Minitest::Test
     spec = Wrapture::FunctionSpec.new(test_spec)
 
     call = test_spec['wrapped-function']['name']
-    spec.definition do |line|
+    Wrapture::CppWrapper.define_spec(spec) do |line|
       code = line.strip
 
       assert(code.start_with?("return #{call}")) if code.start_with?('return')
@@ -204,7 +204,7 @@ class FunctionSpecTest < Minitest::Test
     refute(spec.definable?)
 
     assert_raises(Wrapture::UndefinableSpec) do
-      spec.definition { flunk('unreachable') }
+      Wrapture::CppWrapper.define_spec(spec) { flunk('unreachable') }
     end
   end
 
@@ -222,7 +222,7 @@ class FunctionSpecTest < Minitest::Test
 
       assert_includes(spec.definition_includes, 'stdarg.h')
 
-      spec.definition do |line|
+      Wrapture::CppWrapper.define_spec(spec) do |line|
         code = line.strip
 
         assert_includes(code, 'variadic_args') if code.include?('underlying')

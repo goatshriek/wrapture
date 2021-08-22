@@ -278,7 +278,7 @@ module Wrapture
       yield ''
 
       if @spec.variadic?
-        yield "  va_start( variadic_args, #{spec.params[-2].name} );"
+        yield "  va_start( variadic_args, #{@spec.params[-2].name} );"
         yield ''
       end
 

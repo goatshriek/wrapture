@@ -127,6 +127,9 @@ module Wrapture
       @destructor = destructor
     end
 
+    # A list of the ParamSpecs this function accepts.
+    attr_reader :params
+
     # A TypeSpec describing the return type of this function.
     attr_reader :return_type
 
@@ -164,35 +167,35 @@ module Wrapture
     end
 
     # Gives the definition of the function in a block, line by line.
-    def definition
-      definable!
+    # def definition
+    #   definable!
 
-      yield "#{return_expression(func_name: qualified_name)} {"
+    #   yield "#{return_expression(func_name: qualified_name)} {"
 
-      locals { |declaration| yield "  #{declaration}" }
+    #   locals { |declaration| yield "  #{declaration}" }
 
-      yield "  va_start( variadic_args, #{@params[-2].name} );" if variadic?
-      yield ''
+    #   yield "  va_start( variadic_args, #{@params[-2].name} );" if variadic?
+    #   yield ''
 
-      if @wrapped.is_a?(WrappedFunctionSpec)
-        yield "  #{wrapped_call_expression};"
-      else
-        @wrapped.lines.each { |line| yield "  #{line}" }
-      end
+    #   if @wrapped.is_a?(WrappedFunctionSpec)
+    #     yield "  #{wrapped_call_expression};"
+    #   else
+    #     @wrapped.lines.each { |line| yield "  #{line}" }
+    #   end
 
-      if @wrapped.error_check?
-        yield ''
-        @wrapped.error_check(return_val: return_variable) do |line|
-          yield "  #{line}"
-        end
-      end
+    #   if @wrapped.error_check?
+    #     yield ''
+    #     @wrapped.error_check(return_val: return_variable) do |line|
+    #       yield "  #{line}"
+    #     end
+    #   end
 
-      yield '  va_end( variadic_args );' if variadic?
+    #   yield '  va_end( variadic_args );' if variadic?
 
-      yield "  #{return_statement}"
+    #   yield "  #{return_statement}"
 
-      yield '}'
-    end
+    #   yield '}'
+    # end
 
     # A list of includes needed for the definition of the function.
     def definition_includes
