@@ -230,6 +230,11 @@ class ClassSpecTest < Minitest::Test
     classes = Wrapture::CppWrapper.write_spec_files(spec)
     validate_wrapper_results(test_spec, classes)
 
+    filename = 'StructWrapperClass.cpp'
+    assignment = 'this->equivalent.member_1 = member_1;'
+    failure_msg = 'member assignment not present in definition'
+    assert(file_contains_match(filename, assignment), failure_msg)
+
     File.delete(*classes)
   end
 end

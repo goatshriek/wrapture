@@ -160,9 +160,12 @@ module Wrapture
       end
 
       if @spec.struct&.members?
+        assignments = @spec.struct.members.map do |member|
+          "#{equivalent_member_field(member['name'])} = #{member['name']};"
+        end
         spec_hash = { 'name' => @spec.name,
                       'params' => @spec.struct.members,
-                      'wrapped-code' => { 'lines' => %w[1 2 3] },
+                      'wrapped-code' => { 'lines' => assignments },
                       'return' => { 'type' => 'equivalent-struct-pointer' } }
         functions << FunctionSpec.new(spec_hash, @spec, constructor: true)
       end
@@ -363,6 +366,11 @@ module Wrapture
       else
         "#{@spec.struct.declaration('equivalent')};"
       end
+    end
+
+    # An expression for a field of the equivalent member of this class.
+    def equivalent_member_field(field_name)
+      "this->equivalent#{@spec.pointer_wrapper? ? '->' : '.'}#{field_name}"
     end
 
     # The initializer for the pointer constructor, if one is available, or an
