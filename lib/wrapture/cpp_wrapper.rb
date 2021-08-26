@@ -171,11 +171,23 @@ module Wrapture
       end
 
       if @spec.factory?
+        factory_lines = []
+        line_prefix = ''
+        @spec.scope.overloads(@spec).each do |overload|
+          check = overload.struct.rules_check('equivalent')
+          factory_lines << "#{line_prefix}if( #{check} ) {"
+          factory_lines << "  return new #{overload.name}( equivalent );"
+          line_prefix = '} else '
+        end
+
+        factory_lines << "#{line_prefix}{"
+        factory_lines << "  return new #{@spec.name}( equivalent );"
+        factory_lines << '}'
         spec_hash = { 'name' => "new#{@spec.name}",
                       'static' => true,
                       'params' => [{ 'name' => 'equivalent',
                                      'type' => 'equivalent-struct-pointer' }],
-                      'wrapped-code' => { 'lines' => %w[1 2 3] },
+                      'wrapped-code' => { 'lines' => factory_lines },
                       'return' => { 'type' => 'equivalent-struct-pointer' } }
         functions << FunctionSpec.new(spec_hash, @spec, constructor: true)
       end
