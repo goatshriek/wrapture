@@ -40,20 +40,26 @@ module Wrapture
     # set missing keys to their default values (for example, an empty list if no
     # includes are given).
     def self.normalize_spec_hash(spec)
+      normalize_spec_hash!(Marshal.load(Marshal.dump(spec)))
+    end
+
+    # Normalizes the hash specification of a function in +spec+ in place.
+    # Normalization will check for things like invalid keys, duplicate entries
+    # in include lists, and will set missing keys to their default values
+    # (for example, an empty list if no includes are given).
+    def self.normalize_spec_hash!(spec)
       Comment.validate_doc(spec['doc']) if spec.key?('doc')
 
-      normalized = spec.dup
+      spec['version'] = Wrapture.spec_version(spec)
+      Wrapture.normalize_boolean!(spec, 'static')
+      Wrapture.normalize_boolean!(spec, 'virtual')
+      spec['params'] = ParamSpec.normalize_param_list(spec['params'])
+      spec['return'] = normalize_return_hash(spec['return'])
 
-      normalized['version'] = Wrapture.spec_version(spec)
-      normalized['static'] = Wrapture.normalize_boolean(spec, 'static')
-      normalized['virtual'] = Wrapture.normalize_boolean(spec, 'virtual')
-      normalized['params'] = ParamSpec.normalize_param_list(spec['params'])
-      normalized['return'] = normalize_return_hash(spec['return'])
+      overload = Wrapture.normalize_boolean(spec['return'], 'overloaded')
+      spec['return']['overloaded'] = overload
 
-      overload = Wrapture.normalize_boolean(normalized['return'], 'overloaded')
-      normalized['return']['overloaded'] = overload
-
-      normalized
+      spec
     end
 
     # Creates a function spec based on the provided function spec.

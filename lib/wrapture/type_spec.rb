@@ -34,7 +34,7 @@ module Wrapture
       spec
     end
 
-    # Creates a parameter specification based on the provided hash +spec+.
+    # Creates a type specification based on the provided hash +spec+.
     # +spec+ can be a string instead of a hash, in which case it will be used
     # as the name of the type.
     #

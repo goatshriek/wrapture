@@ -28,6 +28,11 @@ module Wrapture
 
     spec.key?(key) && spec[key]
   end
+  # Sets a spec key to be boolean, raising an error if an issue is encountered.
+  # Keys that are not present are defaulted to false.
+  def self.normalize_boolean!(spec, key)
+    spec[key] = normalize_boolean(spec, key)
+  end
 
   # Normalizes an include list for an element. A single string will be converted
   # into an array containing the single string, and a nil will be converted to

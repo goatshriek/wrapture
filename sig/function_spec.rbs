@@ -7,13 +7,14 @@ module Wrapture
     @constructor: bool
     @destructor: bool
 
-    def self.normalize_return_hash: (Hash[String, untyped] spec) -> Hash[String, untyped]
-    def self.normalize_spec_hash: (Hash[String, untyped] spec) -> Hash[String, untyped]
+    def self.normalize_return_hash: (spec_hash spec) -> spec_hash
+    def self.normalize_spec_hash: (spec_hash spec) -> spec_hash
+    def self.normalize_spec_hash!: (spec_hash spec) -> spec_hash
     def initialize: (untyped spec, ?untyped owner, ?constructor: bool, ?destructor: bool) -> void
     attr_reader params: Array[Wrapture::ParamSpec]
     attr_reader return_type: Wrapture::TypeSpec
     attr_reader wrapped: Wrapture::WrappedFunctionSpec | Wrapture::WrappedCodeSpec | nil
-    def constructor?: -> boolish
+    def constructor?: -> bool
     def declaration_includes: -> Array[String]
     def definable?: -> bool
     def definable!: -> true
