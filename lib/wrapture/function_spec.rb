@@ -90,6 +90,7 @@ module Wrapture
     # return:: a specification of the return value for this function
     # static:: set to true if this is a static function
     # virtual:: set to true if this is a virtual function
+    # initializers:: a list of member initializers
     #
     # Each parameter specification must have a 'name' key with the name of the
     # parameter and a 'type' key with its type. The type key may be ommitted
@@ -112,6 +113,13 @@ module Wrapture
     # which will have the function return a reference to the instance it was
     # called on. Of course, this cannot be used from a function that is not a
     # class method.
+    #
+    # The optional initializer list contains hashes each with a 'name' and
+    # 'value' key designating the member to be initialized and the expression(s)
+    # to use for initialization, respectively. Optionally, the 'name' key may
+    # be omitted if the function is a constructor and a key named 'delegate' is
+    # present and set to true. Predictably, this will use the name of the class
+    # the constructor belongs to as the name.
     def initialize(spec, owner = Scope.new, constructor: false,
                    destructor: false)
       @owner = owner

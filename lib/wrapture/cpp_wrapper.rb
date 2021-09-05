@@ -189,7 +189,7 @@ module Wrapture
                                      'type' => 'equivalent-struct-pointer' }],
                       'wrapped-code' => { 'lines' => factory_lines },
                       'return' => { 'type' => 'equivalent-struct-pointer' } }
-        functions << FunctionSpec.new(spec_hash, @spec, constructor: true)
+        functions << FunctionSpec.new(spec_hash, @spec)
       end
 
       functions

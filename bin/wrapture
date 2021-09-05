@@ -43,4 +43,4 @@ ARGV.each do |spec_file|
   end
 end
 
-Wrapture::CppWrapper.write_files(scope)
+Wrapture::CppWrapper.write_spec_files(scope)
