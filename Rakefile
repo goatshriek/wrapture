@@ -7,6 +7,7 @@ Bundler::GemHelper.install_tasks
 
 Rake::TestTask.new do |task|
   task.libs << 'test'
+  task.pattern = 'test/**/test_*.rb'
 end
 
 desc 'Run tests'

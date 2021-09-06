@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2019-2020 Joel E. Anderson
+# Copyright 2019-2021 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -207,6 +207,19 @@ class ClassSpecTest < Minitest::Test
     validate_wrapper_results(test_spec, classes)
     assert(file_contains_match('DefaultMembersClass.hpp', 'member_1 = 42'),
            'default value not present in signature')
+
+    File.delete(*classes)
+  end
+
+  def test_delegating_constructor
+    test_spec = load_fixture('delegating_constructor')
+    spec = Wrapture::ClassSpec.new(test_spec)
+    classes = Wrapture::CppWrapper.write_spec_files(spec)
+    validate_wrapper_results(test_spec, classes)
+
+    sig = 'DelegatingConstructorClass( void ) : DelegatingConstructorClass( 3 )'
+    assert(file_contains_match('DelegatingConstructorClass.hpp', sig),
+           'delegating constructor not present')
 
     File.delete(*classes)
   end

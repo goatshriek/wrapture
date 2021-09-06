@@ -28,6 +28,7 @@ module Wrapture
 
     spec.key?(key) && spec[key]
   end
+
   # Sets a spec key to be boolean, raising an error if an issue is encountered.
   # Keys that are not present are defaulted to false.
   def self.normalize_boolean!(spec, key)

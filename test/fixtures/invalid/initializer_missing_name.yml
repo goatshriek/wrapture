@@ -10,8 +10,7 @@ constructors:
       return:
         type: "equivalent-struct-pointer"
     initializers:
-      - delegate: true
-        values:
+      - values:
           - 3
   - wrapped-function:
       name: "underlying_constructor"
