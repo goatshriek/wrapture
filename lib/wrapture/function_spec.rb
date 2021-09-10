@@ -57,6 +57,13 @@ module Wrapture
       spec['params'] = ParamSpec.normalize_param_list(spec['params'])
       spec['return'] = normalize_return_hash(spec['return'])
 
+      spec['initializers'] = [] unless spec.key?('initializers')
+      if spec['initializers'].any? { |i| !i.key?('name') && !i['delegate'] }
+        msg = 'initializers must either have a name or be delegating'\
+              ' constructors (have delegate set to true)'
+        raise MissingSpecKey, msg
+      end
+
       spec
     end
 
