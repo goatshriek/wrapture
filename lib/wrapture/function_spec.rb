@@ -31,6 +31,7 @@ module Wrapture
         Comment.validate_doc(spec['doc']) if spec.key?('doc')
         normalized['type'] ||= 'void'
         normalized['includes'] = Wrapture.normalize_includes(spec['includes'])
+        Wrapture.normalize_boolean!(spec, 'overloaded')
         normalized
       end
     end
@@ -55,9 +56,6 @@ module Wrapture
       Wrapture.normalize_boolean!(spec, 'virtual')
       spec['params'] = ParamSpec.normalize_param_list(spec['params'])
       spec['return'] = normalize_return_hash(spec['return'])
-
-      overload = Wrapture.normalize_boolean(spec['return'], 'overloaded')
-      spec['return']['overloaded'] = overload
 
       spec
     end
