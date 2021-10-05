@@ -1,6 +1,6 @@
 module Wrapture
   class FunctionSpec
-    @owner: untyped
+    @owner: Wrapture::ClassSpec | Wrapture::Scope
     @spec: spec_hash
     @wrapped: Wrapture::WrappedFunctionSpec | Wrapture::WrappedCodeSpec | nil
     @params: Array[Wrapture::ParamSpec]
@@ -10,7 +10,8 @@ module Wrapture
     def self.normalize_return_hash: (spec_hash spec) -> spec_hash
     def self.normalize_spec_hash: (spec_hash spec) -> spec_hash
     def self.normalize_spec_hash!: (spec_hash spec) -> spec_hash
-    def initialize: (untyped spec, ?untyped owner, ?constructor: bool, ?destructor: bool) -> void
+    def initialize: (spec_hash spec, ?(Wrapture::ClassSpec | Wrapture::Scope) owner, ?constructor: bool, ?destructor: bool) -> void
+    attr_reader owner: Wrapture::ClassSpec | Wrapture::Scope
     attr_reader params: Array[Wrapture::ParamSpec]
     attr_reader return_type: Wrapture::TypeSpec
     attr_reader wrapped: Wrapture::WrappedFunctionSpec | Wrapture::WrappedCodeSpec | nil
@@ -20,6 +21,7 @@ module Wrapture
     def definable!: -> true
     def definition_includes: -> Array[String]
     def doc: -> untyped
+    def initializers: -> spec_hash
     def locals: { (String) -> void } -> void
     def name: -> untyped
     def param_list: -> untyped

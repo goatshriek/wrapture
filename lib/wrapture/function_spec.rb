@@ -146,6 +146,9 @@ module Wrapture
       @destructor = destructor
     end
 
+    # The owner of this function, if there is one.
+    attr_reader :owner
+
     # A list of the ParamSpecs this function accepts.
     attr_reader :params
 
@@ -209,6 +212,11 @@ module Wrapture
       end
 
       Comment.new(comment)
+    end
+
+    # A list of initializer specs.
+    def initializers
+      @spec['initializers']
     end
 
     # Yields a declaration of each local variable used by the function.

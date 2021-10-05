@@ -217,8 +217,8 @@ class ClassSpecTest < Minitest::Test
     classes = Wrapture::CppWrapper.write_spec_files(spec)
     validate_wrapper_results(test_spec, classes)
 
-    sig = 'DelegatingConstructorClass( void ) : DelegatingConstructorClass( 3 )'
-    assert(file_contains_match('DelegatingConstructorClass.hpp', sig),
+    sig = "#{spec.name}\\( void \\) : #{spec.name}\\( 3 \\)"
+    assert(file_contains_match('DelegatingConstructorClass.cpp', sig),
            'delegating constructor not present')
 
     File.delete(*classes)

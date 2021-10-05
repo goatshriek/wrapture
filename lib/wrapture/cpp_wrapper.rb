@@ -325,7 +325,9 @@ module Wrapture
     def define_function
       @spec.definable!
 
-      yield "#{@spec.return_expression(func_name: @spec.qualified_name)} {"
+      signature = @spec.return_expression(func_name: @spec.qualified_name)
+
+      yield "#{signature} #{initializer_suffix}{"
 
       @spec.locals { |declaration| yield "  #{declaration}" }
       yield ''
@@ -383,6 +385,22 @@ module Wrapture
     # An expression for a field of the equivalent member of this class.
     def equivalent_member_field(field_name)
       "this->equivalent#{@spec.pointer_wrapper? ? '->' : '.'}#{field_name}"
+    end
+
+    # The suffix to add to a function definition for initializers, if any exist.
+    def initializer_suffix
+      return '' if @spec.initializers.empty?
+
+      if @spec.initializers.first['delegate']
+        params = @spec.initializers.first['values'].join(', ')
+        return ": #{@spec.owner.name}( #{params} ) "
+      end
+
+      expressions = @spec.initializers.map do |initializer|
+        "#{initializer['name']}( #{initializer['values'].join(', ')} )"
+      end
+
+      ": #{expressions.join(', ')} "
     end
 
     # The initializer for the pointer constructor, if one is available, or an
