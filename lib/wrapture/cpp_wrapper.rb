@@ -145,17 +145,17 @@ module Wrapture
     def class_functions
       functions = @spec.functions.dup
 
-      # this is is a total hack and needs to be replaced with proper
-      # constructor initializer support
-      param_name = "equivalent#{pointer_constructor_initializer}"
-
       if @spec.struct
         spec_hash = { 'name' => @spec.name,
-                      'params' => [{ 'name' => param_name,
+                      'params' => [{ 'name' => 'equivalent',
                                      'type' => 'equivalent-struct-pointer' }],
                       'wrapped-code' => {
                         'lines' => ['this->equivalent = equivalent;']
                       } }
+        if @spec.parent_provides_initializer?
+          spec_hash['initializers'] = [{ 'name' => @spec.parent_name,
+                                         'values' => ['equivalent'] }]
+        end
         functions << FunctionSpec.new(spec_hash, @spec, constructor: true)
       end
 
@@ -401,16 +401,6 @@ module Wrapture
       end
 
       ": #{expressions.join(', ')} "
-    end
-
-    # The initializer for the pointer constructor, if one is available, or an
-    # empty string if not.
-    def pointer_constructor_initializer
-      if @spec.parent_provides_initializer?
-        " ) : #{@spec.parent_name}( equivalent"
-      else
-        ''
-      end
     end
 
     # A function to use to create the return value of a function.

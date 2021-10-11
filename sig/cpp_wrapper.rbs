@@ -24,7 +24,6 @@ module Wrapture
     def equivalent_member_declaration: -> String
     def equivalent_member_field: -> String
     def initializer_suffix: -> String
-    def pointer_constructor_initializer: -> String
     def return_statment: -> String
     def return_variable: -> String
   end

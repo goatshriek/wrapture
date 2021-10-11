@@ -129,8 +129,8 @@ module Wrapture
     # 'values' key designating the member to be initialized and the
     # expression(s) to use for initialization, respectively. Optionally, the
     # 'name' key may be omitted if the function is a constructor and a key named
-    # 'delegate' is present and set to true. Predictably, this will use the name
-    # of the class the constructor belongs to as the name.
+    # 'delegate' is present and set to true. This will use the name of the class
+    # the constructor belongs to as the name.
     def initialize(spec, owner = Scope.new, constructor: false,
                    destructor: false)
       @owner = owner
