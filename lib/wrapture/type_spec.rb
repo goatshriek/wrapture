@@ -124,7 +124,7 @@ module Wrapture
     def return_expression(func, func_name: func.name)
       name_part = String.new(func_name || '')
       param_part = String.new
-      ret_part = name
+      ret_part = String.new(name || '')
 
       current_spec = @spec
       while current_spec.is_a?(Hash) && current_spec.key?('function')

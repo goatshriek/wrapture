@@ -27,7 +27,9 @@ class FunctionSpecTest < Minitest::Test
     test_spec = load_fixture('basic_function')
 
     spec = Wrapture::FunctionSpec.new(test_spec)
-    Wrapture::CppWrapper.define_spec(spec, &block_collector)
+    code = Wrapture::CppWrapper.define_spec(spec, &block_collector)
+    code = code.map(&:lstrip)
+    refute_includes(code, 'return return_val;')
   end
 
   def test_documentation
