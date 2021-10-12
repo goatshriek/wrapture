@@ -7,7 +7,7 @@ constructors:
       name: "new_thing"
       params:
         - name: "original_thing"
-          type: "struct wrapped_struct *"
+          type: "equivalent-struct-pointer"
       return:
         type: "equivalent-struct-pointer"
 destructor:

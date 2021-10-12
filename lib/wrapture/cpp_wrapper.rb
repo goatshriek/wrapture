@@ -141,12 +141,15 @@ module Wrapture
 
     # True if this class should have a pointer constructor generated.
     def autogen_pointer_constructor?
-      @spec.struct &&
-        @spec.functions.none? do |func|
-          func.constructor? &&
-            func.params.length == 1 &&
-            func.params[0].type == 'equivalent-struct-pointer'
-        end
+      return false unless @spec.struct
+
+      types = [EQUIVALENT_POINTER_KEYWORD, @spec.struct.pointer_declaration('')]
+
+      @spec.functions.none? do |func|
+        func.constructor? &&
+          func.params.length == 1 &&
+          types.include?(func.params[0].type.name)
+      end
     end
 
     # Returns a list of FunctionSpecs describing all of the functions generated

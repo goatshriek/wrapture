@@ -104,6 +104,22 @@ class ClassSpecTest < Minitest::Test
     File.delete(*classes)
   end
 
+  def test_pointer_class_with_equivalent_pointer_constructor
+    spec_name = 'pointer_class_with_equivalent_pointer_constructor'
+    test_spec = load_fixture(spec_name)
+
+    spec = Wrapture::ClassSpec.new(test_spec)
+
+    classes = Wrapture::CppWrapper.write_spec_files(spec)
+    validate_wrapper_results(test_spec, classes)
+
+    constructor_sig = /#{spec.name}\( struct wrapped_struct \*\w+ \)/
+    num_constructors = count_matches("#{spec.name}.hpp", constructor_sig)
+    assert_equal(1, num_constructors)
+
+    File.delete(*classes)
+  end
+
   def test_pointer_class_with_explicit_pointer_constructor
     test_spec = load_fixture('pointer_class_with_explicit_pointer_constructor')
 
