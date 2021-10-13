@@ -201,7 +201,7 @@ module Wrapture
                       'params' => [{ 'name' => 'equivalent',
                                      'type' => 'equivalent-struct-pointer' }],
                       'wrapped-code' => { 'lines' => factory_lines },
-                      'return' => { 'type' => 'equivalent-struct-pointer' } }
+                      'return' => { 'type' => "#{@spec.name} *" } }
         functions << FunctionSpec.new(spec_hash, @spec)
       end
 

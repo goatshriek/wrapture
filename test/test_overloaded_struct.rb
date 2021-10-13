@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2019 Joel E. Anderson
+# Copyright 2019-2021 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ class OverloadedStructTest < Minitest::Test
     def_file = 'Parent.cpp'
 
     assert(file_contains_match('Parent.hpp', 'newParent'))
-    assert(file_contains_match(def_file, 'Parent::newParent'))
+    assert(file_contains_match(def_file, 'Parent \*Parent::newParent'))
     assert(file_contains_match(def_file, 'Parent \*Parent::OverloadedType'))
     assert(file_contains_match(def_file, 'return newParent \('))
 

@@ -181,6 +181,21 @@ class ClassSpecTest < Minitest::Test
     File.delete(*generated_files)
   end
 
+  def test_class_with_no_struct_overloads
+    test_spec = load_fixture('no_struct_class')
+
+    spec = Wrapture::ClassSpec.new(test_spec)
+
+    generated_files = Wrapture::CppWrapper.write_spec_files(spec)
+    validate_wrapper_results(test_spec, generated_files)
+
+    overload_specs = load_fixture('overloaded_struct')
+    parent_spec = Wrapture::ClassSpec.new(overload_specs['classes'].first)
+    spec.overloads?(parent_spec)
+
+    File.delete(*generated_files)
+  end
+
   def test_class_with_static_function
     test_spec = load_fixture('static_function_class')
 

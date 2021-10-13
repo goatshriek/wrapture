@@ -238,7 +238,7 @@ module Wrapture
     # cannot have any rules in its equivalent struct or it will not be
     # considered an overload.
     def overloads?(parent_spec)
-      return false unless parent_spec.struct&.rules&.empty?
+      return false unless parent_spec.struct&.rules&.empty? && @struct
 
       parent_spec.struct.name == struct_name &&
         parent_spec.name == parent_name &&
