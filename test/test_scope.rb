@@ -119,7 +119,7 @@ class ScopeTest < Minitest::Test
     assert_equal(enum_specs.count, scope.enums.count)
 
     generated_files = Wrapture::CppWrapper.write_spec_files(scope)
-    expected_count = scope.classes.count * 2 + scope.enums.count
+    expected_count = (scope.classes.count * 2) + scope.enums.count
     assert_equal(expected_count, generated_files.count)
 
     File.delete(*generated_files)

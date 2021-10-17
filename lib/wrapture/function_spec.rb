@@ -340,8 +340,7 @@ module Wrapture
     # True if the return value of the wrapped call needs to be captured in a
     # local variable.
     def capture_return?
-      !@constructor &&
-        @wrapped.use_return? || returns_return_val?
+      !@constructor && (@wrapped.use_return? || returns_return_val?)
     end
 
     # True if the provided wrapped param spec can be cast to when used in this

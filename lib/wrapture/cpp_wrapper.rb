@@ -159,22 +159,7 @@ module Wrapture
       functions = @spec.functions.dup
 
       if autogen_pointer_constructor?
-        if @spec.pointer_wrapper?
-          assignments = ['this->equivalent = equivalent;']
-        else
-          assignments = @spec.struct.members.map do |member|
-            "#{equivalent_member_field(member['name'])} = equivalent->#{member['name']};"
-          end
-        end
-
-        spec_hash = { 'name' => @spec.name,
-                      'params' => [{ 'name' => 'equivalent',
-                                     'type' => 'equivalent-struct-pointer' }],
-                      'wrapped-code' => { 'lines' => assignments } }
-        if @spec.parent_provides_initializer?
-          spec_hash['initializers'] = [{ 'name' => @spec.parent_name,
-                                         'values' => ['equivalent'] }]
-        end
+        spec_hash = pointer_constructor_hash
         functions << FunctionSpec.new(spec_hash, @spec, constructor: true)
       end
 
@@ -419,6 +404,29 @@ module Wrapture
       end
 
       ": #{expressions.join(', ')} "
+    end
+
+    # A spec hash for a pointer constructor for this class.
+    def pointer_constructor_hash
+      assignments = if @spec.pointer_wrapper?
+                      ['this->equivalent = equivalent;']
+                    else
+                      @spec.struct.members.map do |member|
+                        lvalue = equivalent_member_field(member['name'])
+                        "#{lvalue} = equivalent->#{member['name']};"
+                      end
+                    end
+
+      spec_hash = { 'name' => @spec.name,
+                    'params' => [{ 'name' => 'equivalent',
+                                   'type' => 'equivalent-struct-pointer' }],
+                    'wrapped-code' => { 'lines' => assignments } }
+      if @spec.parent_provides_initializer?
+        spec_hash['initializers'] = [{ 'name' => @spec.parent_name,
+                                       'values' => ['equivalent'] }]
+      end
+
+      spec_hash
     end
 
     # A function to use to create the return value of a function.
