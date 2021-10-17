@@ -24,7 +24,9 @@ module Wrapture
     def enum_element_doc: (spec_hash element) { (String) -> void } -> void
     def equivalent_member_declaration: -> String
     def equivalent_member_field: -> String
+    def factory_constructor_hash: -> String
     def initializer_suffix: -> String
+    def member_constructor_hash: -> spec_hash
     def pointer_constructor_hash: -> spec_hash
     def return_statment: -> String
     def return_variable: -> String

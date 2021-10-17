@@ -164,35 +164,12 @@ module Wrapture
       end
 
       if @spec.struct&.members?
-        assignments = @spec.struct.members.map do |member|
-          "#{equivalent_member_field(member['name'])} = #{member['name']};"
-        end
-        spec_hash = { 'name' => @spec.name,
-                      'params' => @spec.struct.members,
-                      'wrapped-code' => { 'lines' => assignments } }
+        spec_hash = member_constructor_hash
         functions << FunctionSpec.new(spec_hash, @spec, constructor: true)
       end
 
       if @spec.factory?
-        factory_lines = []
-        line_prefix = ''
-        @spec.scope.overloads(@spec).each do |overload|
-          check = overload.struct.rules_check('equivalent')
-          factory_lines << "#{line_prefix}if( #{check} ) {"
-          factory_lines << "  return new #{overload.name}( equivalent );"
-          line_prefix = '} else '
-        end
-
-        factory_lines << "#{line_prefix}{"
-        factory_lines << "  return new #{@spec.name}( equivalent );"
-        factory_lines << '}'
-        spec_hash = { 'name' => "new#{@spec.name}",
-                      'static' => true,
-                      'params' => [{ 'name' => 'equivalent',
-                                     'type' => 'equivalent-struct-pointer' }],
-                      'wrapped-code' => { 'lines' => factory_lines },
-                      'return' => { 'type' => "#{@spec.name} *" } }
-        functions << FunctionSpec.new(spec_hash, @spec)
+        functions << FunctionSpec.new(factory_constructor_hash, @spec)
       end
 
       functions
@@ -390,6 +367,29 @@ module Wrapture
       "this->equivalent#{@spec.pointer_wrapper? ? '->' : '.'}#{field_name}"
     end
 
+    # A spec hash for a factor constructor for this class.
+    def factory_constructor_hash
+      factory_lines = []
+      line_prefix = ''
+      @spec.scope.overloads(@spec).each do |overload|
+        check = overload.struct.rules_check('equivalent')
+        factory_lines << "#{line_prefix}if( #{check} ) {"
+        factory_lines << "  return new #{overload.name}( equivalent );"
+        line_prefix = '} else '
+      end
+
+      factory_lines << "#{line_prefix}{"
+      factory_lines << "  return new #{@spec.name}( equivalent );"
+      factory_lines << '}'
+
+      { 'name' => "new#{@spec.name}",
+        'static' => true,
+        'params' => [{ 'name' => 'equivalent',
+                       'type' => 'equivalent-struct-pointer' }],
+        'wrapped-code' => { 'lines' => factory_lines },
+        'return' => { 'type' => "#{@spec.name} *" } }
+    end
+
     # The suffix to add to a function definition for initializers, if any exist.
     def initializer_suffix
       return '' if @spec.initializers.empty?
@@ -404,6 +404,17 @@ module Wrapture
       end
 
       ": #{expressions.join(', ')} "
+    end
+
+    # A spec hash for a member constructor for this class.
+    def member_constructor_hash
+      assignments = @spec.struct.members.map do |member|
+        "#{equivalent_member_field(member['name'])} = #{member['name']};"
+      end
+
+      { 'name' => @spec.name,
+        'params' => @spec.struct.members,
+        'wrapped-code' => { 'lines' => assignments } }
     end
 
     # A spec hash for a pointer constructor for this class.
