@@ -3,3 +3,4 @@
 *.gemspec text eol=lf
 *.md      text eol=lf
 *.rb      text eol=lf
+*.rbs     text eol=lf

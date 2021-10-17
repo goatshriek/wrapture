@@ -1,0 +1,5 @@
+module Wrapture
+  class PythonWrapper
+    def write_files: (?String dir) -> Array[String]
+  end
+end

@@ -30,6 +30,7 @@ module Wrapture
   require 'wrapture/normalize'
   require 'wrapture/rule_spec'
   require 'wrapture/param_spec'
+  require 'wrapture/python_wrapper'
   require 'wrapture/scope'
   require 'wrapture/struct_spec'
   require 'wrapture/template_spec'
