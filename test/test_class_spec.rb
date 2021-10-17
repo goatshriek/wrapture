@@ -263,6 +263,10 @@ class ClassSpecTest < Minitest::Test
     failure_msg = 'member assignment not present in definition'
     assert(file_contains_match(filename, assignment), failure_msg)
 
+    assignment = 'this->equivalent.member_1 = equivalent->member_1;'
+    failure_msg = 'pointer member assignment not present in definition'
+    assert(file_contains_match(filename, assignment), failure_msg)
+
     File.delete(*classes)
   end
 end

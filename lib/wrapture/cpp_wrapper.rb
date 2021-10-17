@@ -159,12 +159,18 @@ module Wrapture
       functions = @spec.functions.dup
 
       if autogen_pointer_constructor?
+        if @spec.pointer_wrapper?
+          assignments = ['this->equivalent = equivalent;']
+        else
+          assignments = @spec.struct.members.map do |member|
+            "#{equivalent_member_field(member['name'])} = equivalent->#{member['name']};"
+          end
+        end
+
         spec_hash = { 'name' => @spec.name,
                       'params' => [{ 'name' => 'equivalent',
                                      'type' => 'equivalent-struct-pointer' }],
-                      'wrapped-code' => {
-                        'lines' => ['this->equivalent = equivalent;']
-                      } }
+                      'wrapped-code' => { 'lines' => assignments } }
         if @spec.parent_provides_initializer?
           spec_hash['initializers'] = [{ 'name' => @spec.parent_name,
                                          'values' => ['equivalent'] }]
@@ -178,8 +184,7 @@ module Wrapture
         end
         spec_hash = { 'name' => @spec.name,
                       'params' => @spec.struct.members,
-                      'wrapped-code' => { 'lines' => assignments },
-                      'return' => { 'type' => 'equivalent-struct-pointer' } }
+                      'wrapped-code' => { 'lines' => assignments } }
         functions << FunctionSpec.new(spec_hash, @spec, constructor: true)
       end
 
