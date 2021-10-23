@@ -40,12 +40,12 @@ module Wrapture
     # Generates C++ source files, returning a list of the files generated. This
     # is equivalent to instantiating a wrapper with the given spec, and then
     # calling write_files on that.
-    def self.write_spec_files(spec, **kwargs)
+    def self.write_spec_source_files(spec, **kwargs)
       wrapper = new(spec)
-      wrapper.write_files(**kwargs)
+      wrapper.write_source_files(**kwargs)
     end
 
-    # Creates a wrapper for a given spec.
+    # Creates a C++ wrapper for a given spec.
     def initialize(spec)
       @spec = spec
     end
@@ -123,11 +123,11 @@ module Wrapture
     # Generates C++ source files, returning a list of the files generated.
     # +dir+ specifies the directory that the files should be written into. The
     # default is the current working directory.
-    def write_files(dir: Dir.pwd)
+    def write_source_files(dir: Dir.pwd)
       case @spec
       when Scope
         (@spec.classes + @spec.enums).flat_map do |item|
-          self.class.write_spec_files(item, dir: dir)
+          self.class.write_spec_source_files(item, dir: dir)
         end
       when EnumSpec
         [write_definition_file(dir: dir)]

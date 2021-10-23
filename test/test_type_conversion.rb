@@ -28,7 +28,7 @@ class TypeConversionTest < Minitest::Test
 
     scope = Wrapture::Scope.new(test_spec)
 
-    generated_files = Wrapture::CppWrapper.write_spec_files(scope)
+    generated_files = Wrapture::CppWrapper.write_spec_source_files(scope)
     validate_wrapper_results(test_spec, generated_files)
 
     assert(file_contains_match('Rifle.cpp', /bullet->equivalent/))
@@ -41,7 +41,7 @@ class TypeConversionTest < Minitest::Test
 
     scope = Wrapture::Scope.new(test_spec)
 
-    generated_files = Wrapture::CppWrapper.write_spec_files(scope)
+    generated_files = Wrapture::CppWrapper.write_spec_source_files(scope)
     validate_wrapper_results(test_spec, generated_files)
 
     assert(file_contains_match('Rifle.cpp', /bullet\.equivalent/))

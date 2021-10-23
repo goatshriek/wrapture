@@ -28,7 +28,7 @@ class FunctionSpecTest < Minitest::Test
 
     spec = Wrapture::ClassSpec.new(test_spec)
 
-    classes = Wrapture::CppWrapper.write_spec_files(spec)
+    classes = Wrapture::CppWrapper.write_spec_source_files(spec)
     validate_wrapper_results(test_spec, classes)
 
     assert(file_contains_match('BaseClass.hpp', 'virtual void'))

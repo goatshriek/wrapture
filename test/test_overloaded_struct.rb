@@ -30,7 +30,7 @@ class OverloadedStructTest < Minitest::Test
 
     assert_equal(test_spec['classes'].count, scope.classes.count)
 
-    generated_files = Wrapture::CppWrapper.write_spec_files(scope)
+    generated_files = Wrapture::CppWrapper.write_spec_source_files(scope)
     validate_wrapper_results(test_spec, generated_files)
 
     def_file = 'Parent.cpp'

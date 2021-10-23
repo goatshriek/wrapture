@@ -28,7 +28,7 @@ class ClassSpecTest < Minitest::Test
 
     spec = Wrapture::ClassSpec.new(test_spec)
 
-    classes = Wrapture::CppWrapper.write_spec_files(spec)
+    classes = Wrapture::CppWrapper.write_spec_source_files(spec)
     validate_wrapper_results(test_spec, classes)
 
     declaration = 'struct basic_struct \*equivalent;'
@@ -43,7 +43,7 @@ class ClassSpecTest < Minitest::Test
 
   #  spec = Wrapture::ClassSpec.new(test_spec)
 
-  #  classes = Wrapture::CppWrapper.write_spec_files(spec)
+  #  classes = Wrapture::CppWrapper.write_spec_source_files(spec)
   #  validate_wrapper_results(test_spec, classes)
 
   #  count = 0
@@ -61,7 +61,7 @@ class ClassSpecTest < Minitest::Test
 
     spec = Wrapture::ClassSpec.new(test_spec)
 
-    classes = Wrapture::CppWrapper.write_spec_files(spec)
+    classes = Wrapture::CppWrapper.write_spec_source_files(spec)
     validate_wrapper_results(test_spec, classes)
 
     expected_signature = 'PointerWrappingClass\( struct wrapped_struct \*'
@@ -75,7 +75,7 @@ class ClassSpecTest < Minitest::Test
 
     spec = Wrapture::Scope.new(test_spec)
 
-    classes = Wrapture::CppWrapper.write_spec_files(spec)
+    classes = Wrapture::CppWrapper.write_spec_source_files(spec)
     validate_wrapper_results(test_spec, classes)
 
     equivalent_signature = 'struct wrapped_struct \*equivalent;'
@@ -92,7 +92,7 @@ class ClassSpecTest < Minitest::Test
 
     spec = Wrapture::Scope.new(test_spec)
 
-    classes = Wrapture::CppWrapper.write_spec_files(spec)
+    classes = Wrapture::CppWrapper.write_spec_source_files(spec)
     validate_wrapper_results(test_spec, classes)
 
     equivalent_signature = 'struct wrapped_struct \*equivalent;'
@@ -110,7 +110,7 @@ class ClassSpecTest < Minitest::Test
 
     spec = Wrapture::ClassSpec.new(test_spec)
 
-    classes = Wrapture::CppWrapper.write_spec_files(spec)
+    classes = Wrapture::CppWrapper.write_spec_source_files(spec)
     validate_wrapper_results(test_spec, classes)
 
     constructor_sig = /#{spec.name}\( struct wrapped_struct \*\w+ \)/
@@ -125,7 +125,7 @@ class ClassSpecTest < Minitest::Test
 
     spec = Wrapture::ClassSpec.new(test_spec)
 
-    classes = Wrapture::CppWrapper.write_spec_files(spec)
+    classes = Wrapture::CppWrapper.write_spec_source_files(spec)
     validate_wrapper_results(test_spec, classes)
 
     constructor_sig = /#{spec.name}\( struct wrapped_struct \*\w+ \)/

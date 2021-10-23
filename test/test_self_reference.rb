@@ -28,7 +28,7 @@ class SelfReferenceTest < Minitest::Test
 
     spec = Wrapture::ClassSpec.new(test_spec)
 
-    generated_files = Wrapture::CppWrapper.write_spec_files(spec)
+    generated_files = Wrapture::CppWrapper.write_spec_source_files(spec)
     validate_wrapper_results(test_spec, generated_files)
 
     forbidden = Wrapture::SELF_REFERENCE_KEYWORD
