@@ -21,26 +21,9 @@
 require 'yaml'
 require 'wrapture'
 
-scope = Wrapture::Scope.new
+scope = Wrapture::Scope.load_files(ARGV)
 
-ARGV.each do |spec_file|
-  spec = YAML.load_file(spec_file)
+Wrapture::CppWrapper.write_spec_source_files(scope)
 
-  if spec.key?('version') && !Wrapture.supports_version?(spec['version'])
-    raise Wrapture::UnsupportedSpecVersion
-  end
-
-  spec.fetch('templates', []).each do |temp_spec|
-    scope << Wrapture::TemplateSpec.new(temp_spec)
-  end
-
-  spec.fetch('classes', []).each do |class_spec|
-    scope.add_class_spec_hash(class_spec)
-  end
-
-  spec.fetch('enums', []).each do |enum_spec|
-    scope.add_enum_spec_hash(enum_spec)
-  end
-end
-
-Wrapture::CppWrapper.write_spec_files(scope)
+Wrapture::PythonWrapper.write_spec_source_files(scope)
+Wrapture::PythonWrapper.write_spec_

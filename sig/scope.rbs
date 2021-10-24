@@ -1,14 +1,15 @@
 module Wrapture
   class Scope
-    @version: untyped
+    @version: String
 
+    def self.load_files: (Array[String] filenames) -> Wrapture::Scope
     attr_reader classes: Array[bot]
     attr_reader enums: Array[bot]
     attr_reader templates: Array[bot]
     def initialize: (?nil spec) -> nil
-    def <<: (untyped spec) -> Array[bot]?
-    def add_class_spec_hash: (untyped spec) -> untyped
-    def add_enum_spec_hash: (untyped spec) -> Array[bot]
+    def <<: (spec_hash spec) -> Wrapture::Scope
+    def add_class_spec_hash: (spec_hash spec) -> Wrapture::ClassSpec
+    def add_enum_spec_hash: (spec_hash spec) -> Wrapture::EnumSpec
     def overloads: (untyped parent) -> Array[bot]
     def overloads?: (untyped parent) -> bool
     def type: (untyped type_) -> nil

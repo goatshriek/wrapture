@@ -21,6 +21,35 @@
 module Wrapture
   # Describes a scope of one or more class specifications.
   class Scope
+    # Creates a scope containing all of the specs in the given files.
+    def self.load_files(*filenames)
+      scope = Scope.new
+
+      filenames.each do |spec_file|
+        spec = YAML.safe_load_file(spec_file)
+
+        # TODO: this needs to be replace with a simple version check
+        # to reduce duplication of this logic
+        if spec.key?('version') && !Wrapture.supports_version?(spec['version'])
+          raise UnsupportedSpecVersion
+        end
+
+        spec.fetch('templates', []).each do |temp_spec|
+          scope << TemplateSpec.new(temp_spec)
+        end
+
+        spec.fetch('classes', []).each do |class_spec|
+          scope.add_class_spec_hash(class_spec)
+        end
+
+        spec.fetch('enums', []).each do |enum_spec|
+          scope.add_enum_spec_hash(enum_spec)
+        end
+      end
+
+      scope
+    end
+
     # A list of classes currently in the scope.
     attr_reader :classes
 
@@ -61,6 +90,8 @@ module Wrapture
       @templates << spec if spec.is_a?(TemplateSpec)
       @classes << spec if spec.is_a?(ClassSpec)
       @enums << spec if spec.is_a?(EnumSpec)
+
+      self
     end
 
     # Adds a class to the scope created from the given specification hash.
