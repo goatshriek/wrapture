@@ -27,7 +27,7 @@ module Wrapture
     # with the spec and then calling write_setuptools_files on that.
     def self.write_spec_setuptools_files(spec, **kwargs)
       wrapper = new(spec)
-      wrapper.write_setuptools_files(kwargs)
+      wrapper.write_setuptools_files(**kwargs)
     end
 
     # Generates C source files that form a Python extension, returning a
@@ -67,49 +67,56 @@ module Wrapture
     # files generated. +dir+ specifies the directory that the files should
     # be written into. The default is the current working directory.
     def write_source_files(dir: Dir.pwd)
-      filename = "#{@spec.name}.c"
+      case @spec
+      when Scope
+        (@spec.classes + @spec.enums).flat_map do |item|
+          self.class.write_spec_source_files(item, dir: dir)
+        end
+      else
+        filename = "#{@spec.name}.c"
 
-      File.open(File.join(dir, filename), 'w') do |file|
-        file.puts <<~SOURCETEXT
-          #define PY_SSIZE_T_CLEAN
-          #include <Python.h>
+        File.open(File.join(dir, filename), 'w') do |file|
+          file.puts <<~SOURCETEXT
+            #define PY_SSIZE_T_CLEAN
+            #include <Python.h>
 
-          static PyObject *
-          spam_system(PyObject *self, PyObject *args)
-          {
-              const char *command;
-              int sts;
+            static PyObject *
+            spam_system(PyObject *self, PyObject *args)
+            {
+                const char *command;
+                int sts;
 
-              if (!PyArg_ParseTuple(args, "s", &command))
-                  return NULL;
-              sts = system(command);
-              return PyLong_FromLong(sts);
-          }
+                if (!PyArg_ParseTuple(args, "s", &command))
+                    return NULL;
+                sts = system(command);
+                return PyLong_FromLong(sts);
+            }
 
-          static PyMethodDef SpamMethods[] = {
-            {"system",  spam_system, METH_VARARGS,
-             "Execute a shell command."},
-            {NULL, NULL, 0, NULL}        /* Sentinel */
-          };
+            static PyMethodDef SpamMethods[] = {
+              {"system",  spam_system, METH_VARARGS,
+               "Execute a shell command."},
+              {NULL, NULL, 0, NULL}        /* Sentinel */
+            };
 
-          static struct PyModuleDef spammodule = {
-            PyModuleDef_HEAD_INIT,
-            "spam",   /* name of module */
-            NULL, /* module documentation, may be NULL */
-            -1,       /* size of per-interpreter state of the module,
-                         or -1 if the module keeps state in global variables. */
-            SpamMethods
-          };
+            static struct PyModuleDef spammodule = {
+              PyModuleDef_HEAD_INIT,
+              "spam",   /* name of module */
+              NULL, /* module documentation, may be NULL */
+              -1,       /* size of per-interpreter state of the module,
+                           or -1 if the module keeps state in global variables. */
+              SpamMethods
+            };
 
-          PyMODINIT_FUNC
-          PyInit_spam(void)
-          {
-              return PyModule_Create(&spammodule);
-          }
-        SOURCETEXT
+            PyMODINIT_FUNC
+            PyInit_spam(void)
+            {
+                return PyModule_Create(&spammodule);
+            }
+          SOURCETEXT
+        end
+
+        filename
       end
-
-      filename
     end
   end
 end

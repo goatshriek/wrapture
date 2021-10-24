@@ -18,6 +18,8 @@
 # limitations under the License.
 #++
 
+require 'yaml'
+
 module Wrapture
   # Describes a scope of one or more class specifications.
   class Scope
