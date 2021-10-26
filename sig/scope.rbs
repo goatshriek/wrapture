@@ -10,6 +10,7 @@ module Wrapture
     def <<: (spec_hash spec) -> Wrapture::Scope
     def add_class_spec_hash: (spec_hash spec) -> Wrapture::ClassSpec
     def add_enum_spec_hash: (spec_hash spec) -> Wrapture::EnumSpec
+    def name: String
     def overloads: (untyped parent) -> Array[bot]
     def overloads?: (untyped parent) -> bool
     def type: (untyped type_) -> nil

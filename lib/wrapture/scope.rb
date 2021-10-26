@@ -59,7 +59,7 @@ module Wrapture
     # A list of the templates defined in the scope.
     attr_reader :templates
 
-    # Creates an empty scope with no classes in it.
+    # Creates an empty scope, optionally with the provided specification.
     def initialize(spec = nil)
       @classes = []
       @enums = []
@@ -103,6 +103,11 @@ module Wrapture
     # hash.
     def add_enum_spec_hash(spec)
       @enums << EnumSpec.new(spec)
+    end
+
+    # The name of the scope.
+    def name
+      @classes.first.namespace
     end
 
     # A list of ClassSpecs in this scope that are overloads of the given class.
