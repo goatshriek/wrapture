@@ -48,7 +48,7 @@ module Wrapture
     # +write_source_files+.
     def write_setuptools_files(dir: Dir.pwd)
       unless @spec.is_a? Scope
-        raise WrapError, "only a scope can be used for setuptools generation"
+        raise WrapError, 'only a scope can be used for setuptools generation'
       end
 
       File.open(File.join(dir, 'setup.py'), 'w') do |file|
