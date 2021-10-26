@@ -9,18 +9,21 @@ module Wrapture
   end
 
   class InvalidSpecKey < WraptureError
-    def initialize: (untyped message, ?valid_keys: Array[bot]) -> void
+    def initialize: (String message, ?valid_keys: Array[String]) -> void
   end
 
   class MissingSpecKey < WraptureError
   end
 
-  class NoNamespace < WraptureError
+  class MissingNamespace < WraptureError
   end
 
   class UndefinableSpec < WraptureError
   end
 
   class UnsupportedSpecVersion < WraptureError
+  end
+
+  class WrapError < WraptureError
   end
 end

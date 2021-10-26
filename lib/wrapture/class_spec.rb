@@ -30,7 +30,7 @@ module Wrapture
     # If this spec cannot be normalized, for example because it is invalid or
     # it uses an unsupported version type, then an exception is raised.
     def self.normalize_spec_hash(spec)
-      raise NoNamespace unless spec.key?('namespace')
+      raise MissingNamespace unless spec.key?('namespace')
       raise MissingSpecKey, 'name key is required' unless spec.key?('name')
 
       Comment.validate_doc(spec['doc']) if spec.key?('doc')

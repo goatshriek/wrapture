@@ -54,7 +54,7 @@ module Wrapture
   end
 
   # Missing a namespace in the class spec
-  class NoNamespace < WraptureError
+  class MissingNamespace < WraptureError
   end
 
   # The spec cannot be defined due to missing information.
@@ -63,5 +63,9 @@ module Wrapture
 
   # The spec version is not supported by this version of Wrapture.
   class UnsupportedSpecVersion < WraptureError
+  end
+
+  # A wrapper encountered a problem during wrap generation.
+  class WrapError < WraptureError
   end
 end
