@@ -18,12 +18,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'yaml'
 require 'wrapture'
 
-scope = Wrapture::Scope.load_files(ARGV)
+scope = Wrapture::Scope.load_files(*ARGV)
 
 Wrapture::CppWrapper.write_spec_source_files(scope)
 
 Wrapture::PythonWrapper.write_spec_source_files(scope)
-Wrapture::PythonWrapper.write_spec_
+Wrapture::PythonWrapper.write_spec_setuptools_files(scope)
