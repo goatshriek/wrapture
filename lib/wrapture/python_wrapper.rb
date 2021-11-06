@@ -75,9 +75,9 @@ module Wrapture
         raise WrapError, 'only a scope can be used for module generation'
       end
 
-      #(@spec.classes + @spec.enums).flat_map do |item|
-      #  self.class.write_spec_source_files(item, dir: dir)
-      #end
+      # (@spec.classes + @spec.enums).flat_map do |item|
+      #   self.class.write_spec_source_files(item, dir: dir)
+      # end
       filename = "#{@spec.name}.c"
 
       File.open(File.join(dir, filename), 'w') do |file|
