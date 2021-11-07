@@ -103,6 +103,22 @@ module Wrapture
             {NULL, NULL, 0, NULL}        /* Sentinel */
           };
 
+          // need to do for each class
+          typedef struct {
+              PyObject_HEAD
+              /* Type-specific fields go here. */
+          } CustomObject;
+
+          static PyTypeObject CustomType = {
+              PyVarObject_HEAD_INIT(NULL, 0)
+              .tp_name = "#{@spec.name}.Custom",
+              .tp_doc = "Custom objects",
+              .tp_basicsize = sizeof(CustomObject),
+              .tp_itemsize = 0,
+              .tp_flags = Py_TPFLAGS_DEFAULT,
+              .tp_new = PyType_GenericNew,
+          };
+
           static struct PyModuleDef #{@spec.name}_module = {
             PyModuleDef_HEAD_INIT,
             "#{@spec.name}",   /* name of module */
@@ -115,7 +131,27 @@ module Wrapture
           PyMODINIT_FUNC
           PyInit_#{@spec.name}(void)
           {
-              return PyModule_Create(&#{@spec.name}_module);
+            PyObject *m;
+
+            // need to do for each class
+            if (PyType_Ready(&CustomType) < 0){
+              return NULL;
+            }
+
+            m = PyModule_Create(&#{@spec.name}_module);
+            if( !m ){
+              return NULL;
+            }
+
+            // need to do for each class
+            Py_INCREF(&CustomType);
+            if (PyModule_AddObject(m, "Custom", (PyObject *) &CustomType) < 0) {
+                Py_DECREF(&CustomType);
+                Py_DECREF(m);
+                return NULL;
+            }
+
+            return m;
           }
         SOURCETEXT
       end
