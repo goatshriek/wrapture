@@ -55,13 +55,13 @@ module Wrapture
         file.puts <<~SETUPTEXT
           from distutils.core import setup, Extension
 
-          module1 = Extension('#{@spec.name}',
+          #{@spec.name}_mod = Extension('#{@spec.name}',
                               sources = ['#{@spec.name}.c'])
 
           setup (name = '#{@spec.name}',
                  version = '1.0',
                  description = 'This is a demo package',
-                 ext_modules = [module1])
+                 ext_modules = [#{@spec.name}_mod])
         SETUPTEXT
       end
     end
@@ -103,21 +103,7 @@ module Wrapture
             {NULL, NULL, 0, NULL}        /* Sentinel */
           };
 
-          // need to do for each class
-          typedef struct {
-              PyObject_HEAD
-              /* Type-specific fields go here. */
-          } CustomObject;
-
-          static PyTypeObject CustomType = {
-              PyVarObject_HEAD_INIT(NULL, 0)
-              .tp_name = "#{@spec.name}.Custom",
-              .tp_doc = "Custom objects",
-              .tp_basicsize = sizeof(CustomObject),
-              .tp_itemsize = 0,
-              .tp_flags = Py_TPFLAGS_DEFAULT,
-              .tp_new = PyType_GenericNew,
-          };
+          #{scope_class_objects}
 
           static struct PyModuleDef #{@spec.name}_module = {
             PyModuleDef_HEAD_INIT,
@@ -133,10 +119,7 @@ module Wrapture
           {
             PyObject *m;
 
-            // need to do for each class
-            if (PyType_Ready(&CustomType) < 0){
-              return NULL;
-            }
+            #{scope_types_ready}
 
             m = PyModule_Create(&#{@spec.name}_module);
             if( !m ){
@@ -157,6 +140,41 @@ module Wrapture
       end
 
       filename
+    end
+
+    private
+
+    # Creates C code to create all of the classes in this module.
+    def scope_class_objects
+      (@spec.classes + @spec.enums).flat_map do |item|
+        <<~SOURCECODE
+          typedef struct {
+              PyObject_HEAD
+              /* Type-specific fields go here. */
+          } #{item.name.capitalize}_type_struct;
+
+          static PyTypeObject #{item.name.capitalize}_type_object = {
+              PyVarObject_HEAD_INIT(NULL, 0)
+              .tp_name = "#{@spec.name}.#{item.name.capitalize}",
+              .tp_doc = "Custom objects",
+              .tp_basicsize = sizeof(#{item.name.capitalize}_type_struct),
+              .tp_itemsize = 0,
+              .tp_flags = Py_TPFLAGS_DEFAULT,
+              .tp_new = PyType_GenericNew,
+          };
+        SOURCECODE
+      end.join("\n")
+    end
+
+    # Creates C code to execute PyType_Ready on each type in the module.
+    def scope_types_ready
+      (@spec.classes + @spec.enums).flat_map do |item|
+        <<~SOURCECODE
+          if (PyType_Ready(&#{item.name.capitalize}_type_object) < 0){
+            return NULL;
+          }
+        SOURCECODE
+      end.join("\n")
     end
   end
 end
