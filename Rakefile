@@ -22,5 +22,5 @@ begin
     rdoc.main = 'README.md'
   end
 rescue LoadError
-  puts 'could not load rdoc module'
+  puts 'could not load rdoc/task module'
 end

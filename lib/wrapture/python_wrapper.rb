@@ -75,9 +75,6 @@ module Wrapture
         raise WrapError, 'only a scope can be used for module generation'
       end
 
-      # (@spec.classes + @spec.enums).flat_map do |item|
-      #   self.class.write_spec_source_files(item, dir: dir)
-      # end
       filename = "#{@spec.name}.c"
 
       File.open(File.join(dir, filename), 'w') do |file|
@@ -126,13 +123,7 @@ module Wrapture
               return NULL;
             }
 
-            // need to do for each class
-            Py_INCREF(&CustomType);
-            if (PyModule_AddObject(m, "Custom", (PyObject *) &CustomType) < 0) {
-                Py_DECREF(&CustomType);
-                Py_DECREF(m);
-                return NULL;
-            }
+            #{add_scope_type_objects}
 
             return m;
           }
@@ -143,6 +134,21 @@ module Wrapture
     end
 
     private
+
+    # Adds type objects for all classes and enums in this module.
+    def add_scope_type_objects
+      (@spec.classes + @spec.enums).flat_map do |item|
+        <<~SOURCECODE
+          Py_INCREF(&#{item.name.capitalize}_type_object);
+          if (PyModule_AddObject(m, "#{item.name.capitalize}", (PyObject *) &#{item.name.capitalize}_type_object) < 0) {
+            Py_DECREF(&#{item.name.capitalize}_type_object);
+            // maybe need to decref other types already added?
+            Py_DECREF(m);
+            return NULL;
+          }
+        SOURCECODE
+      end.join("\n")
+    end
 
     # Creates C code to create all of the classes in this module.
     def scope_class_objects
