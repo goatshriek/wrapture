@@ -139,9 +139,9 @@ module Wrapture
     def add_scope_type_objects
       (@spec.classes + @spec.enums).flat_map do |item|
         <<~SOURCECODE
-          Py_INCREF(&#{item.name.capitalize}_type_object);
-          if (PyModule_AddObject(m, "#{item.name.capitalize}", (PyObject *) &#{item.name.capitalize}_type_object) < 0) {
-            Py_DECREF(&#{item.name.capitalize}_type_object);
+          Py_INCREF(&#{item.name.downcase}_type_object);
+          if (PyModule_AddObject(m, "#{item.name.capitalize}", (PyObject *) &#{item.name.downcase}_type_object) < 0) {
+            Py_DECREF(&#{item.name.downcase}_type_object);
             // maybe need to decref other types already added?
             Py_DECREF(m);
             return NULL;
@@ -157,13 +157,13 @@ module Wrapture
           typedef struct {
               PyObject_HEAD
               /* Type-specific fields go here. */
-          } #{item.name.capitalize}_type_struct;
+          } #{item.name.downcase}_type_struct;
 
-          static PyTypeObject #{item.name.capitalize}_type_object = {
+          static PyTypeObject #{item.name.downcase}_type_object = {
               PyVarObject_HEAD_INIT(NULL, 0)
               .tp_name = "#{@spec.name}.#{item.name.capitalize}",
               .tp_doc = "Custom objects",
-              .tp_basicsize = sizeof(#{item.name.capitalize}_type_struct),
+              .tp_basicsize = sizeof(#{item.name.downcase}_type_struct),
               .tp_itemsize = 0,
               .tp_flags = Py_TPFLAGS_DEFAULT,
               .tp_new = PyType_GenericNew,
@@ -176,7 +176,7 @@ module Wrapture
     def scope_types_ready
       (@spec.classes + @spec.enums).flat_map do |item|
         <<~SOURCECODE
-          if (PyType_Ready(&#{item.name.capitalize}_type_object) < 0){
+          if (PyType_Ready(&#{item.name.downcase}_type_object) < 0){
             return NULL;
           }
         SOURCECODE
