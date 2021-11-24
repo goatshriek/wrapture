@@ -2,4 +2,4 @@
 
 import wrapture_test
 
-new_class_instance = wrapture_test.Basicclass()
+new_class_instance = wrapture_test.BasicClass()

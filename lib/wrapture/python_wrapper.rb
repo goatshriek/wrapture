@@ -140,7 +140,7 @@ module Wrapture
       (@spec.classes + @spec.enums).flat_map do |item|
         <<~SOURCECODE
           Py_INCREF(&#{item.name.downcase}_type_object);
-          if (PyModule_AddObject(m, "#{item.name.capitalize}", (PyObject *) &#{item.name.downcase}_type_object) < 0) {
+          if (PyModule_AddObject(m, "#{item.name}", (PyObject *) &#{item.name.downcase}_type_object) < 0) {
             Py_DECREF(&#{item.name.downcase}_type_object);
             // maybe need to decref other types already added?
             Py_DECREF(m);
@@ -161,7 +161,7 @@ module Wrapture
 
           static PyTypeObject #{item.name.downcase}_type_object = {
               PyVarObject_HEAD_INIT(NULL, 0)
-              .tp_name = "#{@spec.name}.#{item.name.capitalize}",
+              .tp_name = "#{@spec.name}.#{item.name}",
               .tp_doc = "Custom objects",
               .tp_basicsize = sizeof(#{item.name.downcase}_type_struct),
               .tp_itemsize = 0,
