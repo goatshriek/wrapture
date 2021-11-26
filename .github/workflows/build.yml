@@ -36,6 +36,8 @@ jobs:
           ruby-version: '3.0'
       - name: Install Ruby Dependencies
         run: bundle install
+      - uses: actions/setup-python@v2
+          python-version: '3.x'
       - name: Run Python Tests
         run: bundle exec rake python:test
   code-analysis:
