@@ -98,6 +98,7 @@ module Wrapture
         yield '  Py_DECREF(m);'
         yield '  return NULL;'
         yield '}'
+        yield ''
       end
     end
 
@@ -149,7 +150,6 @@ module Wrapture
       yield '  }'
       yield ''
       add_scope_type_objects {|line| yield "  #{line}"}
-      yield ''
       yield '  return m;'
       yield '}'
     end
