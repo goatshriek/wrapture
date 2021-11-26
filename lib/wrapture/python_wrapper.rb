@@ -78,7 +78,7 @@ module Wrapture
       filename = "#{@spec.name}.c"
 
       File.open(File.join(dir, filename), 'w') do |file|
-        define_module { |line| file.puts(line)}
+        define_module { |line| file.puts(line) }
       end
       filename
     end
@@ -93,8 +93,9 @@ module Wrapture
         object_name = "#{item.name.downcase}_type_object"
         previous_objects << object_name
         yield "Py_INCREF(&#{object_name});"
-        yield "if (PyModule_AddObject(m, \"#{item.name}\", (PyObject *) &#{object_name}) < 0) {"
-        previous_objects.reverse.each{ |obj| yield "  Py_DECREF(&#{obj});" }
+        add_params = "m, \"#{item.name}\", (PyObject *) &#{object_name}"
+        yield "if (PyModule_AddObject(#{add_params}) < 0) {"
+        previous_objects.reverse.each { |obj| yield "  Py_DECREF(&#{obj});" }
         yield '  Py_DECREF(m);'
         yield '  return NULL;'
         yield '}'
@@ -103,7 +104,7 @@ module Wrapture
     end
 
     # Yields the full contents of the module source file to the provided block.
-    def define_module
+    def define_module(&block)
       yield '#define PY_SSIZE_T_CLEAN'
       yield '#include <Python.h>'
       yield ''
@@ -126,14 +127,13 @@ module Wrapture
       yield '  {NULL, NULL, 0, NULL}        /* Sentinel */'
       yield '};'
       yield ''
-      scope_class_objects {|line| yield line}
+      scope_class_objects { |line| block.call(line) }
       yield ''
       yield "static struct PyModuleDef #{@spec.name}_module = {"
       yield '  PyModuleDef_HEAD_INIT,'
-      yield "  \"#{@spec.name}\",   /* name of module */"
-      yield '  NULL,              /* module documentation, may be NULL */'
-      yield '  -1,                /* size of per-interpreter state of the module,'
-      yield '                        or -1 if the module keeps state in global variables. */'
+      yield "  \"#{@spec.name}\","
+      yield '  NULL,'
+      yield '  -1,'
       yield "  #{@spec.name}_methods"
       yield '};'
       yield ''
@@ -142,14 +142,14 @@ module Wrapture
       yield '{'
       yield '  PyObject *m;'
       yield ''
-      scope_types_ready { |line| yield "  #{line}" }
+      scope_types_ready { |line| block.call("  #{line}") }
       yield ''
       yield "  m = PyModule_Create(&#{@spec.name}_module);"
       yield '  if( !m ){'
       yield '    return NULL;'
       yield '  }'
       yield ''
-      add_scope_type_objects {|line| yield "  #{line}"}
+      add_scope_type_objects { |line| block.call("  #{line}") }
       yield '  return m;'
       yield '}'
     end
