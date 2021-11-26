@@ -78,109 +78,110 @@ module Wrapture
       filename = "#{@spec.name}.c"
 
       File.open(File.join(dir, filename), 'w') do |file|
-        file.puts <<~SOURCETEXT
-          #define PY_SSIZE_T_CLEAN
-          #include <Python.h>
-
-          static PyObject *
-          #{@spec.name}_system(PyObject *self, PyObject *args)
-          {
-              const char *command;
-              int sts;
-
-              if (!PyArg_ParseTuple(args, "s", &command))
-                  return NULL;
-              sts = system(command);
-              return PyLong_FromLong(sts);
-          }
-
-          static PyMethodDef #{@spec.name}_methods[] = {
-            {"system",  #{@spec.name}_system, METH_VARARGS,
-              "Execute a shell command."},
-            {NULL, NULL, 0, NULL}        /* Sentinel */
-          };
-
-          #{scope_class_objects}
-
-          static struct PyModuleDef #{@spec.name}_module = {
-            PyModuleDef_HEAD_INIT,
-            "#{@spec.name}",   /* name of module */
-            NULL,              /* module documentation, may be NULL */
-            -1,                /* size of per-interpreter state of the module,
-                                  or -1 if the module keeps state in global variables. */
-            #{@spec.name}_methods
-          };
-
-          PyMODINIT_FUNC
-          PyInit_#{@spec.name}(void)
-          {
-            PyObject *m;
-
-            #{scope_types_ready}
-
-            m = PyModule_Create(&#{@spec.name}_module);
-            if( !m ){
-              return NULL;
-            }
-
-            #{add_scope_type_objects}
-
-            return m;
-          }
-        SOURCETEXT
+        define_module { |line| file.puts(line)}
       end
-
       filename
     end
 
     private
 
-    # Adds type objects for all classes and enums in this module.
+    # Passes lines of C code to the given block which adds type objects for
+    # all classes and enums in this module.
     def add_scope_type_objects
+      previous_objects = []
       (@spec.classes + @spec.enums).flat_map do |item|
-        <<~SOURCECODE
-          Py_INCREF(&#{item.name.downcase}_type_object);
-          if (PyModule_AddObject(m, "#{item.name}", (PyObject *) &#{item.name.downcase}_type_object) < 0) {
-            Py_DECREF(&#{item.name.downcase}_type_object);
-            // maybe need to decref other types already added?
-            Py_DECREF(m);
-            return NULL;
-          }
-        SOURCECODE
-      end.join("\n")
+        object_name = "#{item.name.downcase}_type_object"
+        previous_objects << object_name
+        yield "Py_INCREF(&#{object_name});"
+        yield "if (PyModule_AddObject(m, \"#{item.name}\", (PyObject *) &#{object_name}) < 0) {"
+        previous_objects.reverse.each{ |obj| yield "  Py_DECREF(&#{obj});" }
+        yield '  Py_DECREF(m);'
+        yield '  return NULL;'
+        yield '}'
+      end
     end
 
-    # Creates C code to create all of the classes in this module.
+    # Yields the full contents of the module source file to the provided block.
+    def define_module
+      yield '#define PY_SSIZE_T_CLEAN'
+      yield '#include <Python.h>'
+      yield ''
+      yield 'static PyObject *'
+      yield "#{@spec.name}_system(PyObject *self, PyObject *args)"
+      yield '{'
+      yield '  const char *command;'
+      yield '  int sts;'
+      yield ''
+      yield '  if (!PyArg_ParseTuple(args, "s", &command))'
+      yield '    return NULL;'
+      yield ''
+      yield '  sts = system(command);'
+      yield '  return PyLong_FromLong(sts);'
+      yield '}'
+      yield ''
+      yield "static PyMethodDef #{@spec.name}_methods[] = {"
+      yield "  {\"system\",  #{@spec.name}_system, METH_VARARGS,"
+      yield '  "Execute a shell command."},'
+      yield '  {NULL, NULL, 0, NULL}        /* Sentinel */'
+      yield '};'
+      yield ''
+      scope_class_objects {|line| yield line}
+      yield ''
+      yield "static struct PyModuleDef #{@spec.name}_module = {"
+      yield '  PyModuleDef_HEAD_INIT,'
+      yield "  \"#{@spec.name}\",   /* name of module */"
+      yield '  NULL,              /* module documentation, may be NULL */'
+      yield '  -1,                /* size of per-interpreter state of the module,'
+      yield '                        or -1 if the module keeps state in global variables. */'
+      yield "  #{@spec.name}_methods"
+      yield '};'
+      yield ''
+      yield 'PyMODINIT_FUNC'
+      yield "PyInit_#{@spec.name}(void)"
+      yield '{'
+      yield '  PyObject *m;'
+      yield ''
+      scope_types_ready { |line| yield "  #{line}" }
+      yield ''
+      yield "  m = PyModule_Create(&#{@spec.name}_module);"
+      yield '  if( !m ){'
+      yield '    return NULL;'
+      yield '  }'
+      yield ''
+      add_scope_type_objects {|line| yield "  #{line}"}
+      yield ''
+      yield '  return m;'
+      yield '}'
+    end
+
+    # Passes lines of C code to the given block which creates all of the classes
+    # in this module.
     def scope_class_objects
       (@spec.classes + @spec.enums).flat_map do |item|
-        <<~SOURCECODE
-          typedef struct {
-              PyObject_HEAD
-              /* Type-specific fields go here. */
-          } #{item.name.downcase}_type_struct;
-
-          static PyTypeObject #{item.name.downcase}_type_object = {
-              PyVarObject_HEAD_INIT(NULL, 0)
-              .tp_name = "#{@spec.name}.#{item.name}",
-              .tp_doc = "Custom objects",
-              .tp_basicsize = sizeof(#{item.name.downcase}_type_struct),
-              .tp_itemsize = 0,
-              .tp_flags = Py_TPFLAGS_DEFAULT,
-              .tp_new = PyType_GenericNew,
-          };
-        SOURCECODE
-      end.join("\n")
+        yield 'typedef struct {'
+        yield '  PyObject_HEAD'
+        yield "} #{item.name.downcase}_type_struct;"
+        yield ''
+        yield "static PyTypeObject #{item.name.downcase}_type_object = {"
+        yield '  PyVarObject_HEAD_INIT(NULL, 0)'
+        yield "  .tp_name = \"#{@spec.name}.#{item.name}\","
+        yield '  .tp_doc = "Custom objects",'
+        yield "  .tp_basicsize = sizeof(#{item.name.downcase}_type_struct),"
+        yield '  .tp_itemsize = 0,'
+        yield '  .tp_flags = Py_TPFLAGS_DEFAULT,'
+        yield '  .tp_new = PyType_GenericNew,'
+        yield '};'
+      end
     end
 
-    # Creates C code to execute PyType_Ready on each type in the module.
+    # Passes lines of C code to the given block which executes PyType_Ready
+    # on each type in the module.
     def scope_types_ready
       (@spec.classes + @spec.enums).flat_map do |item|
-        <<~SOURCECODE
-          if (PyType_Ready(&#{item.name.downcase}_type_object) < 0){
-            return NULL;
-          }
-        SOURCECODE
-      end.join("\n")
+        yield "if (PyType_Ready(&#{item.name.downcase}_type_object) < 0){"
+        yield '  return NULL;'
+        yield '}'
+      end
     end
   end
 end

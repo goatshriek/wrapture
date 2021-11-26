@@ -7,7 +7,9 @@ module Wrapture
     def write_source_files: (?String dir) -> Array[String]
 
     private
-    def scope_class_objects: -> String
-    def scope_types_ready: -> String
+    def add_scope_type_objects: { (String) -> void } -> void
+    def define_module: { (String) -> void } -> void
+    def scope_class_objects: { (String) -> void } -> void
+    def scope_types_ready: { (String) -> void } -> void
   end
 end
