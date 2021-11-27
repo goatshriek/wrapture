@@ -80,6 +80,7 @@ module Wrapture
       File.open(File.join(dir, filename), 'w') do |file|
         define_module { |line| file.puts(line) }
       end
+
       filename
     end
 
@@ -128,7 +129,6 @@ module Wrapture
       yield '};'
       yield ''
       scope_class_objects { |line| block.call(line) }
-      yield ''
       yield "static struct PyModuleDef #{@spec.name}_module = {"
       yield '  PyModuleDef_HEAD_INIT,'
       yield "  \"#{@spec.name}\","
@@ -171,6 +171,7 @@ module Wrapture
         yield '  .tp_flags = Py_TPFLAGS_DEFAULT,'
         yield '  .tp_new = PyType_GenericNew,'
         yield '};'
+        yield ''
       end
     end
 
