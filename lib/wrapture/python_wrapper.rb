@@ -109,32 +109,12 @@ module Wrapture
       yield '#define PY_SSIZE_T_CLEAN'
       yield '#include <Python.h>'
       yield ''
-      yield 'static PyObject *'
-      yield "#{@spec.name}_system(PyObject *self, PyObject *args)"
-      yield '{'
-      yield '  const char *command;'
-      yield '  int sts;'
-      yield ''
-      yield '  if (!PyArg_ParseTuple(args, "s", &command))'
-      yield '    return NULL;'
-      yield ''
-      yield '  sts = system(command);'
-      yield '  return PyLong_FromLong(sts);'
-      yield '}'
-      yield ''
-      yield "static PyMethodDef #{@spec.name}_methods[] = {"
-      yield "  {\"system\",  #{@spec.name}_system, METH_VARARGS,"
-      yield '  "Execute a shell command."},'
-      yield '  {NULL, NULL, 0, NULL}        /* Sentinel */'
-      yield '};'
-      yield ''
       scope_class_objects { |line| block.call(line) }
       yield "static struct PyModuleDef #{@spec.name}_module = {"
       yield '  PyModuleDef_HEAD_INIT,'
-      yield "  \"#{@spec.name}\","
-      yield '  NULL,'
-      yield '  -1,'
-      yield "  #{@spec.name}_methods"
+      yield "  .m_name = \"#{@spec.name}\","
+      yield '  .m_doc = NULL,'
+      yield '  .m_size = -1'
       yield '};'
       yield ''
       yield 'PyMODINIT_FUNC'
