@@ -18,10 +18,14 @@
 # limitations under the License.
 #++
 
+require 'wrapture/named'
+
 module Wrapture
   # A description of a class, including its constants, functions, and other
   # details.
   class ClassSpec
+    include Named
+
     # Normalizes a hash specification of a class. Normalization will check for
     # things like invalid keys, duplicate entries in include lists, and will set
     # missing keys to their default values (for example, an empty list if no
@@ -88,7 +92,7 @@ module Wrapture
     # The scope can be provided if available.
     #
     # The hash must have the following keys:
-    # name:: the name of the class
+    # name:: the name of the class, in CamelCase
     # namespace:: the namespace to put the class into
     # equivalent-struct:: a hash describing the struct this class wraps
     #

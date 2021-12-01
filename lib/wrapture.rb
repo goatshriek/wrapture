@@ -27,6 +27,7 @@ module Wrapture
   require 'wrapture/enum_spec'
   require 'wrapture/errors'
   require 'wrapture/function_spec'
+  require 'wrapture/named'
   require 'wrapture/normalize'
   require 'wrapture/rule_spec'
   require 'wrapture/param_spec'

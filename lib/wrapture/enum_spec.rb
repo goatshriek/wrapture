@@ -18,9 +18,13 @@
 # limitations under the License.
 #++
 
+require 'wrapture/named'
+
 module Wrapture
   # A description of an enumeration.
   class EnumSpec
+    include Wrapture::Named
+
     # Returns a normalized copy of a hash specification of an enumeration in
     # place. See normalize_spec_hash! for details.
     def self.normalize_spec_hash(spec)

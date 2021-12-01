@@ -89,7 +89,7 @@ module Wrapture
     # Yields lines of C code to add the type object for the given class to this
     # scope's module.
     def add_class_type_object(class_spec, decref: [])
-      object_name = "#{class_spec.name.downcase}_type_object"
+      object_name = "#{class_spec.snake_case_name}_type_object"
       yield "Py_INCREF(&#{object_name});"
       add_params = "m, \"#{class_spec.name}\", (PyObject *) &#{object_name}"
       yield "if (PyModule_AddObject(#{add_params}) < 0) {"
@@ -103,7 +103,7 @@ module Wrapture
     def add_scope_type_objects(&block)
       previous_objects = ['m']
       (@spec.classes + @spec.enums).flat_map do |item|
-        object_name = "&#{item.name.downcase}_type_object"
+        object_name = "&#{item.snake_case_name}_type_object"
         previous_objects << object_name
         add_class_type_object(item, decref: previous_objects.reverse) do |line|
           block.call(line)
@@ -115,15 +115,16 @@ module Wrapture
     # Passes lines of C code to the given block which creates the methods and
     # type object for the given class in this module.
     def define_class_type_object(class_spec)
+      snake_name = class_spec.snake_case_name
       yield 'typedef struct {'
       yield '  PyObject_HEAD'
-      yield "} #{class_spec.name.downcase}_type_struct;"
+      yield "} #{snake_name}_type_struct;"
       yield ''
-      yield "static PyTypeObject #{class_spec.name.downcase}_type_object = {"
+      yield "static PyTypeObject #{snake_name}_type_object = {"
       yield '  PyVarObject_HEAD_INIT(NULL, 0)'
       yield "  .tp_name = \"#{@spec.name}.#{class_spec.name}\","
       yield '  .tp_doc = "Custom objects",'
-      yield "  .tp_basicsize = sizeof(#{class_spec.name.downcase}_type_struct),"
+      yield "  .tp_basicsize = sizeof( #{snake_name}_type_struct ),"
       yield '  .tp_itemsize = 0,'
       yield '  .tp_flags = Py_TPFLAGS_DEFAULT,'
       yield '  .tp_new = PyType_GenericNew,'
@@ -134,15 +135,16 @@ module Wrapture
     # Passes lines of C code to the given block which creates the methods and
     # type object for the given enum in this module.
     def define_enum_type_object(enum_spec)
+      snake_name = enum_spec.snake_case_name
       yield 'typedef struct {'
       yield '  PyObject_HEAD'
-      yield "} #{enum_spec.name.downcase}_type_struct;"
+      yield "} #{snake_name}_type_struct;"
       yield ''
-      yield "static PyTypeObject #{enum_spec.name.downcase}_type_object = {"
+      yield "static PyTypeObject #{snake_name}_type_object = {"
       yield '  PyVarObject_HEAD_INIT(NULL, 0)'
       yield "  .tp_name = \"#{@spec.name}.#{enum_spec.name}\","
       yield '  .tp_doc = "Custom objects",'
-      yield "  .tp_basicsize = sizeof(#{enum_spec.name.downcase}_type_struct),"
+      yield "  .tp_basicsize = sizeof(#{snake_name}_type_struct),"
       yield '  .tp_itemsize = 0,'
       yield '  .tp_flags = Py_TPFLAGS_DEFAULT,'
       yield '  .tp_new = PyType_GenericNew,'
@@ -197,7 +199,7 @@ module Wrapture
     # on each type in the module.
     def scope_types_ready
       (@spec.classes + @spec.enums).flat_map do |item|
-        yield "if (PyType_Ready(&#{item.name.downcase}_type_object) < 0){"
+        yield "if (PyType_Ready(&#{item.snake_case_name}_type_object) < 0){"
         yield '  return NULL;'
         yield '}'
       end

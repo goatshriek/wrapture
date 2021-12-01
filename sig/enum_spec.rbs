@@ -1,5 +1,7 @@
 module Wrapture
   class EnumSpec
+    include Named
+
     @spec: spec_hash
     @doc: (Wrapture::Comment | nil)
 
@@ -12,5 +14,6 @@ module Wrapture
     def name: -> String
     def namespace: -> (String | nil)
     def namespace?: -> bool
+    def snake_case_name: -> String
   end
 end

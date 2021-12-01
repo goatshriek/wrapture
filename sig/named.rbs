@@ -1,0 +1,5 @@
+module Wrapture
+  module Named
+    def snake_case_name: () -> String
+  end
+end
