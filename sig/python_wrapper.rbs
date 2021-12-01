@@ -7,9 +7,12 @@ module Wrapture
     def write_source_files: (?String dir) -> Array[String]
 
     private
+    def add_class_type_object: (Wrapture::ClassSpec, ?Array[String] decref) { (String) -> void } -> void
     def add_scope_type_objects: { (String) -> void } -> void
+    def define_class_type_objects: { (String) -> void } -> void
+    def define_enum_type_objects: { (String) -> void } -> void
     def define_module: { (String) -> void } -> void
-    def scope_class_objects: { (String) -> void } -> void
+    def define_scope_type_objects: { (String) -> void } -> void
     def scope_types_ready: { (String) -> void } -> void
   end
 end
