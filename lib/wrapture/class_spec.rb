@@ -33,14 +33,21 @@ module Wrapture
     #
     # If this spec cannot be normalized, for example because it is invalid or
     # it uses an unsupported version type, then an exception is raised.
+    #
+    # If the 'doc' key is present, it is validated using Comment::validate_doc.
+    # If not, it is set to an empty string.
     def self.normalize_spec_hash(spec)
       raise MissingNamespace unless spec.key?('namespace')
       raise MissingSpecKey, 'name key is required' unless spec.key?('name')
 
-      Comment.validate_doc(spec['doc']) if spec.key?('doc')
-
       normalized = spec.dup
       normalized.default = []
+
+      if spec.key?('doc')
+        Comment.validate_doc(spec['doc'])
+      else
+        normalized['doc'] = ''
+      end
 
       normalized['version'] = Wrapture.spec_version(spec)
       normalized['includes'] = Wrapture.normalize_includes(spec['includes'])
@@ -77,6 +84,9 @@ module Wrapture
 
     # The list of constants in this class.
     attr_reader :constants
+
+    # The documentation comment for this class.
+    attr_reader :doc
 
     # The list of functions in this class.
     attr_reader :functions
@@ -135,7 +145,7 @@ module Wrapture
         ConstantSpec.new(constant_spec)
       end
 
-      @doc = @spec.key?('doc') ? Comment.new(@spec['doc']) : nil
+      @doc = Comment.new(@spec['doc'])
 
       scope << self
       @scope = scope

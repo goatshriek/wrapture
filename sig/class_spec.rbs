@@ -5,12 +5,13 @@ module Wrapture
     @spec: spec_hash
     @constants: Array[Wrapture::ConstantSpec]
     @functions: Array[Wrapture::FunctionSpec]
-    @doc: (Wrapture::Comment | nil)
+    @doc: Wrapture::Comment
     @scope: Wrapture::Scope
 
     def self.normalize_spec_hash: (spec_hash spec) -> spec_hash
     def self.effective_type: (untyped spec) -> String
     attr_reader constants: Array[Wrapture::ConstantSpec]
+    attr_reader doc: Wrapture::Comment
     attr_reader functions: Array[Wrapture::FunctionSpec]
     attr_reader scope: Wrapture::Scope
     attr_reader struct: (Wrapture::StructSpec | nil)
