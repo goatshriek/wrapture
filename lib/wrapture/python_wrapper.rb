@@ -123,7 +123,7 @@ module Wrapture
       yield "static PyTypeObject #{snake_name}_type_object = {"
       yield '  PyVarObject_HEAD_INIT(NULL, 0)'
       yield "  .tp_name = \"#{@spec.name}.#{class_spec.name}\","
-      yield "  .tp_doc = \"#{class_spec.doc&.text}\","
+      yield "  .tp_doc = \"#{class_spec.doc.text}\","
       yield "  .tp_basicsize = sizeof( #{snake_name}_type_struct ),"
       yield '  .tp_itemsize = 0,'
       yield '  .tp_flags = Py_TPFLAGS_DEFAULT,'
@@ -143,7 +143,7 @@ module Wrapture
       yield "static PyTypeObject #{snake_name}_type_object = {"
       yield '  PyVarObject_HEAD_INIT(NULL, 0)'
       yield "  .tp_name = \"#{@spec.name}.#{enum_spec.name}\","
-      yield "  .tp_doc = \"#{enum_spec.doc&.text}\","
+      yield "  .tp_doc = \"#{enum_spec.doc.text}\","
       yield "  .tp_basicsize = sizeof(#{snake_name}_type_struct),"
       yield '  .tp_itemsize = 0,'
       yield '  .tp_flags = Py_TPFLAGS_DEFAULT,'
