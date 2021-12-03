@@ -3,12 +3,12 @@ module Wrapture
     include Named
 
     @spec: spec_hash
-    @doc: (Wrapture::Comment | nil)
+    @doc: Wrapture::Comment
 
     def self.normalize_spec_hash: (spec_hash spec) -> spec_hash
     def self.normalize_spec_hash!: (spec_hash spec) -> spec_hash
     def initialize: (spec_hash spec) -> void
-    attr_reader doc: (Wrapture::Comment | nil)
+    attr_reader doc: Wrapture::Comment
     def definition_includes: -> Array[String]
     def elements: -> spec_hash
     def name: -> String

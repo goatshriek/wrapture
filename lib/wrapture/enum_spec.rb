@@ -33,6 +33,9 @@ module Wrapture
 
     # Normalizes a hash specification of an enumeration in place. Normalization
     # will remove duplicate entries in include lists and check for a name key.
+    #
+    # If the 'doc' key is present, it is validated using Comment::validate_doc.
+    # If not, it is set to an empty string.
     def self.normalize_spec_hash!(spec)
       unless spec.key?('name')
         raise MissingSpecKey, 'a name is required for enumerations'
@@ -46,6 +49,12 @@ module Wrapture
         raise MissingSpecKey, 'elements are required for enumerations'
       end
 
+      if spec.key?('doc')
+        Comment.validate_doc(spec['doc'])
+      else
+        spec['doc'] = ''
+      end
+
       spec['includes'] = Wrapture.normalize_includes(spec['includes'])
       spec['elements'].each do |element|
         element['includes'] = Wrapture.normalize_includes(element['includes'])
@@ -57,7 +66,7 @@ module Wrapture
     # Creates an enumeration specification based on the provided hash spec.
     def initialize(spec)
       @spec = EnumSpec.normalize_spec_hash(spec)
-      @doc = Comment.new(@spec.fetch('doc', nil))
+      @doc = Comment.new(@spec['doc'])
     end
 
     # The documentation of the enumeration.
