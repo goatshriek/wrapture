@@ -116,18 +116,40 @@ module Wrapture
     # type object for the given class in this module.
     def define_class_type_object(class_spec)
       snake_name = class_spec.snake_case_name
+      type_struct_name = "#{snake_name}_type_struct"
+
       yield 'typedef struct {'
       yield '  PyObject_HEAD'
-      yield "} #{snake_name}_type_struct;"
+      yield "} #{type_struct_name};"
       yield ''
+
+      yield 'static PyObject *'
+      constructor_args = 'PyTypeObject *type, PyObject *args, PyObject *kwds'
+      yield "#{snake_name}_new( #{constructor_args} ){"
+      yield "  #{type_struct_name} *self;"
+      yield "  self = ( #{type_struct_name} * ) type->tp_alloc( type, 0 );"
+      yield '  return ( PyObject * ) self;'
+      yield '}'
+
+      yield 'static void'
+      yield "#{snake_name}_dealloc( #{type_struct_name} *self ) {"
+      yield '  Py_TYPE( self )->tp_free( ( PyObject * ) self );'
+      yield '}'
+
+      class_spec.functions.each do |func_spec|
+        yield "// #{func_spec.name}"
+        yield ''
+      end
+
       yield "static PyTypeObject #{snake_name}_type_object = {"
       yield '  PyVarObject_HEAD_INIT(NULL, 0)'
       yield "  .tp_name = \"#{@spec.name}.#{class_spec.name}\","
       yield "  .tp_doc = \"#{class_spec.doc.text}\","
-      yield "  .tp_basicsize = sizeof( #{snake_name}_type_struct ),"
+      yield "  .tp_basicsize = sizeof( #{type_struct_name} ),"
       yield '  .tp_itemsize = 0,'
       yield '  .tp_flags = Py_TPFLAGS_DEFAULT,'
-      yield '  .tp_new = PyType_GenericNew,'
+      yield "  .tp_new = #{snake_name}_new,"
+      yield "  .tp_dealloc = ( destructor ) #{snake_name}_dealloc"
       yield '};'
       yield ''
     end

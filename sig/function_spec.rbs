@@ -1,5 +1,7 @@
 module Wrapture
   class FunctionSpec
+    include Named
+
     @owner: Wrapture::ClassSpec | Wrapture::Scope
     @spec: spec_hash
     @wrapped: Wrapture::WrappedFunctionSpec | Wrapture::WrappedCodeSpec | nil
@@ -20,6 +22,7 @@ module Wrapture
     def definable?: -> bool
     def definable!: -> true
     def definition_includes: -> Array[String]
+    def destructor?: -> bool
     def doc: -> untyped
     def initializers: -> spec_hash
     def locals: { (String) -> void } -> void

@@ -18,10 +18,14 @@
 # limitations under the License.
 #++
 
+require 'wrapture/named'
+
 module Wrapture
   # A description of a function to be generated, including details about the
   # underlying implementation.
   class FunctionSpec
+    include Named
+
     # Returns a copy of the return type specification +spec+.
     def self.normalize_return_hash(spec)
       if spec.nil?
@@ -69,8 +73,9 @@ module Wrapture
 
     # Creates a function spec based on the provided function spec.
     #
-    # The hash must have the following key:
-    # name:: the name of the function
+    # The hash must have a 'name' key with the name of the function in
+    # CamelCase, unless it is a constructor or destructor in which case it
+    # will be automatically named according to its class.
     #
     # The function may also specify what the underlying implementation will be
     # via one of the following keys. If neither is specified, then the function
@@ -196,6 +201,11 @@ module Wrapture
       includes.concat(@return_type.includes)
       includes << 'stdarg.h' if variadic?
       includes.uniq
+    end
+
+    # True if the function is a destructor, false otherwise.
+    def destructor?
+      @destructor
     end
 
     # A Comment holding the function documentation.
