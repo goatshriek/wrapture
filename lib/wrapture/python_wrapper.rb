@@ -123,21 +123,23 @@ module Wrapture
       yield "} #{type_struct_name};"
       yield ''
 
-      yield 'static PyObject *'
-      constructor_args = 'PyTypeObject *type, PyObject *args, PyObject *kwds'
-      yield "#{snake_name}_new( #{constructor_args} ){"
-      yield "  #{type_struct_name} *self;"
-      yield "  self = ( #{type_struct_name} * ) type->tp_alloc( type, 0 );"
-      yield '  return ( PyObject * ) self;'
-      yield '}'
-
-      yield 'static void'
-      yield "#{snake_name}_dealloc( #{type_struct_name} *self ) {"
-      yield '  Py_TYPE( self )->tp_free( ( PyObject * ) self );'
-      yield '}'
-
       class_spec.functions.each do |func_spec|
         yield "// #{func_spec.name}"
+        yield "// #{func_spec.doc.text}"
+        if func_spec.constructor?
+          yield 'static PyObject *'
+          new_args = 'PyTypeObject *type, PyObject *args, PyObject *kwds'
+          yield "#{snake_name}_new( #{new_args} ){"
+          yield "  #{type_struct_name} *self;"
+          yield "  self = ( #{type_struct_name} * ) type->tp_alloc( type, 0 );"
+          yield '  return ( PyObject * ) self;'
+          yield '}'
+        elsif func_spec.destructor?
+          yield 'static void'
+          yield "#{snake_name}_dealloc( #{type_struct_name} *self ) {"
+          yield '  Py_TYPE( self )->tp_free( ( PyObject * ) self );'
+          yield '}'
+        end
         yield ''
       end
 
