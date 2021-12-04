@@ -1,5 +1,5 @@
 #!/usr/bin/env python
 
-import wrapture_test
+import kitchen
 
-new_class_instance = wrapture_test.BasicClass()
+new_stove =kitchen.Stove()

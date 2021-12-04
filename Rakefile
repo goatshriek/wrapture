@@ -30,14 +30,14 @@ namespace 'python' do
   task :test do
     require 'wrapture'
 
-    scope = Wrapture::Scope.load_files('test/fixtures/scope_with_enum.yml')
+    scope = Wrapture::Scope.load_files('docs/examples/basic/stove.yml')
     Wrapture::PythonWrapper.write_spec_source_files(scope)
     Wrapture::PythonWrapper.write_spec_setuptools_files(scope)
     sh 'python3 setup.py build --build-lib .'
     cp 'test/python/test_import.py', '.'
     sh 'python3 test_import.py'
     rm 'setup.py'
-    rm Dir.glob('wrapture_test.*')
+    rm Dir.glob('kitchen.*')
     rm 'test_import.py'
     rm_rf 'build/'
   end
