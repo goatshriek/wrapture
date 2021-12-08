@@ -59,8 +59,8 @@ module Wrapture
                               sources = ['#{@spec.name}.c'])
 
           setup (name = '#{@spec.name}',
-                 version = '1.0',
-                 description = 'This is a demo package',
+                 version = '1.0', # todo create a scope version number
+                 description = 'todo create a scope description',
                  ext_modules = [#{@spec.name}_mod])
         SETUPTEXT
       end
