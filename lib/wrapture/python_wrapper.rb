@@ -114,7 +114,7 @@ module Wrapture
 
     # Passes lines of C code to the given block which creates the methods and
     # type object for the given class in this module.
-    def define_class_type_object(class_spec)
+    def define_class_type_object(class_spec, &block)
       snake_name = class_spec.snake_case_name
       type_struct_name = "#{snake_name}_type_struct"
 
@@ -123,9 +123,8 @@ module Wrapture
       yield "} #{type_struct_name};"
       yield ''
 
+      class_method_defs = []
       class_spec.functions.each do |func_spec|
-        yield "// #{func_spec.name}"
-        yield "// #{func_spec.doc.text}"
         if func_spec.constructor?
           yield 'static PyObject *'
           new_args = 'PyTypeObject *type, PyObject *args, PyObject *kwds'
@@ -139,9 +138,25 @@ module Wrapture
           yield "#{snake_name}_dealloc( #{type_struct_name} *self ) {"
           yield '  Py_TYPE( self )->tp_free( ( PyObject * ) self );'
           yield '}'
+        else
+          yield 'static PyObject *'
+          params = "#{type_struct_name} *self, PyObject *Py_UNUSED( ignored )"
+          name = "#{snake_name}_#{func_spec.name}"
+          yield "#{name}( #{params} ) {"
+          yield '  return PyUnicode_FromFormat("Test String from Wrapture");'
+          yield '}'
+
+          class_method_defs << "  { \"#{func_spec.name}\","
+          class_method_defs << "    ( PyCFunction ) #{name}, METH_NOARGS,"
+          class_method_defs << "    \"#{func_spec.doc.text}\"},"
         end
         yield ''
       end
+
+      yield "static PyMethodDef #{snake_name}_methods[] = {"
+      class_method_defs.each { |method_def| block.call(method_def) }
+      yield '  {NULL}'
+      yield '};'
 
       yield "static PyTypeObject #{snake_name}_type_object = {"
       yield '  PyVarObject_HEAD_INIT(NULL, 0)'
@@ -151,7 +166,8 @@ module Wrapture
       yield '  .tp_itemsize = 0,'
       yield '  .tp_flags = Py_TPFLAGS_DEFAULT,'
       yield "  .tp_new = #{snake_name}_new,"
-      yield "  .tp_dealloc = ( destructor ) #{snake_name}_dealloc"
+      yield "  .tp_dealloc = ( destructor ) #{snake_name}_dealloc,"
+      yield "  .tp_methods = #{snake_name}_methods"
       yield '};'
       yield ''
     end
