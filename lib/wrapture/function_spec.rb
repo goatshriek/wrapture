@@ -331,16 +331,6 @@ module Wrapture
       !@constructor && (@wrapped.use_return? || returns_return_val?)
     end
 
-    # True if the provided wrapped param spec can be cast to when used in this
-    # function.
-    def castable?(wrapped_param)
-      param = @params.find { |p| p.name == wrapped_param['value'] }
-
-      !param.nil? &&
-        !wrapped_param['type'].nil? &&
-        @owner.type?(param.type)
-    end
-
     # True if the function returns the return_val variable.
     def returns_return_val?
       !@return_type.self_reference? &&

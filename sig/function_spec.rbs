@@ -41,7 +41,6 @@ module Wrapture
 
     private
     def capture_return?: -> bool
-    def castable?: (untyped wrapped_param) -> boolish
     def returns_return_val?: -> bool
   end
 end
