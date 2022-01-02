@@ -88,6 +88,28 @@ module Wrapture
       "#{@spec.name.upcase}_HPP"
     end
 
+    # Gives an expression for calling a given parameter.
+    # Equivalent structs and pointers are resolved, as well as casts between
+    # types if they are known within the scope of this function.
+    def resolve_param(param_spec)
+      used_param = @spec.params.find { |p| p.name == param_spec['value'] }
+
+      if param_spec['value'] == EQUIVALENT_STRUCT_KEYWORD
+        @spec.owner.this_struct
+      elsif param_spec['value'] == EQUIVALENT_POINTER_KEYWORD
+        @spec.owner.this_struct_pointer
+      elsif param_spec['value'] == '...'
+        'variadic_args'
+      elsif castable?(param_spec)
+        param_class = @spec.owner.type(used_param.type)
+        param_class.cast(used_param.name,
+                         param_spec['type'],
+                         used_param.type)
+      else
+        param_spec['value']
+      end
+    end
+
     # Generates the C++ declaration file, returning the name of the file
     # generated.
     # +dir+ specifies the directory that the file should be written into. The
@@ -150,6 +172,16 @@ module Wrapture
           func.params.length == 1 &&
           types.include?(func.params[0].type.name)
       end
+    end
+
+    # True if the provided wrapped param spec can be cast to when used in this
+    # function.
+    def castable?(wrapped_param)
+      param = @spec.params.find { |p| p.name == wrapped_param['value'] }
+
+      !param.nil? &&
+        !wrapped_param['type'].nil? &&
+        @spec.owner.type?(param.type)
     end
 
     # Returns a list of FunctionSpecs describing all of the functions generated
@@ -473,7 +505,7 @@ module Wrapture
 
     # The expression containing the call to the underlying wrapped function.
     def wrapped_call_expression
-      call = @spec.wrapped.call_from(@spec)
+      call = @spec.wrapped.call_from(self)
 
       if @spec.constructor?
         "this->equivalent = #{call}"

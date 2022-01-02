@@ -75,13 +75,13 @@ module Wrapture
       @error_action = ActionSpec.new(action) unless @error_rules.empty?
     end
 
-    # Generates a function call from a provided FunctionSpec. Paremeters and
-    # types are resolved using this function's context.
-    def call_from(function_spec)
+    # Generates a function call from a provided wrapper. Paremeters and
+    # types are resolved using this wrapper's context.
+    def call_from(wrapper)
       resolved_params = []
 
       @spec['params'].each do |param|
-        resolved_params << function_spec.resolve_wrapped_param(param)
+        resolved_params << wrapper.resolve_param(param)
       end
 
       "#{@spec['name']}( #{resolved_params.join(', ')} )"

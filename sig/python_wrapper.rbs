@@ -3,6 +3,7 @@ module Wrapture
     def self.write_spec_setuptools_files: ( (Wrapture::ClassSpec | Wrapture::EnumSpec | Wrapture::FunctionSpec | Wrapture::Scope) spec, ?String dir) -> Array[String]
     def self.write_spec_source_files: ( (Wrapture::ClassSpec | Wrapture::EnumSpec | Wrapture::FunctionSpec | Wrapture::Scope) spec, ?String dir) -> Array[String]
     def initialize: ( (Wrapture::ClassSpec | Wrapture::EnumSpec | Wrapture::FunctionSpec | Wrapture::Scope) spec) -> void
+    def resolve_param: (Wrapture::ParamSpec) -> String
     def write_setuptools_files: (?String dir) -> Array[String]
     def write_source_files: (?String dir) -> Array[String]
 

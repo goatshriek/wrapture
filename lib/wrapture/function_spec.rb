@@ -258,28 +258,6 @@ module Wrapture
       end
     end
 
-    # Gives an expression for calling a given parameter within this function.
-    # Equivalent structs and pointers are resolved, as well as casts between
-    # types if they are known within the scope of this function.
-    def resolve_wrapped_param(param_spec)
-      used_param = @params.find { |p| p.name == param_spec['value'] }
-
-      if param_spec['value'] == EQUIVALENT_STRUCT_KEYWORD
-        @owner.this_struct
-      elsif param_spec['value'] == EQUIVALENT_POINTER_KEYWORD
-        @owner.this_struct_pointer
-      elsif param_spec['value'] == '...'
-        'variadic_args'
-      elsif castable?(param_spec)
-        param_class = @owner.type(used_param.type)
-        param_class.cast(used_param.name,
-                         param_spec['type'],
-                         used_param.type)
-      else
-        param_spec['value']
-      end
-    end
-
     # A resolved type, given a TypeSpec +type+. Resolved types will not have any
     # keywords like +equivalent-struct+, which will be resolved to their
     # effective type.

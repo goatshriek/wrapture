@@ -29,7 +29,6 @@ module Wrapture
     def name: -> untyped
     def param_list: -> untyped
     def qualified_name: -> String
-    def resolve_wrapped_param: (untyped param_spec) -> String
     def resolved_return: -> Wrapture::TypeSpec
     def return_expression: (?func_name: String) -> String
     def signature: (?func_name: String) -> String
