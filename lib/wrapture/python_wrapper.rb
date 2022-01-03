@@ -38,7 +38,7 @@ module Wrapture
       wrapper.write_source_files(**kwargs)
     end
 
-    # Creates a C++ wrapper for a given spec.
+    # Creates a Python wrapper for a given spec.
     def initialize(spec)
       @spec = spec
     end
@@ -147,39 +147,12 @@ module Wrapture
 
       class_method_defs = []
       class_spec.functions.each do |func_spec|
-        if func_spec.constructor?
-          yield 'static PyObject *'
-          new_args = 'PyTypeObject *type, PyObject *args, PyObject *kwds'
-          yield "#{snake_name}_new( #{new_args} ){"
-          yield "  #{type_struct_name} *self;"
-          yield "  self = ( #{type_struct_name} * ) type->tp_alloc( type, 0 );"
-          yield '  return ( PyObject * ) self;'
-          yield '}'
-        elsif func_spec.destructor?
-          yield 'static void'
-          yield "#{snake_name}_dealloc( #{type_struct_name} *self ) {"
-          yield '  Py_TYPE( self )->tp_free( ( PyObject * ) self );'
-          yield '}'
-        else
-          yield 'static PyObject *'
-          params = "#{type_struct_name} *self, PyObject *Py_UNUSED( ignored )"
-          name = "#{snake_name}_#{func_spec.name}"
-          yield "#{name}( #{params} ) {"
-          func_spec.locals { |declaration| yield "  #{declaration}" }
-          yield ''
-          if func_spec.wrapped.is_a?(WrappedFunctionSpec)
-            yield "  #{func_spec.wrapped.call_from(func_spec)};"
-          else
-            func_spec.wrapped.lines.each { |line| yield "  #{line}" }
-          end
-          yield '  return PyUnicode_FromFormat("Test String from Wrapture");'
-          yield '}'
-
-          class_method_defs << "  { \"#{func_spec.name}\","
-          class_method_defs << "    ( PyCFunction ) #{name}, METH_NOARGS,"
-          class_method_defs << "    \"#{func_spec.doc.text}\"},"
-        end
+        define_function_wrapper(func_spec)
         yield ''
+
+        class_method_defs << "  { \"#{func_spec.name}\","
+        class_method_defs << "    ( PyCFunction ) #{name}, METH_NOARGS,"
+        class_method_defs << "    \"#{func_spec.doc.text}\"},"
       end
 
       yield "static PyMethodDef #{snake_name}_methods[] = {"
@@ -219,6 +192,39 @@ module Wrapture
       yield '  .tp_new = PyType_GenericNew,'
       yield '};'
       yield ''
+    end
+
+    # Defines the function that the python interpreter will call for the given
+    # function spec.
+    def define_function_wrapper(func_spec)
+      if func_spec.constructor?
+        yield 'static PyObject *'
+        new_args = 'PyTypeObject *type, PyObject *args, PyObject *kwds'
+        yield "#{snake_name}_new( #{new_args} ){"
+        yield "  #{type_struct_name} *self;"
+        yield "  self = ( #{type_struct_name} * ) type->tp_alloc( type, 0 );"
+        yield '  return ( PyObject * ) self;'
+        yield '}'
+      elsif func_spec.destructor?
+        yield 'static void'
+        yield "#{snake_name}_dealloc( #{type_struct_name} *self ) {"
+        yield '  Py_TYPE( self )->tp_free( ( PyObject * ) self );'
+        yield '}'
+      else
+        yield 'static PyObject *'
+        params = "#{type_struct_name} *self, PyObject *Py_UNUSED( ignored )"
+        name = "#{snake_name}_#{func_spec.name}"
+        yield "#{name}( #{params} ) {"
+        func_spec.locals { |declaration| yield "  #{declaration}" }
+        yield ''
+        if func_spec.wrapped.is_a?(WrappedFunctionSpec)
+          yield "  #{func_spec.wrapped.call_from(self)};"
+        else
+          func_spec.wrapped.lines.each { |line| yield "  #{line}" }
+        end
+        yield '  return PyUnicode_FromFormat("Test String from Wrapture");'
+        yield '}'
+      end
     end
 
     # Yields the full contents of the module source file to the provided block.
