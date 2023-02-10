@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2019-2021 Joel E. Anderson
+# Copyright 2019-2022 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ Gem::Specification.new do |spec|
   spec.name        =  'wrapture'
   spec.version     =  '0.6.0'
   spec.summary     =  'wrap C in C++'
-  spec.description =  'Wraps C code in C++.'
+  spec.description =  'Wraps C code in C++ or Python.'
   spec.authors     =  ['Joel Anderson']
   spec.email       =  'joelanderson333@gmail.com'
   spec.files       =  Dir.glob('{lib,bin}/**/*').reject do |file_or_dir|

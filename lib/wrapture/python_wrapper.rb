@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2021 Joel E. Anderson
+# Copyright 2021-2023 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -43,16 +43,16 @@ module Wrapture
       @spec = spec
     end
 
-    # Gives an expression for calling a given parameter.
+    # Gives an expression for using a given parameter.
     # Equivalent structs and pointers are resolved, as well as casts between
     # types if they are known within the scope of this function.
     def resolve_param(param_spec)
       used_param = @spec.params.find { |p| p.name == param_spec['value'] }
 
       if param_spec['value'] == EQUIVALENT_STRUCT_KEYWORD
-        @owner.this_struct
+        @spec.owner.this_struct
       elsif param_spec['value'] == EQUIVALENT_POINTER_KEYWORD
-        @owner.this_struct_pointer
+        @spec.owner.this_struct_pointer
       elsif param_spec['value'] == '...'
         'variadic_args'
       elsif castable?(param_spec)
@@ -78,12 +78,13 @@ module Wrapture
           from distutils.core import setup, Extension
 
           #{@spec.name}_mod = Extension('#{@spec.name}',
-                              sources = ['#{@spec.name}.c'])
+                                        sources = ['#{@spec.name}.c'],
+                                        include_dirs = ['.']) # todo handle this
 
-          setup (name = '#{@spec.name}',
-                 version = '1.0', # todo create a scope version number
-                 description = 'todo create a scope description',
-                 ext_modules = [#{@spec.name}_mod])
+          setup(name = '#{@spec.name}',
+                version = '1.0', # todo create a scope version number
+                description = 'todo create a scope description',
+                ext_modules = [#{@spec.name}_mod])
         SETUPTEXT
       end
     end
@@ -134,6 +135,16 @@ module Wrapture
       end
     end
 
+    # True if the provided wrapped param spec can be cast to when used in this
+    # function.
+    def castable?(wrapped_param)
+      param = @spec.params.find { |p| p.name == wrapped_param['value'] }
+
+      !param.nil? &&
+        !wrapped_param['type'].nil? &&
+        @spec.owner.type?(param.type)
+    end
+
     # Passes lines of C code to the given block which creates the methods and
     # type object for the given class in this module.
     def define_class_type_object(class_spec, &block)
@@ -147,11 +158,11 @@ module Wrapture
 
       class_method_defs = []
       class_spec.functions.each do |func_spec|
-        define_function_wrapper(func_spec)
+        define_function_wrapper(func_spec, &block)
         yield ''
 
         class_method_defs << "  { \"#{func_spec.name}\","
-        class_method_defs << "    ( PyCFunction ) #{name}, METH_NOARGS,"
+        class_method_defs << "    ( PyCFunction ) #{snake_name}_#{func_spec.name}, METH_NOARGS,"
         class_method_defs << "    \"#{func_spec.doc.text}\"},"
       end
 
@@ -197,28 +208,31 @@ module Wrapture
     # Defines the function that the python interpreter will call for the given
     # function spec.
     def define_function_wrapper(func_spec)
+      owner_snake_name = func_spec.owner.snake_case_name
+      type_struct_name = "#{owner_snake_name}_type_struct"
+
       if func_spec.constructor?
         yield 'static PyObject *'
         new_args = 'PyTypeObject *type, PyObject *args, PyObject *kwds'
-        yield "#{snake_name}_new( #{new_args} ){"
+        yield "#{owner_snake_name}_new( #{new_args} ){"
         yield "  #{type_struct_name} *self;"
         yield "  self = ( #{type_struct_name} * ) type->tp_alloc( type, 0 );"
         yield '  return ( PyObject * ) self;'
         yield '}'
       elsif func_spec.destructor?
         yield 'static void'
-        yield "#{snake_name}_dealloc( #{type_struct_name} *self ) {"
+        yield "#{owner_snake_name}_dealloc( #{type_struct_name} *self ) {"
         yield '  Py_TYPE( self )->tp_free( ( PyObject * ) self );'
         yield '}'
       else
         yield 'static PyObject *'
         params = "#{type_struct_name} *self, PyObject *Py_UNUSED( ignored )"
-        name = "#{snake_name}_#{func_spec.name}"
+        name = "#{owner_snake_name}_#{func_spec.name}"
         yield "#{name}( #{params} ) {"
         func_spec.locals { |declaration| yield "  #{declaration}" }
         yield ''
         if func_spec.wrapped.is_a?(WrappedFunctionSpec)
-          yield "  #{func_spec.wrapped.call_from(self)};"
+          yield "  #{func_spec.wrapped.call_from(self.class.new(func_spec))};"
         else
           func_spec.wrapped.lines.each { |line| yield "  #{line}" }
         end
@@ -231,6 +245,11 @@ module Wrapture
     def define_module(&block)
       yield '#define PY_SSIZE_T_CLEAN'
       yield '#include <Python.h>'
+
+      @spec.definition_includes.each do |include_file|
+        yield "#include <#{include_file}>"
+      end
+
       yield ''
       define_scope_type_objects { |line| block.call(line) }
       yield 'PyMODINIT_FUNC'

@@ -107,6 +107,21 @@ module Wrapture
       @enums << EnumSpec.new(spec)
     end
 
+    # A list of includes needed to define everything in this scope.
+    def definition_includes
+      includes = []
+      
+      @classes.each do |class_spec|
+        includes.concat(class_spec.definition_includes)
+      end
+
+      @enums.each do |enum_spec|
+        includes.concat(enum_spec.definition_includes)
+      end
+
+      includes.uniq
+    end
+
     # The name of the scope.
     def name
       @classes.first.namespace

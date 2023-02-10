@@ -88,7 +88,7 @@ module Wrapture
       "#{@spec.name.upcase}_HPP"
     end
 
-    # Gives an expression for calling a given parameter.
+    # Gives an expression for using a given parameter.
     # Equivalent structs and pointers are resolved, as well as casts between
     # types if they are known within the scope of this function.
     def resolve_param(param_spec)
@@ -268,6 +268,7 @@ module Wrapture
 
     # Gives each line of the definition of a ClassSpec to the provided block.
     def define_class
+      yield "include <#{@spec.name}.hpp>"
       @spec.definition_includes.each do |include_file|
         yield "#include <#{include_file}>"
       end

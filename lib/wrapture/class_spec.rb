@@ -192,9 +192,7 @@ module Wrapture
 
     # A list of includes needed for the definition of the class.
     def definition_includes
-      includes = ["#{@spec['name']}.hpp"]
-
-      includes.concat(@spec['includes'])
+      includes = @spec['includes'].dup
 
       @functions.each do |func|
         includes.concat(func.definition_includes)
