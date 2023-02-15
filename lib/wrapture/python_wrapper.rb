@@ -162,7 +162,9 @@ module Wrapture
         yield ''
 
         class_method_defs << "  { \"#{func_spec.name}\","
-        class_method_defs << "    ( PyCFunction ) #{snake_name}_#{func_spec.name}, METH_NOARGS,"
+
+        full_name = "#{snake_name}_#{func_spec.name}"
+        class_method_defs << "    ( PyCFunction ) #{full_name}, METH_NOARGS,"
         class_method_defs << "    \"#{func_spec.doc.text}\"},"
       end
 
@@ -218,12 +220,10 @@ module Wrapture
         yield "  #{type_struct_name} *self;"
         yield "  self = ( #{type_struct_name} * ) type->tp_alloc( type, 0 );"
         yield '  return ( PyObject * ) self;'
-        yield '}'
       elsif func_spec.destructor?
         yield 'static void'
         yield "#{owner_snake_name}_dealloc( #{type_struct_name} *self ) {"
         yield '  Py_TYPE( self )->tp_free( ( PyObject * ) self );'
-        yield '}'
       else
         yield 'static PyObject *'
         params = "#{type_struct_name} *self, PyObject *Py_UNUSED( ignored )"
@@ -237,8 +237,8 @@ module Wrapture
           func_spec.wrapped.lines.each { |line| yield "  #{line}" }
         end
         yield '  return PyUnicode_FromFormat("Test String from Wrapture");'
-        yield '}'
       end
+      yield '}'
     end
 
     # Yields the full contents of the module source file to the provided block.

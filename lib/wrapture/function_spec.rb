@@ -249,15 +249,6 @@ module Wrapture
       ParamSpec.signature(@params, self)
     end
 
-    # The name of the function with the class name, if it exists.
-    def qualified_name
-      if @owner.is_a?(ClassSpec)
-        "#{@owner.name}::#{name}"
-      else
-        name
-      end
-    end
-
     # A resolved type, given a TypeSpec +type+. Resolved types will not have any
     # keywords like +equivalent-struct+, which will be resolved to their
     # effective type.

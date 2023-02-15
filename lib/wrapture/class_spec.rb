@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2019-2021 Joel E. Anderson
+# Copyright 2019-2023 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -132,7 +132,7 @@ module Wrapture
 
       if @spec.key?('destructor')
         destructor_spec = @spec['destructor'].dup
-        destructor_spec['name'] = "~#{@spec['name']}"
+        destructor_spec['name'] = @spec['name']
 
         @functions << FunctionSpec.new(destructor_spec, self, destructor: true)
       end
