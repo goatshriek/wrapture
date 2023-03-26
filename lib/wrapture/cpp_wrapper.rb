@@ -91,13 +91,14 @@ module Wrapture
     # Gives an expression for using a given parameter.
     # Equivalent structs and pointers are resolved, as well as casts between
     # types if they are known within the scope of this function.
+    # Expected to be called while @spec is a FunctionSpec.
     def resolve_param(param_spec)
       used_param = @spec.params.find { |p| p.name == param_spec['value'] }
 
       if param_spec['value'] == EQUIVALENT_STRUCT_KEYWORD
-        @spec.owner.this_struct
+        this_struct
       elsif param_spec['value'] == EQUIVALENT_POINTER_KEYWORD
-        @spec.owner.this_struct_pointer
+        this_struct_pointer
       elsif param_spec['value'] == '...'
         'variadic_args'
       elsif castable?(param_spec)
@@ -400,7 +401,7 @@ module Wrapture
       "this->equivalent#{@spec.pointer_wrapper? ? '->' : '.'}#{field_name}"
     end
 
-    # A spec hash for a factor constructor for this class.
+    # A spec hash for a factory constructor for this class.
     def factory_constructor_hash
       factory_lines = []
       line_prefix = ''
@@ -502,6 +503,24 @@ module Wrapture
       else
         'return_val'
       end
+    end
+
+    # Gives a code snippet that accesses the equivalent struct from within the
+    # class using the 'this' keyword.
+    # Expected to be called while @spec is a FunctionSpec.
+    def this_struct
+      if @spec.owner.pointer_wrapper?
+        '*(this->equivalent)'
+      else
+        'this->equivalent'
+      end
+    end
+
+    # Gives a code snippet that accesses the equivalent struct pointer from
+    # within the class using the 'this' keyword.
+    # Expected to be called while @spec is a FunctionSpec.
+    def this_struct_pointer
+      "#{'&' unless @spec.owner.pointer_wrapper?}this->equivalent"
     end
 
     # The expression containing the call to the underlying wrapped function.

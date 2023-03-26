@@ -32,6 +32,8 @@ module Wrapture
     def pointer_constructor_hash: -> spec_hash
     def return_statment: -> String
     def return_variable: -> String
+    def this_struct: -> String
+    def this_struct_pointer: -> String
     def wrapped_call_expression: -> String
   end
 end

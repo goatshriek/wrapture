@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2019-2021 Joel E. Anderson
+# Copyright 2019-2023 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -282,22 +282,6 @@ module Wrapture
     # The name of the equivalent struct of this class.
     def struct_name
       @struct.name
-    end
-
-    # Gives a code snippet that accesses the equivalent struct from within the
-    # class using the 'this' keyword.
-    def this_struct
-      if pointer_wrapper?
-        '*(this->equivalent)'
-      else
-        'this->equivalent'
-      end
-    end
-
-    # Gives a code snippet that accesses the equivalent struct pointer from
-    # within the class using the 'this' keyword.
-    def this_struct_pointer
-      "#{'&' unless pointer_wrapper?}this->equivalent"
     end
 
     # Returns the ClassSpec for the given type in this class's scope.

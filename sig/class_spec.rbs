@@ -30,9 +30,7 @@ module Wrapture
     def parent_provides_initializer?: -> bool
     def pointer_wrapper?: -> bool
     def snake_case_name: -> String
-    def struct_name: -> untyped
-    def this_struct: -> String
-    def this_struct_pointer: -> String
+    def struct_name: -> String
     def type: (untyped type_) -> untyped
     def type?: (untyped type_) -> bool
 

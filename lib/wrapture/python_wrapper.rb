@@ -46,13 +46,14 @@ module Wrapture
     # Gives an expression for using a given parameter.
     # Equivalent structs and pointers are resolved, as well as casts between
     # types if they are known within the scope of this function.
+    # Expected to be called while @spec is a FunctionSpec.
     def resolve_param(param_spec)
       used_param = @spec.params.find { |p| p.name == param_spec['value'] }
 
       if param_spec['value'] == EQUIVALENT_STRUCT_KEYWORD
-        @spec.owner.this_struct
+        'self'
       elsif param_spec['value'] == EQUIVALENT_POINTER_KEYWORD
-        @spec.owner.this_struct_pointer
+        'self'
       elsif param_spec['value'] == '...'
         'variadic_args'
       elsif castable?(param_spec)
@@ -161,8 +162,9 @@ module Wrapture
         define_function_wrapper(func_spec, &block)
         yield ''
 
+        wrapper_name = function_wrapper_name(func_spec)
         class_method_defs << "  { \"#{func_spec.name}\","
-        class_method_defs << "    ( PyCFunction ) #{snake_name}_#{func_spec.name}, METH_NOARGS,"
+        class_method_defs << "    ( PyCFunction ) #{wrapper_name}, METH_NOARGS,"
         class_method_defs << "    \"#{func_spec.doc.text}\"},"
       end
 
@@ -208,26 +210,26 @@ module Wrapture
     # Defines the function that the python interpreter will call for the given
     # function spec.
     def define_function_wrapper(func_spec)
+      name = function_wrapper_name(func_spec)
       owner_snake_name = func_spec.owner.snake_case_name
       type_struct_name = "#{owner_snake_name}_type_struct"
 
       if func_spec.constructor?
         yield 'static PyObject *'
         new_args = 'PyTypeObject *type, PyObject *args, PyObject *kwds'
-        yield "#{owner_snake_name}_new( #{new_args} ){"
+        yield "#{name}( #{new_args} ){"
         yield "  #{type_struct_name} *self;"
         yield "  self = ( #{type_struct_name} * ) type->tp_alloc( type, 0 );"
         yield '  return ( PyObject * ) self;'
         yield '}'
       elsif func_spec.destructor?
         yield 'static void'
-        yield "#{owner_snake_name}_dealloc( #{type_struct_name} *self ) {"
+        yield "#{name}( #{type_struct_name} *self ) {"
         yield '  Py_TYPE( self )->tp_free( ( PyObject * ) self );'
         yield '}'
       else
         yield 'static PyObject *'
         params = "#{type_struct_name} *self, PyObject *Py_UNUSED( ignored )"
-        name = "#{owner_snake_name}_#{func_spec.name}"
         yield "#{name}( #{params} ) {"
         func_spec.locals { |declaration| yield "  #{declaration}" }
         yield ''
@@ -286,6 +288,19 @@ module Wrapture
 
       @spec.enums.each do |item|
         define_enum_type_object(item) { |line| block.call(line) }
+      end
+    end
+
+    # The name of the function that will be defined to wrap the given function.
+    def function_wrapper_name(func_spec)
+      owner_snake_name = func_spec.owner.snake_case_name
+
+      if func_spec.constructor?
+        "#{owner_snake_name}_new"
+      elsif func_spec.destructor?
+        "#{owner_snake_name}_dealloc"
+      else
+        "#{owner_snake_name}_#{func_spec.name}"
       end
     end
 
