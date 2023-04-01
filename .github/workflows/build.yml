@@ -5,6 +5,8 @@ on:
     branches:
       - latest
       - release
+  schedule:
+    - cron: '18 6 * * 2'
 jobs:
   matrix-builds:
     runs-on: ubuntu-latest
