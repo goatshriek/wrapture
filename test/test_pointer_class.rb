@@ -32,6 +32,7 @@ class ClassSpecTest < Minitest::Test
     validate_wrapper_results(test_spec, classes)
 
     declaration = 'struct basic_struct \*equivalent;'
+
     assert(file_contains_match('ExplicitPointerWrapper.hpp', declaration))
 
     File.delete(*classes)
@@ -65,6 +66,7 @@ class ClassSpecTest < Minitest::Test
     validate_wrapper_results(test_spec, classes)
 
     expected_signature = 'PointerWrappingClass\( struct wrapped_struct \*'
+
     assert(file_contains_match('PointerWrappingClass.hpp', expected_signature))
 
     File.delete(*classes)
@@ -79,9 +81,11 @@ class ClassSpecTest < Minitest::Test
     validate_wrapper_results(test_spec, classes)
 
     equivalent_signature = 'struct wrapped_struct \*equivalent;'
+
     refute(file_contains_match('ChildPointer.hpp', equivalent_signature))
 
     parent_initializer = 'equivalent \) : ParentPointer\('
+
     assert(file_contains_match('ChildPointer.cpp', parent_initializer))
 
     File.delete(*classes)
@@ -96,9 +100,11 @@ class ClassSpecTest < Minitest::Test
     validate_wrapper_results(test_spec, classes)
 
     equivalent_signature = 'struct wrapped_struct \*equivalent;'
+
     refute(file_contains_match('ChildPointer.hpp', equivalent_signature))
 
     parent_initializer = 'equivalent \) : ParentPointer\('
+
     refute(file_contains_match('ChildPointer.cpp', parent_initializer))
 
     File.delete(*classes)
@@ -115,6 +121,7 @@ class ClassSpecTest < Minitest::Test
 
     constructor_sig = /#{spec.name}\( struct wrapped_struct \*\w+ \)/
     num_constructors = count_matches("#{spec.name}.hpp", constructor_sig)
+
     assert_equal(1, num_constructors)
 
     File.delete(*classes)
@@ -130,6 +137,7 @@ class ClassSpecTest < Minitest::Test
 
     constructor_sig = /#{spec.name}\( struct wrapped_struct \*\w+ \)/
     num_constructors = count_matches("#{spec.name}.hpp", constructor_sig)
+
     assert_equal(1, num_constructors)
 
     File.delete(*classes)

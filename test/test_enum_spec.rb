@@ -31,12 +31,14 @@ class EnumSpecTest < Minitest::Test
     assert_equal(test_spec['name'], spec.name)
 
     generated_files = Wrapture::CppWrapper.write_spec_source_files(spec)
+
     assert_equal(1, generated_files.count,
                  'only one file should have been generated')
 
     validate_file_matches_spec(generated_files.first, test_spec)
 
     includes = get_include_list(generated_files.first)
+
     assert_includes(includes, 'overall_1.h')
     assert_includes(includes, 'overall_2.h')
     assert_includes(includes, 'val_1.h')
@@ -52,6 +54,7 @@ class EnumSpecTest < Minitest::Test
     generated_files = Wrapture::CppWrapper.write_spec_source_files(spec)
 
     filename = generated_files.first
+
     assert(file_contains_match(filename, test_spec['doc']),
            'the doc for the enum was not in the definition')
 
@@ -81,6 +84,7 @@ class EnumSpecTest < Minitest::Test
     assert_equal(test_spec['name'], spec.name)
 
     generated_files = Wrapture::CppWrapper.write_spec_source_files(spec)
+
     assert_equal(1, generated_files.count,
                  'only one file should have been generated')
 
@@ -113,6 +117,7 @@ class EnumSpecTest < Minitest::Test
     enum_name = spec_hash['name']
 
     expected_filename = "#{enum_name}.hpp"
+
     assert_equal(expected_filename, filename)
 
     assert(FileTest.exist?(filename),
@@ -123,6 +128,7 @@ class EnumSpecTest < Minitest::Test
 
     if spec_hash.key?('namespace')
       namespace = spec_hash['namespace']
+
       assert(file_contains_match(filename, namespace),
              "the enum did not reference the namespace '#{namespace}'")
     end

@@ -100,6 +100,7 @@ def refute_keywords_found(filename)
     file.each do |line|
       Wrapture::KEYWORDS.each do |keyword|
         err_msg = "#{filename} had keyword '#{keyword}' on line #{file.lineno}"
+
         refute_includes(line, keyword, err_msg)
       end
     end
@@ -130,6 +131,7 @@ def validate_declaration_file(spec)
   validate_indentation filename
   validate_members(spec, filename)
   validate_namespace(spec, filename)
+
   refute_keywords_found(filename)
 end
 
@@ -146,16 +148,19 @@ def validate_definition_file(spec)
 
   sig = "#{spec['name']}::#{spec['name']}\\( struct \\w+ \\*equivalent \\)"
   def_count = count_matches(filename, sig)
+
   assert(def_count <= 1)
 
   normalized['functions'].each do |func_spec|
     sig = "#{spec['name']}::#{func_spec['name']}\\("
     def_count = count_matches(filename, sig)
+
     assert_equal(1, def_count, "not one definition of #{func_spec['name']}")
   end
 
   validate_indentation filename
   validate_namespace(spec, filename)
+
   refute_keywords_found(filename)
 end
 
@@ -190,6 +195,7 @@ def validate_members(spec, filename)
   first_member_name = equiv_struct['members'][0]['name']
 
   fail_msg = 'no constructor for struct members generated'
+
   assert(file_contains_match(filename, first_member_name), fail_msg)
 end
 
@@ -206,6 +212,7 @@ def validate_space_count(line, indent_level, msg_prefix)
                 end
 
   fail_msg = "#{msg_prefix} should have #{space_count} spaces"
+
   assert(line.start_with?(' ' * space_count), fail_msg)
 end
 

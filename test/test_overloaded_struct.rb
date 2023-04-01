@@ -41,6 +41,7 @@ class OverloadedStructTest < Minitest::Test
     assert(file_contains_match(def_file, 'return newParent \('))
 
     includes = get_include_list(def_file)
+
     assert_includes(includes, 'ChildOne.hpp')
     assert_includes(includes, 'ChildTwo.hpp')
 

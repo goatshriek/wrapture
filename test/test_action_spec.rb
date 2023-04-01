@@ -29,6 +29,7 @@ class ActionSpecTest < Minitest::Test
     spec = Wrapture::ActionSpec.new(test_spec)
 
     common_includes = spec.includes & test_spec['constructor']['includes']
+
     assert_equal(common_includes, test_spec['constructor']['includes'])
 
     action = spec.take

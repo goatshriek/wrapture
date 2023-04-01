@@ -40,6 +40,7 @@ class FunctionSpecTest < Minitest::Test
     test_spec = load_fixture('virtual_function')
 
     func_spec = Wrapture::FunctionSpec.new(test_spec)
-    assert(func_spec.virtual?)
+
+    assert_predicate(func_spec, :virtual?)
   end
 end

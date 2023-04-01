@@ -30,6 +30,7 @@ class RuleSpecTest < Minitest::Test
 
     left = test_spec['left-expression']
     right = test_spec['right-expression']
+
     assert_equal("#{left} != #{right}", spec.check)
   end
 end

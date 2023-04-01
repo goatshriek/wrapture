@@ -51,6 +51,7 @@ class ClassSpecTest < Minitest::Test
     validate_wrapper_results(test_spec, generated_files)
 
     source_file = "#{test_spec['name']}.cpp"
+
     assert(file_contains_match(source_file, 'this->equivalent == NULL'),
            'no error check against the equivalent struct was found')
     refute(file_contains_match(source_file, 'return_val'),
@@ -101,39 +102,48 @@ class ClassSpecTest < Minitest::Test
     header_file = "#{class_name}.hpp"
 
     member_regex = /^\s*#{class_name}\( int member/
+
     assert(file_contains_match(header_file, member_regex),
            'the member constructor had a return type specified in the header')
 
     spec_regex = /^\s*#{class_name}\( struct/
+
     assert(file_contains_match(header_file, spec_regex),
            'the spec constructor had a return type specified in the header')
 
     destructor_regex = /^\s*~#{class_name}/
+
     assert(file_contains_match(header_file, destructor_regex),
            'the destructor had a return type specified in the header')
 
     source_file = "#{class_name}.cpp"
     includes = get_include_list(source_file)
+
     all_spec_includes(test_spec).each do |inc|
       assert_includes(includes, inc)
     end
 
     forbidden = Wrapture::EQUIVALENT_STRUCT_KEYWORD
+
     refute(file_contains_match(source_file, forbidden))
 
     member_regex = /^\s*#{class_name}::#{class_name}\( int member/
+
     assert(file_contains_match(source_file, member_regex),
            'the member constructor had a return type specified when defined')
 
     spec_regex = /^\s*#{class_name}::#{class_name}\( struct/
+
     assert(file_contains_match(source_file, spec_regex),
            'the spec constructor had a return type specified when defined')
 
     destructor_regex = /^\s*#{class_name}::~#{class_name}/
+
     assert(file_contains_match(source_file, destructor_regex),
            'the destructor had a return type specified when defined')
 
     wrapped_function = test_spec['constructors'][0]['wrapped-function']
+
     assert(file_contains_match(source_file, /= #{wrapped_function['name']}/))
 
     File.delete(*generated_files)
@@ -208,6 +218,7 @@ class ClassSpecTest < Minitest::Test
     File.open("#{test_spec['name']}.hpp", 'r').each do |line|
       static_function_found = true if line.include? 'static'
     end
+
     assert static_function_found, 'No static function defined.'
 
     File.delete(*classes)
@@ -220,6 +231,7 @@ class ClassSpecTest < Minitest::Test
 
     classes = Wrapture::CppWrapper.write_spec_source_files(spec)
     validate_wrapper_results(test_spec, classes)
+
     assert(file_contains_match('DefaultMembersClass.hpp', 'member_1 = 42'),
            'default value not present in signature')
 
@@ -233,6 +245,7 @@ class ClassSpecTest < Minitest::Test
     validate_wrapper_results(test_spec, classes)
 
     sig = "#{spec.name}\\( void \\) : #{spec.name}\\( 3 \\)"
+
     assert(file_contains_match('DelegatingConstructorClass.cpp', sig),
            'delegating constructor not present')
 
@@ -261,10 +274,12 @@ class ClassSpecTest < Minitest::Test
     filename = 'StructWrapperClass.cpp'
     assignment = 'this->equivalent.member_1 = member_1;'
     failure_msg = 'member assignment not present in definition'
+
     assert(file_contains_match(filename, assignment), failure_msg)
 
     assignment = 'this->equivalent.member_1 = equivalent->member_1;'
     failure_msg = 'pointer member assignment not present in definition'
+
     assert(file_contains_match(filename, assignment), failure_msg)
 
     File.delete(*classes)

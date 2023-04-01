@@ -32,6 +32,7 @@ class TemplateSpecTest < Minitest::Test
     usage = scope_spec['classes'].first
 
     first_function = usage['functions'].first
+
     assert_instance_of(Hash, first_function)
   end
 
@@ -170,6 +171,7 @@ class TemplateSpecTest < Minitest::Test
 
     include_list = usage['equivalent-struct']['includes']
     template_value = scope_spec['templates'].first['value']
+
     assert_includes(include_list, template_value)
   end
 

@@ -32,12 +32,14 @@ class SelfReferenceTest < Minitest::Test
     validate_wrapper_results(test_spec, generated_files)
 
     forbidden = Wrapture::SELF_REFERENCE_KEYWORD
+
     generated_files.each do |filename|
       refute(file_contains_match(filename, forbidden),
              "#{filename} should not contain '#{forbidden}'")
     end
 
     source_file = "#{test_spec['name']}.cpp"
+
     assert(file_contains_match(source_file, /return \*this;/))
     refute(file_contains_match(source_file, 'return_val'))
 

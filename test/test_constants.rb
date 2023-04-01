@@ -25,6 +25,7 @@ require 'wrapture'
 class ConstantsTest < Minitest::Test
   def test_keywords_array
     keywords = Wrapture.constants.select { |sym| sym.to_s.end_with?('KEYWORD') }
+
     keywords.each do |word|
       assert_includes(Wrapture::KEYWORDS, Wrapture.const_get(word))
     end
