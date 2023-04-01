@@ -260,6 +260,8 @@ module Wrapture
                           'static '
                         elsif @spec.virtual?
                           'virtual '
+                        elsif @spec.destructor?
+                          '~'
                         else
                           ''
                         end
@@ -339,7 +341,8 @@ module Wrapture
     def define_function
       @spec.definable!
 
-      signature = @spec.return_expression(func_name: @spec.qualified_name)
+      func_name = qualified_function_name(@spec)
+      signature = @spec.return_expression(func_name: func_name)
 
       yield "#{signature} #{initializer_suffix}{"
 
@@ -472,6 +475,19 @@ module Wrapture
       end
 
       spec_hash
+    end
+
+    # The name of the given function with its class name, if it exists.
+    def qualified_function_name(function_spec)
+      if function_spec.owner.is_a?(ClassSpec)
+        if function_spec.destructor?
+          "#{function_spec.owner.name}::~#{function_spec.name}"
+        else
+          "#{function_spec.owner.name}::#{function_spec.name}"
+        end
+      else
+        function_spec.name
+      end
     end
 
     # A function to use to create the return value of a function.

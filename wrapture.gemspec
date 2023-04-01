@@ -19,7 +19,7 @@
 Gem::Specification.new do |spec|
   spec.name        =  'wrapture'
   spec.version     =  '0.6.0'
-  spec.summary     =  'wrap C in C++'
+  spec.summary     =  'wrap C in C++ or Python'
   spec.description =  'Wraps C code in C++ or Python.'
   spec.authors     =  ['Joel Anderson']
   spec.email       =  'joelanderson333@gmail.com'

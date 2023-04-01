@@ -132,7 +132,7 @@ module Wrapture
 
       if @spec.key?('destructor')
         destructor_spec = @spec['destructor'].dup
-        destructor_spec['name'] = "~#{@spec['name']}"
+        destructor_spec['name'] = @spec['name']
 
         @functions << FunctionSpec.new(destructor_spec, self, destructor: true)
       end

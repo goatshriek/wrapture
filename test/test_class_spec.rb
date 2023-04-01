@@ -140,7 +140,7 @@ class ClassSpecTest < Minitest::Test
     destructor_regex = /^\s*#{class_name}::~#{class_name}/
 
     assert(file_contains_match(source_file, destructor_regex),
-           'the destructor had a return type specified when defined')
+           'the destructor was not defined properly')
 
     wrapped_function = test_spec['constructors'][0]['wrapped-function']
 

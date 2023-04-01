@@ -164,12 +164,14 @@ module Wrapture
 
         wrapper_name = function_wrapper_name(func_spec)
         class_method_defs << "  { \"#{func_spec.name}\","
+
         class_method_defs << "    ( PyCFunction ) #{wrapper_name},"
         class_method_defs << if func_spec.params.empty?
                                '    METH_NOARGS,'
                              else
                                '    METH_VARARGS,'
                              end
+
         class_method_defs << "    \"#{func_spec.doc.text}\"},"
       end
 
