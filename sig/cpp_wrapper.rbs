@@ -30,7 +30,7 @@ module Wrapture
     def initializer_suffix: -> String
     def member_constructor_hash: -> spec_hash
     def pointer_constructor_hash: -> spec_hash
-    def qualified_function_name(Wrapture::FunctionSpec): -> String
+    def qualified_function_name: (Wrapture::FunctionSpec spec) -> String
     def return_statement: -> String
     def return_variable: -> String
     def this_struct: -> String
