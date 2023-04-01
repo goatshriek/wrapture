@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2020 Joel E. Anderson
+# Copyright 2020-2023 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -355,15 +355,15 @@ module Wrapture
         invocation == name
       when Hash
         unless invocation.key?('name')
-          error_message = "invocations of #{TEMPLATE_USE_KEYWORD} must have a "\
-                          'name member'
+          error_message = "invocations of #{TEMPLATE_USE_KEYWORD} must have " \
+                          'a name member'
           raise InvalidTemplateUsage, error_message
         end
 
         invocation['name'] == name
       else
-        error_message = "#{TEMPLATE_USE_KEYWORD} must either be a String or a "\
-                        'Hash'
+        error_message = "#{TEMPLATE_USE_KEYWORD} must either be a String or " \
+                        'a Hash'
         raise InvalidTemplateUsage, error_message
       end
     end
@@ -374,8 +374,8 @@ module Wrapture
     def merge_use_with_hash(use)
       result = instantiate(use['use-template']['params'])
 
-      error_message = "template #{name} was invoked in a Hash with other"\
-                      ' keys, but does not resolve to a hash itself'
+      error_message = "template #{name} was invoked in a Hash with other " \
+                      'keys, but does not resolve to a hash itself'
       raise InvalidTemplateUsage, error_message unless result.is_a?(Hash)
 
       use.merge!(result) { |_, oldval, _| oldval }

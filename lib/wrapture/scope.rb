@@ -110,7 +110,7 @@ module Wrapture
     # A list of includes needed to define everything in this scope.
     def definition_includes
       includes = []
-      
+
       @classes.each do |class_spec|
         includes.concat(class_spec.definition_includes)
       end

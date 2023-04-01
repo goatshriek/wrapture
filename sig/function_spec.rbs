@@ -26,8 +26,8 @@ module Wrapture
     def doc: -> untyped
     def initializers: -> spec_hash
     def locals: { (String) -> void } -> void
-    def name: -> untyped
-    def param_list: -> untyped
+    def name: -> String
+    def param_list: -> String
     def qualified_name: -> String
     def resolved_return: -> Wrapture::TypeSpec
     def return_expression: (?func_name: String) -> String

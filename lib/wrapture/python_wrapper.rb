@@ -51,9 +51,9 @@ module Wrapture
       used_param = @spec.params.find { |p| p.name == param_spec['value'] }
 
       if param_spec['value'] == EQUIVALENT_STRUCT_KEYWORD
-        'self'
+        'self_struct'
       elsif param_spec['value'] == EQUIVALENT_POINTER_KEYWORD
-        'self'
+        'self_pointer'
       elsif param_spec['value'] == '...'
         'variadic_args'
       elsif castable?(param_spec)
@@ -164,7 +164,12 @@ module Wrapture
 
         wrapper_name = function_wrapper_name(func_spec)
         class_method_defs << "  { \"#{func_spec.name}\","
-        class_method_defs << "    ( PyCFunction ) #{wrapper_name}, METH_NOARGS,"
+        class_method_defs << "    ( PyCFunction ) #{wrapper_name},"
+        class_method_defs << if func_spec.params.empty?
+                               '    METH_NOARGS,'
+                             else
+                               '    METH_VARARGS,'
+                             end
         class_method_defs << "    \"#{func_spec.doc.text}\"},"
       end
 
@@ -221,12 +226,10 @@ module Wrapture
         yield "  #{type_struct_name} *self;"
         yield "  self = ( #{type_struct_name} * ) type->tp_alloc( type, 0 );"
         yield '  return ( PyObject * ) self;'
-        yield '}'
       elsif func_spec.destructor?
         yield 'static void'
         yield "#{name}( #{type_struct_name} *self ) {"
         yield '  Py_TYPE( self )->tp_free( ( PyObject * ) self );'
-        yield '}'
       else
         yield 'static PyObject *'
         params = "#{type_struct_name} *self, PyObject *Py_UNUSED( ignored )"
@@ -239,8 +242,9 @@ module Wrapture
           func_spec.wrapped.lines.each { |line| yield "  #{line}" }
         end
         yield '  return PyUnicode_FromFormat("Test String from Wrapture");'
-        yield '}'
       end
+
+      yield '}'
     end
 
     # Yields the full contents of the module source file to the provided block.

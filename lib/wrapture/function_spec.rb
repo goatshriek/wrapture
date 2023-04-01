@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2019-2021 Joel E. Anderson
+# Copyright 2019-2023 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -63,8 +63,8 @@ module Wrapture
 
       spec['initializers'] = [] unless spec.key?('initializers')
       if spec['initializers'].any? { |i| !i.key?('name') && !i['delegate'] }
-        msg = 'initializers must either have a name or be delegating'\
-              ' constructors (have delegate set to true)'
+        msg = 'initializers must either have a name or be delegating ' \
+              'constructors (have delegate set to true)'
         raise MissingSpecKey, msg
       end
 
