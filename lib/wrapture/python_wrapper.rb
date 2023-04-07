@@ -149,12 +149,7 @@ module Wrapture
     # Passes lines of C code to the given block which creates the methods and
     # type object for the given class in this module.
     def define_class_type_object(class_spec, &block)
-      snake_name = class_spec.snake_case_name
-      type_struct_name = "#{snake_name}_type_struct"
-
-      yield 'typedef struct {'
-      yield '  PyObject_HEAD'
-      yield "} #{type_struct_name};"
+      define_class_type_struct(class_spec) { |line| block.call(line) }
       yield ''
 
       class_method_defs = []
@@ -175,6 +170,7 @@ module Wrapture
         class_method_defs << "    \"#{func_spec.doc.text}\"},"
       end
 
+      snake_name = class_spec.snake_case_name
       yield "static PyMethodDef #{snake_name}_methods[] = {"
       class_method_defs.each { |method_def| block.call(method_def) }
       yield '  {NULL}'
@@ -184,7 +180,7 @@ module Wrapture
       yield '  PyVarObject_HEAD_INIT(NULL, 0)'
       yield "  .tp_name = \"#{@spec.name}.#{class_spec.name}\","
       yield "  .tp_doc = \"#{class_spec.doc.text}\","
-      yield "  .tp_basicsize = sizeof( #{type_struct_name} ),"
+      yield "  .tp_basicsize = sizeof( #{type_struct_name(class_spec)} ),"
       yield '  .tp_itemsize = 0,'
       yield '  .tp_flags = Py_TPFLAGS_DEFAULT,'
       yield "  .tp_new = #{snake_name}_new,"
@@ -194,19 +190,27 @@ module Wrapture
       yield ''
     end
 
+    # Yields lines of C code to define the struct used to wrap objects of the
+    # given class spec.
+    def define_class_type_struct(class_spec)
+      yield 'typedef struct {'
+      yield '  PyObject_HEAD'
+      yield "} #{type_struct_name(class_spec)};"
+    end
+
     # Passes lines of C code to the given block which creates the methods and
     # type object for the given enum in this module.
     def define_enum_type_object(enum_spec)
       snake_name = enum_spec.snake_case_name
       yield 'typedef struct {'
       yield '  PyObject_HEAD'
-      yield "} #{snake_name}_type_struct;"
+      yield "} #{type_struct_name(enum_spec)};"
       yield ''
       yield "static PyTypeObject #{snake_name}_type_object = {"
       yield '  PyVarObject_HEAD_INIT(NULL, 0)'
       yield "  .tp_name = \"#{@spec.name}.#{enum_spec.name}\","
       yield "  .tp_doc = \"#{enum_spec.doc.text}\","
-      yield "  .tp_basicsize = sizeof(#{snake_name}_type_struct),"
+      yield "  .tp_basicsize = sizeof(#{type_struct_name(enum_spec)}),"
       yield '  .tp_itemsize = 0,'
       yield '  .tp_flags = Py_TPFLAGS_DEFAULT,'
       yield '  .tp_new = PyType_GenericNew,'
@@ -318,6 +322,11 @@ module Wrapture
         yield '  return NULL;'
         yield '}'
       end
+    end
+
+    # The name of the structure used to wrap objects of the given Named type.
+    def type_struct_name(named_type)
+      "#{named_type.snake_case_name}_type_struct"
     end
   end
 end
