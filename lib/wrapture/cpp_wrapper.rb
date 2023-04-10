@@ -346,7 +346,7 @@ module Wrapture
 
       yield "#{signature} #{initializer_suffix}{"
 
-      @spec.locals { |declaration| yield "  #{declaration}" }
+      function_locals(@spec) { |declaration| yield "  #{declaration}" }
       yield ''
 
       if @spec.variadic?
@@ -425,6 +425,16 @@ module Wrapture
                        'type' => 'equivalent-struct-pointer' }],
         'wrapped-code' => { 'lines' => factory_lines },
         'return' => { 'type' => "#{@spec.name} *" } }
+    end
+
+    # Yields a declaration of each local variable used by the function.
+    def function_locals(spec)
+      yield 'va_list variadic_args;' if spec.variadic?
+
+      if spec.capture_return?
+        wrapped_type = spec.resolve_type(spec.wrapped.return_val_type)
+        yield "#{wrapped_type.variable('return_val')};"
+      end
     end
 
     # The suffix to add to a function definition for initializers, if any exist.

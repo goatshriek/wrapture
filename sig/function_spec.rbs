@@ -17,6 +17,7 @@ module Wrapture
     attr_reader params: Array[Wrapture::ParamSpec]
     attr_reader return_type: Wrapture::TypeSpec
     attr_reader wrapped: Wrapture::WrappedFunctionSpec | Wrapture::WrappedCodeSpec | nil
+    def capture_return?: -> bool
     def constructor?: -> bool
     def declaration_includes: -> Array[String]
     def definable?: -> bool
@@ -25,7 +26,6 @@ module Wrapture
     def destructor?: -> bool
     def doc: -> untyped
     def initializers: -> spec_hash
-    def locals: { (String) -> void } -> void
     def name: -> String
     def param_list: -> String
     def qualified_name: -> String
@@ -40,7 +40,6 @@ module Wrapture
     def virtual?: -> bool
 
     private
-    def capture_return?: -> bool
     def returns_return_val?: -> bool
   end
 end

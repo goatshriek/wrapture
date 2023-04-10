@@ -20,6 +20,12 @@
 
 module Wrapture
   # Methods useful for named items such as specs.
+  #
+  # This module expects that +name+ gives a CamelCase name. Other
+  # transformations are based on this assumption. Names with multiple capital
+  # letters in sequence, such as 'AARConnection', contain an initialism and are
+  # interpreted as such. So for example, the result of +snake_case_name+ of the
+  # previous example would be 'aar_connection'.
   module Named
     # The name of this item in snake case.
     def snake_case_name

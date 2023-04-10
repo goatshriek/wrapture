@@ -163,6 +163,11 @@ module Wrapture
     # A WrappedFunctionSpec or WrappedCodeSpec this .
     attr_reader :wrapped
 
+    # True if the return value of the wrapped call is saved.
+    def capture_return?
+      !@constructor && (@wrapped.use_return? || returns_return_val?)
+    end
+
     # True if the function is a constructor, false otherwise.
     def constructor?
       @constructor
@@ -227,16 +232,6 @@ module Wrapture
     # A list of initializer specs.
     def initializers
       @spec['initializers']
-    end
-
-    # Yields a declaration of each local variable used by the function.
-    def locals
-      yield 'va_list variadic_args;' if variadic?
-
-      if capture_return?
-        wrapped_type = resolve_type(@wrapped.return_val_type)
-        yield "#{wrapped_type.variable('return_val')};"
-      end
     end
 
     # The name of the function.
@@ -315,12 +310,6 @@ module Wrapture
     end
 
     private
-
-    # True if the return value of the wrapped call needs to be captured in a
-    # local variable.
-    def capture_return?
-      !@constructor && (@wrapped.use_return? || returns_return_val?)
-    end
 
     # True if the function returns the return_val variable.
     def returns_return_val?

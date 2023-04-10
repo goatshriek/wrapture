@@ -27,6 +27,7 @@ module Wrapture
     def equivalent_member_declaration: -> String
     def equivalent_member_field: -> String
     def factory_constructor_hash: -> String
+    def function_locals: (Wrapture::FunctionSpec spec) { (String) -> void } -> void
     def initializer_suffix: -> String
     def member_constructor_hash: -> spec_hash
     def pointer_constructor_hash: -> spec_hash

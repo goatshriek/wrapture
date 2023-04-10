@@ -17,6 +17,7 @@ module Wrapture
     def define_function_wrapper: { (String) -> void } -> void
     def define_module: { (String) -> void } -> void
     def define_scope_type_objects: { (String) -> void } -> void
+    def function_locals: (Wrapture::FunctionSpec spec) { (String) -> void } -> void
     def function_wrapper_name: (Wrapture::FunctionSpec) -> String
     def scope_types_ready: { (String) -> void } -> void
     def type_struct_name: (Wrapture::Named thing) -> String

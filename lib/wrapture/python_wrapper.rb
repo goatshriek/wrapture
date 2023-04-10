@@ -175,9 +175,10 @@ module Wrapture
       class_method_defs.each { |method_def| block.call(method_def) }
       yield '  {NULL}'
       yield '};'
+      yield ''
 
       yield "static PyTypeObject #{snake_name}_type_object = {"
-      yield '  PyVarObject_HEAD_INIT(NULL, 0)'
+      yield '  PyVarObject_HEAD_INIT( NULL, 0 )'
       yield "  .tp_name = \"#{@spec.name}.#{class_spec.name}\","
       yield "  .tp_doc = \"#{class_spec.doc.text}\","
       yield "  .tp_basicsize = sizeof( #{type_struct_name(class_spec)} ),"
@@ -207,7 +208,7 @@ module Wrapture
       yield "} #{type_struct_name(enum_spec)};"
       yield ''
       yield "static PyTypeObject #{snake_name}_type_object = {"
-      yield '  PyVarObject_HEAD_INIT(NULL, 0)'
+      yield '  PyVarObject_HEAD_INIT( NULL, 0 )'
       yield "  .tp_name = \"#{@spec.name}.#{enum_spec.name}\","
       yield "  .tp_doc = \"#{enum_spec.doc.text}\","
       yield "  .tp_basicsize = sizeof(#{type_struct_name(enum_spec)}),"
@@ -237,17 +238,26 @@ module Wrapture
         yield "#{name}( #{type_struct_name} *self ) {"
         yield '  Py_TYPE( self )->tp_free( ( PyObject * ) self );'
       else
+        # this branch of execution needs a few subcases, probably split into
+        # new functions for the cases where the arguments are needed and
+        # where they aren't
         yield 'static PyObject *'
-        params = "#{type_struct_name} *self, PyObject *Py_UNUSED( ignored )"
+        
+        params = "#{type_struct_name} *self, "
+        if func_spec.params.empty?
+          params += 'PyObject *Py_UNUSED( ignored )'
+        else
+          params += 'PyObject *args'
+        end
         yield "#{name}( #{params} ) {"
-        func_spec.locals { |declaration| yield "  #{declaration}" }
+        function_locals(func_spec) { |declaration| yield "  #{declaration}" }
         yield ''
         if func_spec.wrapped.is_a?(WrappedFunctionSpec)
           yield "  #{func_spec.wrapped.call_from(self.class.new(func_spec))};"
         else
           func_spec.wrapped.lines.each { |line| yield "  #{line}" }
         end
-        yield '  return PyUnicode_FromFormat("Test String from Wrapture");'
+        yield '  return PyUnicode_FromFormat( "Test String from Wrapture" );'
       end
 
       yield '}'
@@ -265,13 +275,13 @@ module Wrapture
       yield ''
       define_scope_type_objects { |line| block.call(line) }
       yield 'PyMODINIT_FUNC'
-      yield "PyInit_#{@spec.name}(void)"
+      yield "PyInit_#{@spec.name}( void )"
       yield '{'
       yield '  PyObject *m;'
       yield ''
       scope_types_ready { |line| block.call("  #{line}") }
       yield ''
-      yield "  m = PyModule_Create(&#{@spec.name}_module);"
+      yield "  m = PyModule_Create( &#{@spec.name}_module );"
       yield '  if( !m ){'
       yield '    return NULL;'
       yield '  }'
@@ -301,6 +311,11 @@ module Wrapture
       end
     end
 
+    # Yields a declaration of each local variable used by the function.
+    def function_locals(spec)
+      # TODO pick up here
+    end
+
     # The name of the function that will be defined to wrap the given function.
     def function_wrapper_name(func_spec)
       owner_snake_name = func_spec.owner.snake_case_name
@@ -318,7 +333,7 @@ module Wrapture
     # on each type in the module.
     def scope_types_ready
       (@spec.classes + @spec.enums).flat_map do |item|
-        yield "if (PyType_Ready(&#{item.snake_case_name}_type_object) < 0){"
+        yield "if ( PyType_Ready( &#{item.snake_case_name}_type_object ) < 0){"
         yield '  return NULL;'
         yield '}'
       end
