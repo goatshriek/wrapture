@@ -51,9 +51,9 @@ module Wrapture
       used_param = @spec.params.find { |p| p.name == param_spec['value'] }
 
       if param_spec['value'] == EQUIVALENT_STRUCT_KEYWORD
-        'self_struct'
+        'self->equivalent'
       elsif param_spec['value'] == EQUIVALENT_POINTER_KEYWORD
-        'self_pointer'
+        '&(self->equivalent)'
       elsif param_spec['value'] == '...'
         'variadic_args'
       elsif castable?(param_spec)
@@ -196,6 +196,7 @@ module Wrapture
     def define_class_type_struct(class_spec)
       yield 'typedef struct {'
       yield '  PyObject_HEAD'
+      yield "  struct #{class_spec.struct_name} equivalent;"
       yield "} #{type_struct_name(class_spec)};"
     end
 

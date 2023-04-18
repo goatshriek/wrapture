@@ -14,7 +14,7 @@ module Wrapture
     def name: -> String
     def overloads: (untyped parent) -> Array[bot]
     def overloads?: (untyped parent) -> bool
-    def type: (untyped type_) -> nil
+    def type: (untyped type_) -> Wrapture::ClassSpec
     def type?: (untyped type_) -> bool
   end
 end
