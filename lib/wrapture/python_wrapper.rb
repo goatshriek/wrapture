@@ -313,7 +313,24 @@ module Wrapture
 
     # Yields a declaration of each local variable used by the function.
     def function_locals(spec)
-      # TODO pick up here
+      return if spec.params.empty?
+
+      format_str = '"'
+      param_names = []
+
+      spec.params.each do |param_spec|
+        format_str += 'i'
+        param_names << param_spec.name
+        yield "#{spec.resolve_type(param_spec.type)} #{param_spec.name};"
+      end
+      yield ''
+
+      format_str += '"'
+      parsed_args = '&' + param_names.join(', &')
+
+      yield "if( !PyArg_ParseTuple( args, #{format_str}, #{parsed_args} ) ) {"
+      yield '   return NULL;'
+      yield '}'
     end
 
     # The name of the function that will be defined to wrap the given function.

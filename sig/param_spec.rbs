@@ -1,17 +1,17 @@
 module Wrapture
   class ParamSpec
-    @spec: untyped
+    @spec: spec_hash
 
     def self.new_list: (untyped spec_list) -> untyped
     def self.normalize_param_list: (untyped spec_list) -> Array[bot]
     def self.normalize_spec_hash: (untyped spec) -> untyped
     def self.normalize_spec_hash!: (untyped spec) -> untyped
     def self.signature: (untyped param_list, untyped owner) -> String
-    attr_reader type: untyped
+    attr_reader type: Wrapture::TypeSpec
     def initialize: (untyped spec) -> untyped
-    def doc: -> untyped
+    def doc: -> Wrapture::Comment
     def includes: -> untyped
-    def name: -> untyped
+    def name: -> String
     def signature: (untyped owner) -> untyped
     def variadic?: -> bool
   end

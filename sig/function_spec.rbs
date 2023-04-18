@@ -24,7 +24,7 @@ module Wrapture
     def definable!: -> true
     def definition_includes: -> Array[String]
     def destructor?: -> bool
-    def doc: -> untyped
+    def doc: -> Wrapture::Comment
     def initializers: -> spec_hash
     def name: -> String
     def param_list: -> String
