@@ -51,9 +51,9 @@ module Wrapture
       used_param = @spec.params.find { |p| p.name == param_spec['value'] }
 
       if param_spec['value'] == EQUIVALENT_STRUCT_KEYWORD
-        'self->equivalent'
+        '*(self->equivalent)'
       elsif param_spec['value'] == EQUIVALENT_POINTER_KEYWORD
-        '&(self->equivalent)'
+        'self->equivalent'
       elsif param_spec['value'] == '...'
         'variadic_args'
       elsif castable?(param_spec)
@@ -79,7 +79,10 @@ module Wrapture
           from distutils.core import setup, Extension
 
           #{@spec.name}_mod = Extension('#{@spec.name}',
+                                        language = 'c',
                                         sources = ['#{@spec.name}.c'],
+                                        libraries = ['stove'],
+                                        library_dirs = ['.'], # todo handle this
                                         include_dirs = ['.']) # todo handle this
 
           setup(name = '#{@spec.name}',
@@ -233,6 +236,9 @@ module Wrapture
         yield "#{name}( #{new_args} ){"
         yield "  #{type_struct_name} *self;"
         yield "  self = ( #{type_struct_name} * ) type->tp_alloc( type, 0 );"
+        yield '  // todo should check this for null?'
+        yield "  self->equivalent = #{func_spec.wrapped.call_from(PythonWrapper.new(func_spec))};"
+        yield '  // todo do error check stuff'
         yield '  return ( PyObject * ) self;'
       elsif func_spec.destructor?
         yield 'static void'

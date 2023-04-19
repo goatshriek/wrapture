@@ -2,4 +2,4 @@
 
 import kitchen
 
-new_stove =kitchen.Stove()
+new_stove = kitchen.Stove()

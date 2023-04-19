@@ -75,7 +75,7 @@ module Wrapture
       @error_action = ActionSpec.new(action) unless @error_rules.empty?
     end
 
-    # Generates a function call from a provided wrapper. Paremeters and
+    # Generates a function call from a provided wrapper. Parameters and
     # types are resolved using this wrapper's context.
     def call_from(wrapper)
       resolved_params = []

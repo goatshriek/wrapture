@@ -38,7 +38,7 @@ namespace 'python' do
     sh 'python3 test_import.py'
     cp 'docs/examples/basic/stove_usage.py', '.'
     sh 'python3 stove_usage.py'
-    rm 'setup.py'
+    # rm 'setup.py'
     # rm Dir.glob('kitchen.*')
     rm 'test_import.py'
     rm 'stove_usage.py'
