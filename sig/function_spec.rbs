@@ -38,6 +38,7 @@ module Wrapture
     def returns_call_directly?: -> bool
     def variadic?: -> bool
     def virtual?: -> bool
+    def void_return?: -> bool
 
     private
     def returns_return_val?: -> bool

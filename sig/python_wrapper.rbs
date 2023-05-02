@@ -19,6 +19,7 @@ module Wrapture
     def define_module: { (String) -> void } -> void
     def define_scope_type_objects: { (String) -> void } -> void
     def function_locals: (Wrapture::FunctionSpec spec) { (String) -> void } -> void
+    def function_params: (Wrapture::FunctionSpec spec) -> Array[String]
     def function_wrapper_name: (Wrapture::FunctionSpec) -> String
     def return_statement: (Wrapture::FunctionSpec) -> String
     def scope_types_ready: { (String) -> void } -> void

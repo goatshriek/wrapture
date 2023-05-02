@@ -309,6 +309,11 @@ module Wrapture
       @spec['virtual']
     end
 
+    # True if the function has a void return type.
+    def void_return?
+      @return_type.name == 'void'
+    end
+
     private
 
     # True if the function returns the return_val variable.

@@ -156,7 +156,7 @@ module Wrapture
       elsif type.name == 'bool'
         "PyBool_FromLong(#{name})"
       else
-        # TODO default case
+        # TODO: default case
         ''
       end
     end
@@ -242,41 +242,14 @@ module Wrapture
       owner_snake_name = func_spec.owner.snake_case_name
       type_struct_name = "#{owner_snake_name}_type_struct"
 
-      #  new_args = 'PyTypeObject *type, PyObject *args, PyObject *kwds'
-      #  yield "#{name}( #{new_args} ){"
-      #  yield "  #{type_struct_name} *self;"
-      #  yield "  self = ( #{type_struct_name} * ) type->tp_alloc( type, 0 );"
-      #  yield '  // todo should check this for null?'
-      #  yield "  self->equivalent = #{func_spec.wrapped.call_from(PythonWrapper.new(func_spec))};"
-      #  yield '  // todo do error check stuff'
-      #  yield '  return ( PyObject * ) self;'
       if func_spec.destructor?
         yield 'static void'
         yield "#{name}( #{type_struct_name} *self ) {"
         yield "  #{func_spec.wrapped.call_from(PythonWrapper.new(func_spec))};"
         yield '  Py_TYPE( self )->tp_free( ( PyObject * ) self );'
       else
-        # this branch of execution needs a few subcases, probably split into
-        # new functions for the cases where the arguments are needed and
-        # where they aren't
         yield 'static PyObject *'
-        
-        params = []
-
-        if func_spec.constructor?
-          params << 'PyTypeObject *type'
-          params << 'PyObject *args'
-          params << 'PyObject *kwds'
-        else
-          params << "#{type_struct_name} *self"
-
-          if func_spec.params.empty?
-            params << 'PyObject *Py_UNUSED( ignored )'
-          else
-            params << 'PyObject *args'
-          end
-        end
-        yield "#{name}( #{params.join(', ')} ) {"
+        yield "#{name}( #{function_params(func_spec).join(', ')} ) {"
 
         function_locals(func_spec) { |declaration| yield "  #{declaration}" }
 
@@ -355,7 +328,7 @@ module Wrapture
         yield "#{type_struct_name} *self;"
       end
 
-      if spec.return_type.name != 'void'
+      unless spec.void_return?
         if spec.return_type.name == 'bool'
           yield 'long return_val;'
         else
@@ -373,17 +346,39 @@ module Wrapture
         param_names << param_spec.name
         yield "#{spec.resolve_type(param_spec.type)} #{param_spec.name};"
       end
-      
-      wrapped_type = spec.resolve_type(spec.wrapped.return_val_type)
 
       yield ''
 
       format_str += '"'
-      parsed_args = '&' + param_names.join(', &')
+      parsed_args = "&#{param_names.join(', &')}"
 
       yield "if( !PyArg_ParseTuple( args, #{format_str}, #{parsed_args} ) ) {"
       yield '   return NULL;'
       yield '}'
+    end
+
+    # A list of parameters for the given function's wrapper.
+    def function_params(func_spec)
+      owner_snake_name = func_spec.owner.snake_case_name
+      type_struct_name = "#{owner_snake_name}_type_struct"
+
+      params = []
+
+      if func_spec.constructor?
+        params << 'PyTypeObject *type'
+        params << 'PyObject *args'
+        params << 'PyObject *kwds'
+      else
+        params << "#{type_struct_name} *self"
+
+        params << if func_spec.params.empty?
+                    'PyObject *Py_UNUSED( ignored )'
+                  else
+                    'PyObject *args'
+                  end
+      end
+
+      params
     end
 
     # The name of the function that will be defined to wrap the given function.
@@ -405,7 +400,7 @@ module Wrapture
         'return ( PyObject * ) self;'
       elsif func_spec.return_type.self_reference?
         'return self;'
-      elsif func_spec.return_type.name == 'void'
+      elsif func_spec.void_return?
         'Py_RETURN_NONE;'
       else
         "return #{create_python_object(func_spec.return_type, 'return_val')};"
@@ -433,9 +428,9 @@ module Wrapture
 
       if func_spec.constructor?
         "self->equivalent = #{call}"
-      elsif func_spec.wrapped.error_check? || func_spec.return_type.name != 'void'
+      elsif func_spec.wrapped.error_check? || !func_spec.void_return?
         "return_val = #{call}"
-      #elsif func_spec.returns_call_directly?
+      # elsif func_spec.returns_call_directly?
       #  "return #{return_cast(func_spec, call)}"
       else
         call

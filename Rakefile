@@ -32,10 +32,12 @@ desc 'Run tests'
 task default: :test
 
 # build directory to hold intermediate and generated files
-directory 'build/examples'
-CLEAN.include('build/**/*.so')
-CLOBBER.include('build/**/*.c')
-CLOBBER.include('build/**/*.py')
+build_dir = 'build' # this should be made configurable later
+build_examples_dir = "#{build_dir}/examples"
+directory build_examples_dir
+CLEAN.include("#{build_dir}/**/*.so")
+CLOBBER.include("#{build_dir}/**/*.c")
+CLOBBER.include("#{build_dir}/**/*.py")
 
 begin
   require 'rdoc/task'
@@ -50,26 +52,27 @@ rescue LoadError
 end
 
 namespace 'python' do
-  directory 'build/test/python'
-
   desc 'Build and run Python examples'
-  task examples: ['build/examples'] do
-    scope = Wrapture::Scope.load_files('docs/examples/basic/stove.yml')
-    Wrapture::PythonWrapper.write_spec_source_files(scope, dir: 'build/examples')
-    Wrapture::PythonWrapper.write_spec_setuptools_files(scope, dir: 'build/examples')
-    Dir.chdir('build/examples') do
-      sh 'gcc -shared -o libstove.so -I ../../docs/examples/basic ../../docs/examples/basic/stove.c'
-      sh 'python3 setup.py build_ext --include-dirs ../../docs/examples/basic --build-lib .'
-      sh 'LD_LIBRARY_PATH=. PYTHONPATH=. python3 ../../docs/examples/basic/stove_usage.py'
+  task examples: [build_examples_dir] do
+    example_dir = File.absolute_path('docs/examples/basic')
+    scope = Wrapture::Scope.load_files("#{example_dir}/stove.yml")
+    wrapper = Wrapture::PythonWrapper.new(scope)
+    wrapper.write_source_files(dir: build_examples_dir)
+    wrapper.write_setuptools_files(dir: build_examples_dir)
+    Dir.chdir(build_examples_dir) do
+      sh "gcc -shared -o libstove.so -I #{example_dir} #{example_dir}/stove.c"
+      setup_command = 'python3 setup.py build_ext'
+      sh "#{setup_command} --include-dirs #{example_dir} --build-lib ."
+      sh "LD_LIBRARY_PATH=. PYTHONPATH=. python3 #{example_dir}/stove_usage.py"
     end
   end
 
+  build_test_dir = "#{build_dir}/test/python"
+  directory build_test_dir
+
   desc 'Run Python tests'
   task test: ['build/test/python'] do
-    scope = Wrapture::Scope.load_files('docs/examples/basic/stove.yml')
-    Wrapture::PythonWrapper.write_spec_source_files(scope, dir: 'build/test/python')
-    Wrapture::PythonWrapper.write_spec_setuptools_files(scope, dir: 'build/test/python')
-    Dir.chdir('build/test/python') do
+    Dir.chdir(build_test_dir) do
       sh 'touch todo.txt'
     end
   end
