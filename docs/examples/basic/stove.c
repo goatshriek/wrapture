@@ -63,7 +63,7 @@ set_oven_temp( struct stove *s, int new_temp ) {
 
 void
 destroy_stove( struct stove *s ) {
-  printf( "destroyed a stove" );
+  printf( "destroyed a stove\n" );
 
   free( s->burner_levels );
   free( s );

@@ -43,6 +43,8 @@ jobs:
           python-version: '3.x'
       - name: Run Python Tests
         run: bundle exec rake python:test
+      - name: Run Python Examples
+        run: bundle exec rake python:examples
   code-analysis:
     runs-on: ubuntu-latest
     name: code analysis
