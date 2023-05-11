@@ -7,8 +7,11 @@ module Wrapture
     def ancestor_suffix: -> String
     def declare: { (String) -> void } -> void
     def define: { (String) -> void } -> void
+    def forward_declared?: -> bool
     def header_guard: -> String
     def resolve_param: (Wrapture::ParamSpec) -> String
+    def source_files: -> Array[String]
+    def write_cmake_files: (?String dir) -> Array[String]
     def write_declaration_file: (?String dir) -> String
     def write_definition_file: (?String dir) -> String
     def write_source_files: (?String dir) -> Array[String]

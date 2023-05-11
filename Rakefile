@@ -51,6 +51,20 @@ rescue LoadError
   puts 'could not load rdoc/task module'
 end
 
+namespace 'cpp' do
+  desc 'Build and run C++ examples'
+  task examples: [build_examples_dir] do
+    example_dir = File.absolute_path('docs/examples/basic')
+    scope = Wrapture::Scope.load_files("#{example_dir}/stove.yml")
+    wrapper = Wrapture::CppWrapper.new(scope)
+    wrapper.write_source_files(dir: build_examples_dir)
+    wrapper.write_cmake_files(dir: build_examples_dir)
+    Dir.chdir(build_examples_dir) do
+      sh 'cmake .'
+    end
+  end
+end
+
 namespace 'python' do
   desc 'Build and run Python examples'
   task examples: [build_examples_dir] do
