@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2019-2021 Joel E. Anderson
+# Copyright 2019-2023 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,6 +23,8 @@ require 'yaml'
 module Wrapture
   # Describes a scope of one or more class specifications.
   class Scope
+    include Enumerable
+
     # Creates a scope containing all of the specs in the given files.
     def self.load_files(*filenames)
       scope = Scope.new
@@ -120,6 +122,12 @@ module Wrapture
       end
 
       includes.uniq
+    end
+
+    # Yields successive specs within this scope.
+    def each(&block)
+      @classes.each(&block)
+      @enums.each(&block)
     end
 
     # The name of the scope.
