@@ -55,11 +55,11 @@ module Wrapture
   # If this spec uses a version unsupported by this version of Wrapture or the
   # spec is otherwise invalid, an exception is raised.
   def self.spec_version(spec)
-    if spec.key?('version') && !Wrapture.supports_version?(spec['version'])
+    if spec&.key?('version') && !Wrapture.supports_version?(spec['version'])
       raise UnsupportedSpecVersion
     end
 
-    if spec.key?('version')
+    if spec&.key?('version')
       spec['version']
     else
       Wrapture::VERSION

@@ -24,6 +24,7 @@ module Wrapture
   # Describes a scope of one or more class specifications.
   class Scope
     include Enumerable
+    include Named
 
     # Creates a scope containing all of the specs in the given files.
     def self.load_files(*filenames)
@@ -32,11 +33,7 @@ module Wrapture
       filenames.each do |spec_file|
         spec = YAML.safe_load_file(spec_file)
 
-        # TODO: this needs to be replace with a simple version check
-        # to reduce duplication of this logic
-        if spec.key?('version') && !Wrapture.supports_version?(spec['version'])
-          raise UnsupportedSpecVersion
-        end
+        spec['version'] = Wrapture.spec_version(spec)
 
         spec.fetch('templates', []).each do |temp_spec|
           scope << TemplateSpec.new(temp_spec)
@@ -64,12 +61,13 @@ module Wrapture
     attr_reader :templates
 
     # Creates an empty scope, optionally with the provided specification.
-    def initialize(spec = nil)
+    #
+    # Since a scope can be completely empty, all keys are optional in the
+    # specification hash.
+    def initialize(spec = {})
       @classes = []
       @enums = []
       @templates = []
-
-      return if spec.nil?
 
       @version = Wrapture.spec_version(spec)
 
@@ -77,7 +75,7 @@ module Wrapture
         TemplateSpec.new(template_hash)
       end
 
-      @classes = spec.fetch('classes', []).collect do |class_hash|
+      spec.fetch('classes', []).collect do |class_hash|
         ClassSpec.new(class_hash, scope: self)
       end
 
@@ -88,8 +86,8 @@ module Wrapture
 
     # Adds a class or template specification to the scope.
     #
-    # This does not set the scope as the owner of the class for a ClassSpec.
-    # This must be done during the construction of the class spec.
+    # This does not set the scope as the owner of the class for a ClassSpec,
+    # which must be done during the construction of the class spec.
     def <<(spec)
       @templates << spec if spec.is_a?(TemplateSpec)
       @classes << spec if spec.is_a?(ClassSpec)
@@ -124,10 +122,12 @@ module Wrapture
       includes.uniq
     end
 
-    # Yields successive specs within this scope.
+    # Yields successive specs in this scope.
     def each(&block)
       @classes.each(&block)
       @enums.each(&block)
+
+      self
     end
 
     # The name of the scope.

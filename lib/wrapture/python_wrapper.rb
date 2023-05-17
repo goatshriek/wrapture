@@ -81,7 +81,7 @@ module Wrapture
           #{@spec.name}_mod = Extension('#{@spec.name}',
                                         language = 'c',
                                         sources = ['#{@spec.name}.c'],
-                                        libraries = ['stove'],
+                                        libraries = ['stove'], # todo handle this
                                         library_dirs = ['.'], # todo handle this
                                         include_dirs = ['.']) # todo handle this
 

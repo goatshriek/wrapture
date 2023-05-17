@@ -2,11 +2,14 @@ module Wrapture
   class CppWrapper
     def self.declare_spec: ( (Wrapture::ClassSpec | Wrapture::FunctionSpec | Wrapture::Scope) spec ) { (String) -> void } -> void
     def self.define_spec: ( (Wrapture::ClassSpec | Wrapture::EnumSpec | Wrapture::FunctionSpec | Wrapture::Scope) spec ) { (String) -> void } -> void
+    def self.source_files: ( (Wrapture::ClassSpec | Wrapture::EnumSpec | Wrapture::FunctionSpec | Wrapture::Scope) spec ) -> Array[String]
     def self.write_spec_source_files: ( (Wrapture::ClassSpec | Wrapture::EnumSpec | Wrapture::FunctionSpec | Wrapture::Scope) spec, ?String dir) -> Array[String]
     def initialize: ( (Wrapture::ClassSpec | Wrapture::EnumSpec | Wrapture::FunctionSpec | Wrapture::Scope) spec) -> void
     def ancestor_suffix: -> String
+    def declaration_filename: -> String
     def declare: { (String) -> void } -> void
     def define: { (String) -> void } -> void
+    def definition_filename: -> String
     def forward_declared?: -> bool
     def header_guard: -> String
     def resolve_param: (Wrapture::ParamSpec) -> String

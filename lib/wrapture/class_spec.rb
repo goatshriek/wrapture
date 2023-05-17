@@ -99,7 +99,8 @@ module Wrapture
 
     # Creates a class spec based on the provided hash spec.
     #
-    # The scope can be provided if available.
+    # The scope can be provided if available. Otherwise, a new Scope is created
+    # holding only the described class.
     #
     # The hash must have the following keys:
     # name:: the name of the class, in CamelCase
