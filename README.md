@@ -33,6 +33,6 @@ to contribute, please submit an issue with ideas of features that you think are
 important, or share your thoughts on Twitter with
 [#WraptureGem](https://twitter.com/search?q=%23WraptureGem)!
 
-Once the structure of the project has solkidified, there will be issues for
+Once the structure of the project has solidified, there will be issues for
 contributors of all skill levels to get involved with, so stay tuned!
 
