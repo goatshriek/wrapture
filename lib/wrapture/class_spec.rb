@@ -26,41 +26,6 @@ module Wrapture
   class ClassSpec
     include Named
 
-    # Normalizes a hash specification of a class. Normalization will check for
-    # things like invalid keys, duplicate entries in include lists, and will set
-    # missing keys to their default values (for example, an empty list if no
-    # includes are given).
-    #
-    # If this spec cannot be normalized, for example because it is invalid or
-    # it uses an unsupported version type, then an exception is raised.
-    #
-    # If the 'doc' key is present, it is validated using Comment::validate_doc.
-    # If not, it is set to an empty string.
-    def self.normalize_spec_hash(spec)
-      raise MissingNamespace unless spec.key?('namespace')
-      raise MissingSpecKey, 'name key is required' unless spec.key?('name')
-
-      normalized = spec.dup
-      normalized.default = []
-
-      if spec.key?('doc')
-        Comment.validate_doc(spec['doc'])
-      else
-        normalized['doc'] = ''
-      end
-
-      normalized['version'] = Wrapture.spec_version(spec)
-      normalized['includes'] = Wrapture.normalize_includes(spec['includes'])
-      normalized['type'] = ClassSpec.effective_type(normalized)
-
-      if spec.key?('parent')
-        includes = Wrapture.normalize_includes(spec['parent']['includes'])
-        normalized['parent']['includes'] = includes
-      end
-
-      normalized
-    end
-
     # Gives the effective type of the given class spec hash.
     def self.effective_type(spec)
       inferred_pointer_wrapper = spec['constructors'].any? do |func|
@@ -82,6 +47,50 @@ module Wrapture
       end
     end
 
+    # Returns a normalized copy of a hash specification of a class. See
+    # normalize_spec_hash! for details.
+    def self.normalize_spec_hash(spec, *templates)
+      normalize_spec_hash!(Marshal.load(Marshal.dump(spec)), *templates)
+    end
+
+    # Normalizes a hash specification of a class in place. Normalization checks
+    # invalid keys, duplicate entries in include lists, and will set missing
+    # keys to their default values (for example, an empty list if no includes
+    # are given).
+    #
+    # If this spec cannot be normalized, for example because it is invalid or
+    # it uses an unsupported version type, then an exception is raised.
+    #
+    # If the 'doc' key is present, it is validated using Comment::validate_doc.
+    # If not, it is set to an empty string.
+    def self.normalize_spec_hash!(spec, *templates)
+      TemplateSpec.replace_all_uses(spec, *templates)
+
+      raise MissingNamespace unless spec.key?('namespace')
+      raise MissingSpecKey, 'name key is required' unless spec.key?('name')
+
+      if spec.key?('doc')
+        Comment.validate_doc(spec['doc'])
+      else
+        spec['doc'] = ''
+      end
+
+      spec['constants'] = [] unless spec.key?('constants')
+      spec['constructors'] = [] unless spec.key?('constructors')
+      spec['functions'] = [] unless spec.key?('functions')
+
+      spec['version'] = Wrapture.spec_version(spec)
+      spec['includes'] = Wrapture.normalize_includes(spec['includes'])
+      spec['type'] = ClassSpec.effective_type(spec)
+
+      if spec.key?('parent')
+        includes = Wrapture.normalize_includes(spec['parent']['includes'])
+        spec['parent']['includes'] = includes
+      end
+
+      spec
+    end
+
     # The list of constants in this class.
     attr_reader :constants
 
@@ -100,7 +109,7 @@ module Wrapture
     # Creates a class spec based on the provided hash spec.
     #
     # The scope can be provided if available. Otherwise, a new Scope is created
-    # holding only the described class.
+    # holding only this class.
     #
     # The hash must have the following keys:
     # name:: the name of the class, in CamelCase
@@ -114,10 +123,7 @@ module Wrapture
     # functions:: a list of function specs
     # constants:: a list of constant specs
     def initialize(spec, scope: Scope.new)
-      @spec = Marshal.load(Marshal.dump(spec))
-      TemplateSpec.replace_all_uses(@spec, *scope.templates)
-
-      @spec = ClassSpec.normalize_spec_hash(@spec)
+      @spec = ClassSpec.normalize_spec_hash(spec, *scope.templates)
 
       @struct = if @spec.key?(EQUIVALENT_STRUCT_KEYWORD)
                   StructSpec.new(@spec[EQUIVALENT_STRUCT_KEYWORD])

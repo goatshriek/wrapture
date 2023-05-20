@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2020-2021 Joel E. Anderson
+# Copyright 2020-2023 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,10 +23,10 @@ require 'wrapture/named'
 module Wrapture
   # A description of an enumeration.
   class EnumSpec
-    include Wrapture::Named
+    include Named
 
-    # Returns a normalized copy of a hash specification of an enumeration in
-    # place. See normalize_spec_hash! for details.
+    # Returns a normalized copy of a hash specification of an enumeration.
+    # See normalize_spec_hash! for details.
     def self.normalize_spec_hash(spec)
       normalize_spec_hash!(Marshal.load(Marshal.dump(spec)))
     end
@@ -64,9 +64,21 @@ module Wrapture
     end
 
     # Creates an enumeration specification based on the provided hash spec.
-    def initialize(spec)
+    #
+    # The scope can be provided if available. Otherwise, a new Scope is created
+    # holding only this enumeration.
+    #
+    # The hash must have the following keys:
+    # name:: The name of the enumeration.
+    #
+    # The following keys are optional:
+    # doc:: a string containing the documentation for this class
+    def initialize(spec, scope: Scope.new)
       @spec = EnumSpec.normalize_spec_hash(spec)
       @doc = Comment.new(@spec['doc'])
+
+      scope << self
+      @scope = scope
     end
 
     # The documentation of the enumeration.

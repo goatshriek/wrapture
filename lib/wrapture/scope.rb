@@ -51,6 +51,46 @@ module Wrapture
       scope
     end
 
+    # Returns a normalized copy of a scope hash specification. See
+    # normalize_spec_hash! for details.
+    def self.normalize_spec_hash(spec)
+      normalize_spec_hash!(Marshal.load(Marshal.dump(spec)))
+    end
+
+    # Normalizes a hash specification of a scope in place. Normalization
+    # will normalize the version of the spec and all templates, classes,
+    # and enumerations as well.
+    #
+    # If the 'doc' key is present, it is validated using Comment::validate_doc.
+    # If not, it is set to an empty string.
+    def self.normalize_spec_hash!(spec)
+      # the templates must be handled first, since they might add keys needed
+      # for the spec to be valid
+      spec['templates'] = [] unless spec.key?('templates')
+      templates = spec['templates'].collect do |template_hash|
+        TemplateSpec.new(template_hash)
+      end
+      TemplateSpec.replace_all_uses(spec, *templates)
+
+      if spec.key?('doc')
+        Comment.validate_doc(spec['doc'])
+      else
+        spec['doc'] = ''
+      end
+
+      spec['version'] = Wrapture.spec_version(spec)
+
+      spec['classes'] = [] unless spec.key?('classes')
+      spec['classes'].each do |class_hash|
+        ClassSpec.normalize_spec_hash!(class_hash)
+      end
+
+      spec['enums'] = [] unless spec.key?('enums')
+      spec['enums'].each do |enum_hash|
+        EnumSpec.normalize_spec_hash!(enum_hash)
+      end
+    end
+
     # A list of classes currently in the scope.
     attr_reader :classes
 
@@ -69,18 +109,19 @@ module Wrapture
       @enums = []
       @templates = []
 
+      @spec = self.class.normalize_spec_hash(spec)
       @version = Wrapture.spec_version(spec)
 
       @templates = spec.fetch('templates', []).collect do |template_hash|
         TemplateSpec.new(template_hash)
       end
 
-      spec.fetch('classes', []).collect do |class_hash|
+      spec.fetch('classes', []).each do |class_hash|
         ClassSpec.new(class_hash, scope: self)
       end
 
-      @enums = spec.fetch('enums', []).collect do |enum_hash|
-        EnumSpec.new(enum_hash)
+      spec.fetch('enums', []).each do |enum_hash|
+        EnumSpec.new(enum_hash, scope: self)
       end
     end
 
@@ -132,7 +173,13 @@ module Wrapture
 
     # The name of the scope.
     def name
-      @classes.first.namespace
+      if @classes.any?
+        @classes.first.namespace
+      elsif @enums.any?
+        @enums.first.namespace
+      else
+        ''
+      end
     end
 
     # A list of ClassSpecs in this scope that are overloads of the given class.

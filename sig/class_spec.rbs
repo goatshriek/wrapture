@@ -8,14 +8,15 @@ module Wrapture
     @doc: Wrapture::Comment
     @scope: Wrapture::Scope
 
+    def self.effective_type: (spec_hash spec) -> String
     def self.normalize_spec_hash: (spec_hash spec) -> spec_hash
-    def self.effective_type: (untyped spec) -> String
+    def self.normalize_spec_hash!: (spec_hash spec) -> spec_hash
     attr_reader constants: Array[Wrapture::ConstantSpec]
     attr_reader doc: Wrapture::Comment
     attr_reader functions: Array[Wrapture::FunctionSpec]
     attr_reader scope: Wrapture::Scope
     attr_reader struct: (Wrapture::StructSpec | nil)
-    def initialize: (spec_hash spec, ?scope: untyped) -> void
+    def initialize: (spec_hash spec, ?scope: Wrapture::Scope) -> void
     def cast: (untyped var_name, untyped to, untyped from) -> String
     def child?: -> bool
     def declaration_includes: -> Array[String]
