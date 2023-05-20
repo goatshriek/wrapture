@@ -49,6 +49,10 @@ module Wrapture
     end
   end
 
+  # Two keys conflicted with one another.
+  class KeyConflict < WraptureError
+  end
+
   # The spec is missing a key that is required.
   class MissingSpecKey < WraptureError
   end

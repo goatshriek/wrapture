@@ -12,6 +12,9 @@ module Wrapture
     def initialize: (String message, ?valid_keys: Array[String]) -> void
   end
 
+  class KeyConflict < WraptureError
+  end
+
   class MissingSpecKey < WraptureError
   end
 

@@ -31,21 +31,7 @@ module Wrapture
       scope = Scope.new
 
       filenames.each do |spec_file|
-        spec = YAML.safe_load_file(spec_file)
-
-        spec['version'] = Wrapture.spec_version(spec)
-
-        spec.fetch('templates', []).each do |temp_spec|
-          scope << TemplateSpec.new(temp_spec)
-        end
-
-        spec.fetch('classes', []).each do |class_spec|
-          scope.add_class_spec_hash(class_spec)
-        end
-
-        spec.fetch('enums', []).each do |enum_spec|
-          scope.add_enum_spec_hash(enum_spec)
-        end
+        scope.merge_file(spec_file)
       end
 
       scope
@@ -53,24 +39,28 @@ module Wrapture
 
     # Returns a normalized copy of a scope hash specification. See
     # normalize_spec_hash! for details.
-    def self.normalize_spec_hash(spec)
-      normalize_spec_hash!(Marshal.load(Marshal.dump(spec)))
+    def self.normalize_spec_hash(spec, *templates)
+      normalize_spec_hash!(Marshal.load(Marshal.dump(spec)), *templates)
     end
 
     # Normalizes a hash specification of a scope in place. Normalization
     # will normalize the version of the spec and all templates, classes,
     # and enumerations as well.
     #
+    # A set of templates can optionally be supplied, which will be expanded in
+    # the spec before normalization is done.
+    #
     # If the 'doc' key is present, it is validated using Comment::validate_doc.
     # If not, it is set to an empty string.
-    def self.normalize_spec_hash!(spec)
+    def self.normalize_spec_hash!(spec, *templates)
       # the templates must be handled first, since they might add keys needed
       # for the spec to be valid
+      TemplateSpec.replace_all_uses(spec, *templates)
       spec['templates'] = [] unless spec.key?('templates')
-      templates = spec['templates'].collect do |template_hash|
+      new_templates = spec['templates'].collect do |template_hash|
         TemplateSpec.new(template_hash)
       end
-      TemplateSpec.replace_all_uses(spec, *templates)
+      TemplateSpec.replace_all_uses(spec, *new_templates)
 
       if spec.key?('doc')
         Comment.validate_doc(spec['doc'])
@@ -89,10 +79,15 @@ module Wrapture
       spec['enums'].each do |enum_hash|
         EnumSpec.normalize_spec_hash!(enum_hash)
       end
+
+      spec
     end
 
     # A list of classes currently in the scope.
     attr_reader :classes
+
+    # The documentation comment for this scope.
+    attr_reader :doc
 
     # A list of enumerations currently in the scope.
     attr_reader :enums
@@ -110,17 +105,17 @@ module Wrapture
       @templates = []
 
       @spec = self.class.normalize_spec_hash(spec)
-      @version = Wrapture.spec_version(spec)
+      @doc = Comment.new(@spec['doc'])
 
-      @templates = spec.fetch('templates', []).collect do |template_hash|
+      @templates = @spec['templates'].collect do |template_hash|
         TemplateSpec.new(template_hash)
       end
 
-      spec.fetch('classes', []).each do |class_hash|
+      @spec['classes'].each do |class_hash|
         ClassSpec.new(class_hash, scope: self)
       end
 
-      spec.fetch('enums', []).each do |enum_hash|
+      @spec['enums'].each do |enum_hash|
         EnumSpec.new(enum_hash, scope: self)
       end
     end
@@ -171,9 +166,55 @@ module Wrapture
       self
     end
 
+    # Merges the scope defined in the given filename into this one.
+    #
+    # If the new spec specifies a name and this spec already has one that is
+    # different, this will raise a KeyConflict error.
+    #
+    # The version of spec will be the maximum of this scope and the loaded one.
+    # Note that the version defaults to the current Wrapture version if one is
+    # not provided, meaning that if the version was not given in both specs
+    # then this will be the current Wrapture version.
+    def merge_file(spec_filename)
+      new_spec = YAML.safe_load_file(spec_filename)
+      self.class.normalize_spec_hash!(new_spec, *@templates)
+
+      both_named = @spec.key?('name') && new_spec.key?('name')
+      if both_named && @spec['name'] != new_spec['name']
+        msg = "'#{new_spec['name']}' conflicts current name '#{@spec['name']}'"
+        raise KeyConflict, msg
+      end
+
+      versions = [@spec['version'], new_spec['version']]
+      @spec['version'] = Wrapture.max_version(*versions)
+
+      new_spec['templates'].collect do |template_hash|
+        @templates << TemplateSpec.new(template_hash)
+      end
+
+      new_spec['classes'].each do |class_hash|
+        ClassSpec.new(class_hash, scope: self)
+      end
+
+      new_spec['enums'].each do |enum_hash|
+        EnumSpec.new(enum_hash, scope: self)
+      end
+
+      self
+    end
+
     # The name of the scope.
+    #
+    # Since the name of a scope is optional, it is derived using the following
+    # rules:
+    # * the value of the 'name' key in the scope's definition if present
+    # * the namespace of the first class in the scope
+    # * the namespace of the first enum in the scope
+    # * an empty string
     def name
-      if @classes.any?
+      if @spec.key?('name')
+        @spec['name']
+      elsif @classes.any?
         @classes.first.namespace
       elsif @enums.any?
         @enums.first.namespace

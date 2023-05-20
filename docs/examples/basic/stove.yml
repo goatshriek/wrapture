@@ -1,3 +1,4 @@
+doc: "A collection of Kitchen appliance implementations."
 classes:
   - name: "Stove"
     doc: "A humble stove."

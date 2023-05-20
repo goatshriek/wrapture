@@ -4,7 +4,7 @@ import kitchen
 
 my_stove = kitchen.Stove(4)
 
-print(my_stove.GetBurnerCount())
+print('burner count is: %d\n' % my_stove.GetBurnerCount())
 
 my_stove.SetOvenTemp(350)
 print('current oven temp is: %d\n' % my_stove.GetOvenTemp())

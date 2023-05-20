@@ -9,8 +9,8 @@ module Wrapture
     @scope: Wrapture::Scope
 
     def self.effective_type: (spec_hash spec) -> String
-    def self.normalize_spec_hash: (spec_hash spec) -> spec_hash
-    def self.normalize_spec_hash!: (spec_hash spec) -> spec_hash
+    def self.normalize_spec_hash: (spec_hash spec, *Wrapture::TemplateSpec templates) -> spec_hash
+    def self.normalize_spec_hash!: (spec_hash spec, *Wrapture::TemplateSpec templates) -> spec_hash
     attr_reader constants: Array[Wrapture::ConstantSpec]
     attr_reader doc: Wrapture::Comment
     attr_reader functions: Array[Wrapture::FunctionSpec]

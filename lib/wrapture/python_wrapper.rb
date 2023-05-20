@@ -87,7 +87,7 @@ module Wrapture
 
           setup(name = '#{@spec.name}',
                 version = '1.0', # todo create a scope version number
-                description = 'todo create a scope description',
+                description = '#{@spec.doc.text}', # todo this should be better
                 ext_modules = [#{@spec.name}_mod])
         SETUPTEXT
       end

@@ -61,9 +61,14 @@ module Wrapture
     # style.
     def format_as_doxygen(max_line_length: 80, &block)
       format(line_prefix: ' * ', first_line: '/**',
-             last_line: ' */', max_line_length: max_line_length) do |line|
-        block.call(line)
-      end
+             last_line: ' */', max_line_length: max_line_length, &block)
+    end
+
+    # Calls the given block for each line of the comment formatted as a Python
+    # string triple-double-quote string.
+    def format_as_python_string(max_line_length: 80, &block)
+      format(line_prefix: '', first_line: '"""',
+             last_line: '"""', max_line_length: max_line_length, &block)
     end
 
     private

@@ -58,6 +58,9 @@ module Wrapture
     # keys to their default values (for example, an empty list if no includes
     # are given).
     #
+    # A set of templates can optionally be supplied, which will be expanded in
+    # the spec before normalization is done.
+    #
     # If this spec cannot be normalized, for example because it is invalid or
     # it uses an unsupported version type, then an exception is raised.
     #

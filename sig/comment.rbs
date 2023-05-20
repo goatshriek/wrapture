@@ -6,6 +6,7 @@ module Wrapture
     def empty?: -> bool
     def format: (?line_prefix: String, ?first_line: String?, ?last_line: String?, ?max_line_length: Integer) ?{ (String) -> untyped } -> nil
     def format_as_doxygen: (?max_line_length: Integer) { (String) -> void } -> nil
+    def format_as_python_string: (?max_line_length: Integer) { (String) -> void } -> nil
 
     private
     def paragraphs: (Complex | Float | Integer | Rational line_length) { (String) -> untyped } -> untyped
