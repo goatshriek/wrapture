@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2020 Joel E. Anderson
+# Copyright 2020-2023 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -36,6 +36,18 @@ module Wrapture
     # empty string is used.
     def initialize(comment = '')
       @text = comment.nil? ? '' : comment
+    end
+
+    # Adds more to the existing comment.
+    def <<(comment)
+      @text << case comment
+               when Comment
+                 comment.text
+               else
+                 comment
+               end
+
+      self
     end
 
     # True if this comment is empty, false otherwise.

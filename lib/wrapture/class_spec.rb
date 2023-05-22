@@ -83,11 +83,11 @@ module Wrapture
       spec['functions'] = [] unless spec.key?('functions')
 
       spec['version'] = Wrapture.spec_version(spec)
-      spec['includes'] = Wrapture.normalize_includes(spec['includes'])
+      spec['includes'] = Wrapture.normalize_array(spec['includes'])
       spec['type'] = ClassSpec.effective_type(spec)
 
       if spec.key?('parent')
-        includes = Wrapture.normalize_includes(spec['parent']['includes'])
+        includes = Wrapture.normalize_array(spec['parent']['includes'])
         spec['parent']['includes'] = includes
       end
 
@@ -242,6 +242,11 @@ module Wrapture
     # overloads.
     def factory?
       @scope.overloads?(self)
+    end
+
+    # An array of libraries needed for everything in this class.
+    def libraries
+      @functions.flat_map(&:libraries)
     end
 
     # The name of the class.

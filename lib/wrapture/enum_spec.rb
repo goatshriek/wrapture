@@ -55,9 +55,9 @@ module Wrapture
         spec['doc'] = ''
       end
 
-      spec['includes'] = Wrapture.normalize_includes(spec['includes'])
+      spec['includes'] = Wrapture.normalize_array(spec['includes'])
       spec['elements'].each do |element|
-        element['includes'] = Wrapture.normalize_includes(element['includes'])
+        element['includes'] = Wrapture.normalize_array(element['includes'])
       end
 
       spec

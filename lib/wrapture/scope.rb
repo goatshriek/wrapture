@@ -97,8 +97,10 @@ module Wrapture
 
     # Creates an empty scope, optionally with the provided specification.
     #
-    # Since a scope can be completely empty, all keys are optional in the
-    # specification hash.
+    # Since a scope can be completely empty, all of the following keys are
+    # optional in the specification hash.
+    # doc:: a string containing the documentation for this class
+    # name:: the explicit name of this scope
     def initialize(spec = {})
       @classes = []
       @enums = []
@@ -143,19 +145,9 @@ module Wrapture
       @enums << EnumSpec.new(spec)
     end
 
-    # A list of includes needed to define everything in this scope.
+    # An array of includes needed to define everything in this scope.
     def definition_includes
-      includes = []
-
-      @classes.each do |class_spec|
-        includes.concat(class_spec.definition_includes)
-      end
-
-      @enums.each do |enum_spec|
-        includes.concat(enum_spec.definition_includes)
-      end
-
-      includes.uniq
+      flat_map(&:definition_includes).uniq
     end
 
     # Yields successive specs in this scope.
@@ -166,10 +158,18 @@ module Wrapture
       self
     end
 
+    # An array of libraries needed for everything in this scope.
+    def libraries
+      flat_map(&:libraries).uniq
+    end
+
     # Merges the scope defined in the given filename into this one.
     #
     # If the new spec specifies a name and this spec already has one that is
     # different, this will raise a KeyConflict error.
+    #
+    # The documentation strings are joined with two newline characters, unless
+    # one of them is empty, in which case the non-empty one is used.
     #
     # The version of spec will be the maximum of this scope and the loaded one.
     # Note that the version defaults to the current Wrapture version if one is
@@ -188,7 +188,16 @@ module Wrapture
       versions = [@spec['version'], new_spec['version']]
       @spec['version'] = Wrapture.max_version(*versions)
 
-      new_spec['templates'].collect do |template_hash|
+      new_doc = Comment.new(new_spec['doc'])
+      unless new_doc.empty?
+        if @doc.empty?
+          @doc = new_doc
+        else
+          @doc << '\n\n' << new_doc
+        end
+      end
+
+      new_spec['templates'].each do |template_hash|
         @templates << TemplateSpec.new(template_hash)
       end
 

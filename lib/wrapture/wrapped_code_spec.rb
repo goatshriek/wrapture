@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2021 Joel E. Anderson
+# Copyright 2021-2023 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -32,7 +32,8 @@ module Wrapture
     # lists, and will set missing keys to their default values (for example, an
     # empty list if no includes are given).
     def self.normalize_spec_hash!(spec)
-      spec['includes'] = Wrapture.normalize_includes(spec['includes'])
+      spec['includes'] = Wrapture.normalize_array(spec['includes'])
+      spec['libraries'] = Wrapture.normalize_array(spec['libraries'])
 
       spec['error-check'] ||= {}
       spec['error-check']['rules'] ||= []
@@ -51,7 +52,8 @@ module Wrapture
     # lines:: a list of lines of code
     #
     # The following keys are optional:
-    # includes:: a list of includes needed for this function
+    # includes:: A list of includes needed for this code.
+    # libraries:: A list of libraries that must be linked to use this code.
     # return:: A type specification describing the type of the return value
     # variable. If missing, no return value is assumed.
     def initialize(spec)
@@ -95,6 +97,11 @@ module Wrapture
       includes.concat(@error_action.includes) if error_check?
 
       includes
+    end
+
+    # An array of libraries required for this code.
+    def libraries
+      @spec['libraries'].dup
     end
 
     # A list of the lines of code wrapped.

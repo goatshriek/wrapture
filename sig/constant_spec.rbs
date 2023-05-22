@@ -1,14 +1,14 @@
 module Wrapture
   class ConstantSpec
-    @spec: untyped
-    @doc: Wrapture::Comment | nil
-    @type: untyped
+    @spec: spec_hash
+    @doc: Wrapture::Comment
+    @type: Wrapture::TypeSpec
 
-    def self.normalize_spec_hash: (untyped spec) -> untyped
-    def initialize: (untyped spec) -> untyped
-    def declaration_includes: -> untyped
-    def definition_includes: -> untyped
-    def declaration: -> untyped
-    def definition: (untyped class_name) -> String
+    def self.normalize_spec_hash: (spec_hash spec) -> spec_hash
+    def initialize: (spec_hash spec) -> void
+    def declaration_includes: -> Array[String]
+    def definition_includes: -> Array[String]
+    def declaration: { (String) -> void } -> void
+    def definition: (String class_name) -> String
   end
 end

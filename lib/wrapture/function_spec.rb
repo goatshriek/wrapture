@@ -34,7 +34,7 @@ module Wrapture
         normalized = Marshal.load(Marshal.dump(spec))
         Comment.validate_doc(spec['doc']) if spec.key?('doc')
         normalized['type'] ||= 'void'
-        normalized['includes'] = Wrapture.normalize_includes(spec['includes'])
+        normalized['includes'] = Wrapture.normalize_array(spec['includes'])
         Wrapture.normalize_boolean!(spec, 'overloaded')
         normalized
       end
@@ -232,6 +232,11 @@ module Wrapture
     # A list of initializer specs.
     def initializers
       @spec['initializers']
+    end
+
+    # An array of libraries required for this function call.
+    def libraries
+      @wrapped.libraries
     end
 
     # The name of the function.

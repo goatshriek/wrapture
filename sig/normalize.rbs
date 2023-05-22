@@ -1,6 +1,6 @@
 module Wrapture
   def self.normalize_boolean: (spec_hash spec, String key) -> bool
   def self.normalize_boolean!: (spec_hash spec, String key) -> bool
-  def self.normalize_includes: ( (Array[String] | nil) includes) -> Array[String]
+  def self.normalize_array: ( (Array[String] | String | nil) entry) -> Array[String]
   def self.spec_version: ((spec_hash | nil) spec) -> String
 end

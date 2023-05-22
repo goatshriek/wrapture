@@ -5,7 +5,8 @@ module Wrapture
     def initialize: (untyped spec) -> void
     def error_check: (?return_val: ::String return_val) { (untyped) -> untyped } -> (nil | untyped)
     def error_check?: () -> untyped
-    def includes: () -> untyped
+    def includes: () -> Array[String]
+    def libraries: -> Array[String]
     def lines: () -> untyped
     def return_val_type: () -> untyped
     def use_return?: () -> untyped

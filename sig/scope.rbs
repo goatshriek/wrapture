@@ -11,11 +11,12 @@ module Wrapture
     attr_reader enums: Array[bot]
     attr_reader templates: Array[bot]
     def initialize: (?spec_hash spec) -> nil
-    def <<: (spec_hash spec) -> Wrapture::Scope
+    def <<: ( (Wrapture::TemplateSpec | Wrapture::ClassSpec | Wrapture::EnumSpec) spec) -> Wrapture::Scope
     def add_class_spec_hash: (spec_hash spec) -> Wrapture::ClassSpec
     def add_enum_spec_hash: (spec_hash spec) -> Wrapture::EnumSpec
     def definition_includes: -> Array[String]
     def each: { ((Wrapture::ClassSpec | Wrapture::EnumSpec) spec) -> void } -> void
+    def libraries: -> Array[String]
     def merge_file: (String spec_filename) -> Wrapture::Scope
     def name: -> String
     def overloads: (untyped parent) -> Array[bot]

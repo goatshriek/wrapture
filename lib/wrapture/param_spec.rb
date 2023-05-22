@@ -65,7 +65,7 @@ module Wrapture
     # validate that required key values are set.
     def self.normalize_spec_hash!(spec)
       Comment.validate_doc(spec['doc']) if spec.key?('doc')
-      spec['includes'] = Wrapture.normalize_includes(spec['includes'])
+      spec['includes'] = Wrapture.normalize_array(spec['includes'])
 
       spec['type'] = '...' if spec['name'] == '...'
 

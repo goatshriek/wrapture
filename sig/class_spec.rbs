@@ -24,6 +24,7 @@ module Wrapture
     def documentation: { (String) -> void } -> void
     def equivalent_member?: -> bool
     def factory?: -> bool
+    def libraries: -> Array[String]
     def name: -> String
     def namespace: -> String
     def overloads?: (untyped parent_spec) -> bool

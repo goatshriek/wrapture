@@ -35,16 +35,16 @@ module Wrapture
     spec[key] = normalize_boolean(spec, key)
   end
 
-  # Normalizes an include list for an element. A single string will be converted
-  # into an array containing the single string, and a nil will be converted to
-  # an empty array.
-  def self.normalize_includes(includes)
-    if includes.nil?
+  # Normalizes an array in a spec, such as an include list for an element. A
+  # single string will be converted into an array containing the single string,
+  # and a nil will be converted to an empty array.
+  def self.normalize_array(entry)
+    if entry.nil?
       []
-    elsif includes.is_a? String
-      [includes]
+    elsif entry.is_a? String
+      [entry]
     else
-      includes.uniq
+      entry.uniq
     end
   end
 
