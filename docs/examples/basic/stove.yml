@@ -4,6 +4,7 @@ classes:
     doc: "A humble stove."
     namespace: "kitchen"
     includes: "stove.h"
+    libraries: "stove"
     equivalent-struct:
       name: "stove"
     constructors:

@@ -35,6 +35,7 @@ module Wrapture
         Comment.validate_doc(spec['doc']) if spec.key?('doc')
         normalized['type'] ||= 'void'
         normalized['includes'] = Wrapture.normalize_array(spec['includes'])
+        normalized['libraries'] = Wrapture.normalize_array(spec['libraries'])
         Wrapture.normalize_boolean!(spec, 'overloaded')
         normalized
       end
@@ -236,7 +237,11 @@ module Wrapture
 
     # An array of libraries required for this function call.
     def libraries
-      @wrapped.libraries
+      if @wrapped.nil?
+        []
+      else
+        @wrapped.libraries
+      end
     end
 
     # The name of the function.

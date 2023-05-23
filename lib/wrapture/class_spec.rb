@@ -84,6 +84,7 @@ module Wrapture
 
       spec['version'] = Wrapture.spec_version(spec)
       spec['includes'] = Wrapture.normalize_array(spec['includes'])
+      spec['libraries'] = Wrapture.normalize_array(spec['libraries'])
       spec['type'] = ClassSpec.effective_type(spec)
 
       if spec.key?('parent')
@@ -120,11 +121,13 @@ module Wrapture
     # equivalent-struct:: a hash describing the struct this class wraps
     #
     # The following keys are optional:
+    # constants:: A list of constant specs that are in this class.
+    # constructors:: A list of function specs that can create this class.
+    # destructor:: A function spec for the destructor of the class.
     # doc:: a string containing the documentation for this class
-    # constructors:: a list of function specs that can create this class
-    # destructor:: a function spec for the destructor of the class
-    # functions:: a list of function specs
-    # constants:: a list of constant specs
+    # functions:: A list of function specs that are in this class.
+    # includes:: A list of includes that are needed for this class.
+    # libraries:: A list of libraries that must be linked to use this class.
     def initialize(spec, scope: Scope.new)
       @spec = ClassSpec.normalize_spec_hash(spec, *scope.templates)
 
@@ -246,7 +249,7 @@ module Wrapture
 
     # An array of libraries needed for everything in this class.
     def libraries
-      @functions.flat_map(&:libraries)
+      @functions.flat_map(&:libraries).concat(@spec['libraries'])
     end
 
     # The name of the class.

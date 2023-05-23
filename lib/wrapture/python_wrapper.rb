@@ -74,6 +74,8 @@ module Wrapture
         raise WrapError, 'only a scope can be used for setuptools generation'
       end
 
+      libraries = @spec.libraries.map{ |lib| "'#{lib}'" }.join(', ')
+
       File.open(File.join(dir, 'setup.py'), 'w') do |file|
         file.puts <<~SETUPTEXT
           from distutils.core import setup, Extension
@@ -81,7 +83,7 @@ module Wrapture
           #{@spec.name}_mod = Extension('#{@spec.name}',
                                         language = 'c',
                                         sources = ['#{@spec.name}.c'],
-                                        libraries = ['stove'], # todo handle this
+                                        libraries = [#{libraries}],
                                         library_dirs = ['.'], # todo handle this
                                         include_dirs = ['.']) # todo handle this
 
