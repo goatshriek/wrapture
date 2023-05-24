@@ -28,6 +28,18 @@ jobs:
         run: gem build wrapture.gemspec
       - name: Install Gem
         run: gem install wrapture
+  cpp:
+    runs-on: ubuntu-latest
+    name: c++ runtime tests
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+      - name: Install Ruby Dependencies
+        run: bundle install
+      - name: Run C++ Examples
+        run: bundle exec rake cpp:examples
   python:
     runs-on: ubuntu-latest
     name: python runtime tests

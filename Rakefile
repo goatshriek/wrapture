@@ -60,7 +60,14 @@ namespace 'cpp' do
     wrapper.write_source_files(dir: build_examples_dir)
     wrapper.write_cmake_files(dir: build_examples_dir)
     Dir.chdir(build_examples_dir) do
-      sh 'cmake .'
+      sh "gcc #{example_dir}/stove.c -shared -o libstove.so -I#{example_dir}"
+      include_cmd = "include_directories(\".\" \"#{example_dir}\")"
+      sh "echo \"#{include_cmd}\" >> CMakeLists.txt"
+      sh "cmake -DCMAKE_LIBRARY_PATH=#{example_dir} ."
+      sh 'cmake --build . --target kitchen'
+      opts = "-L. -lkitchen -lstove -I. -I#{example_dir} -o stove_usage_cpp"
+      sh "g++ #{example_dir}/stove_usage.cpp #{opts}"
+      sh './stove_usage_cpp'
     end
   end
 end

@@ -1,6 +1,10 @@
 #ifndef __STOVE_H
 #define __STOVE_H
 
+#  ifdef __cplusplus
+extern "C" {
+#  endif
+
 struct stove {
   int burner_count;
   int *burner_levels;
@@ -16,5 +20,9 @@ void set_oven_temp( struct stove *s, int new_temp);
 void destroy_stove( struct stove *s );
 
 int is_model_supported( int model );
+
+#  ifdef __cplusplus
+}
+#  endif
 
 #endif

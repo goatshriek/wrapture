@@ -178,19 +178,41 @@ module Wrapture
       end
 
       File.open(File.join(dir, filename), 'w') do |file|
+        file.puts('cmake_minimum_required(VERSION 3.0.2)')
         file.puts("project(#{@spec.name})")
         file.puts
-        file.puts("set(#{@spec.name.upcase}_HEADERS")
+
+        header_list = "#{@spec.name.upcase}_HEADERS"
+        file.puts("set(#{header_list}")
         headers.each do |source|
           file.puts("  #{source}")
         end
         file.puts(')')
         file.puts
-        file.puts("set(#{@spec.name.upcase}_SOURCES")
+
+        source_list = "#{@spec.name.upcase}_SOURCES"
+        file.puts("set(#{source_list}")
         sources.each do |source|
           file.puts("  #{source}")
         end
         file.puts(')')
+        file.puts
+
+        @spec.libraries.each do |lib|
+          file.puts("find_library(LIB#{lib.upcase}_FOUND #{lib})")
+          file.puts("add_library(#{lib} SHARED IMPORTED)")
+          file.puts("set_target_properties(#{lib} PROPERTIES")
+          file.puts("  IMPORTED_LOCATION ${LIB#{lib.upcase}_FOUND}")
+          file.puts(')')
+          file.puts
+        end
+
+        lib_deps = @spec.libraries.join(' ')
+        file.puts("add_library(#{@spec.name} ${#{source_list}})")
+        file.puts("target_link_libraries(#{@spec.name} PRIVATE #{lib_deps})")
+        file.puts
+
+        file.puts('# todo add install command with headers')
       end
 
       [filename]
@@ -347,7 +369,7 @@ module Wrapture
 
     # Gives each line of the definition of a ClassSpec to the provided block.
     def define_class
-      yield "include <#{@spec.name}.hpp>"
+      yield "#include <#{@spec.name}.hpp>"
       @spec.definition_includes.each do |include_file|
         yield "#include <#{include_file}>"
       end

@@ -74,7 +74,7 @@ module Wrapture
         raise WrapError, 'only a scope can be used for setuptools generation'
       end
 
-      libraries = @spec.libraries.map{ |lib| "'#{lib}'" }.join(', ')
+      libraries = @spec.libraries.map { |lib| "'#{lib}'" }.join(', ')
 
       File.open(File.join(dir, 'setup.py'), 'w') do |file|
         file.puts <<~SETUPTEXT
