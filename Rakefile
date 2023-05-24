@@ -67,7 +67,7 @@ namespace 'cpp' do
       sh 'cmake --build . --target kitchen'
       opts = "-L. -lkitchen -lstove -I. -I#{example_dir} -o stove_usage_cpp"
       sh "g++ #{example_dir}/stove_usage.cpp #{opts}"
-      sh './stove_usage_cpp'
+      sh 'LD_LIBRARY_PATH=. ./stove_usage_cpp'
     end
   end
 end
