@@ -33,8 +33,6 @@ task default: :test
 
 # build directory to hold intermediate and generated files
 build_dir = 'build' # this should be made configurable later
-build_examples_dir = "#{build_dir}/examples"
-directory build_examples_dir
 CLEAN.include("#{build_dir}/**/*.so")
 CLOBBER.include("#{build_dir}/**/*.c")
 CLOBBER.include("#{build_dir}/**/*.py")
@@ -51,43 +49,9 @@ rescue LoadError
   puts 'could not load rdoc/task module'
 end
 
-namespace 'cpp' do
-  desc 'Build and run C++ examples'
-  task examples: [build_examples_dir] do
-    example_dir = File.absolute_path('docs/examples/basic')
-    scope = Wrapture::Scope.load_files("#{example_dir}/stove.yml")
-    wrapper = Wrapture::CppWrapper.new(scope)
-    wrapper.write_source_files(dir: build_examples_dir)
-    wrapper.write_cmake_files(dir: build_examples_dir)
-    Dir.chdir(build_examples_dir) do
-      sh "gcc #{example_dir}/stove.c -shared -o libstove.so -I#{example_dir}"
-      include_cmd = "include_directories(\".\" \"#{example_dir}\")"
-      sh "echo \"#{include_cmd}\" >> CMakeLists.txt"
-      sh "cmake -DCMAKE_LIBRARY_PATH=#{example_dir} ."
-      sh 'cmake --build . --target kitchen'
-      opts = "-L. -lkitchen -lstove -I. -I#{example_dir} -o stove_usage_cpp"
-      sh "g++ #{example_dir}/stove_usage.cpp #{opts}"
-      sh 'LD_LIBRARY_PATH=. ./stove_usage_cpp'
-    end
-  end
-end
+Rake.add_rakelib 'rakelib/examples'
 
 namespace 'python' do
-  desc 'Build and run Python examples'
-  task examples: [build_examples_dir] do
-    example_dir = File.absolute_path('docs/examples/basic')
-    scope = Wrapture::Scope.load_files("#{example_dir}/stove.yml")
-    wrapper = Wrapture::PythonWrapper.new(scope)
-    wrapper.write_source_files(dir: build_examples_dir)
-    wrapper.write_setuptools_files(dir: build_examples_dir)
-    Dir.chdir(build_examples_dir) do
-      sh "gcc -shared -o libstove.so -I #{example_dir} #{example_dir}/stove.c"
-      setup_command = 'python3 setup.py build_ext'
-      sh "#{setup_command} --include-dirs #{example_dir} --build-lib ."
-      sh "LD_LIBRARY_PATH=. PYTHONPATH=. python3 #{example_dir}/stove_usage.py"
-    end
-  end
-
   build_test_dir = "#{build_dir}/test/python"
   directory build_test_dir
 
