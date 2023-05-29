@@ -51,11 +51,38 @@ end
 
 Rake.add_rakelib 'rakelib/examples'
 
+# Returns a regex for matching all example tasks for a given language.
+def lang_examples_regex(lang)
+  Regexp.new("^examples:[^:]+:#{lang}$")
+end
+
+# Runs all tasks with names matching the given regex.
+def run_matching_tasks(task_regex)
+  Rake.application.tasks.each do |task|
+    next if task.name =~ task_regex
+
+    task.reenable
+    task.invoke
+  end
+end
+
+namespace 'examples' do
+  desc 'build and run all examples with C++'
+  task :cpp do
+    run_matching_tasks(lang_examples_regex('cpp'))
+  end
+
+  desc 'build and run all examples with Python'
+  task :python do
+    run_matching_tasks(lang_examples_regex('python'))
+  end
+end
+
 namespace 'python' do
   build_test_dir = "#{build_dir}/test/python"
   directory build_test_dir
 
-  desc 'Run Python tests'
+  desc 'run Python tests'
   task test: ['build/test/python'] do
     Dir.chdir(build_test_dir) do
       sh 'touch todo.txt'

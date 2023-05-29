@@ -39,7 +39,7 @@ jobs:
       - name: Install Ruby Dependencies
         run: bundle install
       - name: Run C++ Examples
-        run: bundle exec rake cpp:examples
+        run: bundle exec rake examples:cpp
   python:
     runs-on: ubuntu-latest
     name: python runtime tests
@@ -56,7 +56,7 @@ jobs:
       - name: Run Python Tests
         run: bundle exec rake python:test
       - name: Run Python Examples
-        run: bundle exec rake python:examples
+        run: bundle exec rake examples:python
   code-analysis:
     runs-on: ubuntu-latest
     name: code analysis
