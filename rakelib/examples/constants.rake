@@ -28,28 +28,28 @@ python_build_dir = "#{build_root}/python"
 directory python_build_dir
 
 namespace 'examples' do
-  namespace 'basic' do
+  namespace 'constants' do
     desc 'build and run constants example for C++'
     task cpp: [cpp_build_dir] do
-      scope = Wrapture::Scope.load_files("#{example_dir}/stove.yml")
+      scope = Wrapture::Scope.load_files("#{example_dir}/vcr.yml")
       wrapper = Wrapture::CppWrapper.new(scope)
       wrapper.write_source_files(dir: cpp_build_dir)
       wrapper.write_cmake_files(dir: cpp_build_dir)
       Dir.chdir(cpp_build_dir) do
-        sh "gcc #{example_dir}/stove.c -shared -o libstove.so -I#{example_dir}"
+        sh "gcc #{example_dir}/vcr.c -shared -o libvcr.so -I#{example_dir}"
         include_cmd = "include_directories(\".\" \"#{example_dir}\")"
         sh "echo \"#{include_cmd}\" >> CMakeLists.txt"
         sh "cmake -DCMAKE_LIBRARY_PATH=#{example_dir} ."
-        sh 'cmake --build . --target kitchen'
-        opts = "-L. -lkitchen -lstove -I. -I#{example_dir} -o stove_usage_cpp"
-        sh "g++ #{example_dir}/stove_usage.cpp #{opts}"
-        sh 'LD_LIBRARY_PATH=. ./stove_usage_cpp'
+        sh 'cmake --build . --target mediacenter'
+        opts = "-L. -lmediacenter -lvcr -I. -I#{example_dir} -o vcr_usage_cpp"
+        sh "g++ #{example_dir}/vcr_usage.cpp #{opts}"
+        sh 'LD_LIBRARY_PATH=. ./vcr_usage_cpp'
       end
     end
 
     desc 'build and run constants example for python'
     task python: [python_build_dir] do
-      scope = Wrapture::Scope.load_files("#{example_dir}/stove.yml")
+      scope = Wrapture::Scope.load_files("#{example_dir}/vcr.yml")
       wrapper = Wrapture::PythonWrapper.new(scope)
       wrapper.write_source_files(dir: python_build_dir)
       wrapper.write_setuptools_files(dir: python_build_dir)

@@ -178,11 +178,7 @@ module Wrapture
         class_method_defs << "  { \"#{func_spec.name}\","
 
         class_method_defs << "    ( PyCFunction ) #{wrapper_name},"
-        class_method_defs << if func_spec.params.empty?
-                               '    METH_NOARGS,'
-                             else
-                               '    METH_VARARGS,'
-                             end
+        class_method_defs << "    #{function_flags(func_spec)},"
 
         class_method_defs << "    \"#{func_spec.doc.text}\"},"
       end
@@ -320,6 +316,21 @@ module Wrapture
       @spec.enums.each do |item|
         define_enum_type_object(item) { |line| block.call(line) }
       end
+    end
+
+    # Gives the flags used to define the python method for the given function.
+    def function_flags(func_spec)
+      flags = []
+
+      flags << if func_spec.params.empty?
+                 'METH_NOARGS'
+               else
+                 'METH_VARARGS'
+               end
+
+      flags << 'METH_CLASS' if func_spec.static?
+
+      flags.join(' | ')
     end
 
     # Yields a declaration of each local variable used by the function.
