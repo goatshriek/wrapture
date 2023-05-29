@@ -16,16 +16,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import kitchen
+import mediacenter
 
-if kitchen.Stove.IsModelSupported(4):
-  print('model 4 stoves are supported')
+living_room = mediacenter.VCR(3)
+bedroom = mediacenter.VCR(4)
 
-my_stove = kitchen.Stove(4)
-print('burner count is: %d' % my_stove.GetBurnerCount())
-
-my_stove.SetOvenTemp(350)
-print('current oven temp is: %d' % my_stove.GetOvenTemp())
-
-my_stove.SetBurnerLevel(2, 9);
-print('burner 2 level is: %d' % my_stove.GetBurnerLevel(2))
+living_room.SendCommand(mediacenter.VCR::PAUSE_COMMAND)
+bedroom.SendCommand(mediacenter.VCR::PLAY_COMMAND)

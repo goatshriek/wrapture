@@ -54,7 +54,7 @@ namespace 'examples' do
       wrapper.write_source_files(dir: python_build_dir)
       wrapper.write_setuptools_files(dir: python_build_dir)
       Dir.chdir(python_build_dir) do
-        sh "gcc -shared -o libstove.so -I #{example_dir} #{example_dir}/stove.c"
+        sh "gcc #{example_dir}/stove.c -shared -o libstove.so -I#{example_dir}"
         setup_command = 'python3 setup.py build_ext'
         sh "#{setup_command} --include-dirs #{example_dir} --build-lib ."
         envs = 'LD_LIBRARY_PATH=. PYTHONPATH=.'
