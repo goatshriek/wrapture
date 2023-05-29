@@ -59,7 +59,7 @@ end
 # Runs all tasks with names matching the given regex.
 def run_matching_tasks(task_regex)
   Rake.application.tasks.each do |task|
-    next if task.name =~ task_regex
+    next unless task.name =~ task_regex
 
     task.reenable
     task.invoke

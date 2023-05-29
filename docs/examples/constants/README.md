@@ -22,7 +22,7 @@ void send_command( struct vcr *target_vcr, int command );
 Describing the class to include these constants is straightforward using the
 `constants` list, as shown below. The function description is left off, as there
 is nothing special about it (you can check the .yml file in this example to see
-the full specification)..
+the full specification).
 
 ```yaml
 classes:
