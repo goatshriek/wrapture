@@ -15,7 +15,7 @@ jobs:
         ruby: ['2.6', '2.7', '3.0', '3.1', '3.2', '3.3', 'jruby', 'truffleruby-head']
     name: ruby ${{ matrix.ruby }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
       - uses: ruby/setup-ruby@b256bd96bb4867e7d23e92e087d9bb697270b725 # v1.163.0
         with:
           ruby-version: ${{ matrix.ruby }}
@@ -32,7 +32,7 @@ jobs:
     runs-on: ubuntu-latest
     name: c++ runtime tests
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
       - uses: ruby/setup-ruby@b256bd96bb4867e7d23e92e087d9bb697270b725 # v1.163.0
         with:
           ruby-version: '3.2'
@@ -44,7 +44,7 @@ jobs:
     runs-on: ubuntu-latest
     name: python runtime tests
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
       - uses: ruby/setup-ruby@b256bd96bb4867e7d23e92e087d9bb697270b725 # v1.163.0
         with:
           ruby-version: '3.2'
@@ -57,14 +57,24 @@ jobs:
         run: bundle exec rake python:test
       - name: Run Python Examples
         run: bundle exec rake examples:python
+  sonar-analysis:
+    runs-on: ubuntu-latest
+    name: SonarCloud analysis
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: sonarsource/sonarcloud-github-action@49e6cd3b187936a73b8280d59ffd9da69df63ec9 # v2.1.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONARQUBE_SCANNER_PARAMS: '{"sonar.host.url":"https://sonarcloud.io"}'
   code-analysis:
     runs-on: ubuntu-latest
-    name: code analysis
+    name: ruby analysis
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
       - uses: ruby/setup-ruby@b256bd96bb4867e7d23e92e087d9bb697270b725 # v1.163.0
         with:
-          ruby-version: '3.0'
+          ruby-version: '3.3'
       - name: Install Dependencies
         run: bundle install
       - name: Run Rubocop
@@ -73,15 +83,3 @@ jobs:
         run: rbs -I sig/ validate
       - name: Check RDoc Coverage
         run: bundle exec rdoc --coverage-report lib
-      - name: Sonarcloud Analysis
-        run: |
-          VERSION=$(ruby -I ./lib -r wrapture -e "puts Wrapture::VERSION")
-          echo "sonar.projectVersion=$VERSION" >> sonar-project.properties
-          wget -q https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.5.0.2216-linux.zip
-          unzip -qq -o sonar-scanner-cli-4.5.0.2216-linux.zip
-          chmod +x sonar-scanner-4.5.0.2216-linux/bin/sonar-scanner
-          sonar-scanner-4.5.0.2216-linux/bin/sonar-scanner
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONARQUBE_SCANNER_PARAMS: '{"sonar.host.url":"https://sonarcloud.io"}'
