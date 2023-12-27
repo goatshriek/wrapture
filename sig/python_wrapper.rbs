@@ -28,6 +28,7 @@ module Wrapture
     def function_wrapper_name: (Wrapture::FunctionSpec) -> String
     def member_constructor: (Wrapture::ClassSpec) -> Wrapture::FunctionSpec
     def member_constructor_hash: (Wrapture::ClassSpec) -> spec_hash
+    def member_type: (Wrapture::TypeSpec) -> String
     def return_statement: (Wrapture::FunctionSpec) -> String
     def scope_types_ready: { (String) -> void } -> void
     def this_struct: -> String

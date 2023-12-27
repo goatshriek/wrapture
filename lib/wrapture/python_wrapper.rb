@@ -179,7 +179,7 @@ module Wrapture
 
       class_spec.constants.each do |constant_spec|
         yield "  { .name = \"#{constant_spec.name}\","
-        yield '    .type = Py_T_INT,' # TODO: make dynamic
+        yield "    .type = #{member_type(constant_spec.type)},"
 
         offset_struct = type_struct_name(class_spec)
         offset_field = constant_spec.snake_case_name
@@ -495,6 +495,16 @@ module Wrapture
       { 'name' => class_spec.name,
         'params' => class_spec.struct.members,
         'wrapped-code' => { 'lines' => assignments } }
+    end
+
+    # The Python member type symbol to use for this type, suitable for use with
+    # the PyMemberDef.type struct field.
+    def member_type(type_spec)
+      case type_spec.name
+      when 'int' then 'Py_T_INT'
+        # TODO: need to finish filling this in
+      else 'Py_T_OBJECT_EX'
+      end
     end
 
     # The return statement used in this function's definition.
