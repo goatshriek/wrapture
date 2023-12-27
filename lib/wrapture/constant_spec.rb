@@ -18,9 +18,13 @@
 # limitations under the License.
 #++
 
+require 'wrapture/named'
+
 module Wrapture
   # A description of a constant.
   class ConstantSpec
+    include Named
+
     # Returns a normalized copy of a hash specification of an enumeration.
     # See normalize_spec_hash! for details.
     def self.normalize_spec_hash(spec)
@@ -61,6 +65,12 @@ module Wrapture
       @type = TypeSpec.new(@spec['type'])
     end
 
+    # The documentation comment for this constant.
+    attr_reader :doc
+
+    # The type of this constant.
+    attr_reader :type
+
     # A list of includes needed for the declaration of this constant.
     def declaration_includes
       @spec['includes'].dup
@@ -71,6 +81,7 @@ module Wrapture
       @spec['includes'].dup
     end
 
+    # TODO declaration and definition need to be moved to c-specific code
     # Calls the given block once for each line of the declaration of this
     # constant, including any documentation.
     def declaration(&block)
@@ -82,6 +93,16 @@ module Wrapture
     def definition(class_name)
       expanded_name = "#{class_name}::#{@spec['name']}"
       "const #{@spec['type']} #{expanded_name} = #{@spec['value']}"
+    end
+
+    # The name of the constant.
+    def name
+      @spec['name']
+    end
+
+    # The value of the constant.
+    def value
+      @spec['value']
     end
   end
 end

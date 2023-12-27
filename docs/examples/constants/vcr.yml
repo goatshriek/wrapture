@@ -1,6 +1,7 @@
 classes:
   - name: "VCR"
     namespace: "mediacenter"
+    libraries: "vcr"
     equivalent-struct:
       name: "vcr"
       members:

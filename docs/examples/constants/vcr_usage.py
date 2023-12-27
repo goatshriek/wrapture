@@ -21,5 +21,5 @@ import mediacenter
 living_room = mediacenter.VCR(3)
 bedroom = mediacenter.VCR(4)
 
-living_room.SendCommand(mediacenter.VCR::PAUSE_COMMAND)
-bedroom.SendCommand(mediacenter.VCR::PLAY_COMMAND)
+living_room.SendCommand(living_room.PAUSE_COMMAND)
+bedroom.SendCommand(bedroom.PLAY_COMMAND)

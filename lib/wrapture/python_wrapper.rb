@@ -51,9 +51,9 @@ module Wrapture
       used_param = @spec.params.find { |p| p.name == param_spec['value'] }
 
       if param_spec['value'] == EQUIVALENT_STRUCT_KEYWORD
-        '*(self->equivalent)'
+        this_struct
       elsif param_spec['value'] == EQUIVALENT_POINTER_KEYWORD
-        'self->equivalent'
+        this_struct_pointer
       elsif param_spec['value'] == '...'
         'variadic_args'
       elsif castable?(param_spec)
@@ -169,6 +169,20 @@ module Wrapture
       define_class_type_struct(class_spec) { |line| block.call(line) }
       yield ''
 
+      # TODO shouldn't be adding to the instance's list of functions
+      if class_spec.struct&.members?
+        spec_hash = member_constructor_hash(class_spec)
+        member_func = FunctionSpec.new(spec_hash, class_spec, constructor: true)
+        class_spec.functions << member_func
+      end
+
+      unless class_spec.functions.any?(&:destructor?)
+        spec_hash = { 'name' => "#{class_spec.name}_dealloc",
+                      'wrapped-code' => { 'lines' => [''] } }
+        default_destructor = FunctionSpec.new(spec_hash, class_spec, destructor: true)
+        class_spec.functions << default_destructor
+      end
+
       class_method_defs = []
       class_spec.functions.each do |func_spec|
         define_function_wrapper(func_spec, &block)
@@ -180,12 +194,28 @@ module Wrapture
         class_method_defs << "    ( PyCFunction ) #{wrapper_name},"
         class_method_defs << "    #{function_flags(func_spec)},"
 
-        class_method_defs << "    \"#{func_spec.doc.text}\"},"
+        class_method_defs << "    \"#{func_spec.doc.text}\" },"
       end
 
       snake_name = class_spec.snake_case_name
       yield "static PyMethodDef #{snake_name}_methods[] = {"
       class_method_defs.each { |method_def| block.call(method_def) }
+      yield '  {NULL}'
+      yield '};'
+      yield ''
+
+      class_member_defs = []
+      class_spec.constants.each do |constant_spec|
+        class_member_defs << "  { .name = \"#{constant_spec.name}\","
+        class_member_defs << "    .type = Py_T_INT," # TODO make dynamic
+        class_member_defs << "    .offset = offsetof( #{type_struct_name(class_spec)}, #{constant_spec.snake_case_name} )," # offset
+        class_member_defs << "    .flags = Py_READONLY,"
+        class_member_defs << "    .doc = \"#{constant_spec.doc.text}\" },"
+      end
+
+      # TODO don't define these when not needed
+      yield "static PyMemberDef #{snake_name}_members[] = {"
+      class_member_defs.each { |member_def| block.call(member_def) }
       yield '  {NULL}'
       yield '};'
       yield ''
@@ -199,7 +229,8 @@ module Wrapture
       yield '  .tp_flags = Py_TPFLAGS_DEFAULT,'
       yield "  .tp_new = #{snake_name}_new,"
       yield "  .tp_dealloc = ( destructor ) #{snake_name}_dealloc,"
-      yield "  .tp_methods = #{snake_name}_methods"
+      yield "  .tp_methods = #{snake_name}_methods,"
+      yield "  .tp_members = #{snake_name}_members"
       yield '};'
       yield ''
     end
@@ -209,7 +240,10 @@ module Wrapture
     def define_class_type_struct(class_spec)
       yield 'typedef struct {'
       yield '  PyObject_HEAD'
-      yield "  struct #{class_spec.struct_name} *equivalent;"
+      class_spec.constants.each do |constant_spec|
+        yield "  #{constant_spec.type} #{constant_spec.snake_case_name};"
+      end
+      yield "  #{equivalent_member_declaration(class_spec)}"
       yield "} #{type_struct_name(class_spec)};"
     end
 
@@ -243,7 +277,11 @@ module Wrapture
       if func_spec.destructor?
         yield 'static void'
         yield "#{name}( #{type_struct_name} *self ) {"
-        yield "  #{func_spec.wrapped.call_from(PythonWrapper.new(func_spec))};"
+        if func_spec.wrapped.is_a?(WrappedFunctionSpec)
+          yield "  #{func_spec.wrapped.call_from(PythonWrapper.new(func_spec))};"
+        else
+          func_spec.wrapped.lines.each { |line| yield "  #{line}" }
+        end
         yield '  Py_TYPE( self )->tp_free( ( PyObject * ) self );'
       else
         yield 'static PyObject *'
@@ -254,6 +292,10 @@ module Wrapture
         if func_spec.constructor?
           yield "  self = ( #{type_struct_name} * ) type->tp_alloc( type, 0 );"
           yield '  // todo should check this for null?'
+          yield ''
+          func_spec.owner.constants.each do |constant_spec|
+            yield "  self->#{constant_spec.snake_case_name} = #{constant_spec.value};"
+          end
           yield ''
         end
 
@@ -274,6 +316,12 @@ module Wrapture
     def define_module(&block)
       yield '#define PY_SSIZE_T_CLEAN'
       yield '#include <Python.h>'
+      yield '#include <stddef.h>' # TODO for offsetof(), only add if needed
+      yield '#if PY_VERSION_HEX < 0x30C00F0  // under Python 3.12.0'
+      yield '  #include <structmember.h> // for PyMemberDef'
+      yield '  #define Py_T_INT T_INT'
+      yield '  #define Py_READONLY READONLY'
+      yield '#endif'
 
       @spec.definition_includes.each do |include_file|
         yield "#include <#{include_file}>"
@@ -315,6 +363,15 @@ module Wrapture
 
       @spec.enums.each do |item|
         define_enum_type_object(item) { |line| block.call(line) }
+      end
+    end
+
+    # The declaration of the equivalent member of this class.
+    def equivalent_member_declaration(class_spec)
+      if class_spec.pointer_wrapper?
+        "#{class_spec.struct.pointer_declaration('equivalent')};"
+      else
+        "#{class_spec.struct.declaration('equivalent')};"
       end
     end
 
@@ -407,6 +464,18 @@ module Wrapture
       end
     end
 
+    # A spec hash for a member constructor for this class.
+    def member_constructor_hash(class_spec)
+      assignments = class_spec.struct.members.map do |member|
+        name = member['name']
+        "self->equivalent.#{name} = #{name};"
+      end
+
+      { 'name' => class_spec.name,
+        'params' => class_spec.struct.members,
+        'wrapped-code' => { 'lines' => assignments } }
+    end
+
     # The return statement used in this function's definition.
     def return_statement(func_spec)
       if func_spec.constructor?
@@ -428,6 +497,24 @@ module Wrapture
         yield '  return NULL;'
         yield '}'
       end
+    end
+
+    # Gives a code snippet that accesses the equivalent struct from within the
+    # class using the 'this' keyword.
+    # Expected to be called while @spec is a FunctionSpec.
+    def this_struct
+      if @spec.owner.pointer_wrapper?
+        '*(self->equivalent)'
+      else
+        'self->equivalent'
+      end
+    end
+
+    # Gives a code snippet that accesses the equivalent struct pointer from
+    # within the class using the 'this' keyword.
+    # Expected to be called while @spec is a FunctionSpec.
+    def this_struct_pointer
+      "#{'&' unless @spec.owner.pointer_wrapper?}self->equivalent"
     end
 
     # The name of the structure used to wrap objects of the given Named type.
