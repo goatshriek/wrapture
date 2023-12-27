@@ -192,6 +192,24 @@ module Wrapture
       yield '};'
     end
 
+    # Passes lines of C code to the given block which define the methods of the
+    # given class as an array of PyMethodDef structures.
+    def define_class_methods(class_spec)
+      snake_name = class_spec.snake_case_name
+      yield "static PyMethodDef #{snake_name}_methods[] = {"
+
+      class_spec.functions.each do |func_spec|
+        wrapper_name = function_wrapper_name(func_spec)
+        yield "  { .ml_name = \"#{func_spec.name}\","
+        yield "    .ml_meth = ( PyCFunction ) #{wrapper_name},"
+        yield "    .ml_flags = #{function_flags(func_spec)},"
+        yield "    .ml_doc = \"#{func_spec.doc.text}\" },"
+      end
+
+      yield '  {NULL}'
+      yield '};'
+    end
+
     # Passes lines of C code to the given block which creates the methods and
     # type object for the given class in this module.
     def define_class_type_object(class_spec, &block)
@@ -207,31 +225,20 @@ module Wrapture
         class_spec.functions << default_destructor(class_spec)
       end
 
-      class_method_defs = []
       class_spec.functions.each do |func_spec|
         define_function_wrapper(func_spec, &block)
         yield ''
-
-        wrapper_name = function_wrapper_name(func_spec)
-        class_method_defs << "  { \"#{func_spec.name}\","
-
-        class_method_defs << "    ( PyCFunction ) #{wrapper_name},"
-        class_method_defs << "    #{function_flags(func_spec)},"
-
-        class_method_defs << "    \"#{func_spec.doc.text}\" },"
       end
 
-      snake_name = class_spec.snake_case_name
-      yield "static PyMethodDef #{snake_name}_methods[] = {"
-      class_method_defs.each { |method_def| block.call(method_def) }
-      yield '  {NULL}'
-      yield '};'
+      # TODO: don't define these when not needed
+      define_class_methods(class_spec, &block)
       yield ''
 
       # TODO: don't define these when not needed
       define_class_members(class_spec, &block)
       yield ''
 
+      snake_name = class_spec.snake_case_name
       yield "static PyTypeObject #{snake_name}_type_object = {"
       yield '  PyVarObject_HEAD_INIT( NULL, 0 )'
       yield "  .tp_name = \"#{@spec.name}.#{class_spec.name}\","
@@ -299,7 +306,9 @@ module Wrapture
 
         if func_spec.constructor?
           yield "  self = ( #{type_struct_name} * ) type->tp_alloc( type, 0 );"
-          yield '  // todo should check this for null?'
+          yield '  if( !self ) {'
+          yield '    return NULL;'
+          yield '  }'
           yield ''
           func_spec.owner.constants.each do |constant_spec|
             field_name = constant_spec.snake_case_name

@@ -14,6 +14,7 @@ module Wrapture
     def create_python_object: (Wrapture::TypeSpec, String) -> String
     def default_destructor: (Wrapture::ClassSpec) -> Wrapture::FunctionSpec
     def define_class_members: (Wrapture::ClassSpec) { (String) -> void } -> void
+    def define_class_methods: (Wrapture::ClassSpec) { (String) -> void } -> void
     def define_class_type_objects: { (String) -> void } -> void
     def define_class_type_struct: { (String) -> void } -> void
     def define_enum_type_objects: { (String) -> void } -> void
