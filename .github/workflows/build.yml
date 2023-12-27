@@ -12,11 +12,11 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        ruby: ['2.6', '2.7', '3.0', '3.1', '3.2', 'jruby', 'truffleruby-head']
+        ruby: ['2.6', '2.7', '3.0', '3.1', '3.2', '3.3', 'jruby', 'truffleruby-head']
     name: ruby ${{ matrix.ruby }}
     steps:
       - uses: actions/checkout@v2
-      - uses: ruby/setup-ruby@v1
+      - uses: ruby/setup-ruby@b256bd96bb4867e7d23e92e087d9bb697270b725 # v1.163.0
         with:
           ruby-version: ${{ matrix.ruby }}
       - name: Install Dependencies
@@ -33,7 +33,7 @@ jobs:
     name: c++ runtime tests
     steps:
       - uses: actions/checkout@v2
-      - uses: ruby/setup-ruby@v1
+      - uses: ruby/setup-ruby@b256bd96bb4867e7d23e92e087d9bb697270b725 # v1.163.0
         with:
           ruby-version: '3.2'
       - name: Install Ruby Dependencies
@@ -45,7 +45,7 @@ jobs:
     name: python runtime tests
     steps:
       - uses: actions/checkout@v2
-      - uses: ruby/setup-ruby@v1
+      - uses: ruby/setup-ruby@b256bd96bb4867e7d23e92e087d9bb697270b725 # v1.163.0
         with:
           ruby-version: '3.2'
       - name: Install Ruby Dependencies
@@ -62,7 +62,7 @@ jobs:
     name: code analysis
     steps:
       - uses: actions/checkout@v2
-      - uses: ruby/setup-ruby@v1
+      - uses: ruby/setup-ruby@b256bd96bb4867e7d23e92e087d9bb697270b725 # v1.163.0
         with:
           ruby-version: '3.0'
       - name: Install Dependencies
