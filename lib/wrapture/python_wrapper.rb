@@ -163,24 +163,48 @@ module Wrapture
       end
     end
 
+    # The default destructor for python classes if one is not given.
+    def default_destructor(class_spec)
+      spec_hash = { 'name' => "#{class_spec.name}_dealloc",
+                    'wrapped-code' => { 'lines' => [] } }
+
+      FunctionSpec.new(spec_hash, class_spec, destructor: true)
+    end
+
+    # Passes lines of C code to the given block which define the members of the
+    # given class as an array of PyMemberDef structures.
+    def define_class_members(class_spec)
+      snake_name = class_spec.snake_case_name
+      yield "static PyMemberDef #{snake_name}_members[] = {"
+
+      class_spec.constants.each do |constant_spec|
+        yield "  { .name = \"#{constant_spec.name}\","
+        yield '    .type = Py_T_INT,' # TODO: make dynamic
+
+        offset_struct = type_struct_name(class_spec)
+        offset_field = constant_spec.snake_case_name
+        yield "    .offset = offsetof( #{offset_struct}, #{offset_field} ),"
+        yield '    .flags = Py_READONLY,'
+        yield "    .doc = \"#{constant_spec.doc.text}\" },"
+      end
+
+      yield '  {NULL}'
+      yield '};'
+    end
+
     # Passes lines of C code to the given block which creates the methods and
     # type object for the given class in this module.
     def define_class_type_object(class_spec, &block)
       define_class_type_struct(class_spec) { |line| block.call(line) }
       yield ''
 
-      # TODO shouldn't be adding to the instance's list of functions
+      # TODO: shouldn't be adding to the instance's list of functions
       if class_spec.struct&.members?
-        spec_hash = member_constructor_hash(class_spec)
-        member_func = FunctionSpec.new(spec_hash, class_spec, constructor: true)
-        class_spec.functions << member_func
+        class_spec.functions << member_constructor(class_spec)
       end
 
       unless class_spec.functions.any?(&:destructor?)
-        spec_hash = { 'name' => "#{class_spec.name}_dealloc",
-                      'wrapped-code' => { 'lines' => [''] } }
-        default_destructor = FunctionSpec.new(spec_hash, class_spec, destructor: true)
-        class_spec.functions << default_destructor
+        class_spec.functions << default_destructor(class_spec)
       end
 
       class_method_defs = []
@@ -204,20 +228,8 @@ module Wrapture
       yield '};'
       yield ''
 
-      class_member_defs = []
-      class_spec.constants.each do |constant_spec|
-        class_member_defs << "  { .name = \"#{constant_spec.name}\","
-        class_member_defs << "    .type = Py_T_INT," # TODO make dynamic
-        class_member_defs << "    .offset = offsetof( #{type_struct_name(class_spec)}, #{constant_spec.snake_case_name} )," # offset
-        class_member_defs << "    .flags = Py_READONLY,"
-        class_member_defs << "    .doc = \"#{constant_spec.doc.text}\" },"
-      end
-
-      # TODO don't define these when not needed
-      yield "static PyMemberDef #{snake_name}_members[] = {"
-      class_member_defs.each { |member_def| block.call(member_def) }
-      yield '  {NULL}'
-      yield '};'
+      # TODO: don't define these when not needed
+      define_class_members(class_spec, &block)
       yield ''
 
       yield "static PyTypeObject #{snake_name}_type_object = {"
@@ -269,7 +281,7 @@ module Wrapture
 
     # Defines the function that the python interpreter will call for the given
     # function spec.
-    def define_function_wrapper(func_spec)
+    def define_function_wrapper(func_spec, &block)
       name = function_wrapper_name(func_spec)
       owner_snake_name = func_spec.owner.snake_case_name
       type_struct_name = "#{owner_snake_name}_type_struct"
@@ -277,11 +289,7 @@ module Wrapture
       if func_spec.destructor?
         yield 'static void'
         yield "#{name}( #{type_struct_name} *self ) {"
-        if func_spec.wrapped.is_a?(WrappedFunctionSpec)
-          yield "  #{func_spec.wrapped.call_from(PythonWrapper.new(func_spec))};"
-        else
-          func_spec.wrapped.lines.each { |line| yield "  #{line}" }
-        end
+        wrapped_call(func_spec, &block)
         yield '  Py_TYPE( self )->tp_free( ( PyObject * ) self );'
       else
         yield 'static PyObject *'
@@ -294,17 +302,15 @@ module Wrapture
           yield '  // todo should check this for null?'
           yield ''
           func_spec.owner.constants.each do |constant_spec|
-            yield "  self->#{constant_spec.snake_case_name} = #{constant_spec.value};"
+            field_name = constant_spec.snake_case_name
+            field_value = constant_spec.value
+            yield "  self->#{field_name} = #{field_value};"
           end
           yield ''
         end
 
+        wrapped_call(func_spec, &block)
         yield ''
-        if func_spec.wrapped.is_a?(WrappedFunctionSpec)
-          yield "  #{wrapped_call_expression(func_spec)};"
-        else
-          func_spec.wrapped.lines.each { |line| yield "  #{line}" }
-        end
 
         yield "  #{return_statement(func_spec)}"
       end
@@ -316,7 +322,7 @@ module Wrapture
     def define_module(&block)
       yield '#define PY_SSIZE_T_CLEAN'
       yield '#include <Python.h>'
-      yield '#include <stddef.h>' # TODO for offsetof(), only add if needed
+      yield '#include <stddef.h>' # TODO: for offsetof(), only add if needed
       yield '#if PY_VERSION_HEX < 0x30C00F0  // under Python 3.12.0'
       yield '  #include <structmember.h> // for PyMemberDef'
       yield '  #define Py_T_INT T_INT'
@@ -464,6 +470,12 @@ module Wrapture
       end
     end
 
+    # A constructor to create a class based on its equivalent struct members.
+    def member_constructor(class_spec)
+      spec_hash = member_constructor_hash(class_spec)
+      FunctionSpec.new(spec_hash, class_spec, constructor: true)
+    end
+
     # A spec hash for a member constructor for this class.
     def member_constructor_hash(class_spec)
       assignments = class_spec.struct.members.map do |member|
@@ -522,8 +534,18 @@ module Wrapture
       "#{named_type.snake_case_name}_type_struct"
     end
 
+    # Yields the lines to call the given function spec's wrapped code or
+    # function.
+    def wrapped_call(func_spec)
+      if func_spec.wrapped.is_a?(WrappedFunctionSpec)
+        yield "  #{wrapped_function_call(func_spec)};"
+      elsif func_spec.wrapped.is_a?(WrappedCodeSpec)
+        func_spec.wrapped.lines.each { |line| yield "  #{line}" }
+      end
+    end
+
     # The expression containing the call to the underlying wrapped function.
-    def wrapped_call_expression(func_spec)
+    def wrapped_function_call(func_spec)
       call = func_spec.wrapped.call_from(self.class.new(func_spec))
 
       if func_spec.constructor?

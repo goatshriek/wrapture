@@ -81,7 +81,7 @@ module Wrapture
       @spec['includes'].dup
     end
 
-    # TODO declaration and definition need to be moved to c-specific code
+    # TODO: declaration and definition need to be moved to c-specific code
     # Calls the given block once for each line of the declaration of this
     # constant, including any documentation.
     def declaration(&block)

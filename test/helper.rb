@@ -149,7 +149,7 @@ def validate_definition_file(spec)
   sig = "#{spec['name']}::#{spec['name']}\\( struct \\w+ \\*equivalent \\)"
   def_count = count_matches(filename, sig)
 
-  assert(def_count <= 1)
+  assert_operator(def_count, :<=, 1)
 
   normalized['functions'].each do |func_spec|
     sig = "#{spec['name']}::#{func_spec['name']}\\("

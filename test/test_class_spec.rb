@@ -171,7 +171,7 @@ class ClassSpecTest < Minitest::Test
     File.open('DocumentedClass.hpp').each do |line|
       if line.lstrip.start_with?('/**', '*')
         refute(line.chomp.end_with?(' '))
-        assert(line.chomp.length <= 80)
+        assert_operator(line.chomp.length, :<=, 80)
       end
     end
 
