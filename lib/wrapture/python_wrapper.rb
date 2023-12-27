@@ -78,7 +78,7 @@ module Wrapture
 
       File.open(File.join(dir, 'setup.py'), 'w') do |file|
         file.puts <<~SETUPTEXT
-          from distutils.core import setup, Extension
+          from setuptools import setup, Extension
 
           #{@spec.name}_mod = Extension('#{@spec.name}',
                                         language = 'c',

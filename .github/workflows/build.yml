@@ -47,14 +47,14 @@ jobs:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
       - uses: ruby/setup-ruby@b256bd96bb4867e7d23e92e087d9bb697270b725 # v1.163.0
         with:
-          ruby-version: '3.2'
+          ruby-version: '3.3'
       - name: Install Ruby Dependencies
         run: bundle install
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@0a5c61591373683505ea898e09a3ea4f39ef2b9c # v5.0.0
         with:
-          python-version: '3.x'
+          python-version: '3.12'
       - name: Run Python Tests
-        run: bundle exec rake python:test
+        run: bundle exec rake test:python
       - name: Run Python Examples
         run: bundle exec rake examples:python
   sonar-analysis:
