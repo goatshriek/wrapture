@@ -29,7 +29,7 @@ def run_cpp_example(name, lib, source, build_dir)
 
     if source
       sh "gcc #{example_dir}/#{source} -shared -o lib#{lib}.so -I#{example_dir}"
-      opts += "-L. -l#{scope.name} -l#{lib}"
+      opts += " -L. -l#{scope.name} -l#{lib}"
 
       include_cmd = "include_directories(\".\" \"#{example_dir}\")"
       sh "echo \"#{include_cmd}\" >> CMakeLists.txt"
