@@ -190,27 +190,29 @@ module Wrapture
         file.puts(')')
         file.puts
 
-        source_list = "#{@spec.name.upcase}_SOURCES"
-        file.puts("set(#{source_list}")
-        sources.each do |source|
-          file.puts("  #{source}")
-        end
-        file.puts(')')
-        file.puts
-
-        @spec.libraries.each do |lib|
-          file.puts("find_library(LIB#{lib.upcase}_FOUND #{lib})")
-          file.puts("add_library(#{lib} SHARED IMPORTED)")
-          file.puts("set_target_properties(#{lib} PROPERTIES")
-          file.puts("  IMPORTED_LOCATION ${LIB#{lib.upcase}_FOUND}")
+        unless sources.empty?
+          source_list = "#{@spec.name.upcase}_SOURCES"
+          file.puts("set(#{source_list}")
+          sources.each do |source|
+            file.puts("  #{source}")
+          end
           file.puts(')')
           file.puts
-        end
 
-        lib_deps = @spec.libraries.join(' ')
-        file.puts("add_library(#{@spec.name} ${#{source_list}})")
-        file.puts("target_link_libraries(#{@spec.name} PRIVATE #{lib_deps})")
-        file.puts
+          @spec.libraries.each do |lib|
+            file.puts("find_library(LIB#{lib.upcase}_FOUND #{lib})")
+            file.puts("add_library(#{lib} SHARED IMPORTED)")
+            file.puts("set_target_properties(#{lib} PROPERTIES")
+            file.puts("  IMPORTED_LOCATION ${LIB#{lib.upcase}_FOUND}")
+            file.puts(')')
+            file.puts
+          end
+
+          lib_deps = @spec.libraries.join(' ')
+          file.puts("add_library(#{@spec.name} ${#{source_list}})")
+          file.puts("target_link_libraries(#{@spec.name} PRIVATE #{lib_deps})")
+          file.puts
+        end
 
         file.puts('# todo add install command with headers')
       end

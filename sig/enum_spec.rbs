@@ -12,6 +12,7 @@ module Wrapture
     attr_reader doc: Wrapture::Comment
     def definition_includes: -> Array[String]
     def elements: -> spec_hash
+    def libraries: -> Array[String]
     def name: -> String
     def namespace: -> (String | nil)
     def namespace?: -> bool

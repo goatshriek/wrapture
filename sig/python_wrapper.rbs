@@ -16,8 +16,8 @@ module Wrapture
     def define_class_members: (Wrapture::ClassSpec) { (String) -> void } -> void
     def define_class_methods: (Wrapture::ClassSpec) { (String) -> void } -> void
     def define_class_type_objects: { (String) -> void } -> void
-    def define_class_type_struct: { (String) -> void } -> void
-    def define_enum_type_objects: { (String) -> void } -> void
+    def define_class_type_struct: (Wrapture::ClassSpec) { (String) -> void } -> void
+    def define_enum_constructor: (Wrapture::EnumSpec) { (String) -> void } -> void
     def define_function_wrapper: { (String) -> void } -> void
     def define_module: { (String) -> void } -> void
     def define_scope_type_objects: { (String) -> void } -> void

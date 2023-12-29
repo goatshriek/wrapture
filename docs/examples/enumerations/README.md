@@ -1,5 +1,4 @@
 # Enumeration Example
-
 Enumerations are a common tool in many languages to define a known set of values
 for use in a library. While these do exist in C code already, the mechanics are
 slightly different depending on the target language. Wrapture provides a way to

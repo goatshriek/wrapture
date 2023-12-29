@@ -217,16 +217,26 @@ module Wrapture
     # Since the name of a scope is optional, it is derived using the following
     # rules:
     # * the value of the 'name' key in the scope's definition if present
-    # * the namespace of the first class in the scope
-    # * the namespace of the first enum in the scope
+    # * the first namespace found in a sequential search of the scope's classes
+    # * the first namespace found in a sequential search of the scope's enums
+    # * the name of the first class in the scope
+    # * the name of the first enum in the scope
     # * an empty string
     def name
-      if @spec.key?('name')
-        @spec['name']
-      elsif @classes.any?
-        @classes.first.namespace
+      return @spec['name'] if @spec.key?('name')
+
+      @classes.each do |class_spec|
+        return class_spec.namespace unless class_spec.namespace.nil?
+      end
+
+      @enums.each do |enum_spec|
+        return enum_spec.namespace unless enum_spec.namespace.nil?
+      end
+
+      if @classes.any?
+        @classes.first.name
       elsif @enums.any?
-        @enums.first.namespace
+        @enums.first.name
       else
         ''
       end

@@ -60,6 +60,8 @@ module Wrapture
         element['includes'] = Wrapture.normalize_array(element['includes'])
       end
 
+      spec['libraries'] = Wrapture.normalize_array(spec['libraries'])
+
       spec
     end
 
@@ -70,9 +72,20 @@ module Wrapture
     #
     # The hash must have the following keys:
     # name:: The name of the enumeration.
+    # elements:: A list of elements contained in the enumeration.
     #
     # The following keys are optional:
     # doc:: a string containing the documentation for this class
+    #
+    # Element hashes have the following set of keys:
+    # name:: The name used for the element, required.
+    # doc:: Documentation for the element, optional.
+    # value:: The value to assign to the element, optional.
+    #
+    # If the value is not provided, the final value of the element will be left
+    # to the wrapping language if possible, and chosen by wrapture if not. This
+    # means that the same element may have different values in different
+    # languages if it is not specified.
     def initialize(spec, scope: Scope.new)
       @spec = EnumSpec.normalize_spec_hash(spec)
       @doc = Comment.new(@spec['doc'])
@@ -96,10 +109,15 @@ module Wrapture
     end
 
     # A list of elements in this enumeration.
-    # This should be redefined as a separate type of spec in the long run
-    # instead of being raw hashes.
+    # TODO: This should be redefined as a separate type of spec
+    # instead of being a raw array of hashes.
     def elements
       @spec['elements']
+    end
+
+    # An array of libraries needed for everything in this enum.
+    def libraries
+      @spec['libraries']
     end
 
     # The name of the enumeration.

@@ -1,6 +1,7 @@
 enums:
   - name: "Fruit"
     doc: "fruits sold by our fine establishment"
+    namespace: "store"
     includes:
       - "citrus_mangiamo.h"
       - "seedless_desire.h"

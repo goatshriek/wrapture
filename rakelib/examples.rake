@@ -25,17 +25,18 @@ def run_cpp_example(name, lib, source, build_dir)
   wrapper.write_cmake_files(dir: build_dir)
 
   Dir.chdir(build_dir) do
-    opts = "-L. -l#{scope.name} -I. -I#{example_dir} -o #{lib}_usage_cpp"
+    opts = "-L. -I. -I#{example_dir} -o #{lib}_usage_cpp"
 
     if source
       sh "gcc #{example_dir}/#{source} -shared -o lib#{lib}.so -I#{example_dir}"
-      opts += " -l#{lib}"
+      opts += " -l#{scope.name} -l#{lib}"
+
+      include_cmd = "include_directories(\".\" \"#{example_dir}\")"
+      sh "echo \"#{include_cmd}\" >> CMakeLists.txt"
+      sh "cmake -DCMAKE_LIBRARY_PATH=#{example_dir} ."
+      sh "cmake --build . --target #{scope.name}"
     end
 
-    include_cmd = "include_directories(\".\" \"#{example_dir}\")"
-    sh "echo \"#{include_cmd}\" >> CMakeLists.txt"
-    sh "cmake -DCMAKE_LIBRARY_PATH=#{example_dir} ."
-    sh "cmake --build . --target #{scope.name}"
     sh "g++ #{example_dir}/#{lib}_usage.cpp #{opts}"
     sh "LD_LIBRARY_PATH=. ./#{lib}_usage_cpp"
   end
@@ -60,9 +61,9 @@ def run_python_example(name, lib, source, build_dir)
   end
 end
 
-example_list = [{name: 'basic', lib: 'stove', source: 'stove.c'},
-                {name: 'constants', lib: 'vcr', source: 'vcr.c'},
-                {name: 'enumerations', lib: 'fruit', source: nil }]
+example_list = [{ name: 'basic', lib: 'stove', source: 'stove.c' },
+                { name: 'constants', lib: 'vcr', source: 'vcr.c' },
+                { name: 'enumerations', lib: 'fruit', source: nil }]
 
 namespace 'examples' do
   example_list.each do |ex|

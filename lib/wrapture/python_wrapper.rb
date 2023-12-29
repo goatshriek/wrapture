@@ -131,7 +131,7 @@ module Wrapture
     # all classes and enums in this module.
     def add_scope_type_objects(&block)
       previous_objects = ['m']
-      (@spec.classes + @spec.enums).flat_map do |item|
+      @spec.classes.each do |item|
         object_name = "&#{item.snake_case_name}_type_object"
         previous_objects << object_name
         add_class_type_object(item, decref: previous_objects.reverse) do |line|
@@ -139,6 +139,12 @@ module Wrapture
         end
         yield ''
       end
+
+      @spec.enums.each do |enum_spec|
+        snake_name = enum_spec.snake_case_name
+        block.call("Py_DECREF( add_#{snake_name}_enum_to_module( m ) );")
+      end
+      yield ''
     end
 
     # True if the provided wrapped param spec can be cast to when used in this
@@ -266,24 +272,67 @@ module Wrapture
       yield "} #{type_struct_name(class_spec)};"
     end
 
-    # Passes lines of C code to the given block which creates the methods and
-    # type object for the given enum in this module.
-    def define_enum_type_object(enum_spec)
+    # Passes lines of C code to the given block which define a function to
+    # create the enum and add it to a supplied module object.
+    # TODO: need to add NULL checks
+    def define_enum_constructor(enum_spec)
       snake_name = enum_spec.snake_case_name
-      yield 'typedef struct {'
-      yield '  PyObject_HEAD'
-      yield "} #{type_struct_name(enum_spec)};"
+      yield "PyObject * add_#{snake_name}_enum_to_module( PyObject *m ) {"
+      yield '  PyObject *element_dict;'
+      yield '  PyObject *element_name;'
+      yield '  PyObject *element_value;'
+      yield '  PyObject *enum_name;'
+      yield '  PyObject *call_args;'
+      yield '  PyObject *call_kwargs;'
+      yield '  PyObject *kw_name;'
+      yield '  PyObject *kw_value;'
+      yield '  PyObject *enum_mod;'
+      yield '  PyObject *enum_type;'
+      yield '  PyObject *new_enum;'
       yield ''
-      yield "static PyTypeObject #{snake_name}_type_object = {"
-      yield '  PyVarObject_HEAD_INIT( NULL, 0 )'
-      yield "  .tp_name = \"#{@spec.name}.#{enum_spec.name}\","
-      yield "  .tp_doc = \"#{enum_spec.doc.text}\","
-      yield "  .tp_basicsize = sizeof(#{type_struct_name(enum_spec)}),"
-      yield '  .tp_itemsize = 0,'
-      yield '  .tp_flags = Py_TPFLAGS_DEFAULT,'
-      yield '  .tp_new = PyType_GenericNew,'
-      yield '};'
+      yield '  // setting up the elements of the enumeration'
+      yield '  element_dict = PyDict_New();'
+      enum_spec.elements.each_with_index do |element, i|
+        yield "  element_name = PyUnicode_FromString( \"#{element['name']}\" );"
+
+        val = element.fetch('value', i+1)
+        yield "  element_value = PyLong_FromLong( #{val} );"
+
+        yield '  PyObject_SetItem( element_dict, element_name, element_value );'
+        yield '  Py_DECREF( element_name );'
+        yield '  Py_DECREF( element_value );'
+        yield ''
+      end
       yield ''
+      yield '  // building the positional arguments to enum.Enum'
+      yield "  enum_name = PyUnicode_FromString( \"#{enum_spec.name}\" );"
+      yield '  call_args = PyTuple_Pack( 2, enum_name, element_dict );'
+      yield '  Py_DECREF( enum_name );'
+      yield '  Py_DECREF( element_dict );'
+      yield ''
+      yield '  // building the keyword argument to enum.Enum'
+      yield '  call_kwargs = PyDict_New();'
+      yield '  kw_name = PyUnicode_FromString( "module" );'
+      yield '  kw_value = PyModule_GetNameObject( m );'
+      yield '  PyObject_SetItem( call_kwargs, kw_name, kw_value );'
+      yield '  Py_DECREF( kw_name );'
+      yield '  Py_DECREF( kw_value );'
+      yield ''
+      yield '  // importing enum and getting the Enum type from it'
+      yield '  enum_mod = PyImport_ImportModule( "enum" );'
+      yield '  enum_type = PyObject_GetAttrString( enum_mod, "Enum" );'
+      yield '  Py_DECREF( enum_mod );'
+      yield ''
+      yield '  // making the call to enum.Enum to create the new type'
+      yield '  new_enum = PyObject_Call( enum_type, call_args, call_kwargs );'
+      yield '  Py_DECREF( enum_type );'
+      yield '  Py_DECREF( call_args );'
+      yield '  Py_DECREF( call_kwargs );'
+      yield ''
+      yield '  // adding the new type to the module'
+      yield "  PyModule_AddObject( m, \"#{enum_spec.name}\", new_enum );"
+      yield '  return new_enum;'
+      yield '}'
     end
 
     # Defines the function that the python interpreter will call for the given
@@ -350,7 +399,6 @@ module Wrapture
       yield '  PyObject *m;'
       yield ''
       scope_types_ready { |line| block.call("  #{line}") }
-      yield ''
       yield "  m = PyModule_Create( &#{@spec.name}_module );"
       yield '  if( !m ){'
       yield '    return NULL;'
@@ -377,7 +425,8 @@ module Wrapture
       end
 
       @spec.enums.each do |item|
-        define_enum_type_object(item) { |line| block.call(line) }
+        define_enum_constructor(item) { |line| block.call(line) }
+        yield ''
       end
     end
 
@@ -523,10 +572,11 @@ module Wrapture
     # Passes lines of C code to the given block which executes PyType_Ready
     # on each type in the module.
     def scope_types_ready
-      (@spec.classes + @spec.enums).flat_map do |item|
+      @spec.classes.each do |item|
         yield "if ( PyType_Ready( &#{item.snake_case_name}_type_object ) < 0){"
         yield '  return NULL;'
         yield '}'
+        yield ''
       end
     end
 
