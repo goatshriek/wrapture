@@ -295,7 +295,7 @@ module Wrapture
       enum_spec.elements.each_with_index do |element, i|
         yield "  element_name = PyUnicode_FromString( \"#{element['name']}\" );"
 
-        val = element.fetch('value', i+1)
+        val = element.fetch('value', i + 1)
         yield "  element_value = PyLong_FromLong( #{val} );"
 
         yield '  PyObject_SetItem( element_dict, element_name, element_value );'
