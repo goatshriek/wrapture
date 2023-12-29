@@ -25,11 +25,11 @@ def run_cpp_example(name, lib, source, build_dir)
   wrapper.write_cmake_files(dir: build_dir)
 
   Dir.chdir(build_dir) do
-    opts = "-L. -I. -I#{example_dir} -o #{lib}_usage_cpp"
+    opts = "-I. -I#{example_dir} -o #{lib}_usage_cpp"
 
     if source
       sh "gcc #{example_dir}/#{source} -shared -o lib#{lib}.so -I#{example_dir}"
-      opts += " -l#{scope.name} -l#{lib}"
+      opts += "-L. -l#{scope.name} -l#{lib}"
 
       include_cmd = "include_directories(\".\" \"#{example_dir}\")"
       sh "echo \"#{include_cmd}\" >> CMakeLists.txt"

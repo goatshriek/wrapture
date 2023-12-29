@@ -28,13 +28,13 @@ int
 main( int argc, char **argv ){
   // comparisons between types can be done using the underlying integers
   // note that static cast is needed to compare with an integer 
-  if( static_cast<int>( Fruit::watermelon ) == DESIRE_WATERMELON ) {
+  if( static_cast<int>( store::Fruit::watermelon ) == DESIRE_WATERMELON ) {
     cout << "Fruit::watermelon is equal to DESIRE_WATERMELON" << endl;
   }
 
   // instead of casting, you could also go the other way and create a Fruit
   // from the original value instead
-  if( Fruit::lime == Fruit(MANGIAMO_LIME) ) {
+  if( store::Fruit::lime == store::Fruit(MANGIAMO_LIME) ) {
     cout << "Fruit::lime is equal to MANGIAMO_LIME" << endl;
   }
 
