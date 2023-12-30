@@ -24,8 +24,10 @@ module Wrapture
     def castable?: (spec_hash wrapped_param) -> bool
     def class_functions: -> Array[Wrapture::FunctionSpec]
     def declare_class: (Wrapture::ClassSpec spec) { (String) -> void } -> void
+    def declare_constant: (Wrapture::ConstantSpec spec) { (String) -> void } -> void
     def declare_function: (Wrapture::FunctionSpec spec) { (String) -> void } -> void
     def define_class: (Wrapture::ClassSpec spec) { (String) -> void } -> void
+    def define_constant: (Wrapture::ConstantSpec constant_spec, String class_name) { (String) -> void } -> void
     def define_enum: (Wrapture::EnumSpec spec) { (String) -> void } -> void
     def define_function: (Wrapture::FunctionSpec spec) { (String) -> void } -> void
     def enum_element_definition: (spec_hash element) -> String

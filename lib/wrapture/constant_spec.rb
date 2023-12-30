@@ -81,20 +81,6 @@ module Wrapture
       @spec['includes'].dup
     end
 
-    # TODO: declaration and definition need to be moved to c-specific code
-    # Calls the given block once for each line of the declaration of this
-    # constant, including any documentation.
-    def declaration(&block)
-      @doc&.format_as_doxygen(max_line_length: 76) { |line| block.call(line) }
-      block.call("static const #{@type.variable(@spec['name'])};")
-    end
-
-    # The definition of this constant.
-    def definition(class_name)
-      expanded_name = "#{class_name}::#{@spec['name']}"
-      "const #{@spec['type']} #{expanded_name} = #{@spec['value']}"
-    end
-
     # The name of the constant.
     def name
       @spec['name']

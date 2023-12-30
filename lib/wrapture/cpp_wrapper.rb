@@ -328,7 +328,7 @@ module Wrapture
 
       unless @spec.constants.empty?
         @spec.constants.each do |constant|
-          constant.declaration { |line| yield "    #{line}" }
+          declare_constant(constant) { |line| yield "    #{line}" }
         end
         yield ''
       end
@@ -347,6 +347,12 @@ module Wrapture
       yield '}' # end of namespace
       yield ''
       yield "#endif /* #{header_guard} */"
+    end
+
+    # Gives each line of the declaration of the given ConstantSpec.
+    def declare_constant(constant_spec, &block)
+      constant_spec.doc&.format_as_doxygen(max_line_length: 76, &block)
+      yield "static const #{constant_spec.type.variable(constant_spec.name)};"
     end
 
     # Gives each line of the declaration of a FunctionSpec to the provided
@@ -381,7 +387,7 @@ module Wrapture
 
       yield unless @spec.constants.empty?
       @spec.constants.each do |const|
-        yield "  #{const.definition(@spec.name)};"
+        yield "  #{define_constant(const, @spec.name)};"
       end
 
       class_functions.each do |function|
@@ -391,6 +397,13 @@ module Wrapture
 
       yield ''
       yield '}' # end of namespace
+    end
+
+    # Gives each line of the definition of a ConstantSpec in a given class to
+    # the provided block.
+    def define_constant(constant_spec, class_name)
+      expanded_name = "#{class_name}::#{constant_spec.name}"
+      "const #{constant_spec.type} #{expanded_name} = #{constant_spec.value}"
     end
 
     # Gives each line of the definition of a EnumSpec to the provided block.
