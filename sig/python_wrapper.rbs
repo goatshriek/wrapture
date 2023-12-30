@@ -11,6 +11,7 @@ module Wrapture
     def add_class_type_object: (Wrapture::ClassSpec, ?Array[String] decref) { (String) -> void } -> void
     def add_scope_type_objects: { (String) -> void } -> void
     def castable?: (spec_hash wrapped_param) -> bool
+    def class_functions: (Wrapture::ClassSpec) -> Array[Wrapture::FunctionSpec]
     def create_python_object: (Wrapture::TypeSpec, String) -> String
     def default_destructor: (Wrapture::ClassSpec) -> Wrapture::FunctionSpec
     def define_class_members: (Wrapture::ClassSpec) { (String) -> void } -> void

@@ -179,6 +179,23 @@ module Wrapture
         @spec.owner.type?(param.type)
     end
 
+    # Returns a list of FunctionSpecs describing all of the functions generated
+    # for a ClassSpec. This includes both those listed in the original
+    # ClassSpec, as well as those auto-generated for Python.
+    def class_functions(class_spec)
+      functions = class_spec.functions.dup
+
+      if class_spec.struct&.members?
+        functions << member_constructor(class_spec)
+      end
+
+      unless class_spec.functions.any?(&:destructor?)
+        functions << default_destructor(class_spec)
+      end
+
+      functions
+    end
+
     # Creates a Python object using a variable with the given name and type.
     def create_python_object(type, name)
       if type.name == 'int'
@@ -244,16 +261,7 @@ module Wrapture
       define_class_type_struct(class_spec) { |line| block.call(line) }
       yield ''
 
-      # TODO: shouldn't be adding to the instance's list of functions
-      if class_spec.struct&.members?
-        class_spec.functions << member_constructor(class_spec)
-      end
-
-      unless class_spec.functions.any?(&:destructor?)
-        class_spec.functions << default_destructor(class_spec)
-      end
-
-      class_spec.functions.each do |func_spec|
+      class_functions(class_spec).each do |func_spec|
         define_function_wrapper(func_spec, &block)
         yield ''
       end
