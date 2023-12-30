@@ -21,7 +21,6 @@
 module Wrapture
   # A wrapper that generates Python wrappers for given specs.
   class PythonWrapper
-
     # Mapping of basic types to their Py_T counterparts.
     MEMBER_TYPE_MAP = {
       'byte' => 'Py_T_BYTE',
@@ -185,9 +184,7 @@ module Wrapture
     def class_functions(class_spec)
       functions = class_spec.functions.dup
 
-      if class_spec.struct&.members?
-        functions << member_constructor(class_spec)
-      end
+      functions << member_constructor(class_spec) if class_spec.struct&.members?
 
       unless class_spec.functions.any?(&:destructor?)
         functions << default_destructor(class_spec)
