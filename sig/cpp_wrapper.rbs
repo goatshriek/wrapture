@@ -35,6 +35,9 @@ module Wrapture
     def equivalent_member_declaration: -> String
     def equivalent_member_field: -> String
     def factory_constructor_hash: -> String
+    def function_declaration_param_list: (Wrapture::FunctionSpec) -> String
+    def function_declaration_signature: (Wrapture::FunctionSpec) { (String) -> void } -> void
+    def function_definition_param_list: (Wrapture::FunctionSpec) -> String
     def function_locals: (Wrapture::FunctionSpec spec) { (String) -> void } -> void
     def initializer_suffix: -> String
     def member_constructor_hash: -> spec_hash

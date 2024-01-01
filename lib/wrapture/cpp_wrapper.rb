@@ -372,7 +372,7 @@ module Wrapture
                           ''
                         end
 
-      block.call("#{modifier_prefix}#{@spec.return_expression};")
+      block.call("#{modifier_prefix}#{function_declaration_signature(@spec)};")
     end
 
     # Gives each line of the definition of a ClassSpec to the provided block.
@@ -454,10 +454,9 @@ module Wrapture
     def define_function
       @spec.definable!
 
-      func_name = qualified_function_name(@spec)
-      signature = @spec.return_expression(func_name: func_name)
+      signature =function_definition_signature(@spec)
 
-      yield "#{signature} #{initializer_suffix}{"
+      yield "#{ signature} #{initializer_suffix}{"
 
       function_locals(@spec) { |declaration| yield "  #{declaration}" }
       yield ''
@@ -538,6 +537,60 @@ module Wrapture
                        'type' => 'equivalent-struct-pointer' }],
         'wrapped-code' => { 'lines' => factory_lines },
         'return' => { 'type' => "#{@spec.name} *" } }
+    end
+
+    # The parameter list for the function declaration.
+    def function_declaration_param_list(func_spec)
+      if func_spec.params.empty?
+        'void'
+      else
+        func_spec.params.map do |param|
+          sig = param.type.resolve(func_spec).variable(param.name)
+
+          if param.default_value?
+            sig += ' = '
+            sig += if param.type.name == 'const char *'
+                     "\"#{param.default_value}\""
+                   elsif param.type.name.end_with?('char')
+                     "'#{param.default_value}'"
+                   else
+                    param.default_value.to_s
+                   end
+          end
+
+          sig
+        end.join(', ')
+      end
+    end
+
+    # The signature of a function in the declaration.
+    def function_declaration_signature(func_spec)
+      if func_spec.constructor? || func_spec.destructor?
+        "#{func_spec.name}( #{function_declaration_param_list(func_spec)} )"
+      else
+        func_spec.resolved_return.return_expression(func_spec, func_name: func_spec.name)
+      end
+    end
+
+    # The parameter list for the function definition.
+    def function_definition_param_list(func_spec)
+      if func_spec.params.empty?
+        'void'
+      else
+        func_spec.params.map do |param|
+          param.type.resolve(func_spec).variable(param.name)
+        end.join(', ')
+      end
+    end
+
+    # The signature of a function in the definition.
+    def function_definition_signature(func_spec)
+      func_name = qualified_function_name(func_spec)
+      if func_spec.constructor? || func_spec.destructor?
+        "#{func_name}( #{function_definition_param_list(func_spec)} )"
+      else
+        func_spec.resolved_return.return_expression(func_spec, func_name: func_name)
+      end
     end
 
     # Yields a declaration of each local variable used by the function.

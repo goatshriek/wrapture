@@ -98,6 +98,16 @@ module Wrapture
       @type = TypeSpec.new(@spec['type'])
     end
 
+    # The default value of the parameter.
+    def default_value
+      @spec['default-value']
+    end
+
+    # True if this param has a default value.
+    def default_value?
+      @spec.key?('default-value')
+    end
+
     # A Comment holding the parameter documentation.
     def doc
       if @spec.key?('doc')
