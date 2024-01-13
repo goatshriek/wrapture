@@ -249,6 +249,11 @@ module Wrapture
       @spec['name']
     end
 
+    # The parameters that are optional (have default values) for this function.
+    def optional_params
+      @params.select(&:default_value?)
+    end
+
     # A string with the parameter list for this function.
     def param_list
       ParamSpec.signature(@params, self)

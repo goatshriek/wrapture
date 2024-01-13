@@ -454,9 +454,9 @@ module Wrapture
     def define_function
       @spec.definable!
 
-      signature =function_definition_signature(@spec)
+      signature = function_definition_signature(@spec)
 
-      yield "#{ signature} #{initializer_suffix}{"
+      yield "#{signature} #{initializer_suffix}{"
 
       function_locals(@spec) { |declaration| yield "  #{declaration}" }
       yield ''
@@ -554,7 +554,7 @@ module Wrapture
                    elsif param.type.name.end_with?('char')
                      "'#{param.default_value}'"
                    else
-                    param.default_value.to_s
+                     param.default_value.to_s
                    end
           end
 
@@ -568,7 +568,8 @@ module Wrapture
       if func_spec.constructor? || func_spec.destructor?
         "#{func_spec.name}( #{function_declaration_param_list(func_spec)} )"
       else
-        func_spec.resolved_return.return_expression(func_spec, func_name: func_spec.name)
+        return_type = func_spec.resolved_return
+        return_type.return_expression(func_spec, func_name: func_spec.name)
       end
     end
 
@@ -589,7 +590,8 @@ module Wrapture
       if func_spec.constructor? || func_spec.destructor?
         "#{func_name}( #{function_definition_param_list(func_spec)} )"
       else
-        func_spec.resolved_return.return_expression(func_spec, func_name: func_name)
+        return_type = func_spec.resolved_return
+        return_type.return_expression(func_spec, func_name: func_name)
       end
     end
 

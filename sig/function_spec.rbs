@@ -28,6 +28,7 @@ module Wrapture
     def initializers: -> spec_hash
     def libraries: -> Array[String]
     def name: -> String
+    def optional_params: -> Array[Wrapture::ParamSpec]
     def param_list: -> String
     def qualified_name: -> String
     def resolved_return: -> Wrapture::TypeSpec
