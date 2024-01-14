@@ -42,9 +42,24 @@ module Wrapture
       'string' => 'Py_T_STRING'
     }.freeze
 
+    # Mapping of types to their PyArg_ParseTuple format string.
     TYPE_FORMAT_UNIT_MAP = {
+      'byte' => 'b',
+      'char' => 'b',
+      'short' => 'h',
       'int' => 'i',
-      'unsigned int' => 'I'
+      'long' => 'l',
+      'long long' => 'k',
+      'unsigned char' => 'B',
+      'unsigned short' => 'H',
+      'unsigned int' => 'I',
+      'unsigned long' => 'L',
+      'unsigned long long' => 'K',
+      'size_t' => 'n',
+      'float' => 'f',
+      'double' => 'd',
+      'bool' => 'p',
+      'string' => 's'
     }.freeze
 
     # Generates the setup.py script and other supporting files for the
@@ -612,7 +627,8 @@ module Wrapture
 
     # The format string for PyArg_ParseTuple for the given function parameter.
     def param_format(func_spec, param_spec)
-      TYPE_FORMAT_UNIT_MAP[func_spec.resolve_type(param_spec.type).to_s]
+      key = func_spec.resolve_type(param_spec.type).to_s
+      TYPE_FORMAT_UNIT_MAP.fetch(key, 'O')
     end
 
     # The return statement used in this function's definition.
