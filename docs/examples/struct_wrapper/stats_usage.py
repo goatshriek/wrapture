@@ -19,13 +19,13 @@
 import soccer
 
 default_player = soccer.PlayerStats()
-print(f"default player's stats:\n  ")
+print("default player's stats:")
 default_player.Print()
 
 my_player = soccer.PlayerStats(3, 5, 1)
-print(f"my player's stats:\n  ")
-default_player.Print()
+print("\nmy player's stats:")
+my_player.Print()
 
 their_player = soccer.PlayerStats(0, 4, 4)
-print(f"their player's stats:\n  ")
-default_player.Print()
+print("\ntheir player's stats:")
+their_player.Print()

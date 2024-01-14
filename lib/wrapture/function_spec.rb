@@ -259,8 +259,23 @@ module Wrapture
       ParamSpec.signature(@params, self)
     end
 
+    # An array of the names of the function params.
+    def param_names
+      @params.map(&:name)
+    end
+
+    # True if this function has parameters.
+    def params?
+      !@params.empty?
+    end
+
+    # The parameters that are required (no default values) for this function.
+    def required_params
+      @params.reject(&:default_value?)
+    end
+
     # A resolved type, given a TypeSpec +type+. Resolved types will not have any
-    # keywords like +equivalent-struct+, which will be resolved to their
+    # placeholders like +equivalent-struct+, which will be resolved to their
     # effective type.
     def resolve_type(type)
       if type.equivalent_struct?

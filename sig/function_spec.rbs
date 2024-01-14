@@ -30,7 +30,10 @@ module Wrapture
     def name: -> String
     def optional_params: -> Array[Wrapture::ParamSpec]
     def param_list: -> String
+    def param_names: -> Array[String]
+    def params?: -> bool
     def qualified_name: -> String
+    def required_params: -> Array[Wrapture::ParamSpec]
     def resolved_return: -> Wrapture::TypeSpec
     def return_expression: (?func_name: String) -> String
     def signature: (?func_name: String) -> String

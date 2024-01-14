@@ -28,13 +28,13 @@ int main( int argc, char **argv ) {
   PlayerStats my_player ( 3, 5, 1 );
   PlayerStats their_player (0, 4, 4 );
 
-  cout << "default player's stats:\n  ";
+  cout << "default player's stats:" << endl;
   default_player.Print();
 
-  cout << "my player's stats:\n  ";
+  cout << endl << "my player's stats:" << endl;
   my_player.Print();
 
-  cout << "their player's stats:\n  ";
+  cout << endl << "their player's stats:" << endl;
   their_player.Print();
 
   return EXIT_SUCCESS;

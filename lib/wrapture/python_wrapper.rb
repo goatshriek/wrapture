@@ -471,6 +471,19 @@ module Wrapture
       end
     end
 
+    # The format string for PyArg_ParseTuple for the given function.
+    def function_args_format(func_spec)
+      required_formats = func_spec.required_params.map do |param_spec|
+        param_format(func_spec, param_spec)
+      end
+
+      optional_formats = func_spec.optional_params.map do |param_spec|
+        param_format(func_spec, param_spec)
+      end
+
+      "#{required_formats.join}|#{optional_formats.join}"
+    end
+
     # Gives the flags used to define the python method for the given function.
     def function_flags(func_spec)
       flags = []
@@ -502,23 +515,29 @@ module Wrapture
         end
       end
 
-      return if spec.params.empty?
-
-      format_str = '"'
-      param_names = []
+      return unless spec.params?
 
       spec.params.each do |param_spec|
         param_type = spec.resolve_type(param_spec.type).to_s
-        format_str += TYPE_FORMAT_UNIT_MAP[param_type]
-        param_names << param_spec.name
         yield "#{param_type} #{param_spec.name};"
       end
 
       yield ''
 
-      format_str += '"'
-      parsed_args = "&#{param_names.join(', &')}"
+      spec.optional_params.each do |param_spec|
+        assignment = "#{param_spec.name} = "
+        assignment += if param_spec.type.name == 'const char *'
+                        "\"#{param_spec.default_value}\""
+                      elsif param_spec.type.name.end_with?('char')
+                        "'#{param_spec.default_value}'"
+                      else
+                        param_spec.default_value.to_s
+                      end
+        yield "#{assignment};"
+      end
 
+      format_str = "\"#{function_args_format(spec)}\""
+      parsed_args = "&#{spec.param_names.join(', &')}"
       yield "if( !PyArg_ParseTuple( args, #{format_str}, #{parsed_args} ) ) {"
       yield '   return NULL;'
       yield '}'
@@ -583,6 +602,11 @@ module Wrapture
     # the PyMemberDef.type struct field.
     def member_type(type_spec)
       MEMBER_TYPE_MAP.fetch(type_spec.name, 'Py_T_OBJECT_EX')
+    end
+
+    # The format string for PyArg_ParseTuple for the given function parameter.
+    def param_format(func_spec, param_spec)
+      TYPE_FORMAT_UNIT_MAP[func_spec.resolve_type(param_spec.type).to_s]
     end
 
     # The return statement used in this function's definition.

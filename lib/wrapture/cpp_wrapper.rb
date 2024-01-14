@@ -575,12 +575,12 @@ module Wrapture
 
     # The parameter list for the function definition.
     def function_definition_param_list(func_spec)
-      if func_spec.params.empty?
-        'void'
-      else
+      if func_spec.params?
         func_spec.params.map do |param|
           param.type.resolve(func_spec).variable(param.name)
         end.join(', ')
+      else
+        'void'
       end
     end
 
