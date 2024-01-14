@@ -500,7 +500,7 @@ module Wrapture
     end
 
     # Yields a declaration of each local variable used by the function.
-    def function_locals(spec)
+    def function_locals(spec, &block)
       if spec.constructor?
         owner_snake_name = spec.owner.snake_case_name
         type_struct_name = "#{owner_snake_name}_type_struct"
@@ -515,6 +515,12 @@ module Wrapture
         end
       end
 
+      function_param_locals(&block)
+    end
+
+    # Yields a declaration of each local variable needed for params by a
+    # function.
+    def function_param_locals(spec)
       return unless spec.params?
 
       spec.params.each do |param_spec|
