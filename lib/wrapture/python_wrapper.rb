@@ -515,7 +515,7 @@ module Wrapture
         end
       end
 
-      function_param_locals(&block)
+      function_param_locals(spec, &block)
     end
 
     # Yields a declaration of each local variable needed for params by a
