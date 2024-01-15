@@ -199,16 +199,20 @@ module Wrapture
           file.puts(')')
           file.puts
 
+          lib_targets = []
           @spec.libraries.each do |lib|
+            target_name = "#{@spec.name}_#{lib}"
             file.puts("find_library(LIB#{lib.upcase}_FOUND #{lib})")
-            file.puts("add_library(#{lib} SHARED IMPORTED)")
-            file.puts("set_target_properties(#{lib} PROPERTIES")
+            file.puts("add_library(#{target_name} SHARED IMPORTED)")
+            file.puts("set_target_properties(#{target_name} PROPERTIES")
             file.puts("  IMPORTED_LOCATION ${LIB#{lib.upcase}_FOUND}")
             file.puts(')')
             file.puts
+
+            lib_targets.append(target_name)
           end
 
-          lib_deps = @spec.libraries.join(' ')
+          lib_deps = lib_targets.join(' ')
           file.puts("add_library(#{@spec.name} ${#{source_list}})")
           file.puts("target_link_libraries(#{@spec.name} PRIVATE #{lib_deps})")
           file.puts

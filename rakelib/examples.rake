@@ -64,7 +64,8 @@ end
 example_list = [{ name: 'basic', lib: 'stove', source: 'stove.c' },
                 { name: 'constants', lib: 'vcr', source: 'vcr.c' },
                 { name: 'enumerations', lib: 'fruit', source: nil },
-                { name: 'struct_wrapper', lib: 'stats', source: 'stats.c' }]
+                { name: 'struct_wrapper', lib: 'stats', source: 'stats.c' },
+                { name: 'templates', lib: 'magic_math', source: 'magic_math.c'}]
 
 namespace 'examples' do
   example_list.each do |ex|
