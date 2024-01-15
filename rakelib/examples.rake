@@ -61,14 +61,14 @@ def run_python_example(name, lib, source, build_dir)
   end
 end
 
-example_list = [{ name: 'basic', lib: 'stove', source: 'stove.c' },
-                { name: 'constants', lib: 'vcr', source: 'vcr.c' },
-                { name: 'enumerations', lib: 'fruit', source: nil },
-                { name: 'struct_wrapper', lib: 'stats', source: 'stats.c' },
-                { name: 'templates', lib: 'magic_math', source: 'magic_math.c'}]
+examples = [{ name: 'basic', lib: 'stove', source: 'stove.c' },
+            { name: 'constants', lib: 'vcr', source: 'vcr.c' },
+            { name: 'enumerations', lib: 'fruit', source: nil },
+            { name: 'struct_wrapper', lib: 'stats', source: 'stats.c' },
+            { name: 'templates', lib: 'magic_math', source: 'magic_math.c' }]
 
 namespace 'examples' do
-  example_list.each do |ex|
+  examples.each do |ex|
     namespace ex[:name] do
       build_root = "build/examples/#{ex[:name]}"
       directory build_root
