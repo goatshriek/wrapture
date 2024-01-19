@@ -315,7 +315,9 @@ module Wrapture
       class_spec.constants.each do |constant_spec|
         yield "  #{constant_spec.type} #{constant_spec.snake_case_name};"
       end
-      yield "  #{equivalent_member_declaration(class_spec)}"
+      if class_spec.equivalent_member?
+        yield "  #{equivalent_member_declaration(class_spec)}"
+      end
       yield "} #{type_struct_name(class_spec)};"
     end
 
