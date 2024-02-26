@@ -13,6 +13,7 @@ module Wrapture
     def castable?: (spec_hash wrapped_param) -> bool
     def class_functions: (Wrapture::ClassSpec) -> Array[Wrapture::FunctionSpec]
     def create_python_object: (Wrapture::TypeSpec, String) -> String
+    def default_constructor: (Wrapture::ClassSpec) -> Wrapture::FunctionSpec
     def default_destructor: (Wrapture::ClassSpec) -> Wrapture::FunctionSpec
     def define_class_members: (Wrapture::ClassSpec) { (String) -> void } -> void
     def define_class_methods: (Wrapture::ClassSpec) { (String) -> void } -> void

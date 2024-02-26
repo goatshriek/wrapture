@@ -21,5 +21,5 @@ import magic_stuff
 print('listing primes from 0 to 100:')
 
 for i in range(100):
-    if magic_stuff.MagicMath.isPrime(i):
+    if magic_stuff.MagicMath.IsPrime(i):
         print(i)

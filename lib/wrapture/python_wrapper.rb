@@ -210,6 +210,10 @@ module Wrapture
         functions << default_destructor(class_spec)
       end
 
+      unless class_spec.functions.any?(&:constructor?)
+        functions << default_constructor(class_spec)
+      end
+
       functions
     end
 
@@ -223,6 +227,14 @@ module Wrapture
         # TODO: default case
         ''
       end
+    end
+
+    # The default constructor for python classes if one is not given or derived.
+    def default_constructor(class_spec)
+      spec_hash = {'name' => "#{class_spec.name}_new",
+                   'wrapped-code' => { 'lines' => [] } }
+
+      FunctionSpec.new(spec_hash, class_spec, constructor: true)
     end
 
     # The default destructor for python classes if one is not given.
@@ -511,7 +523,7 @@ module Wrapture
                  'METH_VARARGS'
                end
 
-      flags << 'METH_CLASS' if func_spec.static?
+      flags << 'METH_STATIC' if func_spec.static?
 
       flags.join(' | ')
     end
