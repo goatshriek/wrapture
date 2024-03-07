@@ -206,11 +206,11 @@ module Wrapture
 
       functions << member_constructor(class_spec) if class_spec.struct&.members?
 
-      unless class_spec.functions.any?(&:destructor?)
+      unless functions.any?(&:destructor?)
         functions << default_destructor(class_spec)
       end
 
-      unless class_spec.functions.any?(&:constructor?)
+      unless functions.any?(&:constructor?)
         functions << default_constructor(class_spec)
       end
 
@@ -231,8 +231,8 @@ module Wrapture
 
     # The default constructor for python classes if one is not given or derived.
     def default_constructor(class_spec)
-      spec_hash = {'name' => "#{class_spec.name}_new",
-                   'wrapped-code' => { 'lines' => [] } }
+      spec_hash = { 'name' => "#{class_spec.name}_new",
+                    'wrapped-code' => { 'lines' => [] } }
 
       FunctionSpec.new(spec_hash, class_spec, constructor: true)
     end
