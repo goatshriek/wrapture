@@ -21,7 +21,7 @@
 #include <MylibError.hpp>
 
 using namespace std;
-using namespace mylib;
+using namespace myapp;
 
 void i_will_fail( void ) {
   throw MylibError();

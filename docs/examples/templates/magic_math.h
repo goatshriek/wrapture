@@ -19,9 +19,9 @@
 #ifndef __MAGIC_MATH_H
 #define __MAGIC_MATH_H
 
-#  ifdef __cplusplus
+#ifdef __cplusplus
 extern "C" {
-#  endif
+#endif
 
 int
 is_magical( int num );
@@ -33,8 +33,8 @@ int
 is_random( int num );
 
 
-#  ifdef __cplusplus
+#ifdef __cplusplus
 }
-#  endif
+#endif
 
 #endif

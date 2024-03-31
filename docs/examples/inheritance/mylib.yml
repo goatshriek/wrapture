@@ -1,6 +1,7 @@
 classes:
   - name: "MylibError"
-    namespace: "mylib"
+    namespace: "myapp"
+    libraries: "mylib"
     equivalent-struct:
       name: "mylib_error"
       includes: "mylib.h"
