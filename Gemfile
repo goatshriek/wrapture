@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2019-2023 Joel E. Anderson
+# Copyright 2019-2024 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ gemspec
 group :development do
   gem 'bundler', '>= 1.6.4', '< 2.5'
   gem 'rake', '>= 0.9.2'
-  gem 'rdoc', '>= 6.0'
+  gem 'rdoc', '>= 6.6.3.1' # minimum to address CVE-2024-27281
 end
 
 group :test do
