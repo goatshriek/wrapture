@@ -27,11 +27,11 @@ group :development do
 end
 
 group :test do
-  gem 'codecov', '>= 0.1.14', require: false
   # minitest at or above 5.12 cause problems with rbx 4
   gem 'minitest', '>= 5.9', '< 5.12'
   gem 'rubocop', '>= 0.69', require: false
   gem 'rubocop-minitest', require: false
   gem 'rubocop-rake', require: false
   gem 'simplecov', '>= 0.16.1', require: false
+  gem 'simplecov-cobertura', require: false
 end
