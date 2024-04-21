@@ -84,10 +84,8 @@ module Wrapture
     # Generates a function call from a provided wrapper. Parameters and
     # types are resolved using this wrapper's context.
     def call_from(wrapper)
-      resolved_params = []
-
-      @spec['params'].each do |param|
-        resolved_params << wrapper.resolve_param(param)
+      resolved_params = @spec['params'].map do |param|
+        wrapper.resolve_param(param)
       end
 
       "#{@spec['name']}( #{resolved_params.join(', ')} )"

@@ -68,10 +68,8 @@ module Wrapture
 
     # A string containing the typed members of the struct, separated by commas.
     def member_list
-      members = []
-
-      @spec['members'].each do |member|
-        members << TypeSpec.new(member['type']).variable(member['name'])
+      members = @spec['members'].map do |member|
+        TypeSpec.new(member['type']).variable(member['name'])
       end
 
       members.join ', '

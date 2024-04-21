@@ -316,8 +316,8 @@ module Wrapture
       yield "  .tp_methods = #{snake_name}_methods,"
 
       if class_spec.child?
-        # TODO don't hardcode the type object for the example
-        yield "  .tp_base = &item_type_object,"
+        # TODO: don't hardcode the type object for the example
+        yield '  .tp_base = &item_type_object,'
       end
 
       yield "  .tp_members = #{snake_name}_members"
@@ -330,7 +330,7 @@ module Wrapture
     def define_class_type_struct(class_spec)
       yield 'typedef struct {'
       if class_spec.child?
-        # TODO don't hardcode this for the example
+        # TODO: don't hardcode this for the example
         yield '  item_type_struct super;'
       else
         yield '  PyObject_HEAD'
@@ -684,7 +684,7 @@ module Wrapture
     # Gives a code snippet that accesses the equivalent struct from within the
     # class using the 'this' keyword.
     def this_struct(class_spec)
-      # TODO handle if parent struct isn't used
+      # TODO: handle if parent struct isn't used
       name = if class_spec.child?
                'self->super.equivalent'
              else
@@ -701,7 +701,7 @@ module Wrapture
     # Gives a code snippet that accesses the equivalent struct pointer from
     # within the class using the 'this' keyword.
     def this_struct_pointer(class_spec)
-      # TODO handle if parent struct isn't used
+      # TODO: handle if parent struct isn't used
       name = if class_spec.child?
                'self->super.equivalent'
              else
