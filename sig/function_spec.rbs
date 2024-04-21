@@ -1,43 +1,51 @@
 module Wrapture
   class FunctionSpec
-    @owner: untyped
-    @spec: untyped
-    @wrapped: untyped
+    include Named
+
+    @owner: Wrapture::ClassSpec | Wrapture::Scope
+    @spec: spec_hash
+    @wrapped: Wrapture::WrappedFunctionSpec | Wrapture::WrappedCodeSpec | nil
     @params: Array[Wrapture::ParamSpec]
     @constructor: bool
     @destructor: bool
 
-    def self.normalize_return_hash: (Hash[String, untyped] spec) -> Hash[String, untyped]
-    def self.normalize_spec_hash: (Hash[String, untyped] spec) -> Hash[String, untyped]
-    def initialize: (untyped spec, ?untyped owner, ?constructor: bool, ?destructor: bool) -> void
-    attr_reader return_type: untyped
-    def constructor?: -> boolish
-    def declaration_includes: -> untyped
+    def self.normalize_return_hash: (spec_hash spec) -> spec_hash
+    def self.normalize_spec_hash: (spec_hash spec) -> spec_hash
+    def self.normalize_spec_hash!: (spec_hash spec) -> spec_hash
+    def initialize: (spec_hash spec, ?(Wrapture::ClassSpec | Wrapture::Scope) owner, ?constructor: bool, ?destructor: bool) -> void
+    attr_reader owner: Wrapture::ClassSpec | Wrapture::Scope
+    attr_reader params: Array[Wrapture::ParamSpec]
+    attr_reader return_type: Wrapture::TypeSpec
+    attr_reader wrapped: Wrapture::WrappedFunctionSpec | Wrapture::WrappedCodeSpec | nil
+    def capture_return?: -> bool
+    def constructor?: -> bool
+    def declaration_includes: -> Array[String]
     def definable?: -> bool
-    def definition_includes: -> untyped
-    def name: -> untyped
-    def param_list: -> untyped
+    def definable!: -> true
+    def definition_includes: -> Array[String]
+    def destructor?: -> bool
+    def doc: -> Wrapture::Comment
+    def initializers: -> spec_hash
+    def libraries: -> Array[String]
+    def name: -> String
+    def optional_params: -> Array[Wrapture::ParamSpec]
+    def param_list: -> String
+    def param_names: -> Array[String]
+    def params?: -> bool
     def qualified_name: -> String
-    def resolve_wrapped_param: (untyped param_spec) -> String
+    def required_params: -> Array[Wrapture::ParamSpec]
+    def resolved_return: -> Wrapture::TypeSpec
     def return_expression: (?func_name: String) -> String
     def signature: (?func_name: String) -> String
-    def declaration: { (String) -> void } -> untyped
-    def definition: { (String) -> void } -> untyped
-    def doc: -> untyped
+    def static?: -> bool
     def resolve_type: (untyped type_) -> untyped
+    def return_overloaded?: -> bool
+    def returns_call_directly?: -> bool
     def variadic?: -> bool
     def virtual?: -> bool
+    def void_return?: -> bool
 
     private
-    def capture_return?: -> bool
-    def castable?: (untyped wrapped_param) -> boolish
-    def definable_check: -> true
-    def locals: { (String) -> untyped } -> nil
-    def resolved_return: -> untyped
-    def return_cast: (untyped value) -> String
-    def return_variable: -> String
-    def returns_call_directly?: -> bool
     def returns_return_val?: -> bool
-    def wrapped_call_expression: -> String
   end
 end

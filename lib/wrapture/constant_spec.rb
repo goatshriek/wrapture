@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2019-2020 Joel E. Anderson
+# Copyright 2019-2023 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,22 +18,34 @@
 # limitations under the License.
 #++
 
+require 'wrapture/named'
+
 module Wrapture
   # A description of a constant.
   class ConstantSpec
-    # Normalizes a hash specification of a constant. Normalization will check
-    # for things like invalid keys, duplicate entries in include lists, and
-    # will set missing keys to their default value (for example, an empty list
-    # if no includes are given).
+    include Named
+
+    # Returns a normalized copy of a hash specification of an enumeration.
+    # See normalize_spec_hash! for details.
     def self.normalize_spec_hash(spec)
-      Comment.validate_doc(spec['doc']) if spec.key?('doc')
+      normalize_spec_hash!(Marshal.load(Marshal.dump(spec)))
+    end
 
-      normalized = spec.dup
+    # Normalizes a hash specification of a constant.
+    #
+    # The version will be set to the current version of Wrapture if it is
+    # missing.
+    #
+    # The include list will be an empty array if missing, and an array with
+    # a single string if it is a string.
+    def self.normalize_spec_hash!(spec)
+      spec['doc'] = '' unless spec.key?('doc')
+      Comment.validate_doc(spec['doc'])
 
-      normalized['version'] = Wrapture.spec_version(spec)
-      normalized['includes'] = Wrapture.normalize_includes spec['includes']
+      spec['version'] = Wrapture.spec_version(spec)
+      spec['includes'] = Wrapture.normalize_array(spec['includes'])
 
-      normalized
+      spec
     end
 
     # Creates a constant spec based on the provided hash spec
@@ -49,9 +61,15 @@ module Wrapture
     # doc:: a string containing the documentation for this constant
     def initialize(spec)
       @spec = ConstantSpec.normalize_spec_hash(spec)
-      @doc = @spec.key?('doc') ? Comment.new(@spec['doc']) : nil
+      @doc = Comment.new(@spec['doc'])
       @type = TypeSpec.new(@spec['type'])
     end
+
+    # The documentation comment for this constant.
+    attr_reader :doc
+
+    # The type of this constant.
+    attr_reader :type
 
     # A list of includes needed for the declaration of this constant.
     def declaration_includes
@@ -63,17 +81,14 @@ module Wrapture
       @spec['includes'].dup
     end
 
-    # Calls the given block once for each line of the declaration of this
-    # constant, including any documentation.
-    def declaration(&block)
-      @doc&.format_as_doxygen(max_line_length: 76) { |line| block.call(line) }
-      block.call("static const #{@type.variable(@spec['name'])};")
+    # The name of the constant.
+    def name
+      @spec['name']
     end
 
-    # The definition of this constant.
-    def definition(class_name)
-      expanded_name = "#{class_name}::#{@spec['name']}"
-      "const #{@spec['type']} #{expanded_name} = #{@spec['value']}"
+    # The value of the constant.
+    def value
+      @spec['value']
     end
   end
 end

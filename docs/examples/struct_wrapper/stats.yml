@@ -1,6 +1,7 @@
 classes:
   - name: "PlayerStats"
     namespace: "soccer"
+    libraries: "stats"
     equivalent-struct:
       name: "player_stats"
       includes: "stats.h"

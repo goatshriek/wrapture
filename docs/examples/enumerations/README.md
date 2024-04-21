@@ -1,5 +1,4 @@
 # Enumeration Example
-
 Enumerations are a common tool in many languages to define a known set of values
 for use in a library. While these do exist in C code already, the mechanics are
 slightly different depending on the target language. Wrapture provides a way to
@@ -80,8 +79,8 @@ enums:
         includes: "citrus_mangiamo.h"
         value: "MANGIAMO_ORANGE"
       - name: "tangelo"
-        includes: "citrus_tangelo.h"
-        value: "MANGIAMO_GRAPEFRUIT"
+        includes: "citrus_mangiamo.h"
+        value: "MANGIAMO_TANGELO"
       - name: "watermelon"
         includes: "seedless_desire.h"
         value: "DESIRE_WATERMELON"
@@ -112,7 +111,7 @@ enums:
       - name: "orange"
         value: "MANGIAMO_ORANGE"
       - name: "tangelo"
-        value: "MANGIAMO_GRAPEFRUIT"
+        value: "MANGIAMO_TANGELO"
       - name: "watermelon"
         value: "DESIRE_WATERMELON"
 ```
@@ -129,7 +128,7 @@ enum class Fruit {
   lemon = MANGIAMO_LEMON,
   lime = MANGIAMO_LIME,
   orange = MANGIAMO_ORANGE,
-  tangelo = MANGIAMO_GRAPEFRUIT,
+  tangelo = MANGIAMO_TANGELO,
   watermelon = DESIRE_WATERMELON
 };
 ```

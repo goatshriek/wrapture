@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /*
- * Copyright 2019 Joel E. Anderson
+ * Copyright 2024 Joel E. Anderson
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,21 +18,25 @@
 
 #include <cstdlib>
 #include <iostream>
-#include <MylibError.hpp>
+#include <Book.hpp>
+#include <Item.hpp>
 
 using namespace std;
-using namespace mylib;
-
-void i_will_fail( void ) {
-  throw MylibError();
-}
+using namespace library;
 
 int main( int argc, char **argv ) {
-  try {
-    i_will_fail();
-  } catch( MylibError err ) {
-    cout << "caught a MylibError with message: " << err.equivalent->message << endl;
-  }
+  Item movie("Space Mutiny");
+  Book harry_potter("Harry Potter and the Chamber of Commerce", false, 500);
+  Item tablet("Tax Educator 2002");
+  Book lord_of_the_rings("The Two Showers", false, 1000);
+
+  movie.CheckOut();
+  int pc =  harry_potter.GetPageCount();
+  cout << "Harry Potter has " << pc << " pages, not too bad." << endl;
+  harry_potter.CheckOut();
+  tablet.CheckOut();
+  pc = lord_of_the_rings.GetPageCount();
+  cout << "Lord of the Rings has " << pc << " pages, too much!" << endl;
 
   return EXIT_SUCCESS;
 }

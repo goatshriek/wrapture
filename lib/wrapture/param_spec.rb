@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2020 Joel E. Anderson
+# Copyright 2020-2023 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -65,7 +65,7 @@ module Wrapture
     # validate that required key values are set.
     def self.normalize_spec_hash!(spec)
       Comment.validate_doc(spec['doc']) if spec.key?('doc')
-      spec['includes'] = Wrapture.normalize_includes(spec['includes'])
+      spec['includes'] = Wrapture.normalize_array(spec['includes'])
 
       spec['type'] = '...' if spec['name'] == '...'
 
@@ -98,6 +98,16 @@ module Wrapture
       @type = TypeSpec.new(@spec['type'])
     end
 
+    # The default value of the parameter.
+    def default_value
+      @spec['default-value']
+    end
+
+    # True if this param has a default value.
+    def default_value?
+      @spec.key?('default-value')
+    end
+
     # A Comment holding the parameter documentation.
     def doc
       if @spec.key?('doc')
@@ -121,7 +131,22 @@ module Wrapture
     # declaration. +owner+ must be the FunctionSpec that the parameter belongs
     # to.
     def signature(owner)
-      @type.resolve(owner).variable(name)
+      sig = @type.resolve(owner).variable(name)
+
+      if @spec.key?('default-value')
+        default_value = @spec['default-value']
+
+        sig += ' = '
+        sig += if @spec['type'] == 'const char *'
+                 "\"#{default_value}\""
+               elsif @spec['type'].end_with?('char')
+                 "'#{default_value}'"
+               else
+                 default_value.to_s
+               end
+      end
+
+      sig
     end
 
     # True if this parameter is variadic (the name is equal to '...').

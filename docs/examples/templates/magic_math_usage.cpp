@@ -21,7 +21,7 @@
 #include <MagicMath.hpp>
 
 using namespace std;
-using namespace magic_math;
+using namespace magic_stuff;
 
 int
 main( int argc, char **argv ) {

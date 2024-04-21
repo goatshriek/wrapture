@@ -8,10 +8,18 @@
 #define VOLUME_UP 5
 #define VOLUME_DOWN 6
 
+#  ifdef __cplusplus
+extern "C" {
+#  endif
+
 struct vcr {
   int channel;
 };
 
 void send_command( struct vcr *target_vcr, int command );
+
+#  ifdef __cplusplus
+}
+#  endif
 
 #endif

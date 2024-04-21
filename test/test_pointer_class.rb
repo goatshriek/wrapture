@@ -28,42 +28,45 @@ class ClassSpecTest < Minitest::Test
 
     spec = Wrapture::ClassSpec.new(test_spec)
 
-    classes = spec.generate_wrappers
+    classes = Wrapture::CppWrapper.write_spec_source_files(spec)
     validate_wrapper_results(test_spec, classes)
 
     declaration = 'struct basic_struct \*equivalent;'
+
     assert(file_contains_match('ExplicitPointerWrapper.hpp', declaration))
 
     File.delete(*classes)
   end
 
-  def test_overriding_constructor
-    test_spec = load_fixture('constructor_class')
+  # TODO: this should be removed, since it uses c++ specific types in the spec
+  # def test_overriding_constructor
+  #  test_spec = load_fixture('constructor_class')
 
-    spec = Wrapture::ClassSpec.new(test_spec)
+  #  spec = Wrapture::ClassSpec.new(test_spec)
 
-    classes = spec.generate_wrappers
-    validate_wrapper_results(test_spec, classes)
+  #  classes = Wrapture::CppWrapper.write_spec_source_files(spec)
+  #  validate_wrapper_results(test_spec, classes)
 
-    count = 0
-    signature = 'ClassWithConstructor( struct constructed_struct *'
-    File.open('ClassWithConstructor.hpp').each do |line|
-      count += 1 if line.include?(signature)
-    end
-    assert_equal(1, count)
+  #  count = 0
+  #  signature = 'ClassWithConstructor( struct constructed_struct *'
+  #  File.open('ClassWithConstructor.hpp').each do |line|
+  #    count += 1 if line.include?(signature)
+  #  end
+  #  assert_equal(1, count)
 
-    File.delete(*classes)
-  end
+  #  File.delete(*classes)
+  # end
 
   def test_pointer_class
     test_spec = load_fixture('pointer_class')
 
     spec = Wrapture::ClassSpec.new(test_spec)
 
-    classes = spec.generate_wrappers
+    classes = Wrapture::CppWrapper.write_spec_source_files(spec)
     validate_wrapper_results(test_spec, classes)
 
     expected_signature = 'PointerWrappingClass\( struct wrapped_struct \*'
+
     assert(file_contains_match('PointerWrappingClass.hpp', expected_signature))
 
     File.delete(*classes)
@@ -74,13 +77,15 @@ class ClassSpecTest < Minitest::Test
 
     spec = Wrapture::Scope.new(test_spec)
 
-    classes = spec.generate_wrappers
+    classes = Wrapture::CppWrapper.write_spec_source_files(spec)
     validate_wrapper_results(test_spec, classes)
 
     equivalent_signature = 'struct wrapped_struct \*equivalent;'
+
     refute(file_contains_match('ChildPointer.hpp', equivalent_signature))
 
     parent_initializer = 'equivalent \) : ParentPointer\('
+
     assert(file_contains_match('ChildPointer.cpp', parent_initializer))
 
     File.delete(*classes)
@@ -91,14 +96,49 @@ class ClassSpecTest < Minitest::Test
 
     spec = Wrapture::Scope.new(test_spec)
 
-    classes = spec.generate_wrappers
+    classes = Wrapture::CppWrapper.write_spec_source_files(spec)
     validate_wrapper_results(test_spec, classes)
 
     equivalent_signature = 'struct wrapped_struct \*equivalent;'
+
     refute(file_contains_match('ChildPointer.hpp', equivalent_signature))
 
     parent_initializer = 'equivalent \) : ParentPointer\('
+
     refute(file_contains_match('ChildPointer.cpp', parent_initializer))
+
+    File.delete(*classes)
+  end
+
+  def test_pointer_class_with_equivalent_pointer_constructor
+    spec_name = 'pointer_class_with_equivalent_pointer_constructor'
+    test_spec = load_fixture(spec_name)
+
+    spec = Wrapture::ClassSpec.new(test_spec)
+
+    classes = Wrapture::CppWrapper.write_spec_source_files(spec)
+    validate_wrapper_results(test_spec, classes)
+
+    constructor_sig = /#{spec.name}\( struct wrapped_struct \*\w+ \)/
+    num_constructors = count_matches("#{spec.name}.hpp", constructor_sig)
+
+    assert_equal(1, num_constructors)
+
+    File.delete(*classes)
+  end
+
+  def test_pointer_class_with_explicit_pointer_constructor
+    test_spec = load_fixture('pointer_class_with_explicit_pointer_constructor')
+
+    spec = Wrapture::ClassSpec.new(test_spec)
+
+    classes = Wrapture::CppWrapper.write_spec_source_files(spec)
+    validate_wrapper_results(test_spec, classes)
+
+    constructor_sig = /#{spec.name}\( struct wrapped_struct \*\w+ \)/
+    num_constructors = count_matches("#{spec.name}.hpp", constructor_sig)
+
+    assert_equal(1, num_constructors)
 
     File.delete(*classes)
   end

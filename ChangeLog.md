@@ -9,10 +9,14 @@ For a detailed look at the project's future, including planned features and bug
 fixes, check out the
 [roadmap](https://github.com/goatshriek/wrapture/blob/master/docs/roadmap.md).
 
-## [0.6.0 - 2021-02-10
+## [0.6.0 - 2021-08-17
 ### Added
  - Support for Ruby 3.0
  - RBS signatures.
+ - Python wrapper generation.
+
+### Removed
+ - Ruby 2.4 is no longer supported.
 
 ## [0.5.0] - 2020-12-15
 ### Fixed

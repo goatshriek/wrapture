@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /*
- * Copyright 2019 Joel E. Anderson
+ * Copyright 2024 Joel E. Anderson
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,12 +19,30 @@
 #ifndef __MYLIB_H
 #define __MYLIB_H
 
-struct mylib_error {
-  int code;
-  const char *message;
+#include <stdbool.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/** An item that can be checkout out from my library. */
+struct mylib_item {
+  /** The name of the item. */
+  const char *name;
+  /** Whether or not the item is checked out. */
+  bool checked_out;
+  /** The number of pages in a book. */
+  int page_count;
 };
 
-struct mylib_error *
-raise_mylib_error( void );
+/** Checks out an item. */
+void check_out_item( struct mylib_item *item );
+
+/** Gets the number of pages for a book. */
+int get_page_count( struct mylib_item *item );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

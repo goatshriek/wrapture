@@ -1,5 +1,4 @@
 # Struct Wrapping Example
-
 In some cases you may have a struct that is a simple container for data, and
 doesn't have a constructor or destructor associated with it. In this case you
 can save yourself some work by defining the members of the struct. This will

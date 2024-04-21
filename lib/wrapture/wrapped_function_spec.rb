@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2019-2020 Joel E. Anderson
+# Copyright 2019-2023 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,29 +21,34 @@
 module Wrapture
   # A description of a function to be wrapped by another language.
   class WrappedFunctionSpec
+    # Returns a normalized copy of a hash specification of a class. See
+    # normalize_spec_hash! for details.
+    def self.normalize_spec_hash(spec, *templates)
+      normalize_spec_hash!(Marshal.load(Marshal.dump(spec)), *templates)
+    end
+
     # Normalizes a hash specification of a wrapped function. Normalization will
     # check for things like invalid keys, duplicate entries in include lists,
     # and will set missing keys to their default values (for example, an empty
     # list if no includes are given).
-    def self.normalize_spec_hash(spec)
-      normalized = spec.dup
-
-      normalized['params'] ||= []
-      normalized['params'].each do |param_spec|
+    def self.normalize_spec_hash!(spec)
+      spec['params'] ||= []
+      spec['params'].each do |param_spec|
         param_spec['value'] = param_spec['name'] if param_spec['value'].nil?
       end
 
-      normalized['includes'] = Wrapture.normalize_includes(spec['includes'])
+      spec['includes'] = Wrapture.normalize_array(spec['includes'])
+      spec['libraries'] = Wrapture.normalize_array(spec['libraries'])
 
-      normalized['error-check'] ||= {}
-      normalized['error-check']['rules'] ||= []
+      spec['error-check'] ||= {}
+      spec['error-check']['rules'] ||= []
 
       unless spec.key?('return')
-        normalized['return'] = {}
-        normalized['return']['type'] = 'void'
+        spec['return'] = {}
+        spec['return']['type'] = 'void'
       end
 
-      normalized
+      spec
     end
 
     # Creates a wrapped function spec based on the provided spec.
@@ -58,8 +63,11 @@ module Wrapture
     # supplied as well, and is necessary if an equivalent struct or pointer is
     # to be supplied as the value so that casting can be performed correctly.
     #
-    # The following key is optional:
-    # includes:: a list of includes needed for this function
+    # The following keys are optional:
+    # includes:: A list of includes needed for this function.
+    # libraries:: A list of libraries that must be linked to use this function.
+    # return:: A type specification describing what the function returns. This
+    # is assumed to be 'void' if missing.
     def initialize(spec)
       @spec = self.class.normalize_spec_hash(spec)
 
@@ -73,13 +81,11 @@ module Wrapture
       @error_action = ActionSpec.new(action) unless @error_rules.empty?
     end
 
-    # Generates a function call from a provided FunctionSpec. Paremeters and
-    # types are resolved using this function's context.
-    def call_from(function_spec)
-      resolved_params = []
-
-      @spec['params'].each do |param|
-        resolved_params << function_spec.resolve_wrapped_param(param)
+    # Generates a function call from a provided wrapper. Parameters and
+    # types are resolved using this wrapper's context.
+    def call_from(wrapper)
+      resolved_params = @spec['params'].map do |param|
+        wrapper.resolve_param(param)
       end
 
       "#{@spec['name']}( #{resolved_params.join(', ')} )"
@@ -106,13 +112,18 @@ module Wrapture
       !@error_rules.empty?
     end
 
-    # A list of includes required for this function call.
+    # An array of includes required for this function call.
     def includes
       includes = @spec['includes'].dup
 
       includes.concat(@error_action.includes) if error_check?
 
       includes
+    end
+
+    # An array of libraries required for this function call.
+    def libraries
+      @spec['libraries'].dup
     end
 
     # A TypeSpec describing the type of the return value.

@@ -1,0 +1,17 @@
+name: "PointerClassWithExplicitPointerConstructor"
+namespace: "wrapture_test"
+equivalent-struct:
+  name: "wrapped_struct"
+constructors:
+  - wrapped-function:
+      name: "new_thing"
+      params:
+        - name: "original_thing"
+          type: "struct wrapped_struct *"
+      return:
+        type: "equivalent-struct-pointer"
+destructor:
+  wrapped-function:
+    name: "destroy_a_struct"
+    params:
+      - name: "equivalent-struct-pointer"

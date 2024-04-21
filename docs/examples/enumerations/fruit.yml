@@ -1,6 +1,7 @@
 enums:
   - name: "Fruit"
     doc: "fruits sold by our fine establishment"
+    namespace: "store"
     includes:
       - "citrus_mangiamo.h"
       - "seedless_desire.h"
@@ -29,7 +30,7 @@ enums:
         value: "MANGIAMO_ORANGE"
       - name: "tangelo"
         doc: "sometimes called the Ugli fruit. ouch."
-        value: "MANGIAMO_GRAPEFRUIT"
+        value: "MANGIAMO_TANGELO"
       - name: "watermelon"
         doc: "seedless? what will I spit at my sibling?"
         value: "DESIRE_WATERMELON"

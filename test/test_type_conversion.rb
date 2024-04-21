@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2020 Joel E. Anderson
+# Copyright 2020-2021 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ class TypeConversionTest < Minitest::Test
 
     scope = Wrapture::Scope.new(test_spec)
 
-    generated_files = scope.generate_wrappers
+    generated_files = Wrapture::CppWrapper.write_spec_source_files(scope)
     validate_wrapper_results(test_spec, generated_files)
 
     assert(file_contains_match('Rifle.cpp', /bullet->equivalent/))
@@ -41,7 +41,7 @@ class TypeConversionTest < Minitest::Test
 
     scope = Wrapture::Scope.new(test_spec)
 
-    generated_files = scope.generate_wrappers
+    generated_files = Wrapture::CppWrapper.write_spec_source_files(scope)
     validate_wrapper_results(test_spec, generated_files)
 
     assert(file_contains_match('Rifle.cpp', /bullet\.equivalent/))

@@ -1,19 +1,21 @@
 module Wrapture
   class EnumSpec
-    @spec: untyped
-    @doc: untyped
+    include Named
 
-    def self.normalize_spec_hash: (untyped spec) -> untyped
-    def self.normalize_spec_hash!: (untyped spec) -> untyped
-    def initialize: (untyped spec) -> void
-    def generate_wrapper: -> [String]
-    def name: -> untyped
+    @spec: spec_hash
+    @doc: Wrapture::Comment
+    @scope: Wrapture::Scope
 
-    private
-    def definition_contents: { (?String) -> void } -> void
-    def definition_includes: -> untyped
-    def element_definition: (untyped element) { (String) -> void } -> void
-    def element_doc: (untyped element) { (untyped) -> void } -> untyped
-    def header_guard: -> String
+    def self.normalize_spec_hash: (spec_hash spec) -> spec_hash
+    def self.normalize_spec_hash!: (spec_hash spec) -> spec_hash
+    def initialize: (spec_hash spec, ?scope: Wrapture::Scope) -> void
+    attr_reader doc: Wrapture::Comment
+    def definition_includes: -> Array[String]
+    def elements: -> spec_hash
+    def libraries: -> Array[String]
+    def name: -> String
+    def namespace: -> (String | nil)
+    def namespace?: -> bool
+    def snake_case_name: -> String
   end
 end

@@ -14,14 +14,16 @@ class NestedStructsTest < Minitest::Test
 
     assert_equal(test_spec['classes'].count, scope.classes.count)
 
-    generated_files = scope.generate_wrappers
+    generated_files = Wrapture::CppWrapper.write_spec_source_files(scope)
     validate_wrapper_results(test_spec, generated_files)
 
     includes = get_include_list('Gym.hpp')
+
     assert_includes(includes, 'Pool.hpp')
     assert_includes(includes, 'Track.hpp')
 
     includes = get_include_list('Gym.cpp')
+
     assert_includes(includes, 'Pool.hpp')
     assert_includes(includes, 'Track.hpp')
 

@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2020 Joel E. Anderson
+# Copyright 2020-2023 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,17 +18,24 @@
 # limitations under the License.
 #++
 
+require 'wrapture/named'
+
 module Wrapture
   # A description of an enumeration.
   class EnumSpec
-    # Returns a normalized copy of a hash specification of an enumeration in
-    # place. See normalize_spec_hash! for details.
+    include Named
+
+    # Returns a normalized copy of a hash specification of an enumeration.
+    # See normalize_spec_hash! for details.
     def self.normalize_spec_hash(spec)
       normalize_spec_hash!(Marshal.load(Marshal.dump(spec)))
     end
 
     # Normalizes a hash specification of an enumeration in place. Normalization
     # will remove duplicate entries in include lists and check for a name key.
+    #
+    # If the 'doc' key is present, it is validated using Comment::validate_doc.
+    # If not, it is set to an empty string.
     def self.normalize_spec_hash!(spec)
       unless spec.key?('name')
         raise MissingSpecKey, 'a name is required for enumerations'
@@ -42,83 +49,53 @@ module Wrapture
         raise MissingSpecKey, 'elements are required for enumerations'
       end
 
-      spec['includes'] = Wrapture.normalize_includes(spec['includes'])
-      spec['elements'].each do |element|
-        element['includes'] = Wrapture.normalize_includes(element['includes'])
+      if spec.key?('doc')
+        Comment.validate_doc(spec['doc'])
+      else
+        spec['doc'] = ''
       end
+
+      spec['includes'] = Wrapture.normalize_array(spec['includes'])
+      spec['elements'].each do |element|
+        element['includes'] = Wrapture.normalize_array(element['includes'])
+      end
+
+      spec['libraries'] = Wrapture.normalize_array(spec['libraries'])
 
       spec
     end
 
     # Creates an enumeration specification based on the provided hash spec.
-    def initialize(spec)
+    #
+    # The scope can be provided if available. Otherwise, a new Scope is created
+    # holding only this enumeration.
+    #
+    # The hash must have the following keys:
+    # name:: The name of the enumeration.
+    # elements:: A list of elements contained in the enumeration.
+    #
+    # The following keys are optional:
+    # doc:: a string containing the documentation for this class
+    #
+    # Element hashes have the following set of keys:
+    # name:: The name used for the element, required.
+    # doc:: Documentation for the element, optional.
+    # value:: The value to assign to the element, optional.
+    #
+    # If the value is not provided, the final value of the element will be left
+    # to the wrapping language if possible, and chosen by wrapture if not. This
+    # means that the same element may have different values in different
+    # languages if it is not specified.
+    def initialize(spec, scope: Scope.new)
       @spec = EnumSpec.normalize_spec_hash(spec)
+      @doc = Comment.new(@spec['doc'])
 
-      @doc = Comment.new(@spec.fetch('doc', nil))
+      scope << self
+      @scope = scope
     end
 
-    # Generates the wrapper definition file.
-    def generate_wrapper
-      filename = "#{@spec['name']}.hpp"
-
-      File.open(filename, 'w') do |file|
-        definition_contents do |line|
-          file.puts(line)
-        end
-      end
-
-      [filename]
-    end
-
-    # The name of the enumeration.
-    def name
-      @spec['name']
-    end
-
-    private
-
-    # Yields each line of the definition of the wrapper for this enum.
-    def definition_contents
-      indent = 0
-
-      yield "#ifndef #{header_guard}"
-      yield "#define #{header_guard}"
-      yield
-
-      definition_includes.each { |filename| yield "#include <#{filename}>" }
-      yield
-
-      if @spec.key?('namespace')
-        yield "namespace #{@spec['namespace']} {"
-        yield
-        indent += 2
-      end
-
-      @doc.format_as_doxygen(max_line_length: 76) do |line|
-        yield "#{' ' * indent}#{line}"
-      end
-
-      yield "#{' ' * indent}enum class #{name} {"
-      indent += 2
-
-      elements = @spec['elements']
-      elements[0...-1].each do |element|
-        element_doc(element) { |line| yield "#{' ' * indent}#{line}" }
-        element_definition(element) { |line| yield "#{' ' * indent}#{line}," }
-      end
-
-      element_doc(elements.last) { |line| yield "#{' ' * indent}#{line}" }
-      element_definition(elements.last) do |line|
-        yield "#{' ' * indent}#{line}"
-      end
-
-      indent -= 2
-      yield "#{' ' * indent}};"
-      yield
-      yield '}' if @spec.key?('namespace')
-      yield
-      yield "#endif /* #{header_guard} */"
-    end
+    # The documentation of the enumeration.
+    attr_reader :doc
 
     # A list of the includes needed for the definition of the enumeration.
     def definition_includes
@@ -131,25 +108,31 @@ module Wrapture
       includes.uniq
     end
 
-    # Yields each line of the definition of an element.
-    def element_definition(element)
-      if element.key?('value')
-        yield "#{element['name']} = #{element['value']}"
-      else
-        yield element['name']
-      end
+    # A list of elements in this enumeration.
+    # TODO: This should be redefined as a separate type of spec
+    # instead of being a raw array of hashes.
+    def elements
+      @spec['elements']
     end
 
-    # Calls the given block once for each line of the documentation for an
-    # element.
-    def element_doc(element, &block)
-      doc = Comment.new(element.fetch('doc', nil))
-      doc.format_as_doxygen(max_line_length: 74) { |line| block.call(line) }
+    # An array of libraries needed for everything in this enum.
+    def libraries
+      @spec['libraries']
     end
 
-    # The header guard for the enumeration.
-    def header_guard
-      "__#{@spec['name'].upcase}_HPP"
+    # The name of the enumeration.
+    def name
+      @spec['name']
+    end
+
+    # The namespace of the enumeration, or nil if it does not have one.
+    def namespace
+      @spec.fetch('namespace', nil)
+    end
+
+    # True if the enumeration has a namespace, false if not.
+    def namespace?
+      @spec.key?('namespace')
     end
   end
 end

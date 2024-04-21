@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2019-2020 Joel E. Anderson
+# Copyright 2019-2023 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,10 +18,14 @@
 # limitations under the License.
 #++
 
+require 'wrapture/named'
+
 module Wrapture
   # A description of a function to be generated, including details about the
   # underlying implementation.
   class FunctionSpec
+    include Named
+
     # Returns a copy of the return type specification +spec+.
     def self.normalize_return_hash(spec)
       if spec.nil?
@@ -30,7 +34,9 @@ module Wrapture
         normalized = Marshal.load(Marshal.dump(spec))
         Comment.validate_doc(spec['doc']) if spec.key?('doc')
         normalized['type'] ||= 'void'
-        normalized['includes'] = Wrapture.normalize_includes(spec['includes'])
+        normalized['includes'] = Wrapture.normalize_array(spec['includes'])
+        normalized['libraries'] = Wrapture.normalize_array(spec['libraries'])
+        Wrapture.normalize_boolean!(spec, 'overloaded')
         normalized
       end
     end
@@ -40,27 +46,68 @@ module Wrapture
     # set missing keys to their default values (for example, an empty list if no
     # includes are given).
     def self.normalize_spec_hash(spec)
+      normalize_spec_hash!(Marshal.load(Marshal.dump(spec)))
+    end
+
+    # Normalizes the hash specification of a function in +spec+ in place.
+    # Normalization will check for things like invalid keys, duplicate entries
+    # in include lists, and will set missing keys to their default values
+    # (for example, an empty list if no includes are given).
+    def self.normalize_spec_hash!(spec)
       Comment.validate_doc(spec['doc']) if spec.key?('doc')
 
-      normalized = spec.dup
+      spec['version'] = Wrapture.spec_version(spec)
+      Wrapture.normalize_boolean!(spec, 'static')
+      Wrapture.normalize_boolean!(spec, 'virtual')
+      spec['params'] = ParamSpec.normalize_param_list(spec['params'])
+      spec['return'] = normalize_return_hash(spec['return'])
 
-      normalized['version'] = Wrapture.spec_version(spec)
-      normalized['virtual'] = Wrapture.normalize_boolean(spec, 'virtual')
-      normalized['params'] = ParamSpec.normalize_param_list(spec['params'])
-      normalized['return'] = normalize_return_hash(spec['return'])
+      spec['initializers'] = [] unless spec.key?('initializers')
+      if spec['initializers'].any? { |i| !i.key?('name') && !i['delegate'] }
+        msg = 'initializers must either have a name or be delegating ' \
+              'constructors (have delegate set to true)'
+        raise MissingSpecKey, msg
+      end
 
-      overload = Wrapture.normalize_boolean(normalized['return'], 'overloaded')
-      normalized['return']['overloaded'] = overload
-
-      normalized
+      spec
     end
 
     # Creates a function spec based on the provided function spec.
     #
-    # The hash must have the following keys:
-    # name:: the name of the function
+    # The hash must have a 'name' key with the name of the function in
+    # CamelCase, unless it is a constructor or destructor in which case it
+    # will be automatically named according to its class.
+    #
+    # The function may also specify what the underlying implementation will be
+    # via one of the following keys. If neither is specified, then the function
+    # will not be considered definable, but may still be declared. Both may not
+    # be specified in the same function.
+    # wrapped-code:: a hash describing raw C code to be wrapped
+    # wrapped-function:: a hash describing a C function to be wrapped
+    #
+    # The wrapped-code hash must have a 'lines' key with a list of lines of code
+    # that will replace the function. It may optionally include an 'includes'
+    # key with a list of includes that are needed for this function to compile,
+    # and/or a 'return' key with a type description of the return value
+    # variable. If this function has a return value, it must be stored in a
+    # variable named 'return_val' at the end of this code. The return statement
+    # itself will be auto-generated, and should _not_ be included in the code
+    # lines provided.
+    #
+    # The wrapped-function hash must have a 'name' key with the name of the
+    # function, and a 'params' key with a list of parameters (each a hash with a
+    # 'name' and 'type' key). Optionally, it may also include an 'includes' key
+    # with a list of includes that are needed for this function to compile,
+    # and/or a 'return' key with a type description of the wrapped function's
+    # return value.
+    #
+    # The following keys are optional:
     # params:: a list of parameter specifications
-    # wrapped-function:: a hash describing the function to be wrapped
+    # doc:: a string containing the documentation for this function
+    # return:: a specification of the return value for this function
+    # static:: set to true if this is a static function
+    # virtual:: set to true if this is a virtual function
+    # initializers:: a list of member initializers
     #
     # Each parameter specification must have a 'name' key with the name of the
     # parameter and a 'type' key with its type. The type key may be ommitted
@@ -74,18 +121,6 @@ module Wrapture
     # parameter should also be last - if it is not, it will be moved to the end
     # of the parameter list during normalization.
     #
-    # The wrapped-function must have a 'name' key with the name of the function,
-    # and a 'params' key with a list of parameters (each a hash with a 'name'
-    # and 'type' key). Optionally, it may also include an 'includes' key with a
-    # list of includes that are needed for this function to compile. The wrapped
-    # function may be left out entirely, but the function will not be definable
-    # if this is the case.
-    #
-    # The following keys are optional:
-    # doc:: a string containing the documentation for this function
-    # return:: a specification of the return value for this function
-    # static:: set to true if this is a static function
-    #
     # The return specification may have either a 'type' key with the name of the
     # type the function returns, and/or a 'doc' key with documentation on the
     # return value itself. If neither of these is needed, then the return
@@ -95,12 +130,21 @@ module Wrapture
     # which will have the function return a reference to the instance it was
     # called on. Of course, this cannot be used from a function that is not a
     # class method.
+    #
+    # The optional initializer list contains hashes each with a 'name' and
+    # 'values' key designating the member to be initialized and the
+    # expression(s) to use for initialization, respectively. Optionally, the
+    # 'name' key may be omitted if the function is a constructor and a key named
+    # 'delegate' is present and set to true. This will use the name of the class
+    # the constructor belongs to as the name.
     def initialize(spec, owner = Scope.new, constructor: false,
                    destructor: false)
       @owner = owner
       @spec = FunctionSpec.normalize_spec_hash(spec)
       @wrapped = if @spec.key?('wrapped-function')
                    WrappedFunctionSpec.new(@spec['wrapped-function'])
+                 elsif @spec.key?('wrapped-code')
+                   WrappedCodeSpec.new(@spec['wrapped-code'])
                  end
       @params = ParamSpec.new_list(@spec['params'])
       @return_type = TypeSpec.new(@spec['return']['type'])
@@ -108,8 +152,22 @@ module Wrapture
       @destructor = destructor
     end
 
+    # The owner of this function, if there is one.
+    attr_reader :owner
+
+    # A list of the ParamSpecs this function accepts.
+    attr_reader :params
+
     # A TypeSpec describing the return type of this function.
     attr_reader :return_type
+
+    # A WrappedFunctionSpec or WrappedCodeSpec this .
+    attr_reader :wrapped
+
+    # True if the return value of the wrapped call is saved.
+    def capture_return?
+      !@constructor && (@wrapped.use_return? || returns_return_val?)
+    end
 
     # True if the function is a constructor, false otherwise.
     def constructor?
@@ -124,11 +182,21 @@ module Wrapture
       includes.uniq
     end
 
-    # True if this function can be defined.
+    # True if this function can be defined, false if not.
     def definable?
-      definable_check
+      definable!
     rescue UndefinableSpec
       false
+    end
+
+    # Raises an exception if this function cannot be defined as is. Returns
+    # true otherwise.
+    def definable!
+      if @wrapped.nil?
+        raise UndefinableSpec, 'no wrapped function or code was specified'
+      end
+
+      true
     end
 
     # A list of includes needed for the definition of the function.
@@ -141,109 +209,9 @@ module Wrapture
       includes.uniq
     end
 
-    # The name of the function.
-    def name
-      @spec['name']
-    end
-
-    # A string with the parameter list for this function.
-    def param_list
-      ParamSpec.signature(@params, self)
-    end
-
-    # The name of the function with the class name, if it exists.
-    def qualified_name
-      if @owner.is_a?(ClassSpec)
-        "#{@owner.name}::#{name}"
-      else
-        name
-      end
-    end
-
-    # Gives an expression for calling a given parameter within this function.
-    # Equivalent structs and pointers are resolved, as well as casts between
-    # types if they are known within the scope of this function.
-    def resolve_wrapped_param(param_spec)
-      used_param = @params.find { |p| p.name == param_spec['value'] }
-
-      if param_spec['value'] == EQUIVALENT_STRUCT_KEYWORD
-        @owner.this_struct
-      elsif param_spec['value'] == EQUIVALENT_POINTER_KEYWORD
-        @owner.this_struct_pointer
-      elsif param_spec['value'] == '...'
-        'variadic_args'
-      elsif castable?(param_spec)
-        param_class = @owner.type(used_param.type)
-        param_class.cast(used_param.name,
-                         param_spec['type'],
-                         used_param.type)
-      else
-        param_spec['value']
-      end
-    end
-
-    # Calls return_expression on the return type of this function. +func_name+
-    # is passed to return_expression if provided.
-    def return_expression(func_name: name)
-      if @constructor || @destructor
-        signature(func_name: func_name)
-      else
-        resolved_return.return_expression(self, func_name: func_name)
-      end
-    end
-
-    # The signature of the function. +func_name+ can be used to override the
-    # function name if needed, for example if a class name qualifier is needed.
-    def signature(func_name: name)
-      "#{func_name}( #{param_list} )"
-    end
-
-    # Calls the given block once for each line of the declaration of the
-    # function, including any documentation.
-    def declaration(&block)
-      doc.format_as_doxygen(max_line_length: 76) { |line| block.call(line) }
-
-      modifier_prefix = if @spec['static']
-                          'static '
-                        elsif virtual?
-                          'virtual '
-                        else
-                          ''
-                        end
-
-      block.call("#{modifier_prefix}#{return_expression};")
-    end
-
-    # Gives the definition of the function in a block, line by line.
-    def definition
-      definable_check
-
-      yield "#{return_expression(func_name: qualified_name)} {"
-
-      locals { |declaration| yield "  #{declaration}" }
-
-      yield "  va_start( variadic_args, #{@params[-2].name} );" if variadic?
-
-      if @wrapped.error_check?
-        yield
-        yield "  #{wrapped_call_expression};"
-        yield
-        @wrapped.error_check(return_val: return_variable) do |line|
-          yield "  #{line}"
-        end
-      else
-        yield "  #{wrapped_call_expression};"
-      end
-
-      yield '  va_end( variadic_args );' if variadic?
-
-      if @return_type.self_reference?
-        yield '  return *this;'
-      elsif @spec['return']['type'] != 'void' && !returns_call_directly?
-        yield '  return return_val;'
-      end
-
-      yield '}'
+    # True if the function is a destructor, false otherwise.
+    def destructor?
+      @destructor
     end
 
     # A Comment holding the function documentation.
@@ -262,8 +230,52 @@ module Wrapture
       Comment.new(comment)
     end
 
+    # A list of initializer specs.
+    def initializers
+      @spec['initializers']
+    end
+
+    # An array of libraries required for this function call.
+    def libraries
+      if @wrapped.nil?
+        []
+      else
+        @wrapped.libraries
+      end
+    end
+
+    # The name of the function.
+    def name
+      @spec['name']
+    end
+
+    # The parameters that are optional (have default values) for this function.
+    def optional_params
+      @params.select(&:default_value?)
+    end
+
+    # A string with the parameter list for this function.
+    def param_list
+      ParamSpec.signature(@params, self)
+    end
+
+    # An array of the names of the function params.
+    def param_names
+      @params.map(&:name)
+    end
+
+    # True if this function has parameters.
+    def params?
+      !@params.empty?
+    end
+
+    # The parameters that are required (no default values) for this function.
+    def required_params
+      @params.reject(&:default_value?)
+    end
+
     # A resolved type, given a TypeSpec +type+. Resolved types will not have any
-    # keywords like +equivalent-struct+, which will be resolved to their
+    # placeholders like +equivalent-struct+, which will be resolved to their
     # effective type.
     def resolve_type(type)
       if type.equivalent_struct?
@@ -277,78 +289,24 @@ module Wrapture
       end
     end
 
-    # True if the function is variadic.
-    def variadic?
-      @params.last&.variadic?
-    end
-
-    # True if the function is virtual.
-    def virtual?
-      @spec['virtual']
-    end
-
-    private
-
-    # True if the return value of the wrapped call needs to be captured in a
-    # local variable.
-    def capture_return?
-      !@constructor &&
-        @wrapped.use_return? || returns_return_val?
-    end
-
-    # True if the provided wrapped param spec can be cast to when used in this
-    # function.
-    def castable?(wrapped_param)
-      param = @params.find { |p| p.name == wrapped_param['value'] }
-
-      !param.nil? &&
-        !wrapped_param['type'].nil? &&
-        @owner.type?(param.type)
-    end
-
-    # Raises an exception if this function cannot be defined as is. Returns
-    # true otherwise.
-    def definable_check
-      if @wrapped.nil?
-        raise UndefinableSpec, 'no wrapped function was specified'
-      end
-
-      true
-    end
-
-    # Yields a declaration of each local variable used by the function.
-    def locals
-      yield 'va_list variadic_args;' if variadic?
-
-      if capture_return?
-        wrapped_type = resolve_type(@wrapped.return_val_type)
-        yield "#{wrapped_type.variable('return_val')};"
-      end
-    end
-
     # The resolved type of the return type.
     def resolved_return
       @return_type.resolve(self)
     end
 
-    # The function to use to create the return value of the function.
-    def return_cast(value)
-      if @return_type == @wrapped.return_val_type
-        value
-      elsif @spec['return']['overloaded']
-        "new#{@spec['return']['type'].chomp('*').strip} ( #{value} )"
+    # Calls return_expression on the return type of this function. +func_name+
+    # is passed to return_expression if provided.
+    def return_expression(func_name: name)
+      if @constructor || @destructor
+        signature(func_name: func_name)
       else
-        resolved_return.cast_expression(value)
+        resolved_return.return_expression(self, func_name: func_name)
       end
     end
 
-    # The name of the variable holding the return value.
-    def return_variable
-      if @constructor
-        'this->equivalent'
-      else
-        'return_val'
-      end
+    # True if the return type of this function is overloaded.
+    def return_overloaded?
+      @spec['return']['overloaded']
     end
 
     # True if the function returns the result of the wrapped function call
@@ -360,26 +318,39 @@ module Wrapture
         !@wrapped.error_check?
     end
 
+    # The signature of the function. +func_name+ can be used to override the
+    # function name if needed, for example if a class name qualifier is needed.
+    def signature(func_name: name)
+      "#{func_name}( #{param_list} )"
+    end
+
+    # True if the function is static.
+    def static?
+      @spec['static']
+    end
+
+    # True if the function is variadic.
+    def variadic?
+      @params.last&.variadic?
+    end
+
+    # True if the function is virtual.
+    def virtual?
+      @spec['virtual']
+    end
+
+    # True if the function has a void return type.
+    def void_return?
+      @return_type.name == 'void'
+    end
+
+    private
+
     # True if the function returns the return_val variable.
     def returns_return_val?
       !@return_type.self_reference? &&
         @spec['return']['type'] != 'void' &&
         !returns_call_directly?
-    end
-
-    # The expression containing the call to the underlying wrapped function.
-    def wrapped_call_expression
-      call = @wrapped.call_from(self)
-
-      if @constructor
-        "this->equivalent = #{call}"
-      elsif @wrapped.error_check?
-        "return_val = #{call}"
-      elsif returns_call_directly?
-        "return #{return_cast(call)}"
-      else
-        call
-      end
     end
   end
 end

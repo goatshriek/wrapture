@@ -1,0 +1,45 @@
+module Wrapture
+  class PythonWrapper
+    def self.write_spec_setuptools_files: ((Wrapture::ClassSpec | Wrapture::EnumSpec | Wrapture::FunctionSpec | Wrapture::Scope), ?String dir) -> Array[String]
+    def self.write_spec_source_files: ((Wrapture::ClassSpec | Wrapture::EnumSpec | Wrapture::FunctionSpec | Wrapture::Scope), ?String dir) -> Array[String]
+    def initialize: (Wrapture::ClassSpec | Wrapture::EnumSpec | Wrapture::FunctionSpec | Wrapture::Scope) -> void
+    def resolve_param: (Wrapture::ParamSpec) -> String
+    def write_setuptools_files: (?String dir) -> Array[String]
+    def write_source_files: (?String dir) -> Array[String]
+
+    private
+    def add_class_type_object: (Wrapture::ClassSpec, ?Array[String]) { (String) -> void } -> void
+    def add_scope_type_objects: { (String) -> void } -> void
+    def castable?: (spec_hash wrapped_param) -> bool
+    def class_functions: (Wrapture::ClassSpec) -> Array[Wrapture::FunctionSpec]
+    def create_python_object: (Wrapture::TypeSpec, String) -> String
+    def default_constructor: (Wrapture::ClassSpec) -> Wrapture::FunctionSpec
+    def default_destructor: (Wrapture::ClassSpec) -> Wrapture::FunctionSpec
+    def define_class_members: (Wrapture::ClassSpec) { (String) -> void } -> void
+    def define_class_methods: (Wrapture::ClassSpec) { (String) -> void } -> void
+    def define_class_type_objects: { (String) -> void } -> void
+    def define_class_type_struct: (Wrapture::ClassSpec) { (String) -> void } -> void
+    def define_enum_constructor: (Wrapture::EnumSpec) { (String) -> void } -> void
+    def define_function_wrapper: { (String) -> void } -> void
+    def define_module: { (String) -> void } -> void
+    def define_scope_type_objects: { (String) -> void } -> void
+    def equivalent_member_declaration: -> String
+    def function_args_format: (Wrapture::FunctionSpec) -> String
+    def function_flags: (Wrapture::FunctionSpec) -> String
+    def function_locals: (Wrapture::FunctionSpec) { (String) -> void } -> void
+    def function_param_locals: (Wrapture::FunctionSpec) { (String) -> void } -> void
+    def function_params: (Wrapture::FunctionSpec) -> Array[String]
+    def function_wrapper_name: (Wrapture::FunctionSpec) -> String
+    def member_constructor: (Wrapture::ClassSpec) -> Wrapture::FunctionSpec
+    def member_constructor_hash: (Wrapture::ClassSpec) -> spec_hash
+    def member_type: (Wrapture::TypeSpec) -> String
+    def param_format: (Wrapture::FunctionSpec, Wrapture::ParamSpec) -> String
+    def return_statement: (Wrapture::FunctionSpec) -> String
+    def scope_types_ready: { (String) -> void } -> void
+    def this_struct: (Wrapture::ClassSpec) -> String
+    def this_struct_pointer: (Wrapture::ClassSpec) -> String
+    def type_struct_name: (Wrapture::Named thing) -> String
+    def wrapped_call: (Wrapture::FunctionSpec) { (String) -> void } -> void
+    def wrapped_function_call: (Wrapture::FunctionSpec) -> String
+  end
+end

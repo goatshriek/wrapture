@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2020 Joel E. Anderson
+# Copyright 2020-2023 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -30,11 +30,11 @@ module Wrapture
     # Normalizes the hash specification of a type in +spec+ in place. This will
     # normalize the include list.
     def self.normalize_spec_hash!(spec)
-      spec['includes'] = Wrapture.normalize_includes(spec['includes'])
+      spec['includes'] = Wrapture.normalize_array(spec['includes'])
       spec
     end
 
-    # Creates a parameter specification based on the provided hash +spec+.
+    # Creates a type specification based on the provided hash +spec+.
     # +spec+ can be a string instead of a hash, in which case it will be used
     # as the name of the type.
     #
@@ -124,7 +124,7 @@ module Wrapture
     def return_expression(func, func_name: func.name)
       name_part = String.new(func_name || '')
       param_part = String.new
-      ret_part = name
+      ret_part = String.new(name || '')
 
       current_spec = @spec
       while current_spec.is_a?(Hash) && current_spec.key?('function')

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /*
- * Copyright 2019 Joel E. Anderson
+ * Copyright 2024 Joel E. Anderson
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,20 +17,22 @@
  */
 
 #include <mylib.h>
+#include <stdbool.h>
 #include <stddef.h>
+#include <stdio.h>
 #include <stdlib.h>
 
-struct mylib_error *
-raise_mylib_error( void ) {
-  struct mylib_error *err;
-
-  err = ( struct mylib_error * ) malloc( sizeof( *err ) );
-  if( !err ) {
-    return NULL;
+void check_out_item( struct mylib_item *item ){
+  if( item ){
+    item->checked_out = true;
+    printf( "checked out %s\n", item->name );
   }
+}
 
-  err->code = 3;
-  err->message = "ya done messed up, A-A-Ron!!!";
-
-  return err;
+int get_page_count( struct mylib_item *item ){
+  if( item ){
+    return item->page_count;
+  } else {
+    return 0;
+  }
 }

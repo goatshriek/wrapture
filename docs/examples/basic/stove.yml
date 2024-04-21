@@ -1,11 +1,15 @@
+doc: "A collection of Kitchen appliance implementations."
 classes:
   - name: "Stove"
+    doc: "A humble stove."
     namespace: "kitchen"
     includes: "stove.h"
+    libraries: "stove"
     equivalent-struct:
       name: "stove"
     constructors:
-      - wrapped-function:
+      - doc: "Creates a new stove."
+        wrapped-function:
           name: "new_stove"
           params:
             - name: "burner_count"
@@ -19,6 +23,7 @@ classes:
           - name: "equivalent-struct-pointer"
     functions:
       - name: "GetBurnerCount"
+        doc: "Returns the number of burners on this stove."
         return:
           type: "int"
         wrapped-function:

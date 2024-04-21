@@ -1,13 +1,12 @@
 # Inheritance with Wrapture
-
 Of course there will come a time when you want to create a class that is a
-child of some other class. Wrapture makes this extremely straightforward: all
+child of some other class. Wrapture makes this straightforward: all
 that you need to do is specify the name of the class you wish to inherit from,
 and of course any headers that must be included to make this valid.
 
-The most common example of this scenario is wrapping some custom error handling
-code into an exception in the target language. Let's consider a simple example
-where we want to create an exception wrapper for an error code in our library.
+A common example of this scenario is wrapping some custom error handling code in
+an exception in the target language. Let's consider a simple example where we
+want to create an exception wrapper for an error code in our library.
 
 ```c
 struct mylib_error {
@@ -16,8 +15,8 @@ struct mylib_error {
 };
 ```
 
-Wrapping this simple error struct is straightforward, and we simply add a
-`parent` field specifying the class to inherit from:
+Wrapping this simple error struct is easy: we simply add a `parent` field
+specifying the class to inherit from.
 
 ```yaml
 classes:

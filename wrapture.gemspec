@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2019-2021 Joel E. Anderson
+# Copyright 2019-2023 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,9 +19,8 @@
 Gem::Specification.new do |spec|
   spec.name        =  'wrapture'
   spec.version     =  '0.6.0'
-  spec.date        =  '2021-02-10'
-  spec.summary     =  'wrap C in C++'
-  spec.description =  'Wraps C code in C++.'
+  spec.summary     =  'wrap C in C++ or Python'
+  spec.description =  'Wraps C code in C++ or Python.'
   spec.authors     =  ['Joel Anderson']
   spec.email       =  'joelanderson333@gmail.com'
   spec.files       =  Dir.glob('{lib,bin}/**/*').reject do |file_or_dir|
@@ -31,17 +30,15 @@ Gem::Specification.new do |spec|
   spec.homepage    =  'https://goatshriek.github.io/wrapture/'
   spec.license     =  'Apache-2.0'
 
-  spec.required_ruby_version = '>= 2.4'
+  spec.required_ruby_version = '>= 2.6'
   spec.add_runtime_dependency 'json', '~> 2.3'
-  spec.add_development_dependency 'bundler', '>= 1.6.4', '< 2.3'
-  spec.add_development_dependency 'rake', '>= 0.9.2'
-  spec.add_development_dependency 'rdoc', '>= 6.0'
 
   if spec.respond_to?(:metadata)
     spec.metadata = {
       'bug_tracker_uri' => 'https://github.com/goatshriek/wrapture/issues',
       'changelog_uri' => 'https://github.com/goatshriek/wrapture/blob/latest/ChangeLog.md',
       'documentation_uri' => 'https://goatshriek.github.io/wrapture/rdoc/',
+      'rubygems_mfa_required' => 'true',
       'source_code_uri' => 'https://github.com/goatshriek/wrapture/'
     }
   end

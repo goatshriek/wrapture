@@ -29,16 +29,22 @@ module Wrapture
     spec.key?(key) && spec[key]
   end
 
-  # Normalizes an include list for an element. A single string will be converted
-  # into an array containing the single string, and a nil will be converted to
-  # an empty array.
-  def self.normalize_includes(includes)
-    if includes.nil?
+  # Sets a spec key to be boolean, raising an error if an issue is encountered.
+  # Keys that are not present are defaulted to false.
+  def self.normalize_boolean!(spec, key)
+    spec[key] = normalize_boolean(spec, key)
+  end
+
+  # Normalizes an array in a spec, such as an include list for an element. A
+  # single string will be converted into an array containing the single string,
+  # and a nil will be converted to an empty array.
+  def self.normalize_array(entry)
+    if entry.nil?
       []
-    elsif includes.is_a? String
-      [includes]
+    elsif entry.is_a? String
+      [entry]
     else
-      includes.uniq
+      entry.uniq
     end
   end
 
@@ -49,11 +55,11 @@ module Wrapture
   # If this spec uses a version unsupported by this version of Wrapture or the
   # spec is otherwise invalid, an exception is raised.
   def self.spec_version(spec)
-    if spec.key?('version') && !Wrapture.supports_version?(spec['version'])
+    if spec&.key?('version') && !Wrapture.supports_version?(spec['version'])
       raise UnsupportedSpecVersion
     end
 
-    if spec.key?('version')
+    if spec&.key?('version')
       spec['version']
     else
       Wrapture::VERSION

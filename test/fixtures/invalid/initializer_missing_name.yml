@@ -1,0 +1,21 @@
+name: "DelegatingConstructorClass"
+namespace: "wrapture_test"
+includes: "class_include.h"
+equivalent-struct:
+  name: "basic_struct"
+  includes: "folder/include_file_1.h"
+constructors:
+  - wrapped-function:
+      name: "default_constructor"
+      return:
+        type: "equivalent-struct-pointer"
+    initializers:
+      - values:
+          - 3
+  - wrapped-function:
+      name: "underlying_constructor"
+      params:
+        - name: "id"
+          type: "int"
+      return:
+        type: "equivalent-struct-pointer"

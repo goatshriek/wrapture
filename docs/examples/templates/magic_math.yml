@@ -33,7 +33,8 @@ templates:
         includes: "magic_math.h"
 classes:
   - name: "MagicMath"
-    namespace: "magic_math"
+    namespace: "magic_stuff"
+    libraries: "magic_math"
     functions:
       - name: "IsMagical"
         use-template:

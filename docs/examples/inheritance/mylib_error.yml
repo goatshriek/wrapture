@@ -1,7 +1,0 @@
-classes:
-  - name: "MyLibraryError"
-    namespace: "mylib"
-    equivalent-struct:
-      name: "mylib_error"
-    parent:
-      name: "exception"

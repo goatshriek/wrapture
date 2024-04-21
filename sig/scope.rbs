@@ -1,18 +1,30 @@
 module Wrapture
   class Scope
-    @version: untyped
+    include Enumerable[(Wrapture::ClassSpec | Wrapture::EnumSpec)]
+    include Named
 
+    def self.load_files: (Array[String] filenames) -> Wrapture::Scope
+    def self.normalize_spec_hash: (spec_hash spec, *Wrapture::TemplateSpec templates) -> spec_hash
+    def self.normalize_spec_hash!: (spec_hash spec, *Wrapture::TemplateSpec templates) -> spec_hash
     attr_reader classes: Array[bot]
+    attr_reader doc: Wrapture::Comment
     attr_reader enums: Array[bot]
     attr_reader templates: Array[bot]
-    def initialize: (?nil spec) -> nil
-    def <<: (untyped spec) -> Array[bot]?
-    def add_class_spec_hash: (untyped spec) -> untyped
-    def add_enum_spec_hash: (untyped spec) -> Array[bot]
-    def generate_wrappers: -> Array[untyped]
+    def initialize: (?spec_hash spec) -> nil
+    def <<: ( (Wrapture::TemplateSpec | Wrapture::ClassSpec | Wrapture::EnumSpec) spec) -> Wrapture::Scope
+    def add_class_spec_hash: (spec_hash spec) -> Wrapture::ClassSpec
+    def add_enum_spec_hash: (spec_hash spec) -> Wrapture::EnumSpec
+    def definition_includes: -> Array[String]
+    def each: { ((Wrapture::ClassSpec | Wrapture::EnumSpec) spec) -> void } -> void
+    def libraries: -> Array[String]
+    def merge_file: (String spec_filename) -> Wrapture::Scope
+    def name: -> String
     def overloads: (untyped parent) -> Array[bot]
     def overloads?: (untyped parent) -> bool
-    def type: (untyped type_) -> nil
-    def type?: (untyped type_) -> bool
+    def type: (Wrapture::TypeSpec) -> Wrapture::ClassSpec
+    def type?: (Wrapture::TypeSpec) -> bool
+
+    private
+    def self.scope_name: (spec_hash) -> String
   end
 end

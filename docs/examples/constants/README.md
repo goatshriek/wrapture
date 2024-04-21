@@ -5,8 +5,8 @@ In C code, this can be a `#define` or some `const` value. Most higher level
 languages handle constants in some way or another, and Wrapture cand translate
 the C code to fit.
 
-Consider the following simple library, which sends a command to a VCR (man,
-remember those?) to perform a given action.
+Consider the following simple library, which sends a command to a VCR (remember
+those?) to perform a given action.
 
 ```c
 #define PLAY 1
@@ -22,7 +22,7 @@ void send_command( struct vcr *target_vcr, int command );
 Describing the class to include these constants is straightforward using the
 `constants` list, as shown below. The function description is left off, as there
 is nothing special about it (you can check the .yml file in this example to see
-the full specification)..
+the full specification).
 
 ```yaml
 classes:

@@ -1,9 +1,9 @@
 module Wrapture
   class TypeSpec
-    @spec: untyped
+    @spec: spec_hash
 
-    def self.normalize_spec_hash: (Hash[String, String] | String spec) -> untyped
-    def self.normalize_spec_hash!: (untyped spec) -> untyped
+    def self.normalize_spec_hash: (spec_hash | String spec) -> spec_hash
+    def self.normalize_spec_hash!: (spec_hash | String spec) -> spec_hash
     def initialize: (?String spec) -> untyped
     def ==: (untyped other) -> untyped
     def base: -> untyped
@@ -12,9 +12,9 @@ module Wrapture
     def equivalent_struct?: -> bool
     def function?: -> bool
     def includes: -> untyped
-    def name: -> untyped
+    def name: -> String
     def pointer?: -> bool
-    def resolve: (untyped owner) -> untyped
+    def resolve: (untyped owner) -> Wrapture::TypeSpec
     def return_expression: (untyped func, ?func_name: untyped) -> String
     def self_reference?: -> bool
     def to_s: -> String

@@ -1,5 +1,6 @@
 module Wrapture
   VERSION: String
 
+  def self.max_versions: (*String versions) -> String
   def self.supports_version?: (String version) -> bool
 end

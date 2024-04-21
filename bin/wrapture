@@ -4,7 +4,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2019-2020 Joel E. Anderson
+# Copyright 2019-2021 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,29 +18,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'yaml'
 require 'wrapture'
 
-scope = Wrapture::Scope.new
+scope = Wrapture::Scope.load_files(*ARGV)
 
-ARGV.each do |spec_file|
-  spec = YAML.load_file(spec_file)
+Wrapture::CppWrapper.write_spec_source_files(scope)
 
-  if spec.key?('version') && !Wrapture.supports_version?(spec['version'])
-    raise Wrapture::UnsupportedSpecVersion
-  end
-
-  spec.fetch('templates', []).each do |temp_spec|
-    scope << Wrapture::TemplateSpec.new(temp_spec)
-  end
-
-  spec.fetch('classes', []).each do |class_spec|
-    scope.add_class_spec_hash(class_spec)
-  end
-
-  spec.fetch('enums', []).each do |enum_spec|
-    scope.add_enum_spec_hash(enum_spec)
-  end
-end
-
-scope.generate_wrappers
+Wrapture::PythonWrapper.write_spec_source_files(scope)
+Wrapture::PythonWrapper.write_spec_setuptools_files(scope)
