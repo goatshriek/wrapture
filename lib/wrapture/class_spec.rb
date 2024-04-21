@@ -234,7 +234,7 @@ module Wrapture
       return false unless @struct
       return true unless child?
 
-      parent_spec = @scope.type(TypeSpec.new(parent_name))
+      parent_spec = type(TypeSpec.new(parent_name))
 
       parent_spec.nil? ||
         parent_spec.struct_name != struct_name ||

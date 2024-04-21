@@ -21,6 +21,10 @@
 module Wrapture
   # A wrapper that generates C++ wrappers for given specs.
   class CppWrapper
+    def self.declaration_filename(spec)
+      "#{spec.name}.hpp"
+    end
+
     # Gives each line of the declaration of a spec to the provided block
     # This is equivalent to instantiating a wrapper with the given spec, and
     # then calling declare on that.
@@ -71,7 +75,7 @@ module Wrapture
     # This may be the same as the definition filename for specs that are not
     # forward declared.
     def declaration_filename
-      "#{@spec.name}.hpp"
+      self.class.declaration_filename(@spec)
     end
 
     # Gives each line of the declaration to the provided block.
@@ -312,6 +316,20 @@ module Wrapture
       functions
     end
 
+    # A list of includes needed for the definition of the class.
+    def declaration_includes
+      includes = @spec.declaration_includes
+
+      unless @spec.parent_name.nil?
+        parent_spec = @spec.type(TypeSpec.new(@spec.parent_name))
+        unless parent_spec.nil?
+          includes << self.class.declaration_filename(parent_spec)
+        end
+      end
+
+      includes
+    end
+
     # Gives each line of the declaration of a ClassSpec to the provided block.
     def declare_class
       yield "#ifndef #{header_guard}"
@@ -319,7 +337,7 @@ module Wrapture
       yield ''
 
       unless @spec.declaration_includes.empty?
-        @spec.declaration_includes.each { |inc| yield "#include <#{inc}>" }
+        declaration_includes.each { |inc| yield "#include <#{inc}>" }
         yield ''
       end
 
@@ -327,7 +345,7 @@ module Wrapture
       yield ''
 
       @spec.documentation { |line| yield "  #{line}" }
-      yield "  class #{@spec.name} #{ancestor_suffix}{"
+      yield "  class #{@spec.name} #{ancestor_suffix} {"
       yield '  public:'
 
       unless @spec.constants.empty?
@@ -382,9 +400,7 @@ module Wrapture
     # Gives each line of the definition of a ClassSpec to the provided block.
     def define_class
       yield "#include <#{@spec.name}.hpp>"
-      @spec.definition_includes.each do |include_file|
-        yield "#include <#{include_file}>"
-      end
+      definition_includes.each { |inc| yield "#include <#{inc}>" }
 
       yield ''
       yield "namespace #{@spec.namespace} {"
@@ -488,6 +504,20 @@ module Wrapture
       yield "  #{return_statement}"
 
       yield '}'
+    end
+
+    # A list of includes needed for the definition of the class.
+    def definition_includes
+      includes = @spec.definition_includes
+
+      unless @spec.parent_name.nil?
+        parent_spec = @spec.type(TypeSpec.new(@spec.parent_name))
+        unless parent_spec.nil?
+          includes << self.class.declaration_filename(parent_spec)
+        end
+      end
+
+      includes
     end
 
     # The definition of an enum element.

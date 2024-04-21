@@ -1,9 +1,11 @@
 module Wrapture
   class CppWrapper
+    def self.declaration_filename: ( Wrapture::ClassSpec ) -> String
     def self.declare_spec: ( (Wrapture::ClassSpec | Wrapture::FunctionSpec | Wrapture::Scope) spec ) { (String) -> void } -> void
     def self.define_spec: ( (Wrapture::ClassSpec | Wrapture::EnumSpec | Wrapture::FunctionSpec | Wrapture::Scope) spec ) { (String) -> void } -> void
     def self.source_files: ( (Wrapture::ClassSpec | Wrapture::EnumSpec | Wrapture::FunctionSpec | Wrapture::Scope) spec ) -> Array[String]
     def self.write_spec_source_files: ( (Wrapture::ClassSpec | Wrapture::EnumSpec | Wrapture::FunctionSpec | Wrapture::Scope) spec, ?String dir) -> Array[String]
+
     def initialize: ( (Wrapture::ClassSpec | Wrapture::EnumSpec | Wrapture::FunctionSpec | Wrapture::Scope) spec) -> void
     def ancestor_suffix: -> String
     def declaration_filename: -> String
@@ -23,6 +25,7 @@ module Wrapture
     def autogen_pointer_constructor?: -> bool
     def castable?: (spec_hash wrapped_param) -> bool
     def class_functions: -> Array[Wrapture::FunctionSpec]
+    def declaration_includes: -> Array[String]
     def declare_class: (Wrapture::ClassSpec spec) { (String) -> void } -> void
     def declare_constant: (Wrapture::ConstantSpec spec) { (String) -> void } -> void
     def declare_function: (Wrapture::FunctionSpec spec) { (String) -> void } -> void
@@ -30,6 +33,7 @@ module Wrapture
     def define_constant: (Wrapture::ConstantSpec constant_spec, String class_name) { (String) -> void } -> void
     def define_enum: (Wrapture::EnumSpec spec) { (String) -> void } -> void
     def define_function: (Wrapture::FunctionSpec spec) { (String) -> void } -> void
+    def definition_includes: -> Array[String]
     def enum_element_definition: (spec_hash element) -> String
     def enum_element_doc: (spec_hash element) { (String) -> void } -> void
     def equivalent_member_declaration: -> String

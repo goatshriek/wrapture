@@ -118,7 +118,7 @@ class TemplateSpecTest < Minitest::Test
     assert_includes(usage, 'thing-2')
     assert_includes(usage, 'thing-a')
     assert_includes(usage, 'thing-b')
-    assert(usage.last.is_a?(Hash))
+    assert_kind_of(Hash, usage.last)
     assert_equal('thing-3', usage.last['key-1'])
   end
 
@@ -134,7 +134,7 @@ class TemplateSpecTest < Minitest::Test
     assert(usage.key?('key-1'))
     assert(usage.key?('key-2'))
     assert(usage.key?('key-3'))
-    assert(usage['key-3'].is_a?(Array))
+    assert_kind_of(Array, usage['key-3'])
   end
 
   def test_replace_with_no_uses

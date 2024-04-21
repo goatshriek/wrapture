@@ -1,16 +1,48 @@
 classes:
-  - name: "MylibError"
-    namespace: "myapp"
+  - name: "Item"
+    namespace: "library"
     libraries: "mylib"
     equivalent-struct:
-      name: "mylib_error"
+      name: "mylib_item"
       includes: "mylib.h"
-    parent:
-      name: "std::exception"
-      includes: "exception"
-    constructors:
-      - wrapped-function:
-          name: "raise_mylib_error"
+      members:
+        - name: "name"
+          type: "const char *"
+          default-value: "NULL"
+        - name: "checked_out"
+          type: "bool"
+          default-value: false
+    functions:
+      - name: CheckOut
+        wrapped-function:
+          name: "check_out_item"
+          params:
+            - name: "equivalent-struct-pointer"
           includes: "mylib.h"
-          return:
-            type: "equivalent-struct-pointer"
+  - name: "Book"
+    namespace: "library"
+    libraries: "mylib"
+    parent:
+      name: "Item"
+    equivalent-struct:
+      name: "mylib_item"
+      includes: "mylib.h"
+      members:
+        - name: "name"
+          type: "const char *"
+          default-value: "NULL"
+        - name: "checked_out"
+          type: "bool"
+          default-value: false
+        - name: "page_count"
+          type: "int"
+          default-value: 0
+    functions:
+      - name: GetPageCount
+        return:
+          type: "int"
+        wrapped-function:
+          name: "get_page_count"
+          params:
+            - name: "equivalent-struct-pointer"
+          includes: "mylib.h"

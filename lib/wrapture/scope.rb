@@ -253,13 +253,13 @@ module Wrapture
     end
 
     # Returns the ClassSpec for the given +type+ in the scope, if one exists.
-    def type(type)
-      @classes.find { |class_spec| class_spec.name == type.base }
+    def type(type_spec)
+      @classes.find { |class_spec| class_spec.name == type_spec.base }
     end
 
     # Returns true if there is a class matching the given +type+ in this scope.
-    def type?(type)
-      @classes.any? { |class_spec| class_spec.name == type.base }
+    def type?(type_spec)
+      @classes.any? { |class_spec| class_spec.name == type_spec.base }
     end
   end
 end

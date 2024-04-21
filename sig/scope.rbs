@@ -21,8 +21,8 @@ module Wrapture
     def name: -> String
     def overloads: (untyped parent) -> Array[bot]
     def overloads?: (untyped parent) -> bool
-    def type: (untyped type_) -> Wrapture::ClassSpec
-    def type?: (untyped type_) -> bool
+    def type: (Wrapture::TypeSpec) -> Wrapture::ClassSpec
+    def type?: (Wrapture::TypeSpec) -> bool
 
     private
     def self.scope_name: (spec_hash) -> String
