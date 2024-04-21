@@ -36,8 +36,8 @@ module Wrapture
     def param_format: (Wrapture::FunctionSpec, Wrapture::ParamSpec) -> String
     def return_statement: (Wrapture::FunctionSpec) -> String
     def scope_types_ready: { (String) -> void } -> void
-    def this_struct: -> String
-    def this_struct_pointer: -> String
+    def this_struct: (Wrapture::ClassSpec) -> String
+    def this_struct_pointer: (Wrapture::ClassSpec) -> String
     def type_struct_name: (Wrapture::Named thing) -> String
     def wrapped_call: (Wrapture::FunctionSpec) { (String) -> void } -> void
     def wrapped_function_call: (Wrapture::FunctionSpec) -> String

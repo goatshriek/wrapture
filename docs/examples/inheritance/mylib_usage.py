@@ -22,7 +22,7 @@ from library import Book, Item
 movie = Item("Space Mutiny")
 harry_potter = Book("Harry Potter and the Chamber of Commerce", False, 500)
 tablet = Item("Tax Educator 2002")
-lord_of_the_rings = Book("The Two Showers", false, 1000)
+lord_of_the_rings = Book("The Two Showers", False, 1000)
 
 movie.CheckOut()
 pc =  harry_potter.GetPageCount()

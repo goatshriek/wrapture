@@ -92,9 +92,9 @@ module Wrapture
       used_param = @spec.params.find { |p| p.name == param_spec['value'] }
 
       if param_spec['value'] == EQUIVALENT_STRUCT_KEYWORD
-        this_struct
+        this_struct(@spec.owner)
       elsif param_spec['value'] == EQUIVALENT_POINTER_KEYWORD
-        this_struct_pointer
+        this_struct_pointer(@spec.owner)
       elsif param_spec['value'] == '...'
         'variadic_args'
       elsif castable?(param_spec)
@@ -314,6 +314,12 @@ module Wrapture
       yield "  .tp_new = #{snake_name}_new,"
       yield "  .tp_dealloc = ( destructor ) #{snake_name}_dealloc,"
       yield "  .tp_methods = #{snake_name}_methods,"
+
+      if class_spec.child?
+        # TODO don't hardcode the type object for the example
+        yield "  .tp_base = &item_type_object,"
+      end
+
       yield "  .tp_members = #{snake_name}_members"
       yield '};'
       yield ''
@@ -323,7 +329,13 @@ module Wrapture
     # given class spec.
     def define_class_type_struct(class_spec)
       yield 'typedef struct {'
-      yield '  PyObject_HEAD'
+      if class_spec.child?
+        # TODO don't hardcode this for the example
+        yield '  item_type_struct super;'
+      else
+        yield '  PyObject_HEAD'
+      end
+
       class_spec.constants.each do |constant_spec|
         yield "  #{constant_spec.type} #{constant_spec.snake_case_name};"
       end
@@ -625,7 +637,7 @@ module Wrapture
     def member_constructor_hash(class_spec)
       assignments = class_spec.struct.members.map do |member|
         name = member['name']
-        "self->equivalent.#{name} = #{name};"
+        "#{this_struct(class_spec)}.#{name} = #{name};"
       end
 
       { 'name' => class_spec.name,
@@ -671,20 +683,32 @@ module Wrapture
 
     # Gives a code snippet that accesses the equivalent struct from within the
     # class using the 'this' keyword.
-    # Expected to be called while @spec is a FunctionSpec.
-    def this_struct
-      if @spec.owner.pointer_wrapper?
-        '*(self->equivalent)'
+    def this_struct(class_spec)
+      # TODO handle if parent struct isn't used
+      name = if class_spec.child?
+               'self->super.equivalent'
+             else
+               'self->equivalent'
+             end
+
+      if class_spec.pointer_wrapper?
+        "*(#{name})"
       else
-        'self->equivalent'
+        name
       end
     end
 
     # Gives a code snippet that accesses the equivalent struct pointer from
     # within the class using the 'this' keyword.
-    # Expected to be called while @spec is a FunctionSpec.
-    def this_struct_pointer
-      "#{'&' unless @spec.owner.pointer_wrapper?}self->equivalent"
+    def this_struct_pointer(class_spec)
+      # TODO handle if parent struct isn't used
+      name = if class_spec.child?
+               'self->super.equivalent'
+             else
+               'self->equivalent'
+             end
+
+      "#{'&' unless class_spec.pointer_wrapper?}(#{name})"
     end
 
     # The name of the structure used to wrap objects of the given Named type.

@@ -320,7 +320,7 @@ module Wrapture
     def declaration_includes
       includes = @spec.declaration_includes
 
-      unless @spec.parent_name.nil?
+      if @spec.child?
         parent_spec = @spec.type(TypeSpec.new(@spec.parent_name))
         unless parent_spec.nil?
           includes << self.class.declaration_filename(parent_spec)
@@ -510,7 +510,7 @@ module Wrapture
     def definition_includes
       includes = @spec.definition_includes
 
-      unless @spec.parent_name.nil?
+      if @spec.child?
         parent_spec = @spec.type(TypeSpec.new(@spec.parent_name))
         unless parent_spec.nil?
           includes << self.class.declaration_filename(parent_spec)
