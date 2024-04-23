@@ -234,11 +234,11 @@ module Wrapture
       return false unless @struct
       return true unless child?
 
-      parent_spec = type(TypeSpec.new(parent_name))
+      parent = parent_spec
 
-      parent_spec.nil? ||
-        parent_spec.struct_name != struct_name ||
-        parent_spec.pointer_wrapper? != pointer_wrapper?
+      parent.nil? ||
+        parent.struct_name != struct_name ||
+        parent.pointer_wrapper? != pointer_wrapper?
     end
 
     # True if this class can be used as a factory for children classes that it
@@ -263,15 +263,15 @@ module Wrapture
     end
 
     # True if this class overloads the given one. A class is considered an
-    # overload of its parent if it has the same equivalent struct name and
-    # the equivalent struct has a set of rules. The overloaded parent class
+    # overload of another if it has the same equivalent struct name and
+    # the equivalent struct has a set of rules. The overloaded class
     # cannot have any rules in its equivalent struct or it will not be
     # considered an overload.
-    def overloads?(parent_spec)
-      return false unless parent_spec.struct&.rules&.empty? && @struct
+    def overloads?(class_spec)
+      return false unless class_spec.struct&.rules&.empty? && @struct
 
-      parent_spec.struct.name == struct_name &&
-        parent_spec.name == parent_name &&
+      class_spec.struct.name == struct_name &&
+        class_spec.name == parent_name &&
         !@struct.rules.empty?
     end
 
@@ -285,11 +285,16 @@ module Wrapture
     def parent_provides_initializer?
       return false if !pointer_wrapper? || !child?
 
-      parent_spec = @scope.type(TypeSpec.new(parent_name))
+      parent = parent_spec
 
-      !parent_spec.nil? &&
-        parent_spec.pointer_wrapper? &&
-        parent_spec.struct_name == @struct.name
+      !parent.nil? &&
+        parent.pointer_wrapper? &&
+        parent.struct_name == @struct.name
+    end
+
+    # The class spec of the parent class, or nil if this cannot be resolved.
+    def parent_spec
+      type(TypeSpec.new(parent_name))
     end
 
     # Determines if this class is a wrapper for a struct pointer or not.

@@ -30,10 +30,11 @@ module Wrapture
     def overloads?: (untyped parent_spec) -> bool
     def parent_name: -> (String | nil)
     def parent_provides_initializer?: -> bool
+    def parent_spec: -> ( Wrapture::ClassSpec | nil )
     def pointer_wrapper?: -> bool
     def snake_case_name: -> String
     def struct_name: -> String
-    def type: (Wrapture::TypeSpec) -> Wrapture::ClassSpec
+    def type: (Wrapture::TypeSpec) -> ( Wrapture::ClassSpec | nil )
     def type?: (Wrapture::TypeSpec) -> bool
 
     private

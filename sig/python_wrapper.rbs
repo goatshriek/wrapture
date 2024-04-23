@@ -1,7 +1,9 @@
 module Wrapture
   class PythonWrapper
+    def self.type_object_name: ( Wrapture::ClassSpec class_spec ) -> String
     def self.write_spec_setuptools_files: ((Wrapture::ClassSpec | Wrapture::EnumSpec | Wrapture::FunctionSpec | Wrapture::Scope), ?String dir) -> Array[String]
     def self.write_spec_source_files: ((Wrapture::ClassSpec | Wrapture::EnumSpec | Wrapture::FunctionSpec | Wrapture::Scope), ?String dir) -> Array[String]
+
     def initialize: (Wrapture::ClassSpec | Wrapture::EnumSpec | Wrapture::FunctionSpec | Wrapture::Scope) -> void
     def resolve_param: (Wrapture::ParamSpec) -> String
     def write_setuptools_files: (?String dir) -> Array[String]
