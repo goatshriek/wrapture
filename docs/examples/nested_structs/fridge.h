@@ -1,6 +1,10 @@
 #ifndef __FRIDGE_H
 #define __FRIDGE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct ice_maker {
   int size;
   int can_crush_ice; // boolean value
@@ -43,5 +47,9 @@ add_water_filter_to_fridge( struct fridge *fridge,
 
 void
 add_freezer_to_fridge( struct fridge *fridge, struct freezer *freezer );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

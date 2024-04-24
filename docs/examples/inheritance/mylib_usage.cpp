@@ -25,10 +25,10 @@ using namespace std;
 using namespace library;
 
 int main( int argc, char **argv ) {
-  Item movie("Space Mutiny");
-  Book harry_potter("Harry Potter and the Chamber of Commerce", false, 500);
-  Item tablet("Tax Educator 2002");
-  Book lord_of_the_rings("The Two Showers", false, 1000);
+  Item movie( "Space Mutiny" );
+  Book harry_potter( "Harry Potter and the Chamber of Commerce", false, 500 );
+  Item tablet( "Tax Educator 2002" );
+  Book lord_of_the_rings( "The Two Showers", false, 1000 );
 
   movie.CheckOut();
   int pc =  harry_potter.GetPageCount();
