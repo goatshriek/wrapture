@@ -46,9 +46,6 @@ classes:
     namespace: "kitchen"
     includes:
       - "fridge.h"
-      - "Freezer.hpp"
-      - "IceMaker.hpp"
-      - "WaterFilter.hpp"
     equivalent-struct:
       name: "fridge"
     constructors:
