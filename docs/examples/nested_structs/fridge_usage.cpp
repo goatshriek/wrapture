@@ -17,10 +17,19 @@
  */
 
 #include <Fridge.hpp>
+#include <WaterFilter.hpp>
 
 using namespace kitchen;
 
 int main( int argc, char **argv ){
-    Fridge kitchen( 34 );
-    Fridge garage( 38 );
+    Fridge kitchen_fridge( 34 );
+    WaterFilter filter( 10 );
+    IceMaker ice_maker( 10, 1 );
+    Freezer freezer( -10, 4 );
+
+    kitchen_fridge.AddFreezer( freezer );
+    kitchen_fridge.AddIceMaker( ice_maker );
+    kitchen_fridge.AddWaterFilter( filter );
+
+    kitchen_fridge.Print();
 }

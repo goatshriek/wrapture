@@ -87,3 +87,8 @@ classes:
             - name: "equivalent-struct-pointer"
             - name: "new_freezer"
               type: "struct freezer *"
+      - name: "Print"
+        wrapped-function:
+          name: "print_fridge"
+          params:
+            - name: "equivalent-struct-pointer"

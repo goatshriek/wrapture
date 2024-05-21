@@ -39,7 +39,7 @@ struct freezer *
 new_freezer( int minimum_temp, int set_temp );
 
 void
-add_ice_maker_to_fridge( struct fridge *fridge, struct ice_maker *maker );
+add_ice_maker_to_fridge( struct fridge *fridge, struct ice_maker *ice );
 
 void
 add_water_filter_to_fridge( struct fridge *fridge,
@@ -47,6 +47,18 @@ add_water_filter_to_fridge( struct fridge *fridge,
 
 void
 add_freezer_to_fridge( struct fridge *fridge, struct freezer *freezer );
+
+void
+print_freezer( struct freezer *freezer );
+
+void
+print_fridge( struct fridge *fridge );
+
+void
+print_ice_maker( struct ice_maker *ice );
+
+void
+print_water_filter( struct water_filter *filter );
 
 #ifdef __cplusplus
 }
