@@ -1,6 +1,7 @@
 #include <fridge.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 struct fridge *
 new_fridge( int temperature ){
@@ -11,7 +12,7 @@ new_fridge( int temperature ){
     return NULL;
   }
 
-  fridge->temp = 42;
+  fridge->temp = temperature;
   fridge->ice = NULL;
   fridge->filter = NULL;
   fridge->freezer = NULL;
@@ -64,7 +65,7 @@ new_freezer( int minimum_temp, int set_temp ){
 }
 
 void
-add_ice_maker_to_fridge( struct fridge *fridge, struct ice_maker *maker ){
+add_ice_maker_to_fridge( struct fridge *fridge, struct ice_maker *ice ){
   if( !fridge ){
     return;
   }
@@ -73,7 +74,7 @@ add_ice_maker_to_fridge( struct fridge *fridge, struct ice_maker *maker ){
     free( fridge->ice );
   }
 
-  fridge->ice = maker;
+  fridge->ice = ice;
 }
 
 void
@@ -101,4 +102,58 @@ add_freezer_to_fridge( struct fridge *fridge, struct freezer *freezer ){
   }
 
   fridge->freezer = freezer;
+}
+
+void
+print_freezer( struct freezer *freezer ){
+  if( !freezer ){
+    puts( "no freezer" );
+    return;
+  }
+
+  printf( "minimum temperature: %d\n", freezer->minimum_temp );
+  printf( "set temperature: %d\n", freezer->set_temp );
+}
+
+void
+print_fridge( struct fridge *fridge ){
+  if( !fridge ){
+    return;
+  }
+  printf( "temperature: %d\n", fridge->temp );
+
+  puts( "ice maker:" );
+  print_ice_maker( fridge->ice );
+
+  puts( "filter:" );
+  print_water_filter( fridge->filter );
+
+  puts( "freezer:" );
+  print_freezer( fridge->freezer );
+}
+
+void
+print_ice_maker( struct ice_maker *ice ){
+  if( !ice ){
+    puts( "no ice maker" );
+    return;
+  }
+
+  printf( "size: %d\n", ice->size );
+
+  if( ice->can_crush_ice ){
+    puts( "can crush ice" );
+  } else {
+    puts( "cannot crush ice" );
+  }
+}
+
+void
+print_water_filter( struct water_filter *filter ){
+  if( !filter ){
+    puts( "no water filter" );
+    return;
+  }
+
+  printf( "purity level: %d\n", filter->purity_level );
 }

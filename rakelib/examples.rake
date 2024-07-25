@@ -25,11 +25,12 @@ def run_cpp_example(name, lib, source, build_dir)
   wrapper.write_cmake_files(dir: build_dir)
 
   Dir.chdir(build_dir) do
-    opts = "-I. -I#{example_dir} -o #{lib}_usage_cpp"
+    usage_opts = "-I. -I#{example_dir} -o #{lib}_usage_cpp"
 
     if source
-      sh "gcc #{example_dir}/#{source} -shared -o lib#{lib}.so -I#{example_dir}"
-      opts += " -L. -l#{scope.name} -l#{lib}"
+      source_opts = "-shared -o lib#{lib}.so -fPIC -I#{example_dir}"
+      sh "gcc #{example_dir}/#{source} #{source_opts}"
+      usage_opts += " -L. -l#{scope.name} -l#{lib}"
 
       include_cmd = "include_directories(\".\" \"#{example_dir}\")"
       sh "echo \"#{include_cmd}\" >> CMakeLists.txt"
@@ -37,7 +38,7 @@ def run_cpp_example(name, lib, source, build_dir)
       sh "cmake --build . --target #{scope.name}"
     end
 
-    sh "g++ #{example_dir}/#{lib}_usage.cpp #{opts}"
+    sh "g++ #{example_dir}/#{lib}_usage.cpp #{usage_opts}"
     sh "LD_LIBRARY_PATH=. ./#{lib}_usage_cpp"
   end
 end
@@ -52,7 +53,8 @@ def run_python_example(name, lib, source, build_dir)
 
   Dir.chdir(build_dir) do
     if source
-      sh "gcc #{example_dir}/#{source} -shared -o lib#{lib}.so -I#{example_dir}"
+      source_opts = "-shared -o lib#{lib}.so -fPIC -I#{example_dir}"
+      sh "gcc #{example_dir}/#{source} #{source_opts}"
     end
     setup_command = 'python3 setup.py build_ext'
     sh "#{setup_command} --include-dirs #{example_dir} --build-lib ."
@@ -65,6 +67,7 @@ examples = [{ name: 'basic', lib: 'stove', source: 'stove.c' },
             { name: 'constants', lib: 'vcr', source: 'vcr.c' },
             { name: 'enumerations', lib: 'fruit', source: nil },
             { name: 'inheritance', lib: 'mylib', source: 'mylib.c' },
+            { name: 'nested_structs', lib: 'fridge', source: 'fridge.c' },
             { name: 'struct_wrapper', lib: 'stats', source: 'stats.c' },
             { name: 'templates', lib: 'magic_math', source: 'magic_math.c' }]
 

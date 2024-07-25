@@ -1,6 +1,7 @@
 build/*
 coverage/*
 docs/html/*
+Gemfile.lock
 *.gem
 
 # ignore ctags files

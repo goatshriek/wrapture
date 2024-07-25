@@ -21,14 +21,14 @@ source 'https://rubygems.org'
 gemspec
 
 group :development do
-  gem 'bundler', '>= 1.6.4', '< 2.5'
+  gem 'bundler', '>= 1.6.4'
   gem 'rake', '>= 0.9.2'
   gem 'rdoc', '>= 6.6.3.1' # minimum to address CVE-2024-27281
 end
 
 group :test do
-  # minitest at or above 5.12 cause problems with rbx 4
-  gem 'minitest', '>= 5.9', '< 5.12'
+  gem 'minitest', '>= 5.9'
+  gem 'rexml', '>= 3.3.2' # included explicitly to address CVE-2024-39908
   gem 'rubocop', '>= 0.69', require: false
   gem 'rubocop-minitest', require: false
   gem 'rubocop-rake', require: false

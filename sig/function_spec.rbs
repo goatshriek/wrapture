@@ -12,11 +12,13 @@ module Wrapture
     def self.normalize_return_hash: (spec_hash spec) -> spec_hash
     def self.normalize_spec_hash: (spec_hash spec) -> spec_hash
     def self.normalize_spec_hash!: (spec_hash spec) -> spec_hash
-    def initialize: (spec_hash spec, ?(Wrapture::ClassSpec | Wrapture::Scope) owner, ?constructor: bool, ?destructor: bool) -> void
+
     attr_reader owner: Wrapture::ClassSpec | Wrapture::Scope
     attr_reader params: Array[Wrapture::ParamSpec]
     attr_reader return_type: Wrapture::TypeSpec
     attr_reader wrapped: Wrapture::WrappedFunctionSpec | Wrapture::WrappedCodeSpec | nil
+
+    def initialize: (spec_hash spec, ?(Wrapture::ClassSpec | Wrapture::Scope) owner, ?constructor: bool, ?destructor: bool) -> void
     def capture_return?: -> bool
     def constructor?: -> bool
     def declaration_includes: -> Array[String]

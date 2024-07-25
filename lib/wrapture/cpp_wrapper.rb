@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2021-2023 Joel E. Anderson
+# Copyright 2021-2024 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -144,9 +144,10 @@ module Wrapture
         'variadic_args'
       elsif castable?(param_spec)
         param_class = @spec.owner.type(used_param.type)
-        param_class.cast(used_param.name,
-                         param_spec['type'],
-                         used_param.type)
+        cast(param_class,
+             used_param.name,
+             param_spec['type'],
+             used_param.type)
       else
         param_spec['value']
       end
@@ -284,6 +285,25 @@ module Wrapture
       end
     end
 
+    # Returns a cast of an instance of this class with the provided name to the
+    # specified type. Optionally the from parameter may hold the type of the
+    # instance, either a reference or a pointer.
+    def cast(class_spec, var_name, to, from = name)
+      member_access = from.pointer? ? '->' : '.'
+
+      struct = "struct #{class_spec.struct.name}"
+
+      if [EQUIVALENT_STRUCT_KEYWORD, struct].include?(to)
+        "#{if class_spec.pointer_wrapper?
+             '*'
+           end}#{var_name}#{member_access}equivalent"
+      elsif [EQUIVALENT_POINTER_KEYWORD, "#{struct} *"].include?(to)
+        "#{unless class_spec.pointer_wrapper?
+             '&'
+           end}#{var_name}#{member_access}equivalent"
+      end
+    end
+
     # True if the provided wrapped param spec can be cast to when used in this
     # function.
     def castable?(wrapped_param)
@@ -317,18 +337,32 @@ module Wrapture
       functions
     end
 
-    # A list of includes needed for the definition of the class.
-    def declaration_includes
-      includes = @spec.declaration_includes
+    # A list of includes common to both a class definition and declaration.
+    def common_includes(class_spec)
+      includes = []
 
-      if @spec.child?
-        parent_spec = @spec.type(TypeSpec.new(@spec.parent_name))
+      if class_spec.child?
+        parent_spec = class_spec.type(class_spec.parent_name)
         unless parent_spec.nil?
           includes << self.class.declaration_filename(parent_spec)
         end
       end
 
+      class_spec.functions.each do |func_spec|
+        func_spec.params.each do |param_spec|
+          param_type = class_spec.type(param_spec.type)
+          unless param_type.nil?
+            includes << self.class.declaration_filename(param_type)
+          end
+        end
+      end
+
       includes
+    end
+
+    # A list of includes needed for the definition of the class.
+    def declaration_includes
+      @spec.declaration_includes.concat(common_includes(@spec))
     end
 
     # Gives each line of the declaration of a ClassSpec to the provided block.
@@ -509,16 +543,7 @@ module Wrapture
 
     # A list of includes needed for the definition of the class.
     def definition_includes
-      includes = @spec.definition_includes
-
-      if @spec.child?
-        parent_spec = @spec.type(TypeSpec.new(@spec.parent_name))
-        unless parent_spec.nil?
-          includes << self.class.declaration_filename(parent_spec)
-        end
-      end
-
-      includes
+      @spec.definition_includes.concat(common_includes(@spec))
     end
 
     # The definition of an enum element.
