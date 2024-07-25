@@ -1,12 +1,14 @@
 module Wrapture
   class TypeSpec
+    include Named
+
     @spec: spec_hash
 
     def self.normalize_spec_hash: (spec_hash | String spec) -> spec_hash
     def self.normalize_spec_hash!: (spec_hash | String spec) -> spec_hash
     def initialize: (?String spec) -> untyped
     def ==: (untyped other) -> untyped
-    def base: -> untyped
+    def base: -> String
     def cast_expression: (untyped expression) -> String
     def equivalent_pointer?: -> bool
     def equivalent_struct?: -> bool

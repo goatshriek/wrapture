@@ -17,7 +17,6 @@ module Wrapture
     attr_reader scope: Wrapture::Scope
     attr_reader struct: (Wrapture::StructSpec | nil)
     def initialize: (spec_hash spec, ?scope: Wrapture::Scope) -> void
-    def cast: (untyped var_name, untyped to, untyped from) -> String
     def child?: -> bool
     def declaration_includes: -> Array[String]
     def definition_includes: -> Array[String]

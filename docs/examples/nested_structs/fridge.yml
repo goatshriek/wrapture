@@ -1,6 +1,7 @@
 classes:
   - name: "IceMaker"
     namespace: "kitchen"
+    libraries: "fridge"
     includes: "fridge.h"
     equivalent-struct:
       name: "ice_maker"
@@ -16,6 +17,7 @@ classes:
             type: "equivalent-struct-pointer"
   - name: "WaterFilter"
     namespace: "kitchen"
+    libraries: "fridge"
     includes: "fridge.h"
     equivalent-struct:
       name: "water_filter"
@@ -29,6 +31,7 @@ classes:
             type: "equivalent-struct-pointer"
   - name: "Freezer"
     namespace: "kitchen"
+    libraries: "fridge"
     includes: "fridge.h"
     equivalent-struct:
       name: "freezer"
@@ -44,6 +47,7 @@ classes:
             type: "equivalent-struct-pointer"
   - name: "Fridge"
     namespace: "kitchen"
+    libraries: "fridge"
     includes:
       - "fridge.h"
     equivalent-struct:

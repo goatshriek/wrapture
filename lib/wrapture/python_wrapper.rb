@@ -109,9 +109,7 @@ module Wrapture
         'variadic_args'
       elsif castable?(param_spec)
         param_class = @spec.owner.type(used_param.type)
-        param_class.cast(used_param.name,
-                         param_spec['type'],
-                         used_param.type)
+        cast(param_class, used_param.name, param_spec['type'])
       else
         param_spec['value']
       end
@@ -198,8 +196,20 @@ module Wrapture
       yield ''
     end
 
+    # Returns a cast of an instance of this class with the provided name to the
+    # specified type.
+    def cast(class_spec, var_name, to)
+      struct = "struct #{class_spec.struct.name}"
+
+      if [EQUIVALENT_STRUCT_KEYWORD, struct].include?(to)
+        "#{'*' if class_spec.pointer_wrapper?}#{var_name}->equivalent"
+      elsif [EQUIVALENT_POINTER_KEYWORD, "#{struct} *"].include?(to)
+        "#{'&' unless class_spec.pointer_wrapper?}#{var_name}->equivalent"
+      end
+    end
+
     # True if the provided wrapped param spec can be cast to when used in this
-    # function.
+    # function. Expects @spec to be a function spec when called.
     def castable?(wrapped_param)
       param = @spec.params.find { |p| p.name == wrapped_param['value'] }
 
@@ -579,7 +589,12 @@ module Wrapture
       return unless spec.params?
 
       spec.params.each do |param_spec|
-        param_type = spec.resolve_type(param_spec.type).to_s
+        param_type_spec = spec.resolve_type(param_spec.type)
+        param_type = if spec.owner.scope.type?(param_type_spec)
+                       "#{self.class.type_struct_name(param_type_spec)} *"
+                     else
+                       param_type_spec.to_s
+                     end
         yield "#{param_type} #{param_spec.name};"
       end
 

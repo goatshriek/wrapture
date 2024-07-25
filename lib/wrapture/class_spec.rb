@@ -164,21 +164,6 @@ module Wrapture
       @scope = scope
     end
 
-    # Returns a cast of an instance of this class with the provided name to the
-    # specified type. Optionally the from parameter may hold the type of the
-    # instance, either a reference or a pointer.
-    def cast(var_name, to, from = name)
-      member_access = from.pointer? ? '->' : '.'
-
-      struct = "struct #{@struct.name}"
-
-      if [EQUIVALENT_STRUCT_KEYWORD, struct].include?(to)
-        "#{'*' if pointer_wrapper?}#{var_name}#{member_access}equivalent"
-      elsif [EQUIVALENT_POINTER_KEYWORD, "#{struct} *"].include?(to)
-        "#{'&' unless pointer_wrapper?}#{var_name}#{member_access}equivalent"
-      end
-    end
-
     # True if the class has a parent.
     def child?
       @spec.key?('parent')

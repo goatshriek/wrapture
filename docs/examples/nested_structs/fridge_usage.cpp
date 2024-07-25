@@ -16,7 +16,9 @@
  * limitations under the License.
  */
 
+#include <Freezer.hpp>
 #include <Fridge.hpp>
+#include <IceMaker.hpp>
 #include <WaterFilter.hpp>
 
 using namespace kitchen;

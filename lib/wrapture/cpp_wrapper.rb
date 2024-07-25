@@ -144,9 +144,10 @@ module Wrapture
         'variadic_args'
       elsif castable?(param_spec)
         param_class = @spec.owner.type(used_param.type)
-        param_class.cast(used_param.name,
-                         param_spec['type'],
-                         used_param.type)
+        cast(param_class,
+             used_param.name,
+             param_spec['type'],
+             used_param.type)
       else
         param_spec['value']
       end
@@ -281,6 +282,25 @@ module Wrapture
         func.constructor? &&
           func.params.length == 1 &&
           types.include?(func.params[0].type.name)
+      end
+    end
+
+    # Returns a cast of an instance of this class with the provided name to the
+    # specified type. Optionally the from parameter may hold the type of the
+    # instance, either a reference or a pointer.
+    def cast(class_spec, var_name, to, from = name)
+      member_access = from.pointer? ? '->' : '.'
+
+      struct = "struct #{class_spec.struct.name}"
+
+      if [EQUIVALENT_STRUCT_KEYWORD, struct].include?(to)
+        "#{if class_spec.pointer_wrapper?
+             '*'
+           end}#{var_name}#{member_access}equivalent"
+      elsif [EQUIVALENT_POINTER_KEYWORD, "#{struct} *"].include?(to)
+        "#{unless class_spec.pointer_wrapper?
+             '&'
+           end}#{var_name}#{member_access}equivalent"
       end
     end
 
