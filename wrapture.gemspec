@@ -31,7 +31,7 @@ Gem::Specification.new do |spec|
   spec.license     =  'Apache-2.0'
 
   spec.required_ruby_version = '>= 2.6'
-  spec.add_runtime_dependency 'json', '~> 2.3'
+  spec.add_dependency 'json', '~> 2.3'
 
   if spec.respond_to?(:metadata)
     spec.metadata = {

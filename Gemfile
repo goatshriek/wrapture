@@ -28,7 +28,7 @@ end
 
 group :test do
   gem 'minitest', '>= 5.9'
-  gem "rexml", ">= 3.3.2" # included explicitly to address CVE-2024-39908
+  gem 'rexml', '>= 3.3.2' # included explicitly to address CVE-2024-39908
   gem 'rubocop', '>= 0.69', require: false
   gem 'rubocop-minitest', require: false
   gem 'rubocop-rake', require: false

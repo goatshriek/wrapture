@@ -267,11 +267,11 @@ module Wrapture
     # Returns true if there is a class matching the given +type+ in this scope.
     def type?(type)
       name = case type
-      when String
-        type
-      when TypeSpec
-        type.base
-      end
+             when String
+               type
+             when TypeSpec
+               type.base
+             end
 
       @classes.any? { |class_spec| class_spec.name == name }
     end
