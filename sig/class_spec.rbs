@@ -35,8 +35,5 @@ module Wrapture
     def struct_name: -> String
     def type: ( ( Wrapture::TypeSpec | String ) type ) -> ( Wrapture::ClassSpec | nil )
     def type?: ( ( Wrapture::TypeSpec | String ) type ) -> bool
-
-    private
-    def factory_definition_includes: -> Array[String]
   end
 end

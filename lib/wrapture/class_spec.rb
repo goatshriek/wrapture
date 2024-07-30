@@ -200,8 +200,6 @@ module Wrapture
         includes.concat(const.definition_includes)
       end
 
-      includes.concat(factory_definition_includes)
-
       includes.uniq
     end
 
@@ -300,13 +298,6 @@ module Wrapture
     # Returns true if the given type exists in this class's scope.
     def type?(type)
       @scope.type?(type)
-    end
-
-    private
-
-    # A list of the includes needed for the factory function definition.
-    def factory_definition_includes
-      @scope.overloads(self).map { |overload| "#{overload.name}.hpp" }
     end
   end
 end

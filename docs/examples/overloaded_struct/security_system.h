@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /*
- * Copyright 2019 Joel E. Anderson
+ * Copyright 2019-2024 Joel E. Anderson
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,10 @@
 #define MOTION_EVENT 1
 #define GLASS_BREAK_EVENT 2
 #define CAMERA_EVENT 3
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 struct event {
   int code;
@@ -60,5 +64,9 @@ print_glass_break_event( const struct event *ev );
 
 void
 print_motion_event( const struct event *ev );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

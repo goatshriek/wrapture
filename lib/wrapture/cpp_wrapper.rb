@@ -543,7 +543,14 @@ module Wrapture
 
     # A list of includes needed for the definition of the class.
     def definition_includes
-      @spec.definition_includes.concat(common_includes(@spec))
+      includes = @spec.definition_includes
+      includes.concat(common_includes(@spec))
+
+      @spec.scope.overloads(@spec).map do |overload|
+        includes.append("#{overload.name}.hpp")
+      end
+
+      includes
     end
 
     # The definition of an enum element.

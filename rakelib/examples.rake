@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2023 Joel E. Anderson
+# Copyright 2023-2024 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -68,6 +68,9 @@ examples = [{ name: 'basic', lib: 'stove', source: 'stove.c' },
             { name: 'enumerations', lib: 'fruit', source: nil },
             { name: 'inheritance', lib: 'mylib', source: 'mylib.c' },
             { name: 'nested_structs', lib: 'fridge', source: 'fridge.c' },
+            { name: 'overloaded_struct',
+              lib: 'security_system',
+              source: 'security_system.c' },
             { name: 'struct_wrapper', lib: 'stats', source: 'stats.c' },
             { name: 'templates', lib: 'magic_math', source: 'magic_math.c' }]
 
