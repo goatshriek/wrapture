@@ -237,6 +237,23 @@ module Wrapture
       functions
     end
 
+    # The functions of the given spec where functions that are overloads of each
+    # other are grouped together. Functions that are overloaded are represented
+    # as an array of function specs. Functions that are not overloaded are in an
+    # array by themselves.
+    def class_function_groups(class_spec)
+      groups = []
+
+      funcs = class_functions(class_spec)
+      groups.append(funcs.select(&:constructor?))
+      groups.append(funcs.select(&:destructor?))
+      methods = funcs.select do |func_spec|
+        !func_spec.constructor? && !func_spec.destructor?
+      end.group_by(&:name).values
+
+      groups.concat(methods)
+    end
+
     # Creates a Python object using a variable with the given name and type.
     def create_python_object(type, name)
       if type.name == 'int'
@@ -245,7 +262,7 @@ module Wrapture
         "PyBool_FromLong(#{name})"
       else
         # TODO: default case
-        ''
+        '// TODO default case'
       end
     end
 
@@ -292,7 +309,9 @@ module Wrapture
       snake_name = class_spec.snake_case_name
       yield "static PyMethodDef #{snake_name}_methods[] = {"
 
-      class_spec.functions.each do |func_spec|
+      # class_spec.functions.each do |func_spec|
+      # class_function_groups(class_spec).map(&:first).each do |func_spec|
+      class_spec.method_specs.each do |func_spec|
         wrapper_name = function_wrapper_name(func_spec)
         yield "  { .ml_name = \"#{func_spec.name}\","
         yield "    .ml_meth = ( PyCFunction ) #{wrapper_name},"
@@ -310,8 +329,12 @@ module Wrapture
       define_class_type_struct(class_spec) { |line| block.call(line) }
       yield ''
 
-      class_functions(class_spec).each do |func_spec|
-        define_function_wrapper(func_spec, &block)
+      class_function_groups(class_spec).each do |func_group|
+        if func_group.length == 1
+          define_function_wrapper(func_group[0], &block)
+        else
+          define_function_group_wrapper(func_group, &block)
+        end
         yield ''
       end
 
@@ -432,10 +455,87 @@ module Wrapture
       yield '}'
     end
 
+    # Defines a function that parses and validates parameters of a function.
+    def define_function_arg_parser(func_spec, name = nil)
+      yield 'static int'
+      name = "parse_#{function_wrapper_name(func_spec)}" if name.nil?
+      signature_declarations = []
+      func_spec.params.each do |param_spec|
+        param_type_spec = func_spec.resolve_type(param_spec.type)
+        param_type = if func_spec.owner.scope.type?(param_type_spec)
+                       "#{self.class.type_struct_name(param_type_spec)} *"
+                     else
+                       "#{param_type_spec} *"
+                     end
+        signature_declarations << "#{param_type} #{param_spec.name}"
+      end
+      wrapped_args = signature_declarations.join(', ')
+      yield "#{name}( PyObject *args, PyObject *kwds, #{wrapped_args} ) {"
+      format_str = "\"#{function_args_format(func_spec)}\""
+      params = func_spec.param_names.join(', ')
+      yield "  return PyArg_ParseTuple( args, #{format_str}, #{params} );"
+      yield '}'
+    end
+
+    # Defines a function that determines which function in the provided group to
+    # call based on the parameters, and then calls it in the python interpreter.
+    def define_function_group_wrapper(func_group, &block)
+      base_name = function_wrapper_name(func_group[0])
+      no_args = nil
+
+      func_group.each_with_index do |func_spec, i|
+        wrapper_name = "#{base_name}_#{i}"
+
+        if func_spec.params?
+          parser_name = "parse_#{wrapper_name}"
+          define_function_arg_parser(func_spec, parser_name, &block)
+          yield ''
+        else
+          no_args = wrapper_name
+        end
+
+        define_function_wrapper(func_spec, wrapper_name, &block)
+        yield ''
+      end
+
+      yield 'static PyObject *'
+      yield "#{base_name}( #{function_params(func_group[0]).join(', ')} ) {"
+      yield '  int parse_result;'
+      func_group.each_with_index do |func_spec, i|
+        function_param_locals(func_spec, "_#{i}") do |stmt|
+          yield "  #{stmt}".rstrip
+        end
+      end
+      yield ''
+
+      func_group.each_with_index do |func_spec, i|
+        next unless func_spec.params?
+
+        wrapper_name = "#{base_name}_#{i}"
+        parser_name = "parse_#{base_name}_#{i}"
+        parsed_args = "&#{func_spec.param_names.join("_#{i}, &")}_#{i}"
+        yield "  parse_result = #{parser_name}( args, kwds, #{parsed_args} );"
+        yield '  if( parse_result ){'
+        yield "    return #{wrapper_name}( type, args, kwds );"
+        yield '  }'
+        yield ''
+      end
+
+      if no_args
+        yield '  // TODO check to make sure there are no args for this call'
+        yield "  return #{no_args}( type, args, kwds );"
+      end
+
+      yield '  // TODO throw an error for no overload found'
+      yield '}'
+    end
+
     # Defines the function that the python interpreter will call for the given
-    # function spec.
-    def define_function_wrapper(func_spec, &block)
-      name = function_wrapper_name(func_spec)
+    # function spec. If +name+ is provided it will be used as the name of the
+    # function instead of deriving it from the spec.
+    def define_function_wrapper(func_spec, name = nil, &block)
+      name = function_wrapper_name(func_spec) if name.nil?
+
       owner_snake_name = func_spec.owner.snake_case_name
       type_struct_name = "#{owner_snake_name}_type_struct"
 
@@ -445,17 +545,31 @@ module Wrapture
         wrapped_call(func_spec, &block)
         yield '  Py_TYPE( self )->tp_free( ( PyObject * ) self );'
       else
+        if func_spec.params?
+          define_function_arg_parser(func_spec, &block)
+          yield ''
+        end
         yield 'static PyObject *'
         yield "#{name}( #{function_params(func_spec).join(', ')} ) {"
 
         function_locals(func_spec) { |declaration| yield "  #{declaration}" }
+
+        if func_spec.params?
+          parsed_args = "&#{func_spec.param_names.join(', &')}"
+          yield "  if( !parse_#{name}( args, kwds, #{parsed_args} ) ){"
+          yield '    return NULL;'
+          yield '  }'
+          yield ''
+        end
 
         if func_spec.constructor?
           yield "  self = ( #{type_struct_name} * ) type->tp_alloc( type, 0 );"
           yield '  if( !self ) {'
           yield '    return NULL;'
           yield '  }'
-          yield ''
+
+          yield '' unless func_spec.owner.constants.empty?
+
           func_spec.owner.constants.each do |constant_spec|
             field_name = constant_spec.snake_case_name
             field_value = constant_spec.value
@@ -477,7 +591,7 @@ module Wrapture
     def define_module(&block)
       yield '#define PY_SSIZE_T_CLEAN'
       yield '#include <Python.h>'
-      yield '#include <stddef.h>' # TODO: for offsetof(), only add if needed
+      yield '#include <stddef.h> // for offsetof()' # TODO: only add if needed
       yield '#if PY_VERSION_HEX < 0x30C00F0  // under Python 3.12.0'
       yield '  #include <structmember.h> // for PyMemberDef'
       yield '  #define Py_T_INT T_INT'
@@ -585,7 +699,7 @@ module Wrapture
 
     # Yields a declaration of each local variable needed for params by a
     # function.
-    def function_param_locals(spec)
+    def function_param_locals(spec, suffix = '')
       return unless spec.params?
 
       spec.params.each do |param_spec|
@@ -595,10 +709,10 @@ module Wrapture
                      else
                        param_type_spec.to_s
                      end
-        yield "#{param_type} #{param_spec.name};"
+        yield "#{param_type} #{param_spec.name}#{suffix};"
       end
 
-      yield ''
+      yield '' unless spec.optional_params.empty?
 
       spec.optional_params.each do |param_spec|
         assignment = "#{param_spec.name} = "
@@ -611,12 +725,6 @@ module Wrapture
                       end
         yield "#{assignment};"
       end
-
-      format_str = "\"#{function_args_format(spec)}\""
-      parsed_args = "&#{spec.param_names.join(', &')}"
-      yield "if( !PyArg_ParseTuple( args, #{format_str}, #{parsed_args} ) ) {"
-      yield '   return NULL;'
-      yield '}'
     end
 
     # A list of parameters for the given function's wrapper.
@@ -695,7 +803,12 @@ module Wrapture
       elsif func_spec.void_return?
         'Py_RETURN_NONE;'
       else
-        "return #{create_python_object(func_spec.return_type, 'return_val')};"
+        return_value = create_python_object(func_spec.return_type, 'return_val')
+        if return_value.empty?
+          'return;'
+        else
+          "return #{return_value};"
+        end
       end
     end
 

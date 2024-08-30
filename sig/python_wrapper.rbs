@@ -16,6 +16,7 @@ module Wrapture
     def cast: (Wrapture::ClassSpec class_spec, String var_name, String to) -> String
     def castable?: (spec_hash wrapped_param) -> bool
     def class_functions: (Wrapture::ClassSpec) -> Array[Wrapture::FunctionSpec]
+    def class_function_groups: (Wrapture::ClassSpec) -> Array[Array[Wrapture::FunctionSpec]]
     def create_python_object: (Wrapture::TypeSpec, String) -> String
     def default_constructor: (Wrapture::ClassSpec) -> Wrapture::FunctionSpec
     def default_destructor: (Wrapture::ClassSpec) -> Wrapture::FunctionSpec
@@ -24,7 +25,9 @@ module Wrapture
     def define_class_type_objects: { (String) -> void } -> void
     def define_class_type_struct: (Wrapture::ClassSpec) { (String) -> void } -> void
     def define_enum_constructor: (Wrapture::EnumSpec) { (String) -> void } -> void
-    def define_function_wrapper: { (String) -> void } -> void
+    def define_function_arg_parser: (Wrapture::FunctionSpec) { (String) -> void } -> void
+    def define_function_group_wrapper: (Array[Wrapture::FunctionSpec]) { (String) -> void } -> void
+    def define_function_wrapper: (Wrapture::FunctionSpec) { (String) -> void } -> void
     def define_module: { (String) -> void } -> void
     def define_scope_type_objects: { (String) -> void } -> void
     def equivalent_member_declaration: -> String
