@@ -9,18 +9,16 @@ module Wrapture
     def initialize: (?String spec) -> untyped
     def ==: (untyped other) -> untyped
     def base: -> String
-    def cast_expression: (untyped expression) -> String
     def equivalent_pointer?: -> bool
     def equivalent_struct?: -> bool
+    def function: -> (Wrapture::FunctionSpec | nil)
     def function?: -> bool
     def includes: -> untyped
     def name: -> String
     def pointer?: -> bool
     def resolve: (untyped owner) -> Wrapture::TypeSpec
-    def return_expression: (untyped func, ?func_name: untyped) -> String
     def self_reference?: -> bool
     def to_s: -> String
-    def variable: (?nil var_name) -> String
     def variadic?: -> bool
   end
 end

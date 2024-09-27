@@ -31,14 +31,12 @@ module Wrapture
     def libraries: -> Array[String]
     def name: -> String
     def optional_params: -> Array[Wrapture::ParamSpec]
-    def param_list: -> String
     def param_names: -> Array[String]
     def params?: -> bool
     def qualified_name: -> String
     def required_params: -> Array[Wrapture::ParamSpec]
     def resolved_return: -> Wrapture::TypeSpec
     def return_expression: (?func_name: String) -> String
-    def signature: (?func_name: String) -> String
     def static?: -> bool
     def resolve_type: (untyped type_) -> untyped
     def return_overloaded?: -> bool

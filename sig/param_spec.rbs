@@ -12,10 +12,11 @@ module Wrapture
     attr_reader type: Wrapture::TypeSpec
 
     def initialize: (untyped spec) -> untyped
+    def default_value: -> String
+    def default_value?: -> bool
     def doc: -> Wrapture::Comment
     def includes: -> untyped
     def name: -> String
-    def signature: (untyped owner) -> untyped
     def variadic?: -> bool
   end
 end

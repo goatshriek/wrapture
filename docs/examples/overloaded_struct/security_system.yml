@@ -34,6 +34,8 @@ classes:
         wrapped-function:
           name: "get_next_event"
           includes: "security_system.h"
+          return:
+            type: "equivalent-struct-pointer"
       - name: "Print"
         virtual: true
         wrapped-function:

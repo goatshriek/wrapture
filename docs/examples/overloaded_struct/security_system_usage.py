@@ -16,4 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-print('todo')
+import home_automation
+
+for i in range(5):
+    home_automation.SecurityEvent.NextEvent().Print()

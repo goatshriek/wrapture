@@ -59,6 +59,7 @@ module Wrapture
       'float' => 'f',
       'double' => 'd',
       'bool' => 'p',
+      'const char *' => 's',
       'string' => 's'
     }.freeze
 
@@ -266,6 +267,15 @@ module Wrapture
       end
     end
 
+    # Yields a declaration of a factory constructor for the given class.
+    #
+    # A factory constructor creates an instance of a class based on a struct
+    # that is overloaded.
+    def declare_factory_constructor(class_spec)
+      param_decl = "struct #{class_spec.struct.name} *equivalent"
+      yield "PyObject * new_#{class_spec.name}( #{param_decl} );"
+    end
+
     # The default constructor for python classes if one is not given or derived.
     def default_constructor(class_spec)
       spec_hash = { 'name' => "#{class_spec.name}_new",
@@ -463,7 +473,7 @@ module Wrapture
       func_spec.params.each do |param_spec|
         param_type_spec = func_spec.resolve_type(param_spec.type)
         param_type = if func_spec.owner.scope.type?(param_type_spec)
-                       "#{self.class.type_struct_name(param_type_spec)} *"
+                       "#{self.class.type_struct_name(param_type_spec)} **"
                      else
                        "#{param_type_spec} *"
                      end
@@ -486,13 +496,7 @@ module Wrapture
       func_group.each_with_index do |func_spec, i|
         wrapper_name = "#{base_name}_#{i}"
 
-        if func_spec.params?
-          parser_name = "parse_#{wrapper_name}"
-          define_function_arg_parser(func_spec, parser_name, &block)
-          yield ''
-        else
-          no_args = wrapper_name
-        end
+        no_args = wrapper_name unless func_spec.params?
 
         define_function_wrapper(func_spec, wrapper_name, &block)
         yield ''
@@ -546,7 +550,7 @@ module Wrapture
         yield '  Py_TYPE( self )->tp_free( ( PyObject * ) self );'
       else
         if func_spec.params?
-          define_function_arg_parser(func_spec, &block)
+          define_function_arg_parser(func_spec, "parse_#{name}", &block)
           yield ''
         end
         yield 'static PyObject *'
@@ -556,7 +560,7 @@ module Wrapture
 
         if func_spec.params?
           parsed_args = "&#{func_spec.param_names.join(', &')}"
-          yield "  if( !parse_#{name}( args, kwds, #{parsed_args} ) ){"
+          yield "  if( !parse_#{name}( args, NULL, #{parsed_args} ) ){"
           yield '    return NULL;'
           yield '  }'
           yield ''
@@ -631,12 +635,22 @@ module Wrapture
       yield '};'
       yield ''
 
+      @spec.classes.select(&:factory?).each do |item|
+        declare_factory_constructor(item, &block)
+        yield ''
+      end
+
       @spec.classes.each do |item|
         define_class_type_object(item) { |line| block.call(line) }
       end
 
       @spec.enums.each do |item|
         define_enum_constructor(item) { |line| block.call(line) }
+        yield ''
+      end
+
+      @spec.classes.select(&:factory?).each do |item|
+        define_factory_constructor(item, &block)
         yield ''
       end
     end
@@ -648,6 +662,46 @@ module Wrapture
       else
         "#{class_spec.struct.declaration('equivalent')};"
       end
+    end
+
+    # Yields a definition of a factory constructor for the given class.
+    #
+    # A factory constructor creates an instance of a class based on a struct
+    # that is overloaded.
+    def define_factory_constructor(class_spec)
+      param_decl = "struct #{class_spec.struct.name} *equivalent"
+      yield "PyObject * new_#{class_spec.name}( #{param_decl} ){"
+      yield '  PyTypeObject *type;'
+      yield '  PyObject *obj;'
+      yield ''
+      line_prefix = ''
+      class_spec.scope.overloads(class_spec).each do |overload|
+        check = overload.struct.rules_check('equivalent')
+        yield "  #{line_prefix}if( #{check} ) {"
+        yield "    type = &#{self.class.type_object_name(overload)};"
+        struct_type = self.class.type_struct_name(overload)
+        yield "    #{struct_type} *new_#{struct_type};"
+        struct_name = "new_#{struct_type}"
+        alloc_call = "(#{struct_type} *) type->tp_alloc( type, 0 )"
+        yield "    #{struct_name} = #{alloc_call};"
+        yield "    #{this_struct_pointer(overload,
+                                         var_name: struct_name)} = equivalent;"
+        yield "    obj = (PyObject *) new_#{struct_type};"
+        line_prefix = '} else '
+      end
+
+      yield "  #{line_prefix}{"
+      yield "    type = &#{self.class.type_object_name(class_spec)};"
+      struct_type = self.class.type_struct_name(class_spec)
+      yield "    #{struct_type} *new_#{struct_type};"
+      alloc_call = "(#{struct_type} *) type->tp_alloc( type, 0 )"
+      yield "    new_#{struct_type} = #{alloc_call};"
+      yield "    new_#{struct_type}->equivalent = equivalent;"
+      yield "    obj = (PyObject *) new_#{struct_type};"
+      yield '  }'
+      yield ''
+      yield '  return obj;'
+      yield '}'
     end
 
     # The format string for PyArg_ParseTuple for the given function.
@@ -679,22 +733,28 @@ module Wrapture
     end
 
     # Yields a declaration of each local variable used by the function.
-    def function_locals(spec, &block)
-      if spec.constructor?
-        owner_snake_name = spec.owner.snake_case_name
+    def function_locals(func_spec, &block)
+      if func_spec.constructor?
+        owner_snake_name = func_spec.owner.snake_case_name
         type_struct_name = "#{owner_snake_name}_type_struct"
         yield "#{type_struct_name} *self;"
       end
 
-      unless spec.void_return?
-        if spec.return_type.name == 'bool'
+      unless func_spec.void_return?
+        effective_return = func_spec.wrapped.return_val_type
+        if effective_return.name == 'void'
+          effective_return = func_spec.return_type
+        end
+        effective_return = func_spec.resolve_type(effective_return)
+
+        if effective_return.name == 'bool'
           yield 'long return_val;'
         else
-          yield "#{spec.return_type.variable('return_val')};"
+          yield "#{effective_return} return_val;"
         end
       end
 
-      function_param_locals(spec, &block)
+      function_param_locals(func_spec, &block)
     end
 
     # Yields a declaration of each local variable needed for params by a
@@ -802,6 +862,9 @@ module Wrapture
         'return self;'
       elsif func_spec.void_return?
         'Py_RETURN_NONE;'
+      elsif func_spec.return_overloaded?
+        overload_function = "new_#{func_spec.return_type.name.chomp('*').strip}"
+        "return #{overload_function}( return_val );"
       else
         return_value = create_python_object(func_spec.return_type, 'return_val')
         if return_value.empty?
@@ -824,13 +887,13 @@ module Wrapture
     end
 
     # Gives a code snippet that accesses the equivalent struct from within the
-    # class using the 'this' keyword.
-    def this_struct(class_spec)
+    # class using the given variable name.
+    def this_struct(class_spec, var_name: 'self')
       # TODO: handle if parent struct isn't used
       name = if class_spec.child?
-               'self->super.equivalent'
+               "#{var_name}->super.equivalent"
              else
-               'self->equivalent'
+               "#{var_name}->equivalent"
              end
 
       if class_spec.pointer_wrapper?
@@ -841,16 +904,20 @@ module Wrapture
     end
 
     # Gives a code snippet that accesses the equivalent struct pointer from
-    # within the class using the 'this' keyword.
-    def this_struct_pointer(class_spec)
+    # within the class using the given variable name.
+    def this_struct_pointer(class_spec, var_name: 'self')
       # TODO: handle if parent struct isn't used
       name = if class_spec.child?
-               'self->super.equivalent'
+               "#{var_name}->super.equivalent"
              else
-               'self->equivalent'
+               "#{var_name}->equivalent"
              end
 
-      "#{'&' unless class_spec.pointer_wrapper?}(#{name})"
+      if class_spec.pointer_wrapper?
+        name
+      else
+        "&(#{name})"
+      end
     end
 
     # The name of the structure used to wrap objects of the given Named type.
@@ -873,7 +940,7 @@ module Wrapture
       call = func_spec.wrapped.call_from(self.class.new(func_spec))
 
       if func_spec.constructor?
-        "self->equivalent = #{call}"
+        "#{this_struct_pointer(func_spec.owner)} = #{call}"
       elsif func_spec.wrapped.error_check? || !func_spec.void_return?
         "return_val = #{call}"
       # elsif func_spec.returns_call_directly?

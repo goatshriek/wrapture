@@ -12,7 +12,7 @@ module Wrapture
     def error_check?: -> bool
     def includes: -> Array[String]
     def libraries: -> Array[String]
-    def return_val_type: -> untyped
+    def return_val_type: -> Wrapture::TypeSpec
     def use_return?: -> bool
   end
 end

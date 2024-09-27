@@ -69,13 +69,6 @@ module Wrapture
       name.delete('*&').strip
     end
 
-    # An expression casting the result of a given expression into this type.
-    #
-    # Added in release 0.4.2.
-    def cast_expression(expression)
-      "( #{variable} )( #{expression} )"
-    end
-
     # True if this type is an equivalent struct pointer reference.
     def equivalent_pointer?
       name == EQUIVALENT_POINTER_KEYWORD
@@ -91,15 +84,16 @@ module Wrapture
       @spec.key?('function')
     end
 
+    # A new FunctionSpec instance from this type, or nil if it is not a
+    # function.
+    def function
+      FunctionSpec.new(@spec['function']) if function?
+    end
+
     # A list of includes needed for this type.
     def includes
       includes = @spec['includes'].dup
-
-      if function?
-        func = FunctionSpec.new(@spec['function'])
-        includes.concat(func.declaration_includes)
-      end
-
+      includes.concat(function.declaration_includes) if function?
       includes.uniq
     end
 
@@ -120,30 +114,6 @@ module Wrapture
       owner.resolve_type(self)
     end
 
-    # A string with a declaration of FunctionSpec +func+ with this type as the
-    # return value. +func_name+ can be provided to override the function name,
-    # for example if a class name needs to be included.
-    def return_expression(func, func_name: func.name)
-      name_part = String.new(func_name || '')
-      param_part = String.new
-      ret_part = String.new(name || '')
-
-      current_spec = @spec
-      while current_spec.is_a?(Hash) && current_spec.key?('function')
-        name_part.prepend('( *')
-
-        current_func = FunctionSpec.new(current_spec['function'])
-        param_part.concat(" )( #{current_func.param_list} )")
-
-        current_spec = current_spec.dig('function', 'return', 'type')
-        ret_part = current_spec
-      end
-
-      ret_part << ' ' unless ret_part.end_with?('*')
-
-      "#{ret_part}#{name_part}( #{func.param_list} )#{param_part}"
-    end
-
     # True if this type is a reference to a class instance.
     def self_reference?
       name == SELF_REFERENCE_KEYWORD
@@ -154,22 +124,6 @@ module Wrapture
     # Added in release 0.4.2.
     def to_s
       name
-    end
-
-    # A string with a declaration of a variable named +var_name+ of this type.
-    # If +var_name+ is nil then this will simply be a type declaration.
-    def variable(var_name = nil)
-      if variadic?
-        '...'
-      elsif function?
-        func = FunctionSpec.new(@spec['function'])
-        func_name = "( *#{var_name} )" || '(*)'
-        func.return_expression(func_name: func_name)
-      elsif var_name.nil?
-        name
-      else
-        "#{name}#{' ' unless name.end_with?('*')}#{var_name}"
-      end
     end
 
     # True if this type is a variadic parameter type (name is equal to +...+).

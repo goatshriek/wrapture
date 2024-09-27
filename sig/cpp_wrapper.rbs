@@ -50,10 +50,12 @@ module Wrapture
     def pointer_constructor_hash: -> spec_hash
     def qualified_function_name: (Wrapture::FunctionSpec spec) -> String
     def return_cast: (String) -> String
+    def return_expression: (Wrapture::TypeSpec, Wrapture::FunctionSpec, String) -> String
     def return_statement: -> String
     def return_variable: -> String
     def this_struct: -> String
     def this_struct_pointer: -> String
+    def type_variable: (Wrapture::TypeSpec, ?String) -> String
     def wrapped_call_expression: -> String
   end
 end
