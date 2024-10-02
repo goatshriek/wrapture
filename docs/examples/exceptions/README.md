@@ -1,4 +1,4 @@
-# Overloaded Struct Example
+# Exceptions Example
 
 Error handling in C is typically handled by simple techniques like checking a
 return code or checking some other global variable. However, most higher level
@@ -7,9 +7,9 @@ languages have better way of handling errors, typically by throwing exceptions.
 C structs do not support native inheritance, so it is a common pattern for them
 to be differentiated from one another using something like a type code or
 enumeration. However, in an object oriented language the more common pattern is
-to create a parent class and inherit from it. This is most obvious in the
-exception classes of most languages, where different kinds of errors are
-different classes derived from the main exception or error classes.
+to create a parent class and inherit from it. This is common in the exception
+classes of most languages, where different kinds of errors are different
+classes derived from the main exception or error classes.
 
 Wrapture provides a way to distinguish between different types of a struct so
 that it will be translated to the correct class. This example demonstrates the

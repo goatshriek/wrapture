@@ -21,6 +21,10 @@
 
 #include <turret_error.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct turret {
   int ammo_count;
   int x;
@@ -45,5 +49,9 @@ new_turret( void );
 
 struct turret_error *
 reload( struct turret *t );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

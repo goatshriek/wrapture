@@ -24,6 +24,10 @@
 #define OUT_OF_AMMO     2
 #define TARGETING_ERROR 3
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct turret_error {
   int code;
   const char *message;
@@ -52,5 +56,9 @@ success( void );
 
 struct turret_error *
 targeting_error( void );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
