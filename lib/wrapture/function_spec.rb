@@ -255,9 +255,9 @@ module Wrapture
     end
 
     # A string with the parameter list for this function.
-    def param_list
-      ParamSpec.signature(@params, self)
-    end
+    # def param_list
+    #   ParamSpec.signature(@params, self)
+    # end
 
     # An array of the names of the function params.
     def param_names
@@ -316,12 +316,6 @@ module Wrapture
         !@destructor &&
         !%w[void self-reference].include?(@spec['return']['type']) &&
         !@wrapped.error_check?
-    end
-
-    # The signature of the function. +func_name+ can be used to override the
-    # function name if needed, for example if a class name qualifier is needed.
-    def signature(func_name: name)
-      "#{func_name}( #{param_list} )"
     end
 
     # True if the function is static.

@@ -409,7 +409,8 @@ module Wrapture
     # Gives each line of the declaration of the given ConstantSpec.
     def declare_constant(constant_spec, &block)
       constant_spec.doc&.format_as_doxygen(max_line_length: 76, &block)
-      yield "static const #{constant_spec.type.variable(constant_spec.name)};"
+      variable = type_variable(constant_spec.type, constant_spec.name)
+      yield "static const #{variable};"
     end
 
     # Gives each line of the declaration of a FunctionSpec to the provided
@@ -543,7 +544,14 @@ module Wrapture
 
     # A list of includes needed for the definition of the class.
     def definition_includes
-      @spec.definition_includes.concat(common_includes(@spec))
+      includes = @spec.definition_includes
+      includes.concat(common_includes(@spec))
+
+      @spec.scope.overloads(@spec).map do |overload|
+        includes.append("#{overload.name}.hpp")
+      end
+
+      includes
     end
 
     # The definition of an enum element.
@@ -577,6 +585,9 @@ module Wrapture
     end
 
     # A spec hash for a factory constructor for this class.
+    #
+    # A factory constructor creates an instance of a class based on a struct
+    # that is overloaded.
     def factory_constructor_hash
       factory_lines = []
       line_prefix = ''
@@ -605,7 +616,7 @@ module Wrapture
         'void'
       else
         func_spec.params.map do |param|
-          sig = param.type.resolve(func_spec).variable(param.name)
+          sig = type_variable(param.type.resolve(func_spec), param.name)
 
           if param.default_value?
             sig += ' = '
@@ -629,7 +640,7 @@ module Wrapture
         "#{func_spec.name}( #{function_declaration_param_list(func_spec)} )"
       else
         return_type = func_spec.resolved_return
-        return_type.return_expression(func_spec, func_name: func_spec.name)
+        return_expression(return_type, func_spec, func_name: func_spec.name)
       end
     end
 
@@ -637,7 +648,7 @@ module Wrapture
     def function_definition_param_list(func_spec)
       if func_spec.params?
         func_spec.params.map do |param|
-          param.type.resolve(func_spec).variable(param.name)
+          type_variable(param.type.resolve(func_spec), param.name)
         end.join(', ')
       else
         'void'
@@ -651,7 +662,7 @@ module Wrapture
         "#{func_name}( #{function_definition_param_list(func_spec)} )"
       else
         return_type = func_spec.resolved_return
-        return_type.return_expression(func_spec, func_name: func_name)
+        return_expression(return_type, func_spec, func_name: func_name)
       end
     end
 
@@ -661,7 +672,7 @@ module Wrapture
 
       if spec.capture_return?
         wrapped_type = spec.resolve_type(spec.wrapped.return_val_type)
-        yield "#{wrapped_type.variable('return_val')};"
+        yield "#{type_variable(wrapped_type, 'return_val')};"
       end
     end
 
@@ -735,8 +746,34 @@ module Wrapture
       elsif @spec.return_overloaded?
         "new#{@spec.return_type.name.chomp('*').strip} ( #{value} )"
       else
-        @spec.resolved_return.cast_expression(value)
+        return_type = @spec.resolved_return
+        "( #{type_variable(return_type)} )( #{value} )"
       end
+    end
+
+    # A string with a declaration of FunctionSpec +func+ with the given type as
+    # the return value. +func_name+ can be provided to override the function
+    # name, for example if a class name needs to be included.
+    def return_expression(type_spec, func_spec, func_name: func_spec.name)
+      name_part = String.new(func_name || '')
+      param_part = String.new
+      ret_part = String.new(type_spec.name || '')
+
+      current_type = type_spec
+      while current_type.function?
+        name_part.prepend('( *')
+
+        current_func = current_type.function
+        param_list = function_definition_param_list(current_func)
+        param_part.concat(" )( #{param_list} )")
+
+        current_type = current_func.resolved_return
+        ret_part = current_type.name
+      end
+
+      ret_part << ' ' unless current_type.pointer?
+      param_list = function_definition_param_list(func_spec)
+      "#{ret_part}#{name_part}( #{param_list} )#{param_part}"
     end
 
     # The return statement used in this function's definition.
@@ -775,6 +812,23 @@ module Wrapture
     # Expected to be called while @spec is a FunctionSpec.
     def this_struct_pointer
       "#{'&' unless @spec.owner.pointer_wrapper?}this->equivalent"
+    end
+
+    # A string with a declaration of a variable named +var_name+ of this type.
+    # If +var_name+ is nil then this will simply be a type declaration.
+    def type_variable(type_spec, var_name = nil)
+      if type_spec.variadic?
+        '...'
+      elsif type_spec.function?
+        func_spec = type_spec.function
+        func_name = "( *#{var_name} )"
+        return_expression(func_spec.resolved_return, func_spec,
+                          func_name: func_name)
+      elsif var_name.nil?
+        type_spec.name
+      else
+        "#{type_spec.name}#{' ' unless type_spec.pointer?}#{var_name}"
+      end
     end
 
     # The expression containing the call to the underlying wrapped function.

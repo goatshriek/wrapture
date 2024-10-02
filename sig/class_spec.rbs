@@ -18,12 +18,15 @@ module Wrapture
     attr_reader struct: (Wrapture::StructSpec | nil)
     def initialize: (spec_hash spec, ?scope: Wrapture::Scope) -> void
     def child?: -> bool
+    def constructors: -> Array[Wrapture::FunctionSpec]
     def declaration_includes: -> Array[String]
     def definition_includes: -> Array[String]
+    def destructor: -> Wrapture::FunctionSpec
     def documentation: { (String) -> void } -> void
     def equivalent_member?: -> bool
     def factory?: -> bool
     def libraries: -> Array[String]
+    def method_specs: -> Array[Wrapture::FunctionSpec]
     def name: -> String
     def namespace: -> String
     def overloads?: (untyped parent_spec) -> bool
@@ -35,8 +38,5 @@ module Wrapture
     def struct_name: -> String
     def type: ( ( Wrapture::TypeSpec | String ) type ) -> ( Wrapture::ClassSpec | nil )
     def type?: ( ( Wrapture::TypeSpec | String ) type ) -> bool
-
-    private
-    def factory_definition_includes: -> Array[String]
   end
 end

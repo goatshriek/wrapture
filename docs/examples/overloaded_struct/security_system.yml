@@ -1,7 +1,8 @@
 version: "0.3.0"
 classes:
   - name: "SecurityEvent"
-    namespace: "security_system"
+    namespace: "home_automation"
+    libraries: "security_system"
     equivalent-struct:
       name: "event"
       includes: "security_system.h"
@@ -33,6 +34,8 @@ classes:
         wrapped-function:
           name: "get_next_event"
           includes: "security_system.h"
+          return:
+            type: "equivalent-struct-pointer"
       - name: "Print"
         virtual: true
         wrapped-function:
@@ -41,10 +44,10 @@ classes:
           params:
             - value: "equivalent-struct-pointer"
   - name: "CameraEvent"
-    namespace: "security_system"
+    namespace: "home_automation"
+    libraries: "security_system"
     parent:
       name: "SecurityEvent"
-      includes: "SecurityEvent.hpp"
     equivalent-struct:
       name: "event"
       includes: "security_system.h"
@@ -68,10 +71,10 @@ classes:
           params:
             - value: "equivalent-struct-pointer"
   - name: "GlassBreakEvent"
-    namespace: "security_system"
+    namespace: "home_automation"
+    libraries: "security_system"
     parent:
       name: "SecurityEvent"
-      includes: "SecurityEvent.hpp"
     equivalent-struct:
       name: "event"
       includes: "security_system.h"
@@ -95,10 +98,10 @@ classes:
           params:
             - value: "equivalent-struct-pointer"
   - name: "MotionEvent"
-    namespace: "security_system"
+    namespace: "home_automation"
+    libraries: "security_system"
     parent:
       name: "SecurityEvent"
-      includes: "SecurityEvent.hpp"
     equivalent-struct:
       name: "event"
       includes: "security_system.h"

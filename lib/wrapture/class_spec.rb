@@ -169,6 +169,11 @@ module Wrapture
       @spec.key?('parent')
     end
 
+    # A list of constructor functions for the class.
+    def constructors
+      @functions.select(&:constructor?)
+    end
+
     # A list of includes needed for the declaration of the class.
     def declaration_includes
       includes = @spec['includes'].dup
@@ -200,9 +205,12 @@ module Wrapture
         includes.concat(const.definition_includes)
       end
 
-      includes.concat(factory_definition_includes)
-
       includes.uniq
+    end
+
+    # The destructor function for the class, or nil if there isn't one.
+    def destructor
+      @functions.select(&:destructor?).first
     end
 
     # Calls the given block for each line of the class documentation.
@@ -235,6 +243,15 @@ module Wrapture
     # An array of libraries needed for everything in this class.
     def libraries
       @functions.flat_map(&:libraries).concat(@spec['libraries'])
+    end
+
+    # An array of methods of the class. This is a subset of the list of
+    # functions without the constructors and destructors.
+    #
+    # Named with a specs suffix to avoid conflicts with Ruby's "methods"
+    # instance method.
+    def method_specs
+      @functions.select { |spec| !spec.constructor? && !spec.destructor? }
     end
 
     # The name of the class.
@@ -300,13 +317,6 @@ module Wrapture
     # Returns true if the given type exists in this class's scope.
     def type?(type)
       @scope.type?(type)
-    end
-
-    private
-
-    # A list of the includes needed for the factory function definition.
-    def factory_definition_includes
-      @scope.overloads(self).map { |overload| "#{overload.name}.hpp" }
     end
   end
 end
