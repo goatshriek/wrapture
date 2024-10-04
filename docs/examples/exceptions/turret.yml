@@ -60,7 +60,6 @@ classes:
               name: "throw-exception"
               constructor:
                 name: "TargetingException"
-                includes: "TargetingException.hpp"
                 params:
                   - value: "return-value"
       - name: "AmmoCount"
@@ -86,7 +85,6 @@ classes:
               name: "throw-exception"
               constructor:
                 name: "TurretException::newTurretException"
-                includes: "TurretException.hpp"
                 params:
                   - value: "return-value"
       - name: "Reload"
@@ -124,7 +122,6 @@ classes:
     type: "pointer"
     parent:
       name: "TurretException"
-      includes: "TurretException.hpp"
     equivalent-struct:
       name: "turret_error"
       includes: "turret_error.h"
@@ -148,7 +145,6 @@ classes:
     type: "pointer"
     parent:
       name: "TurretException"
-      includes: "TurretException.hpp"
     equivalent-struct:
       name: "turret_error"
       includes: "turret_error.h"
@@ -172,7 +168,6 @@ classes:
     type: "pointer"
     parent:
       name: "TurretException"
-      includes: "TurretException.hpp"
     equivalent-struct:
       name: "turret_error"
       includes: "turret_error.h"
