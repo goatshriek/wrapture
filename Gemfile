@@ -23,6 +23,7 @@ gemspec
 group :development do
   gem 'bundler', '>= 1.6.4'
   gem 'rake', '>= 0.9.2'
+  gem 'rbs'
   gem 'rdoc', '>= 6.6.3.1' # minimum to address CVE-2024-27281
 end
 
