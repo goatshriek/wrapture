@@ -277,15 +277,15 @@ module Wrapture
     # A resolved type, given a TypeSpec +type+. Resolved types will not have any
     # placeholders like +equivalent-struct+, which will be resolved to their
     # effective type.
-    def resolve_type(type)
-      if type.equivalent_struct?
+    def resolve_type(type_spec)
+      if type_spec.equivalent_struct?
         TypeSpec.new("struct #{@owner.struct_name}")
-      elsif type.equivalent_pointer?
+      elsif type_spec.equivalent_pointer?
         TypeSpec.new("struct #{@owner.struct_name} *")
-      elsif type.self_reference?
+      elsif type_spec.self_reference?
         TypeSpec.new("#{@owner.name}&")
       else
-        type
+        type_spec
       end
     end
 

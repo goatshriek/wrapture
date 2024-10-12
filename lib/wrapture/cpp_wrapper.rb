@@ -272,6 +272,30 @@ module Wrapture
 
     private
 
+    # A string containing the invocation of the given action.
+    def action_expression(action_spec)
+      if action_spec.value?
+        value_variable = if action_spec.value == RETURN_VALUE_KEYWORD
+                           'return_val'
+                         else
+                           action_spec.value
+                         end
+        "#{action_spec.type}(#{value_variable})"
+      end
+
+      # call_spec = @spec['constructor']
+
+      # params = call_spec['params'].map do |param_spec|
+      #   if action_spec.value == RETURN_VALUE_KEYWORD
+      #     'return_val'
+      #   else
+      #     param_spec['value']
+      #   end
+      # end
+
+      # "throw #{call_spec['name']}( #{params.join(', ')} )"
+    end
+
     # True if this class should have a pointer constructor generated.
     def autogen_pointer_constructor?
       return false unless @spec.struct
@@ -530,7 +554,7 @@ module Wrapture
 
       if @spec.wrapped.error_check?
         yield ''
-        @spec.wrapped.error_check(return_val: return_variable) do |line|
+        error_check(@spec.wrapped, return_val: return_variable) do |line|
           yield "  #{line}"
         end
       end
@@ -546,12 +570,20 @@ module Wrapture
     def definition_includes
       includes = @spec.definition_includes
       includes.concat(common_includes(@spec))
+      scope = @spec.scope
 
-      @spec.scope.overloads(@spec).map do |overload|
+      scope.overloads(@spec).map do |overload|
         includes.append("#{overload.name}.hpp")
       end
 
-      includes
+      @spec.functions.each do |func_spec|
+        next unless func_spec.wrapped.error_check?
+
+        error_type = func_spec.wrapped.error_action.type
+        includes.append("#{error_type.name}.hpp") if scope.type?(error_type)
+      end
+
+      includes.uniq
     end
 
     # The definition of an enum element.
@@ -582,6 +614,25 @@ module Wrapture
     # An expression for a field of the equivalent member of this class.
     def equivalent_member_field(field_name)
       "this->equivalent#{@spec.pointer_wrapper? ? '->' : '.'}#{field_name}"
+    end
+
+    # Yields each line of the error check and any actions taken for the given
+    # wrapped function. If this function does not have any error check defined,
+    # then this function returns without yielding anything.
+    #
+    # +return_val+ is used as the replacement for a return value signified by
+    # the use of RETURN_VALUE_KEYWORD in the spec. If not specified it defaults
+    # to +'return_val'+. This parameter was added in release 0.4.2.
+    def error_check(wrapped_func, return_val: 'return_val')
+      return unless wrapped_func.error_check?
+
+      checks = wrapped_func.error_rules.map do |rule|
+        rule.check(return_val: return_val)
+      end
+
+      yield "if( #{checks.join(' && ')} ){"
+      yield "  throw new #{action_expression(wrapped_func.error_action)};"
+      yield '}'
     end
 
     # A spec hash for a factory constructor for this class.

@@ -22,6 +22,7 @@ module Wrapture
     def write_source_files: (?String dir) -> Array[String]
 
     private
+    def action_expression: (Wrapture::ActionSpec) -> String
     def autogen_pointer_constructor?: -> bool
     def cast: (Wrapture::ClassSpec class_spec, String var_name, String to, Wrapture::TypeSpec from) -> String
     def castable?: (spec_hash wrapped_param) -> bool
@@ -40,6 +41,7 @@ module Wrapture
     def enum_element_doc: (spec_hash element) { (String) -> void } -> void
     def equivalent_member_declaration: -> String
     def equivalent_member_field: -> String
+    def error_check: (Wrapture::WrappedFunctionSpec, ?return_val: String)  { (String) -> void } -> void
     def factory_constructor_hash: -> String
     def function_declaration_param_list: (Wrapture::FunctionSpec) -> String
     def function_declaration_signature: (Wrapture::FunctionSpec) { (String) -> void } -> void

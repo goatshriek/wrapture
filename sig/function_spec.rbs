@@ -38,7 +38,7 @@ module Wrapture
     def resolved_return: -> Wrapture::TypeSpec
     def return_expression: (?func_name: String) -> String
     def static?: -> bool
-    def resolve_type: (untyped type_) -> untyped
+    def resolve_type: (Wrapture::TypeSpec type_spec) -> Wrapture::TypeSpec
     def return_overloaded?: -> bool
     def returns_call_directly?: -> bool
     def variadic?: -> bool

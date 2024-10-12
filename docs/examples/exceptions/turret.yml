@@ -58,10 +58,8 @@ classes:
                 right-expression: "success()"
             error-action:
               name: "throw-exception"
-              constructor:
-                name: "TargetingException"
-                params:
-                  - value: "return-value"
+              type: "TargetingException"
+              value: "return-value"
       - name: "AmmoCount"
         return:
           type: "int"
@@ -83,10 +81,8 @@ classes:
                 right-expression: "success()"
             error-action:
               name: "throw-exception"
-              constructor:
-                name: "TurretException::newTurretException"
-                params:
-                  - value: "return-value"
+              type: "TurretException"
+              value: "return-value"
       - name: "Reload"
         wrapped-function:
           name: "reload"
