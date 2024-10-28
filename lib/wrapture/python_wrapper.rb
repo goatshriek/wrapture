@@ -165,6 +165,23 @@ module Wrapture
 
     private
 
+    # A string containing the invocation of the given action.
+    def action_expression(action_spec)
+      return nil unless action_spec.value?
+
+      value_variable = if action_spec.value == RETURN_VALUE_KEYWORD
+                         'return_val'
+                       else
+                         action_spec.value
+                       end
+      # TODO: pick up here
+      # this action expression will use PyErr_SetObject to create an instance of the exception and throw it
+
+      type_object = self.class.type_object_name(action_spec.type)
+      "PyErr_SetObject( #{type_object}, NULL )"
+      # "throw new #{action_spec.type}(#{value_variable})"
+    end
+
     # Yields lines of C code to add the type object for the given class to this
     # scope's module.
     def add_class_type_object(class_spec, decref: [])
@@ -368,7 +385,9 @@ module Wrapture
       yield "  .tp_dealloc = ( destructor ) #{snake_name}_dealloc,"
       yield "  .tp_methods = #{snake_name}_methods,"
 
-      if class_spec.child?
+      if class_spec.exception?
+        yield '  .tp_base = Py_TYPE( PyExc_Exception ),'
+      elsif class_spec.child?
         parent = class_spec.parent_spec
         unless parent.nil?
           yield "  .tp_base = &#{self.class.type_object_name(parent)},"
@@ -557,6 +576,7 @@ module Wrapture
         yield "#{name}( #{function_params(func_spec).join(', ')} ) {"
 
         function_locals(func_spec) { |declaration| yield "  #{declaration}" }
+        yield ''
 
         if func_spec.params?
           parsed_args = "&#{func_spec.param_names.join(', &')}"
@@ -584,6 +604,13 @@ module Wrapture
 
         wrapped_call(func_spec, &block)
         yield ''
+
+        if func_spec.wrapped.error_check?
+          error_check(func_spec.wrapped, return_val: 'return_val') do |line|
+            yield "  #{line}"
+          end
+          yield ''
+        end
 
         yield "  #{return_statement(func_spec)}"
       end
@@ -701,6 +728,25 @@ module Wrapture
       yield '  }'
       yield ''
       yield '  return obj;'
+      yield '}'
+    end
+
+    # Yields each line of the error check and any actions taken for the given
+    # wrapped function. If this function does not have any error check defined,
+    # then this function returns without yielding anything.
+    #
+    # +return_val+ is used as the replacement for a return value signified by
+    # the use of RETURN_VALUE_KEYWORD in the spec. If not specified it defaults
+    # to +'return_val'+. This parameter was added in release 0.4.2.
+    def error_check(wrapped_func, return_val: 'return_val')
+      return unless wrapped_func.error_check?
+
+      checks = wrapped_func.error_rules.map do |rule|
+        rule.check(return_val: return_val)
+      end
+
+      yield "if( #{checks.join(' && ')} ){"
+      yield "  #{action_expression(wrapped_func.error_action)};"
       yield '}'
     end
 

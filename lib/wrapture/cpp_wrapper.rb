@@ -65,7 +65,11 @@ module Wrapture
     # if the class has ancestors. If not or if this wrapper is not for a class,
     # an empty string is returned instead.
     def ancestor_suffix
-      if @spec.is_a?(ClassSpec) && @spec.child?
+      return '' unless @spec.is_a?(ClassSpec)
+
+      if @spec.exception?
+        ': public std::exception'
+      elsif @spec.child?
         ": public #{@spec.parent_name}"
       else
         ''
@@ -274,26 +278,14 @@ module Wrapture
 
     # A string containing the invocation of the given action.
     def action_expression(action_spec)
-      if action_spec.value?
-        value_variable = if action_spec.value == RETURN_VALUE_KEYWORD
-                           'return_val'
-                         else
-                           action_spec.value
-                         end
-        "#{action_spec.type}(#{value_variable})"
-      end
+      return nil unless action_spec.value?
 
-      # call_spec = @spec['constructor']
-
-      # params = call_spec['params'].map do |param_spec|
-      #   if action_spec.value == RETURN_VALUE_KEYWORD
-      #     'return_val'
-      #   else
-      #     param_spec['value']
-      #   end
-      # end
-
-      # "throw #{call_spec['name']}( #{params.join(', ')} )"
+      value_variable = if action_spec.value == RETURN_VALUE_KEYWORD
+                         'return_val'
+                       else
+                         action_spec.value
+                       end
+      "throw new #{action_spec.type}(#{value_variable})"
     end
 
     # True if this class should have a pointer constructor generated.
@@ -631,7 +623,7 @@ module Wrapture
       end
 
       yield "if( #{checks.join(' && ')} ){"
-      yield "  throw new #{action_expression(wrapped_func.error_action)};"
+      yield "  #{action_expression(wrapped_func.error_action)};"
       yield '}'
     end
 

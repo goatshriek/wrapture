@@ -11,6 +11,7 @@ module Wrapture
     def write_source_files: (?String dir) -> Array[String]
 
     private
+    def action_expression: (Wrapture::ActionSpec) -> String
     def add_class_type_object: (Wrapture::ClassSpec, ?Array[String]) { (String) -> void } -> void
     def add_scope_type_objects: { (String) -> void } -> void
     def cast: (Wrapture::ClassSpec class_spec, String var_name, String to) -> String
@@ -32,6 +33,7 @@ module Wrapture
     def define_module: { (String) -> void } -> void
     def define_scope_type_objects: { (String) -> void } -> void
     def equivalent_member_declaration: -> String
+    def error_check: (Wrapture::WrappedFunctionSpec, ?return_val: String)  { (String) -> void } -> void
     def define_factory_constructor: (Wrapture::ClassSpec) { (String) -> void } -> void
     def function_args_format: (Wrapture::FunctionSpec) -> String
     def function_flags: (Wrapture::FunctionSpec) -> String
