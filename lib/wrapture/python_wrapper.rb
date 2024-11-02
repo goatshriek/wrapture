@@ -786,7 +786,8 @@ module Wrapture
         yield "#{type_struct_name} *self;"
       end
 
-      unless func_spec.void_return?
+      # unless func_spec.void_return?
+      if func_spec.capture_return?
         effective_return = func_spec.wrapped.return_val_type
         if effective_return.name == 'void'
           effective_return = func_spec.return_type

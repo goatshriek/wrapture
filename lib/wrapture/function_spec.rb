@@ -166,6 +166,8 @@ module Wrapture
 
     # True if the return value of the wrapped call is saved.
     def capture_return?
+      # TODO this should be factored into the C++ wrapper, as it's only relevant
+      # for languages where the C type is directly compatible
       !@constructor && (@wrapped.use_return? || returns_return_val?)
     end
 
@@ -312,6 +314,8 @@ module Wrapture
     # True if the function returns the result of the wrapped function call
     # directly without any after actions.
     def returns_call_directly?
+      # TODO this should be factored into the C++ wrapper, as it's only relevant
+      # for languages where the C type is directly compatible
       !@constructor &&
         !@destructor &&
         !%w[void self-reference].include?(@spec['return']['type']) &&
@@ -342,6 +346,8 @@ module Wrapture
 
     # True if the function returns the return_val variable.
     def returns_return_val?
+      # TODO this should be factored into the C++ wrapper, as it's only relevant
+      # for languages where the C type is directly compatible
       !@return_type.self_reference? &&
         @spec['return']['type'] != 'void' &&
         !returns_call_directly?
