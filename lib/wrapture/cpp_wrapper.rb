@@ -653,6 +653,12 @@ module Wrapture
         'return' => { 'type' => "#{@spec.name} *" } }
     end
 
+    # True if the return value of the function's wrapped call is saved.
+    def function_captures_return?(func_spec)
+      !func_spec.constructor? &&
+        (func_spec.wrapped.use_return? || function_returns_return_val?(func_spec))
+    end
+
     # The parameter list for the function declaration.
     def function_declaration_param_list(func_spec)
       if func_spec.params.empty?
@@ -713,10 +719,26 @@ module Wrapture
     def function_locals(spec)
       yield 'va_list variadic_args;' if spec.variadic?
 
-      if spec.capture_return?
+      if function_captures_return?(spec)
         wrapped_type = spec.resolve_type(spec.wrapped.return_val_type)
         yield "#{type_variable(wrapped_type, 'return_val')};"
       end
+    end
+
+    # True if the function returns the result of the wrapped function call
+    # directly without any after actions.
+    def function_returns_call_directly?(func_spec)
+      !func_spec.constructor? &&
+        !func_spec.destructor? &&
+        !%w[void self-reference].include?(func_spec.return_type.name) &&
+        !func_spec.wrapped.error_check?
+    end
+
+    # True if the function returns the return_val variable.
+    def function_returns_return_val?(func_spec)
+      !func_spec.return_type.self_reference? &&
+        !func_spec.void_return? &&
+        !function_returns_call_directly?(func_spec)
     end
 
     # The suffix to add to a function definition for initializers, if any exist.
@@ -823,7 +845,7 @@ module Wrapture
     def return_statement
       if @spec.return_type.self_reference?
         'return *this;'
-      elsif @spec.return_type.name != 'void' && !@spec.returns_call_directly?
+      elsif @spec.return_type.name != 'void' && !function_returns_call_directly?(@spec)
         'return return_val;'
       else
         ''
@@ -882,7 +904,7 @@ module Wrapture
         "this->equivalent = #{call}"
       elsif @spec.wrapped.error_check?
         "return_val = #{call}"
-      elsif @spec.returns_call_directly?
+      elsif function_returns_call_directly?(@spec)
         "return #{return_cast(call)}"
       else
         call

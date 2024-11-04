@@ -43,10 +43,13 @@ module Wrapture
     def equivalent_member_field: -> String
     def error_check: (Wrapture::WrappedFunctionSpec, ?return_val: String)  { (String) -> void } -> void
     def factory_constructor_hash: -> String
+    def function_captures_return?: (Wrapture::FunctionSpec) -> bool
     def function_declaration_param_list: (Wrapture::FunctionSpec) -> String
     def function_declaration_signature: (Wrapture::FunctionSpec) { (String) -> void } -> void
     def function_definition_param_list: (Wrapture::FunctionSpec) -> String
     def function_locals: (Wrapture::FunctionSpec spec) { (String) -> void } -> void
+    def function_returns_call_directly?: (Wrapture::FunctionSpec) -> bool
+    def function_returns_return_val?: (Wrapture::FunctionSpec) -> bool
     def initializer_suffix: -> String
     def member_constructor_hash: -> spec_hash
     def pointer_constructor_hash: -> spec_hash

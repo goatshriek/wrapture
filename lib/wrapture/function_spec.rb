@@ -164,13 +164,6 @@ module Wrapture
     # A WrappedFunctionSpec or WrappedCodeSpec this .
     attr_reader :wrapped
 
-    # True if the return value of the wrapped call is saved.
-    def capture_return?
-      # TODO this should be factored into the C++ wrapper, as it's only relevant
-      # for languages where the C type is directly compatible
-      !@constructor && (@wrapped.use_return? || returns_return_val?)
-    end
-
     # True if the function is a constructor, false otherwise.
     def constructor?
       @constructor
@@ -256,11 +249,6 @@ module Wrapture
       @params.select(&:default_value?)
     end
 
-    # A string with the parameter list for this function.
-    # def param_list
-    #   ParamSpec.signature(@params, self)
-    # end
-
     # An array of the names of the function params.
     def param_names
       @params.map(&:name)
@@ -311,17 +299,6 @@ module Wrapture
       @spec['return']['overloaded']
     end
 
-    # True if the function returns the result of the wrapped function call
-    # directly without any after actions.
-    def returns_call_directly?
-      # TODO this should be factored into the C++ wrapper, as it's only relevant
-      # for languages where the C type is directly compatible
-      !@constructor &&
-        !@destructor &&
-        !%w[void self-reference].include?(@spec['return']['type']) &&
-        !@wrapped.error_check?
-    end
-
     # True if the function is static.
     def static?
       @spec['static']
@@ -340,17 +317,6 @@ module Wrapture
     # True if the function has a void return type.
     def void_return?
       @return_type.name == 'void'
-    end
-
-    private
-
-    # True if the function returns the return_val variable.
-    def returns_return_val?
-      # TODO this should be factored into the C++ wrapper, as it's only relevant
-      # for languages where the C type is directly compatible
-      !@return_type.self_reference? &&
-        @spec['return']['type'] != 'void' &&
-        !returns_call_directly?
     end
   end
 end
