@@ -174,11 +174,9 @@ module Wrapture
                        else
                          action_spec.value
                        end
-      # TODO: pick up here
-      # this action expression will use PyErr_SetObject to create an instance of the exception and throw it
 
-      type_object = self.class.type_object_name(action_spec.type)
-      "PyErr_SetObject( &#{type_object}, NULL )"
+      # type_object = self.class.type_object_name(action_spec.type)
+      "PyErr_SetObject( #{action_spec.type.snake_case_name}_exception, NULL )"
       # "throw new #{action_spec.type}(#{value_variable})"
     end
 
@@ -198,7 +196,7 @@ module Wrapture
     # all classes and enums in this module.
     def add_scope_type_objects(&block)
       previous_objects = ['m']
-      @spec.classes.each do |item|
+      @spec.classes.reject(&:exception?).each do |item|
         object_name = "&#{self.class.type_object_name(item)}"
         previous_objects << object_name
         add_class_type_object(item, decref: previous_objects.reverse) do |line|
@@ -211,7 +209,6 @@ module Wrapture
         snake_name = enum_spec.snake_case_name
         block.call("Py_DECREF( add_#{snake_name}_enum_to_module( m ) );")
       end
-      yield ''
     end
 
     # Returns a cast of an instance of this class with the provided name to the
@@ -355,7 +352,7 @@ module Wrapture
     # Passes lines of C code to the given block which creates the methods and
     # type object for the given class in this module.
     def define_class_type_object(class_spec, &block)
-      define_class_type_struct(class_spec) { |line| block.call(line) }
+      # define_class_type_struct(class_spec) { |line| block.call(line) }
       yield ''
 
       class_function_groups(class_spec).each do |func_group|
@@ -483,6 +480,16 @@ module Wrapture
       yield '  // adding the new type to the module'
       yield "  PyModule_AddObject( m, \"#{enum_spec.name}\", new_enum );"
       yield '  return new_enum;'
+      yield '}'
+    end
+
+    # Passes lines of C code to the given block which define a function to
+    # create an exception class.
+    def define_exception_constructor(class_spec)
+      snake_name = class_spec.snake_case_name
+      yield "PyObject * create_#{snake_name}_exception( void ){"
+      # TODO actually implement
+      yield '  return PyErr_NewException( "ThrowMe", NULL, NULL );'
       yield '}'
     end
 
@@ -649,6 +656,11 @@ module Wrapture
       yield '  }'
       yield ''
       add_scope_type_objects { |line| block.call("  #{line}") }
+      yield ''
+      @spec.classes.select(&:exception?).each do |item|
+        snake_name = item.snake_case_name
+        yield "  #{snake_name}_exception = create_#{snake_name}_exception();"
+      end
       yield '  return m;'
       yield '}'
     end
@@ -664,25 +676,27 @@ module Wrapture
       yield '};'
       yield ''
 
-      # TODO pick up here
-      # will need to iterate through exceptions, and create static pointers
-      # for them to use when throwing exceptions
-      # will also need to define them using PyErr_NewException and the dict
-      # arguments instead of using a type object, probably in the module init?
-
-      # TODO this might actually be unnecessary...
-      yield '// forward declarations of type structures'
       @spec.classes.each do |item|
-        yield "static PyTypeObject #{self.class.type_object_name(item)};"
-        yield "// struct #{self.class.type_struct_name(item)};"
+        define_class_type_struct(item) { |line| block.call(line) }
       end
+
+      @spec.classes.select(&:exception?).each do |item|
+        snake_name = item.snake_case_name
+        yield "static PyObject * #{snake_name}_exception;"
+        yield "static PyTypeObject #{self.class.type_object_name(item)};"
+      end
+      yield ''
 
       @spec.classes.select(&:factory?).each do |item|
         declare_factory_constructor(item, &block)
         yield ''
       end
 
-      @spec.classes.each do |item|
+      @spec.classes.select(&:exception?).each do |item|
+        define_exception_constructor(item) { |line| block.call(line) }
+      end
+
+      @spec.classes.reject(&:exception?).each do |item|
         define_class_type_object(item) { |line| block.call(line) }
       end
 
@@ -939,7 +953,7 @@ module Wrapture
     # Passes lines of C code to the given block which executes PyType_Ready
     # on each type in the module.
     def scope_types_ready
-      @spec.classes.each do |item|
+      @spec.classes.reject(&:exception?).each do |item|
         yield "if ( PyType_Ready( &#{item.snake_case_name}_type_object ) < 0){"
         yield '  return NULL;'
         yield '}'

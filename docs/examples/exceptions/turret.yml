@@ -20,6 +20,7 @@ version: "0.3.0"
 classes:
   - name: "Turret"
     namespace: "defense_turret"
+    libraries: "turret"
     equivalent-struct:
       name: "turret"
       includes: "turret.h"
@@ -93,6 +94,7 @@ classes:
     parent:
       name: "std::exception"
       includes: "exception"
+    exception: true
     equivalent-struct:
       name: "turret_error"
       includes: "turret_error.h"
@@ -118,6 +120,7 @@ classes:
     type: "pointer"
     parent:
       name: "TurretException"
+    exception: true
     equivalent-struct:
       name: "turret_error"
       includes: "turret_error.h"
@@ -141,6 +144,7 @@ classes:
     type: "pointer"
     parent:
       name: "TurretException"
+    exception: true
     equivalent-struct:
       name: "turret_error"
       includes: "turret_error.h"
@@ -164,6 +168,7 @@ classes:
     type: "pointer"
     parent:
       name: "TurretException"
+    exception: true
     equivalent-struct:
       name: "turret_error"
       includes: "turret_error.h"
