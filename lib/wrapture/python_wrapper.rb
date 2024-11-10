@@ -178,7 +178,7 @@ module Wrapture
       # this action expression will use PyErr_SetObject to create an instance of the exception and throw it
 
       type_object = self.class.type_object_name(action_spec.type)
-      "PyErr_SetObject( #{type_object}, NULL )"
+      "PyErr_SetObject( &#{type_object}, NULL )"
       # "throw new #{action_spec.type}(#{value_variable})"
     end
 
@@ -278,9 +278,11 @@ module Wrapture
         "PyLong_FromLong(#{name})"
       elsif type.name == 'bool'
         "PyBool_FromLong(#{name})"
+      elsif type.name == 'const char *'
+        "PyUnicode_FromString(#{name})"
       else
         # TODO: default case
-        '// TODO default case'
+        "// TODO default case for #{type.name}, #{name}"
       end
     end
 
@@ -662,6 +664,19 @@ module Wrapture
       yield '};'
       yield ''
 
+      # TODO pick up here
+      # will need to iterate through exceptions, and create static pointers
+      # for them to use when throwing exceptions
+      # will also need to define them using PyErr_NewException and the dict
+      # arguments instead of using a type object, probably in the module init?
+
+      # TODO this might actually be unnecessary...
+      yield '// forward declarations of type structures'
+      @spec.classes.each do |item|
+        yield "static PyTypeObject #{self.class.type_object_name(item)};"
+        yield "// struct #{self.class.type_struct_name(item)};"
+      end
+
       @spec.classes.select(&:factory?).each do |item|
         declare_factory_constructor(item, &block)
         yield ''
@@ -786,8 +801,7 @@ module Wrapture
         yield "#{type_struct_name} *self;"
       end
 
-      # unless func_spec.void_return?
-      if func_spec.capture_return?
+      if !func_spec.void_return? || func_spec.wrapped.use_return?
         effective_return = func_spec.wrapped.return_val_type
         if effective_return.name == 'void'
           effective_return = func_spec.return_type
@@ -937,7 +951,7 @@ module Wrapture
     # class using the given variable name.
     def this_struct(class_spec, var_name: 'self')
       # TODO: handle if parent struct isn't used
-      name = if class_spec.child?
+      name = if class_spec.child? && class_spec.scope.type?(class_spec.parent_name)
                "#{var_name}->super.equivalent"
              else
                "#{var_name}->equivalent"
@@ -954,7 +968,7 @@ module Wrapture
     # within the class using the given variable name.
     def this_struct_pointer(class_spec, var_name: 'self')
       # TODO: handle if parent struct isn't used
-      name = if class_spec.child?
+      name = if class_spec.child? && class_spec.scope.type?(class_spec.parent_name)
                "#{var_name}->super.equivalent"
              else
                "#{var_name}->equivalent"
