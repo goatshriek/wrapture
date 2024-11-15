@@ -5,14 +5,12 @@ wrapped-function:
   name: "underlying_function"
   error-check:
     rules:
-      - left-expression: "it_failed(  )"
+      - left-expression: "it_failed()"
         condition: "not-equals"
         right-expression: "false"
     error-action:
       name: "throw-exception"
-      constructor:
-        name: "CodeException"
-        params:
-          - value: "failure_code(  )"
+      type: "CodeException"
+      value: "failure_code()"
   return:
     type: "int"

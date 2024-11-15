@@ -67,10 +67,10 @@ module Wrapture
     def ancestor_suffix
       return '' unless @spec.is_a?(ClassSpec)
 
-      if @spec.exception?
-        ': public std::exception'
-      elsif @spec.child?
+      if @spec.child?
         ": public #{@spec.parent_name}"
+      elsif @spec.exception?
+        ': public std::exception'
       else
         ''
       end
@@ -285,7 +285,7 @@ module Wrapture
                        else
                          action_spec.value
                        end
-      "throw new #{action_spec.type}(#{value_variable})"
+      "throw #{action_spec.type}( #{value_variable} )"
     end
 
     # True if this class should have a pointer constructor generated.
@@ -656,7 +656,8 @@ module Wrapture
     # True if the return value of the function's wrapped call is saved.
     def function_captures_return?(func_spec)
       !func_spec.constructor? &&
-        (func_spec.wrapped.use_return? || function_returns_return_val?(func_spec))
+        (func_spec.wrapped.use_return? ||
+         function_returns_return_val?(func_spec))
     end
 
     # The parameter list for the function declaration.
@@ -845,7 +846,8 @@ module Wrapture
     def return_statement
       if @spec.return_type.self_reference?
         'return *this;'
-      elsif @spec.return_type.name != 'void' && !function_returns_call_directly?(@spec)
+      elsif @spec.return_type.name != 'void' &&
+            !function_returns_call_directly?(@spec)
         'return return_val;'
       else
         ''

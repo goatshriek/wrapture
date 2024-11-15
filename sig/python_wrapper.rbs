@@ -18,6 +18,7 @@ module Wrapture
     def castable?: (spec_hash wrapped_param) -> bool
     def class_functions: (Wrapture::ClassSpec) -> Array[Wrapture::FunctionSpec]
     def class_function_groups: (Wrapture::ClassSpec) -> Array[Array[Wrapture::FunctionSpec]]
+    def class_module_name: (Wrapture::ClassSpec) -> String
     def create_python_object: (Wrapture::TypeSpec, String) -> String
     def declare_factory_constructor: (Wrapture::ClassSpec) { (String) -> void } -> void
     def default_constructor: (Wrapture::ClassSpec) -> Wrapture::FunctionSpec
@@ -28,6 +29,7 @@ module Wrapture
     def define_class_type_struct: (Wrapture::ClassSpec) { (String) -> void } -> void
     def define_enum_constructor: (Wrapture::EnumSpec) { (String) -> void } -> void
     def define_exception_constructor: (Wrapture::ClassSpec) { (String) -> void } -> void
+    def define_factory_constructor: (Wrapture::ClassSpec) { (String) -> void } -> void
     def define_function_arg_parser: (Wrapture::FunctionSpec) { (String) -> void } -> void
     def define_function_group_wrapper: (Array[Wrapture::FunctionSpec]) { (String) -> void } -> void
     def define_function_wrapper: (Wrapture::FunctionSpec) { (String) -> void } -> void
@@ -35,7 +37,6 @@ module Wrapture
     def define_scope_type_objects: { (String) -> void } -> void
     def equivalent_member_declaration: -> String
     def error_check: (Wrapture::WrappedFunctionSpec, ?return_val: String)  { (String) -> void } -> void
-    def define_factory_constructor: (Wrapture::ClassSpec) { (String) -> void } -> void
     def function_args_format: (Wrapture::FunctionSpec) -> String
     def function_flags: (Wrapture::FunctionSpec) -> String
     def function_locals: (Wrapture::FunctionSpec) { (String) -> void } -> void

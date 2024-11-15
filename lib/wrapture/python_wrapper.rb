@@ -169,11 +169,11 @@ module Wrapture
     def action_expression(action_spec)
       return nil unless action_spec.value?
 
-      value_variable = if action_spec.value == RETURN_VALUE_KEYWORD
-                         'return_val'
-                       else
-                         action_spec.value
-                       end
+      # value_variable = if action_spec.value == RETURN_VALUE_KEYWORD
+      #                    'return_val'
+      #                  else
+      #                    action_spec.value
+      #                  end
 
       # type_object = self.class.type_object_name(action_spec.type)
       "PyErr_SetObject( #{action_spec.type.snake_case_name}_exception, NULL )"
@@ -252,6 +252,11 @@ module Wrapture
       functions
     end
 
+    # The name of the class, fully qualified with the module it is part of.
+    def class_module_name(class_spec)
+      "#{class_spec.scope.name}.#{class_spec.name}"
+    end
+
     # The functions of the given spec where functions that are overloads of each
     # other are grouped together. Functions that are overloaded are represented
     # as an array of function specs. Functions that are not overloaded are in an
@@ -271,11 +276,12 @@ module Wrapture
 
     # Creates a Python object using a variable with the given name and type.
     def create_python_object(type, name)
-      if type.name == 'int'
+      case type.name
+      when 'int'
         "PyLong_FromLong(#{name})"
-      elsif type.name == 'bool'
+      when 'bool'
         "PyBool_FromLong(#{name})"
-      elsif type.name == 'const char *'
+      when 'const char *'
         "PyUnicode_FromString(#{name})"
       else
         # TODO: default case
@@ -488,8 +494,9 @@ module Wrapture
     def define_exception_constructor(class_spec)
       snake_name = class_spec.snake_case_name
       yield "PyObject * create_#{snake_name}_exception( void ){"
-      # TODO actually implement
-      yield '  return PyErr_NewException( "ThrowMe", NULL, NULL );'
+      # TODO: actually implement
+      qualified_name = class_module_name(class_spec)
+      yield "  return PyErr_NewException( \"#{qualified_name}\", NULL, NULL );"
       yield '}'
     end
 
@@ -965,7 +972,8 @@ module Wrapture
     # class using the given variable name.
     def this_struct(class_spec, var_name: 'self')
       # TODO: handle if parent struct isn't used
-      name = if class_spec.child? && class_spec.scope.type?(class_spec.parent_name)
+      parent_in_scope = class_spec.scope.type?(class_spec.parent_name)
+      name = if class_spec.child? && parent_in_scope
                "#{var_name}->super.equivalent"
              else
                "#{var_name}->equivalent"
@@ -982,7 +990,8 @@ module Wrapture
     # within the class using the given variable name.
     def this_struct_pointer(class_spec, var_name: 'self')
       # TODO: handle if parent struct isn't used
-      name = if class_spec.child? && class_spec.scope.type?(class_spec.parent_name)
+      parent_in_scope = class_spec.scope.type?(class_spec.parent_name)
+      name = if class_spec.child? && parent_in_scope
                "#{var_name}->super.equivalent"
              else
                "#{var_name}->equivalent"

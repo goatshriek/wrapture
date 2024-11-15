@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2020 Joel E. Anderson
+# Copyright 2020-2024 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -28,21 +28,14 @@ class ActionSpecTest < Minitest::Test
 
     spec = Wrapture::ActionSpec.new(test_spec)
 
-    common_includes = spec.includes & test_spec['constructor']['includes']
+    common_includes = spec.includes & test_spec['wrapped-function']['includes']
 
-    assert_equal(common_includes, test_spec['constructor']['includes'])
-
-    action = spec.take
-
-    assert_includes(action, 'throw NewCustomException')
+    assert_equal(common_includes, test_spec['wrapped-function']['includes'])
   end
 
   def test_exception_without_params
     test_spec = load_fixture('exception_action_without_params')
-
-    spec = Wrapture::ActionSpec.new(test_spec)
-
-    assert_match(/#{test_spec['constructor']['name']}\(\s*\)/, spec.take)
+    Wrapture::ActionSpec.new(test_spec)
   end
 
   def test_extra_key

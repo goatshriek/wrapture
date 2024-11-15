@@ -1,9 +1,10 @@
 name: "throw-exception"
-constructor:
-  name: "NewCustomException"
+type: "NewCustomException"
+wrapped-function:
+  name: "stop_drop_and_freak_out"
   includes:
     - "inc1.h"
     - "inc2.h"
   params:
-    - value: "return-value"
+    - "return-value"
     - value: 3

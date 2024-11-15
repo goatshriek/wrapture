@@ -1,6 +1,4 @@
 name: "throw-exception"
-constructor:
-  name: "NewCustomException"
-  params:
-    - value: "return-value"
+type: "NewCustomException"
+value: "return-value"
 not-allowed: true

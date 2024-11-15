@@ -27,16 +27,18 @@ module Wrapture
       normalized = spec.dup
 
       required_keys = %w[name type]
+      optional_keys = %w[value wrapped-function]
+
+      extra_keys = spec.keys - required_keys - optional_keys
+      unless extra_keys.empty?
+        extra_msg = "these keys are unrecognized: #{extra_keys.join(', ')}"
+        raise(InvalidSpecKey, extra_msg)
+      end
 
       missing_keys = required_keys - spec.keys
       unless missing_keys.empty?
         missing_msg = "required keys are missing: #{missing_keys.join(', ')}"
         raise(MissingSpecKey, missing_msg)
-      end
-
-      unless spec.include?('wrapped-function') || spec.include?('value')
-        extra_msg = 'either wrapped-function or value must be present'
-        raise(MissingSpecKey, extra_msg)
       end
 
       if spec.include?('wrapped-function') && spec.include?('value')
@@ -59,7 +61,7 @@ module Wrapture
     # supported)
     # type:: the type of the exception thrown
     #
-    # One of these two keys must be present, but not both:
+    # One of these two keys may be present, but not both:
     # value:: the value to use to create the exception
     # wrapped-function:: a function to use to create the exception, described
     # as a wrapped function call. If the name of the constructor is left out,
