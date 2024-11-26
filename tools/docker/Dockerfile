@@ -1,4 +1,5 @@
-FROM ruby:3.3.5-alpine3.20
+# ruby:3.3.6-alpine3.20
+FROM ruby@sha256:caeab43b356463e63f87af54a03de1ae4687b36da708e6d37025c557ade450f8
 
 # copy the build-necessary source into the container
 WORKDIR /usr/src/wrapture

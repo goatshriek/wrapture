@@ -176,8 +176,8 @@ module Wrapture
       #                  end
 
       # type_object = self.class.type_object_name(action_spec.type)
-      "PyErr_SetObject( #{action_spec.type.snake_case_name}_exception, NULL )"
-      # "throw new #{action_spec.type}(#{value_variable})"
+      # "PyErr_SetObject( #{action_spec.type.snake_case_name}_exception, NULL )"
+      "PyErr_SetString( #{action_spec.type.snake_case_name}_exception, \"dangit\" )"
     end
 
     # Yields lines of C code to add the type object for the given class to this
@@ -196,7 +196,8 @@ module Wrapture
     # all classes and enums in this module.
     def add_scope_type_objects(&block)
       previous_objects = ['m']
-      @spec.classes.reject(&:exception?).each do |item|
+      @spec.classes.each do |item|
+        # @spec.classes.reject(&:exception?).each do |item|
         object_name = "&#{self.class.type_object_name(item)}"
         previous_objects << object_name
         add_class_type_object(item, decref: previous_objects.reverse) do |line|
@@ -390,9 +391,10 @@ module Wrapture
       yield "  .tp_dealloc = ( destructor ) #{snake_name}_dealloc,"
       yield "  .tp_methods = #{snake_name}_methods,"
 
-      if class_spec.exception?
-        yield '  .tp_base = Py_TYPE( PyExc_Exception ),'
-      elsif class_spec.child?
+      # if class_spec.exception?
+      #   yield '  .tp_base = Py_TYPE( PyExc_Exception ),'
+      # elsif class_spec.child?
+      if class_spec.child?
         parent = class_spec.parent_spec
         unless parent.nil?
           yield "  .tp_base = &#{self.class.type_object_name(parent)},"
@@ -666,7 +668,14 @@ module Wrapture
       yield ''
       @spec.classes.select(&:exception?).each do |item|
         snake_name = item.snake_case_name
-        yield "  #{snake_name}_exception = create_#{snake_name}_exception();"
+        var_name = "#{snake_name}_exception"
+        yield "  #{var_name} = create_#{snake_name}_exception();"
+        add_call = "PyModule_AddObject( m, \"#{item.name}\", #{var_name} )"
+        yield "  if( #{add_call} < 0 ){"
+        yield '    // TODO decref all others'
+        yield '    return NULL;'
+        yield '  }'
+        yield ''
       end
       yield '  return m;'
       yield '}'
@@ -703,7 +712,8 @@ module Wrapture
         define_exception_constructor(item) { |line| block.call(line) }
       end
 
-      @spec.classes.reject(&:exception?).each do |item|
+      # @spec.classes.reject(&:exception?).each do |item|
+      @spec.classes.each do |item|
         define_class_type_object(item) { |line| block.call(line) }
       end
 
@@ -783,6 +793,8 @@ module Wrapture
 
       yield "if( #{checks.join(' && ')} ){"
       yield "  #{action_expression(wrapped_func.error_action)};"
+      # TODO: the return should probably be part of the action expression
+      yield '  return NULL;'
       yield '}'
     end
 
@@ -960,7 +972,8 @@ module Wrapture
     # Passes lines of C code to the given block which executes PyType_Ready
     # on each type in the module.
     def scope_types_ready
-      @spec.classes.reject(&:exception?).each do |item|
+      @spec.classes.each do |item|
+        # @spec.classes.reject(&:exception?).each do |item|
         yield "if ( PyType_Ready( &#{item.snake_case_name}_type_object ) < 0){"
         yield '  return NULL;'
         yield '}'
