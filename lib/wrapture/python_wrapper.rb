@@ -166,18 +166,25 @@ module Wrapture
     private
 
     # A string containing the invocation of the given action.
-    def action_expression(action_spec)
-      return nil unless action_spec.value?
+    def action_block(class_spec, action_spec)
+      return unless action_spec.value?
 
-      # value_variable = if action_spec.value == RETURN_VALUE_KEYWORD
-      #                    'return_val'
-      #                  else
-      #                    action_spec.value
-      #                  end
+      exception_type = action_spec.type
+      exception_class = class_spec.scope.type(exception_type)
+      type_struct = self.class.type_struct_name(exception_class)
+      type_object = self.class.type_object_name(exception_class)
+      callable = "(PyObject *) &#{type_object}"
 
-      # type_object = self.class.type_object_name(action_spec.type)
-      # "PyErr_SetObject( #{action_spec.type.snake_case_name}_exception, NULL )"
-      "PyErr_SetString( #{action_spec.type.snake_case_name}_exception, \"dangit\" )"
+      yield 'PyObject *exception_instance;'
+      yield "#{type_struct} *real_self;"
+      yield ''
+      yield "exception_instance = PyObject_CallObject( #{callable}, NULL );"
+      self_cast = runtime_type_cast(exception_class, 'exception_instance')
+      yield "real_self = #{self_cast};"
+      this_struct = this_struct_pointer(exception_class, var_name: 'real_self')
+      yield "#{this_struct} = return_val;"
+      yield 'PyErr_SetRaisedException( exception_instance );'
+      yield 'return NULL;'
     end
 
     # Yields lines of C code to add the type object for the given class to this
@@ -197,7 +204,6 @@ module Wrapture
     def add_scope_type_objects(&block)
       previous_objects = ['m']
       @spec.classes.each do |item|
-        # @spec.classes.reject(&:exception?).each do |item|
         object_name = "&#{self.class.type_object_name(item)}"
         previous_objects << object_name
         add_class_type_object(item, decref: previous_objects.reverse) do |line|
@@ -210,6 +216,18 @@ module Wrapture
         snake_name = enum_spec.snake_case_name
         block.call("Py_DECREF( add_#{snake_name}_enum_to_module( m ) );")
       end
+      yield ''
+    end
+
+    # Get the name of the type object for the given class's base, if one exists.
+    def base_type_object(class_spec)
+      if class_spec.child? && class_spec.parent_spec
+        return "(&#{self.class.type_object_name(class_spec.parent_spec)})"
+      end
+
+      return '(( PyTypeObject *) PyExc_Exception)' if class_spec.exception?
+
+      nil
     end
 
     # Returns a cast of an instance of this class with the provided name to the
@@ -364,9 +382,9 @@ module Wrapture
 
       class_function_groups(class_spec).each do |func_group|
         if func_group.length == 1
-          define_function_wrapper(func_group[0], &block)
+          define_function_wrapper(class_spec, func_group[0], &block)
         else
-          define_function_group_wrapper(func_group, &block)
+          define_function_group_wrapper(class_spec, func_group, &block)
         end
         yield ''
       end
@@ -391,14 +409,8 @@ module Wrapture
       yield "  .tp_dealloc = ( destructor ) #{snake_name}_dealloc,"
       yield "  .tp_methods = #{snake_name}_methods,"
 
-      # if class_spec.exception?
-      #   yield '  .tp_base = Py_TYPE( PyExc_Exception ),'
-      # elsif class_spec.child?
-      if class_spec.child?
-        parent = class_spec.parent_spec
-        unless parent.nil?
-          yield "  .tp_base = &#{self.class.type_object_name(parent)},"
-        end
+      if base_type_object(class_spec) && !runtime_class?(class_spec)
+        yield "  .tp_base = #{base_type_object(class_spec)},"
       end
 
       yield "  .tp_members = #{snake_name}_members"
@@ -526,7 +538,7 @@ module Wrapture
 
     # Defines a function that determines which function in the provided group to
     # call based on the parameters, and then calls it in the python interpreter.
-    def define_function_group_wrapper(func_group, &block)
+    def define_function_group_wrapper(class_spec, func_group, &block)
       base_name = function_wrapper_name(func_group[0])
       no_args = nil
 
@@ -535,7 +547,7 @@ module Wrapture
 
         no_args = wrapper_name unless func_spec.params?
 
-        define_function_wrapper(func_spec, wrapper_name, &block)
+        define_function_wrapper(class_spec, func_spec, wrapper_name, &block)
         yield ''
       end
 
@@ -574,7 +586,7 @@ module Wrapture
     # Defines the function that the python interpreter will call for the given
     # function spec. If +name+ is provided it will be used as the name of the
     # function instead of deriving it from the spec.
-    def define_function_wrapper(func_spec, name = nil, &block)
+    def define_function_wrapper(class_spec, func_spec, name = nil, &block)
       name = function_wrapper_name(func_spec) if name.nil?
 
       owner_snake_name = func_spec.owner.snake_case_name
@@ -618,13 +630,17 @@ module Wrapture
             yield "  self->#{field_name} = #{field_value};"
           end
           yield ''
+        elsif runtime_class?(func_spec.owner)
+          self_cast = runtime_type_cast(func_spec.owner, 'runtime_self')
+          yield "  self = #{self_cast};"
         end
 
         wrapped_call(func_spec, &block)
         yield ''
 
         if func_spec.wrapped.error_check?
-          error_check(func_spec.wrapped, return_val: 'return_val') do |line|
+          error_check(class_spec, func_spec.wrapped,
+                      return_val: 'return_val') do |line|
             yield "  #{line}"
           end
           yield ''
@@ -665,18 +681,6 @@ module Wrapture
       yield '  }'
       yield ''
       add_scope_type_objects { |line| block.call("  #{line}") }
-      yield ''
-      @spec.classes.select(&:exception?).each do |item|
-        snake_name = item.snake_case_name
-        var_name = "#{snake_name}_exception"
-        yield "  #{var_name} = create_#{snake_name}_exception();"
-        add_call = "PyModule_AddObject( m, \"#{item.name}\", #{var_name} )"
-        yield "  if( #{add_call} < 0 ){"
-        yield '    // TODO decref all others'
-        yield '    return NULL;'
-        yield '  }'
-        yield ''
-      end
       yield '  return m;'
       yield '}'
     end
@@ -694,13 +698,11 @@ module Wrapture
 
       @spec.classes.each do |item|
         define_class_type_struct(item) { |line| block.call(line) }
+        yield ''
+        yield "static PyTypeObject #{self.class.type_object_name(item)};"
+        yield ''
       end
 
-      @spec.classes.select(&:exception?).each do |item|
-        snake_name = item.snake_case_name
-        yield "static PyObject * #{snake_name}_exception;"
-        yield "static PyTypeObject #{self.class.type_object_name(item)};"
-      end
       yield ''
 
       @spec.classes.select(&:factory?).each do |item|
@@ -708,11 +710,6 @@ module Wrapture
         yield ''
       end
 
-      @spec.classes.select(&:exception?).each do |item|
-        define_exception_constructor(item) { |line| block.call(line) }
-      end
-
-      # @spec.classes.reject(&:exception?).each do |item|
       @spec.classes.each do |item|
         define_class_type_object(item) { |line| block.call(line) }
       end
@@ -783,8 +780,8 @@ module Wrapture
     #
     # +return_val+ is used as the replacement for a return value signified by
     # the use of RETURN_VALUE_KEYWORD in the spec. If not specified it defaults
-    # to +'return_val'+. This parameter was added in release 0.4.2.
-    def error_check(wrapped_func, return_val: 'return_val')
+    # to +'return_val'+.
+    def error_check(class_spec, wrapped_func, return_val: 'return_val')
       return unless wrapped_func.error_check?
 
       checks = wrapped_func.error_rules.map do |rule|
@@ -792,9 +789,9 @@ module Wrapture
       end
 
       yield "if( #{checks.join(' && ')} ){"
-      yield "  #{action_expression(wrapped_func.error_action)};"
-      # TODO: the return should probably be part of the action expression
-      yield '  return NULL;'
+      action_block(class_spec, wrapped_func.error_action) do |line|
+        yield "  #{line}"
+      end
       yield '}'
     end
 
@@ -828,7 +825,7 @@ module Wrapture
 
     # Yields a declaration of each local variable used by the function.
     def function_locals(func_spec, &block)
-      if func_spec.constructor?
+      if func_spec.constructor? || runtime_class?(func_spec.owner)
         owner_snake_name = func_spec.owner.snake_case_name
         type_struct_name = "#{owner_snake_name}_type_struct"
         yield "#{type_struct_name} *self;"
@@ -893,7 +890,11 @@ module Wrapture
         params << 'PyObject *args'
         params << 'PyObject *kwds'
       else
-        params << "#{type_struct_name} *self"
+        params << if runtime_class?(func_spec.owner)
+                    'void *runtime_self'
+                  else
+                    "#{type_struct_name} *self"
+                  end
 
         params << if func_spec.params.empty?
                     'PyObject *Py_UNUSED( ignored )'
@@ -969,11 +970,35 @@ module Wrapture
       end
     end
 
+    # True if some aspects of the class need to be defined at runtime.
+    #
+    # Exception classes are one example of this case, as the Exception class and
+    # its associated type information is not available until runtime.
+    def runtime_class?(class_spec)
+      class_spec.exception?
+    end
+
+    # A cast of a runtime type to the class type struct.
+    def runtime_type_cast(class_spec, var_name)
+      type_struct_name = self.class.type_struct_name(class_spec)
+      type_object = base_type_object(class_spec)
+      real_self = "((intptr_t)#{var_name}) + #{type_object}->tp_basicsize"
+      "( #{type_struct_name} * )( #{real_self} )"
+    end
+
     # Passes lines of C code to the given block which executes PyType_Ready
     # on each type in the module.
     def scope_types_ready
       @spec.classes.each do |item|
-        # @spec.classes.reject(&:exception?).each do |item|
+        type_object = "#{item.snake_case_name}_type_object"
+
+        if runtime_class?(item)
+          yield "#{type_object}.tp_base = #{base_type_object(item)};"
+          base_size = "#{base_type_object(item)}->tp_basicsize"
+          self_size = "sizeof( #{self.class.type_struct_name(item)}"
+          yield "#{type_object}.tp_basicsize =  #{base_size}+ #{self_size} );"
+        end
+
         yield "if ( PyType_Ready( &#{item.snake_case_name}_type_object ) < 0){"
         yield '  return NULL;'
         yield '}'
