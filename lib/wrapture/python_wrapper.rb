@@ -139,7 +139,7 @@ module Wrapture
           ]
 
           [build-system]
-          requires = ["setuptools"]
+          requires = ["setuptools>=74.1"]
           build-backend = "setuptools.build_meta"
         PYPROJECTTEXT
       end
