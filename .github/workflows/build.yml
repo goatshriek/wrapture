@@ -60,7 +60,7 @@ jobs:
         with:
           python-version: '3.12'
       - name: Install Prereqs
-        run: pip3 install setuptools
+        run: pip3 install build setuptools
       - name: Run Python Tests
         run: bundle exec rake test:python
       - name: Run Python Examples
