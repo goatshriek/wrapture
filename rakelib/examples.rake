@@ -46,11 +46,12 @@ end
 
 def run_python_example(name, lib, sources, build_dir)
   example_dir = File.absolute_path("docs/examples/#{name}")
+  load_dir = File.absolute_path(build_dir)
 
   scope = Wrapture::Scope.load_files("#{example_dir}/#{lib}.yml")
   wrapper = Wrapture::PythonWrapper.new(scope)
   wrapper.write_source_files(dir: build_dir)
-  wrapper.write_setuptools_files(dir: build_dir)
+  wrapper.write_pyproject_files(dir: build_dir)
 
   Dir.chdir(build_dir) do
     if sources
@@ -58,10 +59,12 @@ def run_python_example(name, lib, sources, build_dir)
       source_files = sources.map { |s| "#{example_dir}/#{s}" }.join(' ')
       sh "gcc #{source_files} #{source_opts}"
     end
-    setup_command = 'python3 setup.py build_ext'
-    sh "#{setup_command} --include-dirs #{example_dir} --build-lib ."
-    envs = 'LD_LIBRARY_PATH=. PYTHONPATH=.'
-    sh "#{envs} python3 #{example_dir}/#{lib}_usage.py"
+    cflags = "-I#{example_dir} -L#{load_dir}"
+    sh "CFLAGS=\"#{cflags}\" python3 -m build --wheel"
+    sh 'python3 -m venv usage-env'
+    sh 'usage-env/bin/python3 -m pip install dist/*.whl'
+    envs = 'LD_LIBRARY_PATH=.'
+    sh "#{envs} usage-env/bin/python3 #{example_dir}/#{lib}_usage.py"
   end
 end
 
