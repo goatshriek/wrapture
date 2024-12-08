@@ -51,6 +51,12 @@ module Wrapture
       spec
     end
 
+    # The error action for the wrapped function.
+    attr_reader :error_action
+
+    # The list of error rules for the wrapped function.
+    attr_reader :error_rules
+
     # Creates a wrapped function spec based on the provided spec.
     #
     # The hash must have the following keys:
@@ -98,14 +104,14 @@ module Wrapture
     # +return_val+ is used as the replacement for a return value signified by
     # the use of RETURN_VALUE_KEYWORD in the spec. If not specified it defaults
     # to +'return_val'+. This parameter was added in release 0.4.2.
-    def error_check(return_val: 'return_val')
-      return if @error_rules.empty?
+    # def error_check(return_val: 'return_val')
+    #   return if @error_rules.empty?
 
-      checks = @error_rules.map { |rule| rule.check(return_val: return_val) }
-      yield "if( #{checks.join(' && ')} ){"
-      yield "  #{@error_action.take};"
-      yield '}'
-    end
+    #   checks = @error_rules.map { |rule| rule.check(return_val: return_val) }
+    #   yield "if( #{checks.join(' && ')} ){"
+    #   yield "  #{@error_action.take};"
+    #   yield '}'
+    # end
 
     # True if the wrapped function has an error check associated with it.
     def error_check?

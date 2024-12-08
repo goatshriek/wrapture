@@ -17,10 +17,8 @@ constructors:
             right-expression: "NULL"
         error-action:
           name: "throw-exception"
-          constructor:
-            name: "throwMyException"
-            params:
-              - value: "name"
+          type: "throwMyException"
+          value: "name"
 destructor:
   wrapped-function:
     name: "wrapped_destructor"

@@ -10,7 +10,5 @@ wrapped-function:
         right-expression: "0"
     error-action:
       name: "throw-exception"
-      constructor:
-        name: "CodeException"
-        params:
-          - value: "return-value"
+      type: "CodeException"
+      value: "return-value"

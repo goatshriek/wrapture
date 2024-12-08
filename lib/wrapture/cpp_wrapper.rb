@@ -65,8 +65,12 @@ module Wrapture
     # if the class has ancestors. If not or if this wrapper is not for a class,
     # an empty string is returned instead.
     def ancestor_suffix
-      if @spec.is_a?(ClassSpec) && @spec.child?
+      return '' unless @spec.is_a?(ClassSpec)
+
+      if @spec.child?
         ": public #{@spec.parent_name}"
+      elsif @spec.exception?
+        ': public std::exception'
       else
         ''
       end
@@ -271,6 +275,18 @@ module Wrapture
     end
 
     private
+
+    # A string containing the invocation of the given action.
+    def action_expression(action_spec)
+      return nil unless action_spec.value?
+
+      value_variable = if action_spec.value == RETURN_VALUE_KEYWORD
+                         'return_val'
+                       else
+                         action_spec.value
+                       end
+      "throw #{action_spec.type}( #{value_variable} )"
+    end
 
     # True if this class should have a pointer constructor generated.
     def autogen_pointer_constructor?
@@ -530,7 +546,7 @@ module Wrapture
 
       if @spec.wrapped.error_check?
         yield ''
-        @spec.wrapped.error_check(return_val: return_variable) do |line|
+        error_check(@spec.wrapped, return_val: return_variable) do |line|
           yield "  #{line}"
         end
       end
@@ -546,12 +562,20 @@ module Wrapture
     def definition_includes
       includes = @spec.definition_includes
       includes.concat(common_includes(@spec))
+      scope = @spec.scope
 
-      @spec.scope.overloads(@spec).map do |overload|
+      scope.overloads(@spec).map do |overload|
         includes.append("#{overload.name}.hpp")
       end
 
-      includes
+      @spec.functions.each do |func_spec|
+        next unless func_spec.wrapped.error_check?
+
+        error_type = func_spec.wrapped.error_action.type
+        includes.append("#{error_type.name}.hpp") if scope.type?(error_type)
+      end
+
+      includes.uniq
     end
 
     # The definition of an enum element.
@@ -584,6 +608,25 @@ module Wrapture
       "this->equivalent#{@spec.pointer_wrapper? ? '->' : '.'}#{field_name}"
     end
 
+    # Yields each line of the error check and any actions taken for the given
+    # wrapped function. If this function does not have any error check defined,
+    # then this function returns without yielding anything.
+    #
+    # +return_val+ is used as the replacement for a return value signified by
+    # the use of RETURN_VALUE_KEYWORD in the spec. If not specified it defaults
+    # to +'return_val'+. This parameter was added in release 0.4.2.
+    def error_check(wrapped_func, return_val: 'return_val')
+      return unless wrapped_func.error_check?
+
+      checks = wrapped_func.error_rules.map do |rule|
+        rule.check(return_val: return_val)
+      end
+
+      yield "if( #{checks.join(' && ')} ){"
+      yield "  #{action_expression(wrapped_func.error_action)};"
+      yield '}'
+    end
+
     # A spec hash for a factory constructor for this class.
     #
     # A factory constructor creates an instance of a class based on a struct
@@ -608,6 +651,13 @@ module Wrapture
                        'type' => 'equivalent-struct-pointer' }],
         'wrapped-code' => { 'lines' => factory_lines },
         'return' => { 'type' => "#{@spec.name} *" } }
+    end
+
+    # True if the return value of the function's wrapped call is saved.
+    def function_captures_return?(func_spec)
+      !func_spec.constructor? &&
+        (func_spec.wrapped.use_return? ||
+         function_returns_return_val?(func_spec))
     end
 
     # The parameter list for the function declaration.
@@ -670,10 +720,26 @@ module Wrapture
     def function_locals(spec)
       yield 'va_list variadic_args;' if spec.variadic?
 
-      if spec.capture_return?
+      if function_captures_return?(spec)
         wrapped_type = spec.resolve_type(spec.wrapped.return_val_type)
         yield "#{type_variable(wrapped_type, 'return_val')};"
       end
+    end
+
+    # True if the function returns the result of the wrapped function call
+    # directly without any after actions.
+    def function_returns_call_directly?(func_spec)
+      !func_spec.constructor? &&
+        !func_spec.destructor? &&
+        !%w[void self-reference].include?(func_spec.return_type.name) &&
+        !func_spec.wrapped.error_check?
+    end
+
+    # True if the function returns the return_val variable.
+    def function_returns_return_val?(func_spec)
+      !func_spec.return_type.self_reference? &&
+        !func_spec.void_return? &&
+        !function_returns_call_directly?(func_spec)
     end
 
     # The suffix to add to a function definition for initializers, if any exist.
@@ -780,7 +846,8 @@ module Wrapture
     def return_statement
       if @spec.return_type.self_reference?
         'return *this;'
-      elsif @spec.return_type.name != 'void' && !@spec.returns_call_directly?
+      elsif @spec.return_type.name != 'void' &&
+            !function_returns_call_directly?(@spec)
         'return return_val;'
       else
         ''
@@ -839,7 +906,7 @@ module Wrapture
         "this->equivalent = #{call}"
       elsif @spec.wrapped.error_check?
         "return_val = #{call}"
-      elsif @spec.returns_call_directly?
+      elsif function_returns_call_directly?(@spec)
         "return #{return_cast(call)}"
       else
         call

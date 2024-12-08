@@ -1,14 +1,17 @@
 module Wrapture
   class WrappedFunctionSpec
     @spec: spec_hash
-    @error_rules: untyped
-    @error_action: untyped
+    @error_action: (Wrapture::ActionSpec | nil)
+    @error_rules: Array[Wrapture::RuleSpec]
 
     def self.normalize_spec_hash: (spec_hash spec) -> spec_hash
     def self.normalize_spec_hash!: (spec_hash spec) -> spec_hash
-    def initialize: (untyped spec) -> void
+
+    attr_reader error_action: (Wrapture::ActionSpec | nil)
+    attr_reader error_rules: Array[Wrapture::RuleSpec]
+
+    def initialize: (spec_hash spec) -> void
     def call_from: (Wrapture::CppWrapper | Wrapture::PythonWrapper) -> String
-    def error_check: (?return_val: String)  { (String) -> void } -> void
     def error_check?: -> bool
     def includes: -> Array[String]
     def libraries: -> Array[String]

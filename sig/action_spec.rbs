@@ -1,11 +1,12 @@
 module Wrapture
   class ActionSpec
-    def self.normalize_spec_hash: (Hash[String, untyped] spec) -> untyped
+    def self.normalize_spec_hash: (spec_hash spec) -> spec_hash
 
-    def initialize: (Hash[String, untyped] spec) -> void
+    def initialize: (spec_hash spec) -> void
 
     def includes: () -> Array[String]
-
-    def take: () -> ::String
+    def type: () -> Wrapture::TypeSpec
+    def value: () -> String
+    def value?: () -> bool
   end
 end

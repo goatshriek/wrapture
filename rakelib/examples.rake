@@ -16,7 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-def run_cpp_example(name, lib, source, build_dir)
+def run_cpp_example(name, lib, sources, build_dir)
   example_dir = File.absolute_path("docs/examples/#{name}")
 
   scope = Wrapture::Scope.load_files("#{example_dir}/#{lib}.yml")
@@ -27,9 +27,10 @@ def run_cpp_example(name, lib, source, build_dir)
   Dir.chdir(build_dir) do
     usage_opts = "-I. -I#{example_dir} -o #{lib}_usage_cpp"
 
-    if source
+    if sources
       source_opts = "-shared -o lib#{lib}.so -fPIC -I#{example_dir}"
-      sh "gcc #{example_dir}/#{source} #{source_opts}"
+      source_files = sources.map { |s| "#{example_dir}/#{s}" }.join(' ')
+      sh "gcc #{source_files} #{source_opts}"
       usage_opts += " -L. -l#{scope.name} -l#{lib}"
 
       include_cmd = "include_directories(\".\" \"#{example_dir}\")"
@@ -43,36 +44,42 @@ def run_cpp_example(name, lib, source, build_dir)
   end
 end
 
-def run_python_example(name, lib, source, build_dir)
+def run_python_example(name, lib, sources, build_dir)
   example_dir = File.absolute_path("docs/examples/#{name}")
+  load_dir = File.absolute_path(build_dir)
 
   scope = Wrapture::Scope.load_files("#{example_dir}/#{lib}.yml")
   wrapper = Wrapture::PythonWrapper.new(scope)
   wrapper.write_source_files(dir: build_dir)
-  wrapper.write_setuptools_files(dir: build_dir)
+  wrapper.write_pyproject_files(dir: build_dir)
 
   Dir.chdir(build_dir) do
-    if source
+    if sources
       source_opts = "-shared -o lib#{lib}.so -fPIC -I#{example_dir}"
-      sh "gcc #{example_dir}/#{source} #{source_opts}"
+      source_files = sources.map { |s| "#{example_dir}/#{s}" }.join(' ')
+      sh "gcc #{source_files} #{source_opts}"
     end
-    setup_command = 'python3 setup.py build_ext'
-    sh "#{setup_command} --include-dirs #{example_dir} --build-lib ."
-    envs = 'LD_LIBRARY_PATH=. PYTHONPATH=.'
-    sh "#{envs} python3 #{example_dir}/#{lib}_usage.py"
+    cflags = "-I#{example_dir} -L#{load_dir}"
+    sh "CFLAGS=\"#{cflags}\" python3 -m build --wheel"
+    sh 'python3 -m venv usage-env'
+    sh 'usage-env/bin/python3 -m pip install dist/*.whl'
+    envs = 'LD_LIBRARY_PATH=.'
+    sh "#{envs} usage-env/bin/python3 #{example_dir}/#{lib}_usage.py"
   end
 end
 
-examples = [{ name: 'basic', lib: 'stove', source: 'stove.c' },
-            { name: 'constants', lib: 'vcr', source: 'vcr.c' },
-            { name: 'enumerations', lib: 'fruit', source: nil },
-            { name: 'inheritance', lib: 'mylib', source: 'mylib.c' },
-            { name: 'nested_structs', lib: 'fridge', source: 'fridge.c' },
+examples = [{ name: 'basic', lib: 'stove', sources: ['stove.c'] },
+            { name: 'constants', lib: 'vcr', sources: ['vcr.c'] },
+            { name: 'enumerations', lib: 'fruit', sources: nil },
+            { name: 'exceptions', lib: 'turret',
+              sources: ['turret.c', 'turret_error.c'] },
+            { name: 'inheritance', lib: 'mylib', sources: ['mylib.c'] },
+            { name: 'nested_structs', lib: 'fridge', sources: ['fridge.c'] },
             { name: 'overloaded_struct',
               lib: 'security_system',
-              source: 'security_system.c' },
-            { name: 'struct_wrapper', lib: 'stats', source: 'stats.c' },
-            { name: 'templates', lib: 'magic_math', source: 'magic_math.c' }]
+              sources: ['security_system.c'] },
+            { name: 'struct_wrapper', lib: 'stats', sources: ['stats.c'] },
+            { name: 'templates', lib: 'magic_math', sources: ['magic_math.c'] }]
 
 namespace 'examples' do
   examples.each do |ex|
@@ -85,7 +92,7 @@ namespace 'examples' do
 
       desc 'build and run basic example for C++'
       task cpp: [cpp_build_dir] do
-        run_cpp_example(ex[:name], ex[:lib], ex[:source], cpp_build_dir)
+        run_cpp_example(ex[:name], ex[:lib], ex[:sources], cpp_build_dir)
       end
 
       python_build_dir = "#{build_root}/python"
@@ -93,7 +100,7 @@ namespace 'examples' do
 
       desc 'build and run basic example for python'
       task python: [python_build_dir] do
-        run_python_example(ex[:name], ex[:lib], ex[:source], python_build_dir)
+        run_python_example(ex[:name], ex[:lib], ex[:sources], python_build_dir)
       end
     end
   end

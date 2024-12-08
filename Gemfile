@@ -22,12 +22,13 @@ gemspec
 
 group :development do
   gem 'bundler', '>= 1.6.4'
-  gem 'rake', '>= 0.9.2'
+  gem 'rbs'
   gem 'rdoc', '>= 6.6.3.1' # minimum to address CVE-2024-27281
 end
 
 group :test do
   gem 'minitest', '>= 5.9'
+  gem 'rake', '>= 0.9.2'
   gem 'rexml', '>= 3.3.2' # included explicitly to address CVE-2024-39908
   gem 'rubocop', '>= 0.69', require: false
   gem 'rubocop-minitest', require: false

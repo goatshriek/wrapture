@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-# Copyright 2020 Joel E. Anderson
+# Copyright 2020-2024 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ version: "0.3.0"
 classes:
   - name: "Turret"
     namespace: "defense_turret"
+    libraries: "turret"
     equivalent-struct:
       name: "turret"
       includes: "turret.h"
@@ -58,11 +59,8 @@ classes:
                 right-expression: "success()"
             error-action:
               name: "throw-exception"
-              constructor:
-                name: "TargetingException"
-                includes: "TargetingException.hpp"
-                params:
-                  - value: "return-value"
+              type: "TargetingException"
+              value: "return-value"
       - name: "AmmoCount"
         return:
           type: "int"
@@ -84,11 +82,8 @@ classes:
                 right-expression: "success()"
             error-action:
               name: "throw-exception"
-              constructor:
-                name: "TurretException::newTurretException"
-                includes: "TurretException.hpp"
-                params:
-                  - value: "return-value"
+              type: "TurretException"
+              value: "return-value"
       - name: "Reload"
         wrapped-function:
           name: "reload"
@@ -99,6 +94,7 @@ classes:
     parent:
       name: "std::exception"
       includes: "exception"
+    exception: true
     equivalent-struct:
       name: "turret_error"
       includes: "turret_error.h"
@@ -124,7 +120,7 @@ classes:
     type: "pointer"
     parent:
       name: "TurretException"
-      includes: "TurretException.hpp"
+    exception: true
     equivalent-struct:
       name: "turret_error"
       includes: "turret_error.h"
@@ -148,7 +144,7 @@ classes:
     type: "pointer"
     parent:
       name: "TurretException"
-      includes: "TurretException.hpp"
+    exception: true
     equivalent-struct:
       name: "turret_error"
       includes: "turret_error.h"
@@ -172,7 +168,7 @@ classes:
     type: "pointer"
     parent:
       name: "TurretException"
-      includes: "TurretException.hpp"
+    exception: true
     equivalent-struct:
       name: "turret_error"
       includes: "turret_error.h"

@@ -1,22 +1,25 @@
 module Wrapture
   class PythonWrapper
-    def self.type_object_name: ( Wrapture::Named class_spec ) -> String
-    def self.type_struct_name: ( Wrapture::Named class_spec ) -> String
-    def self.write_spec_setuptools_files: ((Wrapture::ClassSpec | Wrapture::EnumSpec | Wrapture::FunctionSpec | Wrapture::Scope), ?String dir) -> Array[String]
+    def self.type_object_name: (Wrapture::Named class_spec) -> String
+    def self.type_struct_name: (Wrapture::Named class_spec) -> String
+    def self.write_spec_pyproject_files: ((Wrapture::ClassSpec | Wrapture::EnumSpec | Wrapture::FunctionSpec | Wrapture::Scope), ?String dir) -> Array[String]
     def self.write_spec_source_files: ((Wrapture::ClassSpec | Wrapture::EnumSpec | Wrapture::FunctionSpec | Wrapture::Scope), ?String dir) -> Array[String]
 
     def initialize: (Wrapture::ClassSpec | Wrapture::EnumSpec | Wrapture::FunctionSpec | Wrapture::Scope) -> void
     def resolve_param: (Wrapture::ParamSpec) -> String
-    def write_setuptools_files: (?String dir) -> Array[String]
+    def write_pyproject_files: (?String dir) -> Array[String]
     def write_source_files: (?String dir) -> Array[String]
 
     private
+    def action_block: (Wrapture::ClassSpec, Wrapture::ActionSpec) { (String) -> void } -> void
     def add_class_type_object: (Wrapture::ClassSpec, ?Array[String]) { (String) -> void } -> void
     def add_scope_type_objects: { (String) -> void } -> void
+    def base_type_object: (Wrapture::ClassSpec) -> String?
     def cast: (Wrapture::ClassSpec class_spec, String var_name, String to) -> String
     def castable?: (spec_hash wrapped_param) -> bool
     def class_functions: (Wrapture::ClassSpec) -> Array[Wrapture::FunctionSpec]
     def class_function_groups: (Wrapture::ClassSpec) -> Array[Array[Wrapture::FunctionSpec]]
+    def class_module_name: (Wrapture::ClassSpec) -> String
     def create_python_object: (Wrapture::TypeSpec, String) -> String
     def declare_factory_constructor: (Wrapture::ClassSpec) { (String) -> void } -> void
     def default_constructor: (Wrapture::ClassSpec) -> Wrapture::FunctionSpec
@@ -26,13 +29,15 @@ module Wrapture
     def define_class_type_objects: { (String) -> void } -> void
     def define_class_type_struct: (Wrapture::ClassSpec) { (String) -> void } -> void
     def define_enum_constructor: (Wrapture::EnumSpec) { (String) -> void } -> void
+    def define_exception_constructor: (Wrapture::ClassSpec) { (String) -> void } -> void
+    def define_factory_constructor: (Wrapture::ClassSpec) { (String) -> void } -> void
     def define_function_arg_parser: (Wrapture::FunctionSpec) { (String) -> void } -> void
-    def define_function_group_wrapper: (Array[Wrapture::FunctionSpec]) { (String) -> void } -> void
-    def define_function_wrapper: (Wrapture::FunctionSpec) { (String) -> void } -> void
+    def define_function_group_wrapper: (Wrapture::ClassSpec, Array[Wrapture::FunctionSpec]) { (String) -> void } -> void
+    def define_function_wrapper: (Wrapture::ClassSpec, Wrapture::FunctionSpec) { (String) -> void } -> void
     def define_module: { (String) -> void } -> void
     def define_scope_type_objects: { (String) -> void } -> void
     def equivalent_member_declaration: -> String
-    def define_factory_constructor: (Wrapture::ClassSpec) { (String) -> void } -> void
+    def error_check: (Wrapture::ClassSpec, Wrapture::WrappedFunctionSpec, ?return_val: String)  { (String) -> void } -> void
     def function_args_format: (Wrapture::FunctionSpec) -> String
     def function_flags: (Wrapture::FunctionSpec) -> String
     def function_locals: (Wrapture::FunctionSpec) { (String) -> void } -> void
@@ -44,6 +49,8 @@ module Wrapture
     def member_type: (Wrapture::TypeSpec) -> String
     def param_format: (Wrapture::FunctionSpec, Wrapture::ParamSpec) -> String
     def return_statement: (Wrapture::FunctionSpec) -> String
+    def runtime_class?: (Wrapture::ClassSpec) -> bool
+    def runtime_type_cast: (Wrapture::ClassSpec, String) -> String
     def scope_types_ready: { (String) -> void } -> void
     def this_struct: (Wrapture::ClassSpec, ?String) -> String
     def this_struct_pointer: (Wrapture::ClassSpec, ?String) -> String

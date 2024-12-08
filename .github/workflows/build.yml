@@ -16,12 +16,12 @@ jobs:
     name: ruby ${{ matrix.ruby }}
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-      - uses: ruby/setup-ruby@b256bd96bb4867e7d23e92e087d9bb697270b725 # v1.163.0
+      - uses: ruby/setup-ruby@a2bbe5b1b236842c1cb7dd11e8e3b51e0a616acc # v1.202.0
         with:
           ruby-version: ${{ matrix.ruby }}
       - name: Install Dependencies
         run: |
-          bundle install
+          bundle install --without development
       - name: Run Tests
         run: bundle exec rake test
       - name: Upload to Codecov
@@ -39,11 +39,11 @@ jobs:
     name: c++ runtime tests
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-      - uses: ruby/setup-ruby@b256bd96bb4867e7d23e92e087d9bb697270b725 # v1.163.0
+      - uses: ruby/setup-ruby@a2bbe5b1b236842c1cb7dd11e8e3b51e0a616acc # v1.202.0
         with:
           ruby-version: '3.2'
       - name: Install Ruby Dependencies
-        run: bundle install
+        run: bundle install --without development
       - name: Run C++ Examples
         run: bundle exec rake examples:cpp
   python:
@@ -51,16 +51,16 @@ jobs:
     name: python runtime tests
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-      - uses: ruby/setup-ruby@b256bd96bb4867e7d23e92e087d9bb697270b725 # v1.163.0
+      - uses: ruby/setup-ruby@a2bbe5b1b236842c1cb7dd11e8e3b51e0a616acc # v1.202.0
         with:
           ruby-version: '3.3'
       - name: Install Ruby Dependencies
-        run: bundle install
+        run: bundle install --without development
       - uses: actions/setup-python@0a5c61591373683505ea898e09a3ea4f39ef2b9c # v5.0.0
         with:
           python-version: '3.12'
       - name: Install Prereqs
-        run: pip3 install setuptools
+        run: pip3 install build setuptools
       - name: Run Python Tests
         run: bundle exec rake test:python
       - name: Run Python Examples
@@ -91,7 +91,7 @@ jobs:
     name: ruby analysis
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-      - uses: ruby/setup-ruby@b256bd96bb4867e7d23e92e087d9bb697270b725 # v1.163.0
+      - uses: ruby/setup-ruby@a2bbe5b1b236842c1cb7dd11e8e3b51e0a616acc # v1.202.0
         with:
           ruby-version: '3.3'
       - name: Install Dependencies

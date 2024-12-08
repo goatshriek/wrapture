@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2020 Joel E. Anderson
+# Copyright 2020-2024 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -26,7 +26,14 @@ module Wrapture
     def self.normalize_spec_hash(spec)
       normalized = spec.dup
 
-      required_keys = %w[name constructor]
+      required_keys = %w[name type]
+      optional_keys = %w[value wrapped-function]
+
+      extra_keys = spec.keys - required_keys - optional_keys
+      unless extra_keys.empty?
+        extra_msg = "these keys are unrecognized: #{extra_keys.join(', ')}"
+        raise(InvalidSpecKey, extra_msg)
+      end
 
       missing_keys = required_keys - spec.keys
       unless missing_keys.empty?
@@ -34,14 +41,15 @@ module Wrapture
         raise(MissingSpecKey, missing_msg)
       end
 
-      extra_keys = spec.keys - required_keys
-      unless extra_keys.empty?
-        extra_msg = "these keys are unrecognized: #{extra_keys.join(', ')}"
-        raise(InvalidSpecKey, extra_msg)
+      if spec.include?('wrapped-function') && spec.include?('value')
+        extra_msg = 'wrapped-function and value cannot both be present'
+        raise(KeyConflict, extra_msg)
       end
 
-      func_spec = WrappedFunctionSpec.normalize_spec_hash(spec['constructor'])
-      normalized['constructor'] = func_spec
+      if spec.include?('wrapped-function')
+        wrap = WrappedFunctionSpec.normalize_spec_hash(spec['wrapped-function'])
+        normalized['wrapped-function'] = wrap
+      end
 
       normalized
     end
@@ -51,30 +59,40 @@ module Wrapture
     # The hash must have the following keys:
     # name:: the type of action to take (currently only throw-exception is
     # supported)
-    # constructor:: the function to use to create the exception, described as a
-    # wrapped function call
+    # type:: the type of the exception thrown
+    #
+    # One of these two keys may be present, but not both:
+    # value:: the value to use to create the exception
+    # wrapped-function:: a function to use to create the exception, described
+    # as a wrapped function call. If the name of the constructor is left out,
+    # then the wrapped function is assumed to be a constructor for the provided
+    # type.
     def initialize(spec)
       @spec = ActionSpec.normalize_spec_hash(spec)
     end
 
     # A list of includes needed for the action.
     def includes
-      @spec['constructor']['includes'].dup
+      if @spec.include?('wrapped-function')
+        @spec['wrapped-function']['includes'].dup
+      else
+        []
+      end
     end
 
-    # A string containing the invocation of this action.
-    def take
-      call_spec = @spec['constructor']
+    # The type of exception.
+    def type
+      TypeSpec.new(@spec['type'])
+    end
 
-      params = call_spec['params'].map do |param_spec|
-        if param_spec['value'] == RETURN_VALUE_KEYWORD
-          'return_val'
-        else
-          param_spec['value']
-        end
-      end
+    # The value of the action, if one is set.
+    def value
+      @spec.fetch('value', nil)
+    end
 
-      "throw #{call_spec['name']}( #{params.join(', ')} )"
+    # True if this spec has a value defined.
+    def value?
+      @spec.include?('value')
     end
   end
 end

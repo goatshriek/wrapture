@@ -24,6 +24,7 @@ module Wrapture
     def destructor: -> Wrapture::FunctionSpec
     def documentation: { (String) -> void } -> void
     def equivalent_member?: -> bool
+    def exception?: -> bool
     def factory?: -> bool
     def libraries: -> Array[String]
     def method_specs: -> Array[Wrapture::FunctionSpec]

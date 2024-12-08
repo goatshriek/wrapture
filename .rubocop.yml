@@ -13,19 +13,19 @@ Metrics/AbcSize:
   Max: 60
 
 Metrics/ClassLength:
-  Max: 700
+  Max: 800
 
 Metrics/BlockLength:
   Max: 50
 
 Metrics/CyclomaticComplexity:
-  Max: 9
+  Max: 15
 
 Metrics/MethodLength:
   Max: 55
 
 Metrics/PerceivedComplexity:
-  Max: 10
+  Max: 15
 
 Minitest/AssertWithExpectedArgument:
   Enabled: false

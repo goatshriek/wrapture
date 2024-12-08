@@ -16,7 +16,7 @@ module Wrapture
     def includes: -> untyped
     def name: -> String
     def pointer?: -> bool
-    def resolve: (untyped owner) -> Wrapture::TypeSpec
+    def resolve: (Wrapture::FunctionSpec owner) -> Wrapture::TypeSpec
     def self_reference?: -> bool
     def to_s: -> String
     def variadic?: -> bool

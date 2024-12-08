@@ -19,7 +19,6 @@ module Wrapture
     attr_reader wrapped: Wrapture::WrappedFunctionSpec | Wrapture::WrappedCodeSpec | nil
 
     def initialize: (spec_hash spec, ?(Wrapture::ClassSpec | Wrapture::Scope) owner, ?constructor: bool, ?destructor: bool) -> void
-    def capture_return?: -> bool
     def constructor?: -> bool
     def declaration_includes: -> Array[String]
     def definable?: -> bool
@@ -38,9 +37,8 @@ module Wrapture
     def resolved_return: -> Wrapture::TypeSpec
     def return_expression: (?func_name: String) -> String
     def static?: -> bool
-    def resolve_type: (untyped type_) -> untyped
+    def resolve_type: (Wrapture::TypeSpec type_spec) -> Wrapture::TypeSpec
     def return_overloaded?: -> bool
-    def returns_call_directly?: -> bool
     def variadic?: -> bool
     def virtual?: -> bool
     def void_return?: -> bool

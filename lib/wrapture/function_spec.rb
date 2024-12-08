@@ -164,11 +164,6 @@ module Wrapture
     # A WrappedFunctionSpec or WrappedCodeSpec this .
     attr_reader :wrapped
 
-    # True if the return value of the wrapped call is saved.
-    def capture_return?
-      !@constructor && (@wrapped.use_return? || returns_return_val?)
-    end
-
     # True if the function is a constructor, false otherwise.
     def constructor?
       @constructor
@@ -254,11 +249,6 @@ module Wrapture
       @params.select(&:default_value?)
     end
 
-    # A string with the parameter list for this function.
-    # def param_list
-    #   ParamSpec.signature(@params, self)
-    # end
-
     # An array of the names of the function params.
     def param_names
       @params.map(&:name)
@@ -277,15 +267,15 @@ module Wrapture
     # A resolved type, given a TypeSpec +type+. Resolved types will not have any
     # placeholders like +equivalent-struct+, which will be resolved to their
     # effective type.
-    def resolve_type(type)
-      if type.equivalent_struct?
+    def resolve_type(type_spec)
+      if type_spec.equivalent_struct?
         TypeSpec.new("struct #{@owner.struct_name}")
-      elsif type.equivalent_pointer?
+      elsif type_spec.equivalent_pointer?
         TypeSpec.new("struct #{@owner.struct_name} *")
-      elsif type.self_reference?
+      elsif type_spec.self_reference?
         TypeSpec.new("#{@owner.name}&")
       else
-        type
+        type_spec
       end
     end
 
@@ -309,15 +299,6 @@ module Wrapture
       @spec['return']['overloaded']
     end
 
-    # True if the function returns the result of the wrapped function call
-    # directly without any after actions.
-    def returns_call_directly?
-      !@constructor &&
-        !@destructor &&
-        !%w[void self-reference].include?(@spec['return']['type']) &&
-        !@wrapped.error_check?
-    end
-
     # True if the function is static.
     def static?
       @spec['static']
@@ -336,15 +317,6 @@ module Wrapture
     # True if the function has a void return type.
     def void_return?
       @return_type.name == 'void'
-    end
-
-    private
-
-    # True if the function returns the return_val variable.
-    def returns_return_val?
-      !@return_type.self_reference? &&
-        @spec['return']['type'] != 'void' &&
-        !returns_call_directly?
     end
   end
 end

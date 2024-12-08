@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2019-2023 Joel E. Anderson
+# Copyright 2019-2024 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -92,6 +92,12 @@ module Wrapture
         spec['parent']['includes'] = includes
       end
 
+      spec['exception'] = if spec.key?('exception') && spec['exception']
+                            true
+                          else
+                            false
+                          end
+
       spec
     end
 
@@ -124,7 +130,8 @@ module Wrapture
     # constants:: A list of constant specs that are in this class.
     # constructors:: A list of function specs that can create this class.
     # destructor:: A function spec for the destructor of the class.
-    # doc:: a string containing the documentation for this class
+    # doc:: A string containing the documentation for this class.
+    # exception:: If set to true, this will be made an exception class.
     # functions:: A list of function specs that are in this class.
     # includes:: A list of includes that are needed for this class.
     # libraries:: A list of libraries that must be linked to use this class.
@@ -197,6 +204,8 @@ module Wrapture
     def definition_includes
       includes = @spec['includes'].dup
 
+      includes.concat(@struct.includes) if @struct
+
       @functions.each do |func|
         includes.concat(func.definition_includes)
       end
@@ -232,6 +241,11 @@ module Wrapture
       parent.nil? ||
         parent.struct_name != struct_name ||
         parent.pointer_wrapper? != pointer_wrapper?
+    end
+
+    # True if this class is an exception.
+    def exception?
+      @spec['exception']
     end
 
     # True if this class can be used as a factory for children classes that it
