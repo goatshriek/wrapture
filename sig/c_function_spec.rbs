@@ -1,5 +1,5 @@
 module Wrapture
-  class WrappedFunctionSpec
+  class CFunctionSpec
     @spec: spec_hash
     @error_action: (Wrapture::ActionSpec | nil)
     @error_rules: Array[Wrapture::RuleSpec]

@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2019-2023 Joel E. Anderson
+# Copyright 2019-2024 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@
 #++
 
 module Wrapture
-  # A description of a function to be wrapped by another language.
-  class WrappedFunctionSpec
+  # A description of a C function.
+  class CFunctionSpec
     # Returns a normalized copy of a hash specification of a class. See
     # normalize_spec_hash! for details.
     def self.normalize_spec_hash(spec, *templates)

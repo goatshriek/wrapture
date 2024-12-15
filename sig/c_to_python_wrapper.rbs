@@ -37,7 +37,7 @@ module Wrapture
     def define_module: { (String) -> void } -> void
     def define_scope_type_objects: { (String) -> void } -> void
     def equivalent_member_declaration: -> String
-    def error_check: (Wrapture::ClassSpec, Wrapture::WrappedFunctionSpec, ?return_val: String)  { (String) -> void } -> void
+    def error_check: (Wrapture::ClassSpec, Wrapture::CFunctionSpec, ?return_val: String)  { (String) -> void } -> void
     def function_args_format: (Wrapture::FunctionSpec) -> String
     def function_flags: (Wrapture::FunctionSpec) -> String
     def function_locals: (Wrapture::FunctionSpec) { (String) -> void } -> void

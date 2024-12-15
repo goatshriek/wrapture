@@ -538,7 +538,7 @@ module Wrapture
         yield ''
       end
 
-      if @spec.wrapped.is_a?(WrappedFunctionSpec)
+      if @spec.wrapped.is_a?(CFunctionSpec)
         yield "  #{wrapped_call_expression};"
       else
         @spec.wrapped.lines.each { |line| yield "  #{line}" }

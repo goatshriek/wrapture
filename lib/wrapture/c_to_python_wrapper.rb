@@ -1050,7 +1050,7 @@ module Wrapture
     # Yields the lines to call the given function spec's wrapped code or
     # function.
     def wrapped_call(func_spec)
-      if func_spec.wrapped.is_a?(WrappedFunctionSpec)
+      if func_spec.wrapped.is_a?(CFunctionSpec)
         yield "  #{wrapped_function_call(func_spec)};"
       elsif func_spec.wrapped.is_a?(WrappedCodeSpec)
         func_spec.wrapped.lines.each { |line| yield "  #{line}" }

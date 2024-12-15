@@ -47,7 +47,7 @@ module Wrapture
       end
 
       if spec.include?('wrapped-function')
-        wrap = WrappedFunctionSpec.normalize_spec_hash(spec['wrapped-function'])
+        wrap = CFunctionSpec.normalize_spec_hash(spec['wrapped-function'])
         normalized['wrapped-function'] = wrap
       end
 
