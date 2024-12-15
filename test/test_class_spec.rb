@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2019-2021 Joel E. Anderson
+# Copyright 2019-2024 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ class ClassSpecTest < Minitest::Test
     test_spec = load_fixture('class_with_return_val_in_constructor')
 
     spec = Wrapture::ClassSpec.new(test_spec)
-    generated_files = Wrapture::CppWrapper.write_spec_source_files(spec)
+    generated_files = Wrapture::CToCppWrapper.write_spec_source_files(spec)
     validate_wrapper_results(test_spec, generated_files)
 
     source_file = "#{test_spec['name']}.cpp"
@@ -73,7 +73,7 @@ class ClassSpecTest < Minitest::Test
 
     spec = Wrapture::ClassSpec.new test_spec
 
-    classes = Wrapture::CppWrapper.write_spec_source_files(spec)
+    classes = Wrapture::CToCppWrapper.write_spec_source_files(spec)
     validate_wrapper_results(test_spec, classes)
 
     File.delete(*classes)
@@ -84,7 +84,7 @@ class ClassSpecTest < Minitest::Test
 
     spec = Wrapture::ClassSpec.new(test_spec)
 
-    classes = Wrapture::CppWrapper.write_spec_source_files(spec)
+    classes = Wrapture::CToCppWrapper.write_spec_source_files(spec)
     validate_wrapper_results(test_spec, classes)
 
     File.delete(*classes)
@@ -95,7 +95,7 @@ class ClassSpecTest < Minitest::Test
 
     spec = Wrapture::ClassSpec.new(test_spec)
 
-    generated_files = Wrapture::CppWrapper.write_spec_source_files(spec)
+    generated_files = Wrapture::CToCppWrapper.write_spec_source_files(spec)
     validate_wrapper_results(test_spec, generated_files)
 
     class_name = test_spec['name']
@@ -154,7 +154,7 @@ class ClassSpecTest < Minitest::Test
 
     spec = Wrapture::ClassSpec.new(test_spec)
 
-    classes = Wrapture::CppWrapper.write_spec_source_files(spec)
+    classes = Wrapture::CToCppWrapper.write_spec_source_files(spec)
     validate_wrapper_results(test_spec, classes)
 
     File.delete(*classes)
@@ -165,7 +165,7 @@ class ClassSpecTest < Minitest::Test
 
     spec = Wrapture::ClassSpec.new(test_spec)
 
-    generated_files = Wrapture::CppWrapper.write_spec_source_files(spec)
+    generated_files = Wrapture::CToCppWrapper.write_spec_source_files(spec)
     validate_wrapper_results(test_spec, generated_files)
 
     File.open('DocumentedClass.hpp').each do |line|
@@ -185,7 +185,7 @@ class ClassSpecTest < Minitest::Test
 
     spec = Wrapture::ClassSpec.new(test_spec)
 
-    generated_files = Wrapture::CppWrapper.write_spec_source_files(spec)
+    generated_files = Wrapture::CToCppWrapper.write_spec_source_files(spec)
     validate_wrapper_results(test_spec, generated_files)
 
     File.delete(*generated_files)
@@ -196,7 +196,7 @@ class ClassSpecTest < Minitest::Test
 
     spec = Wrapture::ClassSpec.new(test_spec)
 
-    generated_files = Wrapture::CppWrapper.write_spec_source_files(spec)
+    generated_files = Wrapture::CToCppWrapper.write_spec_source_files(spec)
     validate_wrapper_results(test_spec, generated_files)
 
     overload_specs = load_fixture('overloaded_struct')
@@ -211,7 +211,7 @@ class ClassSpecTest < Minitest::Test
 
     spec = Wrapture::ClassSpec.new test_spec
 
-    classes = Wrapture::CppWrapper.write_spec_source_files(spec)
+    classes = Wrapture::CToCppWrapper.write_spec_source_files(spec)
     validate_wrapper_results(test_spec, classes)
 
     static_function_found = false
@@ -229,7 +229,7 @@ class ClassSpecTest < Minitest::Test
 
     spec = Wrapture::ClassSpec.new(test_spec)
 
-    classes = Wrapture::CppWrapper.write_spec_source_files(spec)
+    classes = Wrapture::CToCppWrapper.write_spec_source_files(spec)
     validate_wrapper_results(test_spec, classes)
 
     assert(file_contains_match('DefaultMembersClass.hpp', 'member_1 = 42'),
@@ -241,7 +241,7 @@ class ClassSpecTest < Minitest::Test
   def test_delegating_constructor
     test_spec = load_fixture('delegating_constructor')
     spec = Wrapture::ClassSpec.new(test_spec)
-    classes = Wrapture::CppWrapper.write_spec_source_files(spec)
+    classes = Wrapture::CToCppWrapper.write_spec_source_files(spec)
     validate_wrapper_results(test_spec, classes)
 
     sig = "#{spec.name}\\( void \\) : #{spec.name}\\( 3 \\)"
@@ -257,7 +257,7 @@ class ClassSpecTest < Minitest::Test
 
     spec = Wrapture::ClassSpec.new(test_spec)
 
-    classes = Wrapture::CppWrapper.write_spec_source_files(spec)
+    classes = Wrapture::CToCppWrapper.write_spec_source_files(spec)
     validate_wrapper_results(test_spec, classes)
 
     File.delete(*classes)
@@ -268,7 +268,7 @@ class ClassSpecTest < Minitest::Test
 
     spec = Wrapture::ClassSpec.new test_spec
 
-    classes = Wrapture::CppWrapper.write_spec_source_files(spec)
+    classes = Wrapture::CToCppWrapper.write_spec_source_files(spec)
     validate_wrapper_results(test_spec, classes)
 
     filename = 'StructWrapperClass.cpp'

@@ -20,11 +20,11 @@
 module Wrapture
   require 'wrapture/action_spec'
   require 'wrapture/comment'
+  require 'wrapture/c_to_cpp_wrapper'
   require 'wrapture/c_to_python_wrapper'
   require 'wrapture/constant_spec'
   require 'wrapture/constants'
   require 'wrapture/class_spec'
-  require 'wrapture/cpp_wrapper'
   require 'wrapture/enum_spec'
   require 'wrapture/errors'
   require 'wrapture/function_spec'

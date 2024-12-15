@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2019-2021 Joel E. Anderson
+# Copyright 2019-2024 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ class OverloadedStructTest < Minitest::Test
 
     assert_equal(test_spec['classes'].count, scope.classes.count)
 
-    generated_files = Wrapture::CppWrapper.write_spec_source_files(scope)
+    generated_files = Wrapture::CToCppWrapper.write_spec_source_files(scope)
     validate_wrapper_results(test_spec, generated_files)
 
     def_file = 'Parent.cpp'

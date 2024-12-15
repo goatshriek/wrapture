@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2020 Joel E. Anderson
+# Copyright 2020-2024 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ class EnumSpecTest < Minitest::Test
 
     assert_equal(test_spec['name'], spec.name)
 
-    generated_files = Wrapture::CppWrapper.write_spec_source_files(spec)
+    generated_files = Wrapture::CToCppWrapper.write_spec_source_files(spec)
 
     assert_equal(1, generated_files.count,
                  'only one file should have been generated')
@@ -51,7 +51,7 @@ class EnumSpecTest < Minitest::Test
 
     spec = Wrapture::EnumSpec.new(test_spec)
 
-    generated_files = Wrapture::CppWrapper.write_spec_source_files(spec)
+    generated_files = Wrapture::CToCppWrapper.write_spec_source_files(spec)
 
     filename = generated_files.first
 
@@ -83,7 +83,7 @@ class EnumSpecTest < Minitest::Test
 
     assert_equal(test_spec['name'], spec.name)
 
-    generated_files = Wrapture::CppWrapper.write_spec_source_files(spec)
+    generated_files = Wrapture::CToCppWrapper.write_spec_source_files(spec)
 
     assert_equal(1, generated_files.count,
                  'only one file should have been generated')

@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2019-2020 Joel E. Anderson
+# Copyright 2019-2024 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ class ScopeTest < Minitest::Test
 
     assert_equal(test_spec['classes'].count, scope.classes.count)
 
-    generated_files = Wrapture::CppWrapper.write_spec_source_files(scope)
+    generated_files = Wrapture::CToCppWrapper.write_spec_source_files(scope)
 
     assert_equal(scope.classes.count, generated_files.count / 2)
 
@@ -52,7 +52,7 @@ class ScopeTest < Minitest::Test
 
     assert_equal(test_spec['classes'].count, scope.classes.count)
 
-    generated_files = Wrapture::CppWrapper.write_spec_source_files(scope)
+    generated_files = Wrapture::CToCppWrapper.write_spec_source_files(scope)
 
     assert_equal(scope.classes.count, generated_files.count / 2)
 
@@ -62,14 +62,14 @@ class ScopeTest < Minitest::Test
   def test_templatized_classes
     spec_with_template = load_fixture('scope_with_template')
     scope = Wrapture::Scope.new(spec_with_template)
-    with_template_files = Wrapture::CppWrapper.write_spec_source_files(scope)
+    with_template_files = Wrapture::CToCppWrapper.write_spec_source_files(scope)
 
     # rename the files so that they don't overwrite one another
     with_template_files.each { |name| File.rename(name, "#{name}.with") }
 
     spec_without_template = load_fixture('scope_without_template')
     scope = Wrapture::Scope.new(spec_without_template)
-    no_template_files = Wrapture::CppWrapper.write_spec_source_files(scope)
+    no_template_files = Wrapture::CToCppWrapper.write_spec_source_files(scope)
 
     # rename the second round of files for consistency
     no_template_files.each { |name| File.rename(name, "#{name}.without") }
@@ -89,7 +89,7 @@ class ScopeTest < Minitest::Test
 
     scope = Wrapture::Scope.new(test_spec)
 
-    generated_files = Wrapture::CppWrapper.write_spec_source_files(scope)
+    generated_files = Wrapture::CToCppWrapper.write_spec_source_files(scope)
 
     enum_name = test_spec['enums'][0]['name']
     enum_filename = "#{enum_name}.hpp"
@@ -122,7 +122,7 @@ class ScopeTest < Minitest::Test
 
     assert_equal(enum_specs.count, scope.enums.count)
 
-    generated_files = Wrapture::CppWrapper.write_spec_source_files(scope)
+    generated_files = Wrapture::CToCppWrapper.write_spec_source_files(scope)
     expected_count = (scope.classes.count * 2) + scope.enums.count
 
     assert_equal(expected_count, generated_files.count)
@@ -137,7 +137,7 @@ class ScopeTest < Minitest::Test
 
     assert_equal(test_spec['classes'].count, scope.classes.count)
 
-    generated_files = Wrapture::CppWrapper.write_spec_source_files(scope)
+    generated_files = Wrapture::CToCppWrapper.write_spec_source_files(scope)
 
     assert_equal(scope.classes.count, generated_files.count / 2)
 

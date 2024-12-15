@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2019-2020 Joel E. Anderson
+# Copyright 2019-2024 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ class SelfReferenceTest < Minitest::Test
 
     spec = Wrapture::ClassSpec.new(test_spec)
 
-    generated_files = Wrapture::CppWrapper.write_spec_source_files(spec)
+    generated_files = Wrapture::CToCppWrapper.write_spec_source_files(spec)
     validate_wrapper_results(test_spec, generated_files)
 
     forbidden = Wrapture::SELF_REFERENCE_KEYWORD
