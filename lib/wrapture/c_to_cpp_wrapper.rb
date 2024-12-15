@@ -19,8 +19,8 @@
 #++
 
 module Wrapture
-  # A wrapper that generates C++ wrappers for given specs.
-  class CppWrapper
+  # A wrapper that generates C++ wrappers for C code.
+  class CToCppWrapper
     # Gives the filename used for the declaration of a given class spec.
     def self.declaration_filename(class_spec)
       "#{class_spec.name}.hpp"

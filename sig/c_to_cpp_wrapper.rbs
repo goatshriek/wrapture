@@ -1,5 +1,5 @@
 module Wrapture
-  class CppWrapper
+  class CToCppWrapper
     def self.declaration_filename: ( Wrapture::ClassSpec class_spec ) -> String
     def self.declare_spec: ( (Wrapture::ClassSpec | Wrapture::FunctionSpec | Wrapture::Scope) spec ) { (String) -> void } -> void
     def self.define_spec: ( (Wrapture::ClassSpec | Wrapture::EnumSpec | Wrapture::FunctionSpec | Wrapture::Scope) spec ) { (String) -> void } -> void

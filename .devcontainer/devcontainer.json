@@ -16,13 +16,14 @@
 	// Configure tool-specific properties.
 	// "customizations": {},
 	"customizations": {
-		// Configure properties specific to VS Code.
 		"vscode": {
-			// Add the IDs of extensions you want installed when the container is created.
 			"extensions": [
 				"ms-azuretools.vscode-docker",
+				"ms-python.python",
+				"ms-vscode.cpptools",
 				"shopify.ruby-extensions-pack",
-				"shopify.ruby-lsp"
+				"shopify.ruby-lsp",
+				"soutaro.rbs-syntax"
 			]
 		}
 	}
