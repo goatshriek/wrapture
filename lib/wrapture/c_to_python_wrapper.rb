@@ -1052,7 +1052,7 @@ module Wrapture
     def wrapped_call(func_spec)
       if func_spec.wrapped.is_a?(CFunctionSpec)
         yield "  #{wrapped_function_call(func_spec)};"
-      elsif func_spec.wrapped.is_a?(WrappedCodeSpec)
+      elsif func_spec.wrapped.is_a?(CCodeSpec)
         func_spec.wrapped.lines.each { |line| yield "  #{line}" }
       end
     end

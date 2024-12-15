@@ -144,7 +144,7 @@ module Wrapture
       @wrapped = if @spec.key?('wrapped-function')
                    CFunctionSpec.new(@spec['wrapped-function'])
                  elsif @spec.key?('wrapped-code')
-                   WrappedCodeSpec.new(@spec['wrapped-code'])
+                   CCodeSpec.new(@spec['wrapped-code'])
                  end
       @params = ParamSpec.new_list(@spec['params'])
       @return_type = TypeSpec.new(@spec['return']['type'])
