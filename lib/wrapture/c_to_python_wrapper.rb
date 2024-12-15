@@ -19,8 +19,8 @@
 #++
 
 module Wrapture
-  # A wrapper that generates Python wrappers for given specs.
-  class PythonWrapper
+  # A wrapper that generates Python wrappers for C code.
+  class CToPythonWrapper
     # Mapping of basic types to their Py_T counterparts.
     MEMBER_TYPE_MAP = {
       'byte' => 'Py_T_BYTE',

@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2019-2021 Joel E. Anderson
+# Copyright 2019-2024 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 module Wrapture
   require 'wrapture/action_spec'
   require 'wrapture/comment'
+  require 'wrapture/c_to_python_wrapper'
   require 'wrapture/constant_spec'
   require 'wrapture/constants'
   require 'wrapture/class_spec'
@@ -31,7 +32,6 @@ module Wrapture
   require 'wrapture/normalize'
   require 'wrapture/rule_spec'
   require 'wrapture/param_spec'
-  require 'wrapture/python_wrapper'
   require 'wrapture/scope'
   require 'wrapture/struct_spec'
   require 'wrapture/template_spec'

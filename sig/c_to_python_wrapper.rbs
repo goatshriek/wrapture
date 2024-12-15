@@ -1,5 +1,5 @@
 module Wrapture
-  class PythonWrapper
+  class CToPythonWrapper
     def self.type_object_name: (Wrapture::Named class_spec) -> String
     def self.type_struct_name: (Wrapture::Named class_spec) -> String
     def self.write_spec_pyproject_files: ((Wrapture::ClassSpec | Wrapture::EnumSpec | Wrapture::FunctionSpec | Wrapture::Scope), ?String dir) -> Array[String]

@@ -49,7 +49,7 @@ def run_python_example(name, lib, sources, build_dir)
   load_dir = File.absolute_path(build_dir)
 
   scope = Wrapture::Scope.load_files("#{example_dir}/#{lib}.yml")
-  wrapper = Wrapture::PythonWrapper.new(scope)
+  wrapper = Wrapture::CToPythonWrapper.new(scope)
   wrapper.write_source_files(dir: build_dir)
   wrapper.write_pyproject_files(dir: build_dir)
 
