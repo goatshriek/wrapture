@@ -1,0 +1,50 @@
+# SPDX-License-Identifier: Apache-2.0
+
+# frozen_string_literal: true
+
+#--
+# Copyright 2024 Joel E. Anderson
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#++
+
+module Wrapture
+  # A CMake project.
+  class CmakeBuild
+    # All source files in this project.
+    #
+    # This includes build system files (such as CMakeLists.txt) as well as the
+    # sources that will be compiled by the project.
+    attr_reader :sources
+
+    # Create an empty cmake build project.
+    def initialize
+      @sources = []
+    end
+
+    # Writes all source files to the file system.
+    #
+    # +dir+ is the directory to write the files to. If not provided, files are
+    # written to the current directory.
+    def write_sources(dir = Pathname.new('.'))
+      sources.each do |source|
+        write_path = dir.join(source.path)
+        write_path.open('wb') do |source_file|
+          source.contents.each do |chunk|
+            source_file.write(chunk)
+          end
+        end
+      end
+    end
+  end
+end
