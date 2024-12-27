@@ -16,12 +16,13 @@
 
 module Wrapture
   class SourceFile
-    @path: Pathname
     @contents: Array[String]
+    @path: Pathname
 
-    attr_reader path: Pathname
     attr_reader contents: Array[String]
+    attr_reader path: Pathname
 
-    def initialize: (Pathname) -> void
+    def initialize: (Pathname | String) -> void
+    def puts: (String) -> void
   end
 end

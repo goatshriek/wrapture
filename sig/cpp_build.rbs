@@ -15,13 +15,19 @@
 # limitations under the License.
 
 module Wrapture
-  class CmakeBuild
-    @cpp_build: Wrapture::CppBuild
+  class CppBuild
+    @lib_headers: Array[Wrapture::SourceFile]
+    @lib_links: Array[String]
+    @lib_sources: Array[Wrapture::SourceFile]
 
-    attr_reader cpp_build: Wrapture::CppBuild
+    attr_reader lib_headers: Array[Wrapture::SourceFile]
+    attr_reader lib_links: Array[String]
+    attr_reader lib_sources: Array[Wrapture::SourceFile]
 
-    def initialize: (Wrapture::CppBuild) -> void
-    def cmake_lists: -> Wrapture::SourceFile
+    def initialize: (String) -> void
+    def add_lib_header: (Wrapture::SourceFile) -> void
+    def add_lib_source: (Wrapture::SourceFile) -> void
+    def add_link: (String) -> void
     def sources: -> Array[Wrapture::SourceFile]
     def write_sources: (?Pathname) -> void
   end

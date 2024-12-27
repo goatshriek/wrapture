@@ -23,13 +23,30 @@ module Wrapture
   #
   # A source file could be wrapper source code, build system files, scripts,
   # markup, or other supporting files for a generated wrapper.
-  #
-  # +path+ is a Pathname for the source file.
   class SourceFile
+    # An enumerable of Strings that make up the contents of the source file.
+    attr_reader :contents
+
+    # The Pathname of the source file.
+    attr_reader :path
+
     # Creates a new source file with the given path.
+    #
+    # +path+ is a Pathname for the source file. If it is a String, then it is
+    # used to create a new Pathname.
     def initialize(path)
-      @path = path
+      @path = case path
+              when String
+                Pathname.new(path)
+              else
+                path
+              end
       @contents = []
+    end
+
+    # Adds a raw line of code to a source file.
+    def puts(line)
+      @contents << line
     end
   end
 end

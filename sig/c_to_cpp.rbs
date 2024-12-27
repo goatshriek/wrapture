@@ -15,14 +15,11 @@
 # limitations under the License.
 
 module Wrapture
-  class CmakeBuild
-    @cpp_build: Wrapture::CppBuild
-
-    attr_reader cpp_build: Wrapture::CppBuild
-
-    def initialize: (Wrapture::CppBuild) -> void
-    def cmake_lists: -> Wrapture::SourceFile
-    def sources: -> Array[Wrapture::SourceFile]
-    def write_sources: (?Pathname) -> void
+  module CToCpp
+    def self.declare_class: (Wrapture::ClassSpec) -> Wrapture::SourceFile
+    def self.define_class: (Wrapture::ClassSpec) -> Wrapture::SourceFile
+    def self.wrap_class: (Wrapture::ClassSpec) -> Wrapture::CppBuild
+    def self.wrap_enum: (Wrapture::EnumSpec) -> Wrapture::CppBuild
+    def self.wrap_scope: (Wrapture::Scope) -> Wrapture::CppBuild
   end
 end

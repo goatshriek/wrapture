@@ -47,17 +47,30 @@ class ClassSpecTest < Minitest::Test
     test_spec = load_fixture('class_with_return_val_in_constructor')
 
     spec = Wrapture::ClassSpec.new(test_spec)
-    generated_files = Wrapture::CToCppWrapper.write_spec_source_files(spec)
-    validate_wrapper_results(test_spec, generated_files)
+    build = Wrapture::CToCpp.wrap_class(spec)
+    source_name = "#{test_spec['name']}.cpp"
+    source_file = build.lib_sources.find do |src|
+      src.path.fnmatch?(source_name)
+    end
 
-    source_file = "#{test_spec['name']}.cpp"
+    refute_nil(source_file, 'no source file name after the spec was generated')
 
-    assert(file_contains_match(source_file, 'this->equivalent == NULL'),
+    assert(source_file_contains_match(source_file, 'this->equivalent == NULL'),
            'no error check against the equivalent struct was found')
-    refute(file_contains_match(source_file, 'return_val'),
+    refute(source_file_contains_match(source_file, 'return_val'),
            'a return value variable was still generated')
 
-    File.delete(*generated_files)
+    # generated_files = Wrapture::CToCppWrapper.write_spec_source_files(spec)
+    # validate_wrapper_results(test_spec, generated_files)
+
+    # source_file = "#{test_spec['name']}.cpp"
+
+    # assert(file_contains_match(source_file, 'this->equivalent == NULL'),
+    #        'no error check against the equivalent struct was found')
+    # refute(file_contains_match(source_file, 'return_val'),
+    #        'a return value variable was still generated')
+
+    # File.delete(*generated_files)
   end
 
   def test_future_spec_version
