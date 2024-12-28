@@ -20,7 +20,7 @@ def run_cpp_example(name, lib, sources, build_dir)
   example_dir = File.absolute_path("docs/examples/#{name}")
 
   scope = Wrapture::Scope.load_files("#{example_dir}/#{lib}.yml")
-  wrapper = Wrapture::CppWrapper.new(scope)
+  wrapper = Wrapture::CToCppWrapper.new(scope)
   wrapper.write_source_files(dir: build_dir)
   wrapper.write_cmake_files(dir: build_dir)
 
