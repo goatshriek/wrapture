@@ -20,6 +20,8 @@ def run_cpp_example(name, lib, sources, build_dir)
   example_dir = File.absolute_path("docs/examples/#{name}")
 
   scope = Wrapture::Scope.load_files("#{example_dir}/#{lib}.yml")
+  # build = Wrapture::CToCpp.wrap_scope(scope)
+  # Wrapture::CMakeBuild.new(build).write_sources(build_dir)
   wrapper = Wrapture::CToCppWrapper.new(scope)
   wrapper.write_source_files(dir: build_dir)
   wrapper.write_cmake_files(dir: build_dir)
@@ -49,9 +51,11 @@ def run_python_example(name, lib, sources, build_dir)
   load_dir = File.absolute_path(build_dir)
 
   scope = Wrapture::Scope.load_files("#{example_dir}/#{lib}.yml")
-  wrapper = Wrapture::CToPythonWrapper.new(scope)
-  wrapper.write_source_files(dir: build_dir)
-  wrapper.write_pyproject_files(dir: build_dir)
+  build = Wrapture::CToPython.wrap_scope(scope)
+  Wrapture::PyprojectBuild.new(build).write_sources(build_dir)
+  # wrapper = Wrapture::CToPythonWrapper.new(scope)
+  # wrapper.write_source_files(dir: build_dir)
+  # wrapper.write_pyproject_files(dir: build_dir)
 
   Dir.chdir(build_dir) do
     if sources

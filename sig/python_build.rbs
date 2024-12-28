@@ -15,20 +15,17 @@
 # limitations under the License.
 
 module Wrapture
-  class CppBuild
+  class PythonBuild
     include Build
 
-    @lib_headers: Array[Wrapture::SourceFile]
-    @lib_links: Array[String]
-    @lib_sources: Array[Wrapture::SourceFile]
+    @module_links: Array[String]
+    @module_sources: Array[Wrapture::SourceFile]
 
-    attr_reader lib_headers: Array[Wrapture::SourceFile]
-    attr_reader lib_links: Array[String]
-    attr_reader lib_sources: Array[Wrapture::SourceFile]
+    attr_reader module_links: Array[String]
+    attr_reader module_sources: Array[Wrapture::SourceFile]
 
     def initialize: (String) -> void
-    def add_lib_header: (Wrapture::SourceFile) -> void
-    def add_lib_source: (Wrapture::SourceFile) -> void
+    def add_module_source: (Wrapture::SourceFile) -> void
     def add_link: (String) -> void
     def sources: -> Array[Wrapture::SourceFile]
   end

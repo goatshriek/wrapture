@@ -19,10 +19,12 @@
 # Classes and functions for generating language wrappers
 module Wrapture
   require 'wrapture/action_spec'
+  require 'wrapture/build'
   require 'wrapture/c_code_spec'
   require 'wrapture/c_function_spec'
   require 'wrapture/c_to_cpp'
   require 'wrapture/c_to_cpp_wrapper'
+  require 'wrapture/c_to_python'
   require 'wrapture/c_to_python_wrapper'
   require 'wrapture/comment'
   require 'wrapture/constant_spec'
@@ -37,6 +39,8 @@ module Wrapture
   require 'wrapture/normalize'
   require 'wrapture/rule_spec'
   require 'wrapture/param_spec'
+  require 'wrapture/pyproject_build'
+  require 'wrapture/python_build'
   require 'wrapture/scope'
   require 'wrapture/source_file'
   require 'wrapture/struct_spec'

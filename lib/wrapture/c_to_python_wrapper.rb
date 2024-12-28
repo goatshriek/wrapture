@@ -95,6 +95,39 @@ module Wrapture
       @spec = spec
     end
 
+    # Yields the full contents of the module source file to the provided block.
+    def define_module(&block)
+      yield '#define PY_SSIZE_T_CLEAN'
+      yield '#include <Python.h>'
+      yield '#include <stddef.h> // for offsetof()' # TODO: only add if needed
+      yield '#if PY_VERSION_HEX < 0x30C00F0  // under Python 3.12.0'
+      yield '  #include <structmember.h> // for PyMemberDef'
+      yield '  #define Py_T_INT T_INT'
+      yield '  #define Py_READONLY READONLY'
+      yield '#endif'
+
+      @spec.definition_includes.each do |include_file|
+        yield "#include <#{include_file}>"
+      end
+
+      yield ''
+      define_scope_type_objects { |line| block.call(line) }
+      yield 'PyMODINIT_FUNC'
+      yield "PyInit_#{@spec.name}( void )"
+      yield '{'
+      yield '  PyObject *m;'
+      yield ''
+      scope_types_ready { |line| block.call("  #{line}") }
+      yield "  m = PyModule_Create( &#{@spec.name}_module );"
+      yield '  if( !m ){'
+      yield '    return NULL;'
+      yield '  }'
+      yield ''
+      add_scope_type_objects { |line| block.call("  #{line}") }
+      yield '  return m;'
+      yield '}'
+    end
+
     # Gives an expression for using a given parameter.
     # Equivalent structs and pointers are resolved, as well as casts between
     # types if they are known within the scope of this function.
@@ -649,39 +682,6 @@ module Wrapture
         yield "  #{return_statement(func_spec)}"
       end
 
-      yield '}'
-    end
-
-    # Yields the full contents of the module source file to the provided block.
-    def define_module(&block)
-      yield '#define PY_SSIZE_T_CLEAN'
-      yield '#include <Python.h>'
-      yield '#include <stddef.h> // for offsetof()' # TODO: only add if needed
-      yield '#if PY_VERSION_HEX < 0x30C00F0  // under Python 3.12.0'
-      yield '  #include <structmember.h> // for PyMemberDef'
-      yield '  #define Py_T_INT T_INT'
-      yield '  #define Py_READONLY READONLY'
-      yield '#endif'
-
-      @spec.definition_includes.each do |include_file|
-        yield "#include <#{include_file}>"
-      end
-
-      yield ''
-      define_scope_type_objects { |line| block.call(line) }
-      yield 'PyMODINIT_FUNC'
-      yield "PyInit_#{@spec.name}( void )"
-      yield '{'
-      yield '  PyObject *m;'
-      yield ''
-      scope_types_ready { |line| block.call("  #{line}") }
-      yield "  m = PyModule_Create( &#{@spec.name}_module );"
-      yield '  if( !m ){'
-      yield '    return NULL;'
-      yield '  }'
-      yield ''
-      add_scope_type_objects { |line| block.call("  #{line}") }
-      yield '  return m;'
       yield '}'
     end
 

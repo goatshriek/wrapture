@@ -59,18 +59,6 @@ class ClassSpecTest < Minitest::Test
            'no error check against the equivalent struct was found')
     refute(source_file_contains_match(source_file, 'return_val'),
            'a return value variable was still generated')
-
-    # generated_files = Wrapture::CToCppWrapper.write_spec_source_files(spec)
-    # validate_wrapper_results(test_spec, generated_files)
-
-    # source_file = "#{test_spec['name']}.cpp"
-
-    # assert(file_contains_match(source_file, 'this->equivalent == NULL'),
-    #        'no error check against the equivalent struct was found')
-    # refute(file_contains_match(source_file, 'return_val'),
-    #        'a return value variable was still generated')
-
-    # File.delete(*generated_files)
   end
 
   def test_future_spec_version

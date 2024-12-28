@@ -6,6 +6,7 @@ module Wrapture
     def self.write_spec_source_files: ((Wrapture::ClassSpec | Wrapture::EnumSpec | Wrapture::FunctionSpec | Wrapture::Scope), ?String dir) -> Array[String]
 
     def initialize: (Wrapture::ClassSpec | Wrapture::EnumSpec | Wrapture::FunctionSpec | Wrapture::Scope) -> void
+    def define_module: { (String) -> void } -> void
     def resolve_param: (Wrapture::ParamSpec) -> String
     def write_pyproject_files: (?String dir) -> Array[String]
     def write_source_files: (?String dir) -> Array[String]
@@ -34,7 +35,6 @@ module Wrapture
     def define_function_arg_parser: (Wrapture::FunctionSpec) { (String) -> void } -> void
     def define_function_group_wrapper: (Wrapture::ClassSpec, Array[Wrapture::FunctionSpec]) { (String) -> void } -> void
     def define_function_wrapper: (Wrapture::ClassSpec, Wrapture::FunctionSpec) { (String) -> void } -> void
-    def define_module: { (String) -> void } -> void
     def define_scope_type_objects: { (String) -> void } -> void
     def equivalent_member_declaration: -> String
     def error_check: (Wrapture::ClassSpec, Wrapture::CFunctionSpec, ?return_val: String)  { (String) -> void } -> void

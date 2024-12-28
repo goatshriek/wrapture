@@ -21,6 +21,8 @@
 module Wrapture
   # A CMake project that builds a C++ library.
   class CmakeBuild
+    include Build
+
     # Build information for the C++ library.
     attr_reader :cpp_build
 
@@ -89,21 +91,6 @@ module Wrapture
     # C++ project.
     def sources
       [cmake_lists] + @cpp_build.sources
-    end
-
-    # Writes all source files to the file system.
-    #
-    # +dir+ is the directory to write the files to. If not provided, files are
-    # written to the current directory.
-    def write_sources(dir = Pathname.new('.'))
-      sources.each do |source|
-        write_path = dir.join(source.path)
-        write_path.open('wb') do |source_file|
-          source.contents.each do |chunk|
-            source_file.write(chunk)
-          end
-        end
-      end
     end
   end
 end
