@@ -4,6 +4,10 @@ docs/html/*
 Gemfile.lock
 *.gem
 
+# ignore bundler files
+.bundle/*
+vendor/*
+
 # ignore ctags files
 tags
 
