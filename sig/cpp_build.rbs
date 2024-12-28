@@ -21,10 +21,12 @@ module Wrapture
     @lib_headers: Array[Wrapture::SourceFile]
     @lib_links: Array[String]
     @lib_sources: Array[Wrapture::SourceFile]
+    @name: String
 
     attr_reader lib_headers: Array[Wrapture::SourceFile]
     attr_reader lib_links: Array[String]
     attr_reader lib_sources: Array[Wrapture::SourceFile]
+    attr_reader name: String
 
     def initialize: (String) -> void
     def add_lib_header: (Wrapture::SourceFile) -> void

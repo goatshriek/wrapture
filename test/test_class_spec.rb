@@ -48,12 +48,12 @@ class ClassSpecTest < Minitest::Test
 
     spec = Wrapture::ClassSpec.new(test_spec)
     build = Wrapture::CToCpp.wrap_class(spec)
+    validate_cpp_build(spec, build)
+
     source_name = "#{test_spec['name']}.cpp"
     source_file = build.lib_sources.find do |src|
       src.path.fnmatch?(source_name)
     end
-
-    refute_nil(source_file, 'no source file name after the spec was generated')
 
     assert(source_file_contains_match(source_file, 'this->equivalent == NULL'),
            'no error check against the equivalent struct was found')

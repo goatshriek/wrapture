@@ -20,9 +20,11 @@ module Wrapture
 
     @module_links: Array[String]
     @module_sources: Array[Wrapture::SourceFile]
+    @name: String
 
     attr_reader module_links: Array[String]
     attr_reader module_sources: Array[Wrapture::SourceFile]
+    attr_reader name: String
 
     def initialize: (String) -> void
     def add_module_source: (Wrapture::SourceFile) -> void

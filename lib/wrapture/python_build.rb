@@ -32,6 +32,9 @@ module Wrapture
     # The source files for the module.
     attr_reader :module_sources
 
+    # The name of the project being build
+    attr_reader :name
+
     # Create an empty Python project.
     #
     # +name+ will be used as the name of the module the project builds.

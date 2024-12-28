@@ -35,6 +35,9 @@ module Wrapture
     # The source files for the project's library.
     attr_reader :lib_sources
 
+    # The name of the library.
+    attr_reader :name
+
     # Create an empty C++ project.
     #
     # +name+ will be used as the name of the library the project builds.
