@@ -52,21 +52,22 @@ def run_python_example(name, lib, sources, build_dir)
 
   scope = Wrapture::Scope.load_files("#{example_dir}/#{lib}.yml")
   build = Wrapture::CToPython.wrap_scope(scope)
-  Wrapture::PyprojectBuild.new(build).write_sources(build_dir)
-  # wrapper = Wrapture::CToPythonWrapper.new(scope)
-  # wrapper.write_source_files(dir: build_dir)
-  # wrapper.write_pyproject_files(dir: build_dir)
+  python_build = Wrapture::PyprojectBuild.new(build)
 
   Dir.chdir(build_dir) do
+    # build the shared library if needed
     if sources
       source_opts = "-shared -o lib#{lib}.so -fPIC -I#{example_dir}"
       source_files = sources.map { |s| "#{example_dir}/#{s}" }.join(' ')
       sh "gcc #{source_files} #{source_opts}"
     end
+
+    # generate, build, and install the python example
+    python_build.write_sources
     cflags = "-I#{example_dir} -L#{load_dir}"
-    sh "CFLAGS=\"#{cflags}\" python3 -m build --wheel"
+    sh "CFLAGS=\"#{cflags}\" #{python_build.build_command} --wheel"
     sh 'python3 -m venv usage-env'
-    sh 'usage-env/bin/python3 -m pip install dist/*.whl'
+    sh python_build.install_command(python: 'usage-env/bin/python3')
     envs = 'LD_LIBRARY_PATH=.'
     sh "#{envs} usage-env/bin/python3 #{example_dir}/#{lib}_usage.py"
   end

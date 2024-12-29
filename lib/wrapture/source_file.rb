@@ -44,9 +44,10 @@ module Wrapture
       @contents = []
     end
 
-    # Adds a raw line of code to a source file.
+    # Adds a raw line of code to a source file, followed by a newline.
     def puts(line)
       @contents << line
+      @contents << "\n"
     end
   end
 end

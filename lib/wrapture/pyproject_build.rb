@@ -32,6 +32,30 @@ module Wrapture
       @python_build = python_build
     end
 
+    # A command that will build this project.
+    #
+    # +python+ can be supplied to customize the Python interpreter used in the
+    # build command.
+    def build_command(python: 'python3')
+      "#{python} -m build"
+    end
+
+    # A pip install command that will install this project.
+    #
+    # This command assumes that the project has already been built via the
+    # +build_command+.
+    #
+    # +python+ can be supplied to customize the Python interpreter used in the
+    # build command.
+    #
+    # +target+ specifies the exact target to install. The default for this value
+    # uses a wildcard, which is potentially dangerous. If the exact wheel file
+    # name is known, it should be given to prevent unintended install behavior.
+    def install_command(python: 'python3',
+                        target: "dist/#{@python_build.name}-*.whl")
+      "#{python} -m pip install #{target}"
+    end
+
     # A pyproject.toml file that could be used to build this module.
     #
     # CMake is a common build system for C++ projects. It uses a file named
@@ -39,7 +63,7 @@ module Wrapture
     # about the source files and any dependencies required.
     def pyproject
       sources = @python_build.module_sources.map do |src|
-        "\"#{src}\""
+        "\"#{src.path}\""
       end.join(', ')
 
       libraries = @python_build.module_links.map do |lib|

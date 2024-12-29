@@ -2,14 +2,10 @@ module Wrapture
   class CToPythonWrapper
     def self.type_object_name: (Wrapture::Named class_spec) -> String
     def self.type_struct_name: (Wrapture::Named class_spec) -> String
-    def self.write_spec_pyproject_files: ((Wrapture::ClassSpec | Wrapture::EnumSpec | Wrapture::FunctionSpec | Wrapture::Scope), ?String dir) -> Array[String]
-    def self.write_spec_source_files: ((Wrapture::ClassSpec | Wrapture::EnumSpec | Wrapture::FunctionSpec | Wrapture::Scope), ?String dir) -> Array[String]
 
     def initialize: (Wrapture::ClassSpec | Wrapture::EnumSpec | Wrapture::FunctionSpec | Wrapture::Scope) -> void
     def define_module: { (String) -> void } -> void
     def resolve_param: (Wrapture::ParamSpec) -> String
-    def write_pyproject_files: (?String dir) -> Array[String]
-    def write_source_files: (?String dir) -> Array[String]
 
     private
     def action_block: (Wrapture::ClassSpec, Wrapture::ActionSpec) { (String) -> void } -> void
