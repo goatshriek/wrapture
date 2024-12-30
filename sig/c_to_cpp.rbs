@@ -18,6 +18,7 @@ module Wrapture
   module CToCpp
     def self.declare_class: (Wrapture::ClassSpec) -> Wrapture::SourceFile
     def self.define_class: (Wrapture::ClassSpec) -> Wrapture::SourceFile
+    def self.define_enum: (Wrapture::ClassSpec) -> Wrapture::SourceFile
     def self.wrap_class: (Wrapture::ClassSpec) -> Wrapture::CppBuild
     def self.wrap_enum: (Wrapture::EnumSpec) -> Wrapture::CppBuild
     def self.wrap_scope: (Wrapture::Scope) -> Wrapture::CppBuild

@@ -45,6 +45,18 @@ module Wrapture
       src
     end
 
+    # Generate a source file with the definition of an enumeration.
+    def self.define_enum(enum_spec)
+      src = SourceFile.new("#{enum_spec.name}.cpp")
+
+      wrapper = CToCppWrapper.new(enum_spec)
+      wrapper.define do |line|
+        src.puts(line)
+      end
+
+      src
+    end
+
     # Generates a build for a C++ library wrapping a class.
     def self.wrap_class(class_spec)
       build = CppBuild.new(class_spec.name)
@@ -52,7 +64,9 @@ module Wrapture
       build.add_lib_header(declare_class(class_spec))
       build.add_lib_source(define_class(class_spec))
 
-      # TODO: collect libraries that the class relies on for linking
+      class_spec.libraries.each do |lib|
+        build.add_link(lib)
+      end
 
       build
     end
