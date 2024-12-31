@@ -37,12 +37,11 @@ class ScopeTest < Minitest::Test
     scope = Wrapture::Scope.new(test_spec)
 
     assert_equal(test_spec['classes'].count, scope.classes.count)
+    assert_equal(0, scope.enums.count)
 
-    generated_files = Wrapture::CToCppWrapper.write_spec_source_files(scope)
+    build = Wrapture::CToCpp.wrap_scope(scope)
 
-    assert_equal(scope.classes.count, generated_files.count / 2)
-
-    File.delete(*generated_files)
+    assert_equal(scope.classes.count, build.sources.count / 2)
   end
 
   def test_nested_templates

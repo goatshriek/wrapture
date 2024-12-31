@@ -48,6 +48,23 @@ module Wrapture
       @lib_sources = []
     end
 
+    # Add the content of another C++ build to this one.
+    def <<(build)
+      build.lib_headers.each do |hdr|
+        add_lib_header(hdr)
+      end
+
+      build.lib_sources.each do |src|
+        add_lib_source(src)
+      end
+
+      build.lib_links.each do |lnk|
+        add_lib_link(lnk)
+      end
+
+      self
+    end
+
     # Add a header file to the project's library's list.
     def add_lib_header(header)
       @lib_headers << header

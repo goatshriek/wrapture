@@ -47,4 +47,5 @@ module Wrapture
   require 'wrapture/template_spec'
   require 'wrapture/type_spec'
   require 'wrapture/version'
+  require 'wrapture/wrapper'
 end

@@ -18,9 +18,13 @@
 # limitations under the License.
 #++
 
+require 'wrapture/wrapper'
+
 module Wrapture
   # A collection of wrappers for generating C++ wrappers for C code.
   module CToCpp
+    extend Wrapper
+
     # Generate a source file with the declaration of a class.
     def self.declare_class(class_spec)
       src = SourceFile.new("#{class_spec.name}.hpp")
@@ -73,9 +77,11 @@ module Wrapture
 
     # Generates a build for a C++ library wrapping the provided enum.
     def self.wrap_enum(enum_spec)
-      CppBuild.new(enum_spec.name)
+      build = CppBuild.new(enum_spec.name)
 
-      # TODO: implement
+      build.add_lib_header(define_enum(enum_spec))
+
+      build
     end
 
     # Generates a build for a C++ library wrapping the provided scope.
@@ -83,9 +89,13 @@ module Wrapture
     # +scope+ describes all of the classes and other entities that will be
     # wrapped. These will all be put into a namespace named after the scope.
     def self.wrap_scope(scope)
-      CppBuild.new(scope.name)
+      build = CppBuild.new(scope.name)
 
-      # TODO: implement
+      scope.each do |scope_member|
+        build << wrap(scope_member)
+      end
+
+      build
     end
   end
 end

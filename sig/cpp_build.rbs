@@ -29,6 +29,7 @@ module Wrapture
     attr_reader name: String
 
     def initialize: (String) -> void
+    def <<: (Wrapture::CppBuild) -> (Wrapture::CppBuild)
     def add_lib_header: (Wrapture::SourceFile) -> void
     def add_lib_source: (Wrapture::SourceFile) -> void
     def add_link: (String) -> void
