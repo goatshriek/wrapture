@@ -33,7 +33,6 @@ class ScopeTest < Minitest::Test
 
   def test_minimal_scope
     test_spec = load_fixture('minimal_scope')
-
     scope = Wrapture::Scope.new(test_spec)
 
     assert_equal(test_spec['classes'].count, scope.classes.count)
@@ -46,40 +45,28 @@ class ScopeTest < Minitest::Test
 
   def test_nested_templates
     test_spec = load_fixture('scope_with_nested_templates')
-
     scope = Wrapture::Scope.new(test_spec)
 
     assert_equal(test_spec['classes'].count, scope.classes.count)
+    assert_equal(0, scope.enums.count)
 
-    generated_files = Wrapture::CToCppWrapper.write_spec_source_files(scope)
+    build = Wrapture::CToCpp.wrap_scope(scope)
 
-    assert_equal(scope.classes.count, generated_files.count / 2)
-
-    File.delete(*generated_files)
+    assert_equal(scope.classes.count, build.sources.count / 2)
   end
 
   def test_templatized_classes
     spec_with_template = load_fixture('scope_with_template')
     scope = Wrapture::Scope.new(spec_with_template)
-    with_template_files = Wrapture::CToCppWrapper.write_spec_source_files(scope)
-
-    # rename the files so that they don't overwrite one another
-    with_template_files.each { |name| File.rename(name, "#{name}.with") }
+    with_template_build = Wrapture::CToCpp.wrap(scope)
 
     spec_without_template = load_fixture('scope_without_template')
     scope = Wrapture::Scope.new(spec_without_template)
-    no_template_files = Wrapture::CToCppWrapper.write_spec_source_files(scope)
+    no_template_build = Wrapture::CToCpp.wrap(scope)
 
-    # rename the second round of files for consistency
-    no_template_files.each { |name| File.rename(name, "#{name}.without") }
-
-    # the same filenames should have been generated
-    assert_equal(with_template_files, no_template_files)
-
-    # each of the files should be identical
-    with_template_files.each do |name|
-      assert(FileUtils.compare_file("#{name}.with", "#{name}.without"))
-      File.delete("#{name}.with", "#{name}.without")
+    with_template_build.sources.each do |with_src|
+      assert_includes(no_template_build.sources, with_src,
+                      "the build without templates is missing #{with_src}")
     end
   end
 
