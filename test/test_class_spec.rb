@@ -20,6 +20,7 @@ require 'helper'
 
 require 'fixture'
 require 'minitest/autorun'
+require 'pathname'
 require 'wrapture'
 
 class ClassSpecTest < Minitest::Test
@@ -51,9 +52,9 @@ class ClassSpecTest < Minitest::Test
     validate_cpp_build(spec, build)
 
     source_name = "#{test_spec['name']}.cpp"
-    source_file = build.lib_sources.find do |src|
-      src.path.fnmatch?(source_name)
-    end
+
+    assert_includes(build, source_name)
+    source_file = build[source_name]
 
     assert(source_file_contains_match(source_file, 'this->equivalent == NULL'),
            'no error check against the equivalent struct was found')

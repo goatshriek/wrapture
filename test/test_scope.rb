@@ -58,11 +58,11 @@ class ScopeTest < Minitest::Test
   def test_templatized_classes
     spec_with_template = load_fixture('scope_with_template')
     scope = Wrapture::Scope.new(spec_with_template)
-    with_template_build = Wrapture::CToCpp.wrap(scope)
+    with_template_build = Wrapture::CToCpp.wrap_scope(scope)
 
     spec_without_template = load_fixture('scope_without_template')
     scope = Wrapture::Scope.new(spec_without_template)
-    no_template_build = Wrapture::CToCpp.wrap(scope)
+    no_template_build = Wrapture::CToCpp.wrap_scope(scope)
 
     with_template_build.sources.each do |with_src|
       assert_includes(no_template_build.sources, with_src,

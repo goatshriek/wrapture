@@ -49,6 +49,14 @@ module Wrapture
       @path == other.path && @contents == other.contents
     end
 
+    # Alias to support usage as a Hash key.
+    alias eql? ==
+
+    # Hash the path and contents.
+    def hash
+      [@path, @contents].hash
+    end
+
     # Adds a raw line of code to a source file, followed by a newline.
     def puts(line)
       @contents << line
