@@ -72,24 +72,18 @@ class ClassSpecTest < Minitest::Test
 
   def test_generate_wrappers
     test_spec = load_fixture('basic_class')
+    spec = Wrapture::ClassSpec.new(test_spec)
+    build = Wrapture::CToCpp.wrap_class(spec)
 
-    spec = Wrapture::ClassSpec.new test_spec
-
-    classes = Wrapture::CToCppWrapper.write_spec_source_files(spec)
-    validate_wrapper_results(test_spec, classes)
-
-    File.delete(*classes)
+    validate_cpp_build(spec, build)
   end
 
   def test_child_class
     test_spec = load_fixture('child_class')
-
     spec = Wrapture::ClassSpec.new(test_spec)
+    build = Wrapture::CToCpp.wrap_class(spec)
 
-    classes = Wrapture::CToCppWrapper.write_spec_source_files(spec)
-    validate_wrapper_results(test_spec, classes)
-
-    File.delete(*classes)
+    validate_cpp_build(spec, build)
   end
 
   def test_class_with_constructor
