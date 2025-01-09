@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2020 Joel E. Anderson
+# Copyright 2020-2025 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,45 +25,38 @@ require 'wrapture'
 class EnumSpecTest < Minitest::Test
   def test_basic_enum
     test_spec = load_fixture('basic_enum')
-
     spec = Wrapture::EnumSpec.new(test_spec)
+    build = Wrapture::CToCpp.wrap_enum(spec)
+
+    validate_cpp_build(spec, build)
 
     assert_equal(test_spec['name'], spec.name)
-
-    generated_files = Wrapture::CppWrapper.write_spec_source_files(spec)
-
-    assert_equal(1, generated_files.count,
+    assert_equal(1, build.sources.count,
                  'only one file should have been generated')
 
-    validate_file_matches_spec(generated_files.first, test_spec)
+    validate_source_file_matches_enum_spec(build.sources.first, test_spec)
 
-    includes = get_include_list(generated_files.first)
+    includes = get_source_file_include_list(build.sources.first)
 
     assert_includes(includes, 'overall_1.h')
     assert_includes(includes, 'overall_2.h')
     assert_includes(includes, 'val_1.h')
-
-    File.delete(*generated_files)
   end
 
   def test_documentation
     test_spec = load_fixture('documented_enum')
-
     spec = Wrapture::EnumSpec.new(test_spec)
+    build = Wrapture::CToCpp.wrap_enum(spec)
 
-    generated_files = Wrapture::CppWrapper.write_spec_source_files(spec)
+    source = build.sources.first
 
-    filename = generated_files.first
-
-    assert(file_contains_match(filename, test_spec['doc']),
+    assert(source_file_contains_match(source, test_spec['doc']),
            'the doc for the enum was not in the definition')
 
     test_spec['elements'].each do |elem|
-      assert(file_contains_match(filename, elem['doc']),
+      assert(source_file_contains_match(source, elem['doc']),
              "the doc for #{elem['name']} was not in the definition")
     end
-
-    File.delete(*generated_files)
   end
 
   def test_elements_not_array
@@ -78,19 +71,14 @@ class EnumSpecTest < Minitest::Test
 
   def test_enum_with_namespace
     test_spec = load_fixture('enum_with_namespace')
-
     spec = Wrapture::EnumSpec.new(test_spec)
+    build = Wrapture::CToCpp.wrap_enum(spec)
 
     assert_equal(test_spec['name'], spec.name)
-
-    generated_files = Wrapture::CppWrapper.write_spec_source_files(spec)
-
-    assert_equal(1, generated_files.count,
+    assert_equal(1, build.sources.count,
                  'only one file should have been generated')
 
-    validate_file_matches_spec(generated_files.first, test_spec)
-
-    File.delete(*generated_files)
+    validate_source_file_matches_enum_spec(build.sources.first, test_spec)
   end
 
   def test_no_elements
@@ -138,6 +126,31 @@ class EnumSpecTest < Minitest::Test
 
     spec_hash['elements'].each do |element|
       assert(file_contains_match(filename, element['name']),
+             "enumeration did not have element '#{element['name']}'")
+    end
+  end
+
+  def validate_source_file_matches_enum_spec(source_file, spec_hash)
+    enum_name = spec_hash['name']
+    expected_filename = "#{enum_name}.hpp"
+
+    assert(source_file.path.basename.fnmatch?(expected_filename))
+
+    assert(source_file_contains_match(source_file, '#ifndef'),
+           'header guard is missing')
+
+    if spec_hash.key?('namespace')
+      namespace = spec_hash['namespace']
+
+      assert(source_file_contains_match(source_file, namespace),
+             "the enum did not reference the namespace '#{namespace}'")
+    end
+
+    assert(source_file_contains_match(source_file, enum_name),
+           "the enumeration name ('#{enum_name}') was not found in the file")
+
+    spec_hash['elements'].each do |element|
+      assert(source_file_contains_match(source_file, element['name']),
              "enumeration did not have element '#{element['name']}'")
     end
   end

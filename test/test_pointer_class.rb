@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2019-2020 Joel E. Anderson
+# Copyright 2019-2025 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,121 +25,106 @@ require 'wrapture'
 class ClassSpecTest < Minitest::Test
   def test_explicit_class
     test_spec = load_fixture('explicit_pointer_class')
-
     spec = Wrapture::ClassSpec.new(test_spec)
+    build = Wrapture::CToCpp.wrap_class(spec)
 
-    classes = Wrapture::CppWrapper.write_spec_source_files(spec)
-    validate_wrapper_results(test_spec, classes)
+    validate_cpp_build(spec, build)
 
+    header = build['ExplicitPointerWrapper.hpp']
     declaration = 'struct basic_struct \*equivalent;'
 
-    assert(file_contains_match('ExplicitPointerWrapper.hpp', declaration))
-
-    File.delete(*classes)
+    assert(source_file_contains_match(header, declaration))
   end
 
-  # TODO: this should be removed, since it uses c++ specific types in the spec
-  # def test_overriding_constructor
-  #  test_spec = load_fixture('constructor_class')
+  # TODO: this should be reworked, since it uses c++ specific types in the spec
+  def test_overriding_constructor
+    test_spec = load_fixture('constructor_class')
+    spec = Wrapture::ClassSpec.new(test_spec)
+    build = Wrapture::CToCpp.wrap_class(spec)
 
-  #  spec = Wrapture::ClassSpec.new(test_spec)
+    validate_cpp_build(spec, build)
 
-  #  classes = Wrapture::CppWrapper.write_spec_source_files(spec)
-  #  validate_wrapper_results(test_spec, classes)
+    header = build['ClassWithConstructor.hpp']
+    signature = /ClassWithConstructor\( struct constructed_struct \*/
 
-  #  count = 0
-  #  signature = 'ClassWithConstructor( struct constructed_struct *'
-  #  File.open('ClassWithConstructor.hpp').each do |line|
-  #    count += 1 if line.include?(signature)
-  #  end
-  #  assert_equal(1, count)
-
-  #  File.delete(*classes)
-  # end
+    assert_equal(1, count_source_file_matches(header, signature))
+  end
 
   def test_pointer_class
     test_spec = load_fixture('pointer_class')
-
     spec = Wrapture::ClassSpec.new(test_spec)
+    build = Wrapture::CToCpp.wrap_class(spec)
 
-    classes = Wrapture::CppWrapper.write_spec_source_files(spec)
-    validate_wrapper_results(test_spec, classes)
+    validate_cpp_build(spec, build)
 
+    header = build['PointerWrappingClass.hpp']
     expected_signature = 'PointerWrappingClass\( struct wrapped_struct \*'
 
-    assert(file_contains_match('PointerWrappingClass.hpp', expected_signature))
-
-    File.delete(*classes)
+    assert(source_file_contains_match(header, expected_signature))
   end
 
   def test_pointer_class_and_child
     test_spec = load_fixture('pointer_class_and_child')
-
     spec = Wrapture::Scope.new(test_spec)
+    build = Wrapture::CToCpp.wrap_scope(spec)
 
-    classes = Wrapture::CppWrapper.write_spec_source_files(spec)
-    validate_wrapper_results(test_spec, classes)
+    validate_cpp_build(spec, build)
 
+    header = build['ChildPointer.hpp']
     equivalent_signature = 'struct wrapped_struct \*equivalent;'
 
-    refute(file_contains_match('ChildPointer.hpp', equivalent_signature))
+    refute(source_file_contains_match(header, equivalent_signature))
 
+    source = build['ChildPointer.cpp']
     parent_initializer = 'equivalent \) : ParentPointer\('
 
-    assert(file_contains_match('ChildPointer.cpp', parent_initializer))
-
-    File.delete(*classes)
+    assert(source_file_contains_match(source, parent_initializer))
   end
 
   def test_pointer_class_and_child_with_different_struct
     test_spec = load_fixture('pointer_class_and_child_with_different_struct')
-
     spec = Wrapture::Scope.new(test_spec)
+    build = Wrapture::CToCpp.wrap_scope(spec)
 
-    classes = Wrapture::CppWrapper.write_spec_source_files(spec)
-    validate_wrapper_results(test_spec, classes)
+    validate_cpp_build(spec, build)
 
+    header = build['ChildPointer.hpp']
     equivalent_signature = 'struct wrapped_struct \*equivalent;'
 
-    refute(file_contains_match('ChildPointer.hpp', equivalent_signature))
+    refute(source_file_contains_match(header, equivalent_signature))
 
+    source = build['ChildPointer.cpp']
     parent_initializer = 'equivalent \) : ParentPointer\('
 
-    refute(file_contains_match('ChildPointer.cpp', parent_initializer))
-
-    File.delete(*classes)
+    refute(source_file_contains_match(source, parent_initializer))
   end
 
   def test_pointer_class_with_equivalent_pointer_constructor
     spec_name = 'pointer_class_with_equivalent_pointer_constructor'
     test_spec = load_fixture(spec_name)
-
     spec = Wrapture::ClassSpec.new(test_spec)
+    build = Wrapture::CToCpp.wrap_class(spec)
 
-    classes = Wrapture::CppWrapper.write_spec_source_files(spec)
-    validate_wrapper_results(test_spec, classes)
+    validate_cpp_build(spec, build)
 
+    source = build["#{spec.name}.hpp"]
     constructor_sig = /#{spec.name}\( struct wrapped_struct \*\w+ \)/
-    num_constructors = count_matches("#{spec.name}.hpp", constructor_sig)
+    num_constructors = count_source_file_matches(source, constructor_sig)
 
     assert_equal(1, num_constructors)
-
-    File.delete(*classes)
   end
 
   def test_pointer_class_with_explicit_pointer_constructor
     test_spec = load_fixture('pointer_class_with_explicit_pointer_constructor')
-
     spec = Wrapture::ClassSpec.new(test_spec)
+    build = Wrapture::CToCpp.wrap_class(spec)
 
-    classes = Wrapture::CppWrapper.write_spec_source_files(spec)
-    validate_wrapper_results(test_spec, classes)
+    validate_cpp_build(spec, build)
 
+    source = build["#{spec.name}.hpp"]
     constructor_sig = /#{spec.name}\( struct wrapped_struct \*\w+ \)/
-    num_constructors = count_matches("#{spec.name}.hpp", constructor_sig)
+    num_constructors = count_source_file_matches(source, constructor_sig)
 
     assert_equal(1, num_constructors)
-
-    File.delete(*classes)
   end
 end

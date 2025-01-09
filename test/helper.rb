@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2019-2020 Joel E. Anderson
+# Copyright 2019-2025 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -77,6 +77,16 @@ def count_matches(filename, regex)
   count
 end
 
+def count_source_file_matches(source_file, regex)
+  count = 0
+
+  source_file.contents.each do |line|
+    count = count.succ if line.match(regex)
+  end
+
+  count
+end
+
 def file_contains_match(filename, regex)
   File.open(filename).each do |line|
     return true if line.match(regex)
@@ -96,6 +106,18 @@ def get_include_list(filename)
   includes
 end
 
+def get_source_file_include_list(source_file)
+  includes = []
+
+  source_file.contents.each do |line|
+    if !line.nil? && (m = line.match(/#\s*include\s*["<](.*)[">]/))
+      includes << m[1]
+    end
+  end
+
+  includes
+end
+
 def refute_keywords_found(filename)
   File.open(filename) do |file|
     file.each do |line|
@@ -108,6 +130,14 @@ def refute_keywords_found(filename)
   end
 end
 
+def source_file_contains_match(source_file, regex)
+  source_file.contents.each do |line|
+    return true if line.match(regex)
+  end
+
+  false
+end
+
 def validate_class_wrapper(spec, file_list)
   refute_nil(file_list)
   refute_empty(file_list)
@@ -117,6 +147,26 @@ def validate_class_wrapper(spec, file_list)
 
   validate_declaration_file(spec)
   validate_definition_file(spec)
+end
+
+# Check a C++ build for consistency with a spec.
+def validate_cpp_build(spec, build)
+  case spec
+  when Wrapture::ClassSpec
+    refute_nil(build)
+    refute_nil(build.sources)
+    refute_empty(build.sources)
+
+    source_filenames = build.sources.map(&:path).map(&:to_s)
+
+    assert_includes(source_filenames, "#{spec.name}.cpp",
+                    "no source file named after class #{spec.name}")
+    assert_includes(source_filenames, "#{spec.name}.hpp",
+                    "no header file named after class #{spec.name}")
+
+    # validate_declaration_file(spec)
+    # validate_definition_file(spec)
+  end
 end
 
 def validate_declaration_file(spec)

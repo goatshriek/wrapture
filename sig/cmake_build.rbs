@@ -15,7 +15,15 @@
 # limitations under the License.
 
 module Wrapture
-  module Named
-    def snake_case_name: () -> String
+  class CmakeBuild
+    include Build
+
+    @cpp_build: Wrapture::CppBuild
+
+    attr_reader cpp_build: Wrapture::CppBuild
+
+    def initialize: (Wrapture::CppBuild) -> void
+    def cmake_lists: -> Wrapture::SourceFile
+    def sources: -> Array[Wrapture::SourceFile]
   end
 end

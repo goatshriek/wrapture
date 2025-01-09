@@ -15,7 +15,8 @@
 # limitations under the License.
 
 module Wrapture
-  module Named
-    def snake_case_name: () -> String
+  module CToPython
+    def self.define_module: (Wrapture::Scope) -> Wrapture::SourceFile
+    def self.wrap_scope: (Wrapture::Scope) -> Wrapture::PythonBuild
   end
 end

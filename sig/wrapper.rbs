@@ -15,7 +15,7 @@
 # limitations under the License.
 
 module Wrapture
-  module Named
-    def snake_case_name: () -> String
+  module Wrapper
+    def wrap: (Wrapture::ClassSpec | Wrapture::EnumSpec | Wrapture::Scope) -> Wrapture::Build
   end
 end

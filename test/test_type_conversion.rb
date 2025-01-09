@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2020-2021 Joel E. Anderson
+# Copyright 2020-2025 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,27 +25,23 @@ require 'wrapture'
 class TypeConversionTest < Minitest::Test
   def test_class_pointer_to_struct_pointer
     test_spec = load_fixture('scope_with_pointer_param')
-
     scope = Wrapture::Scope.new(test_spec)
+    build = Wrapture::CToCpp.wrap_scope(scope)
 
-    generated_files = Wrapture::CppWrapper.write_spec_source_files(scope)
-    validate_wrapper_results(test_spec, generated_files)
+    validate_cpp_build(scope, build)
 
-    assert(file_contains_match('Rifle.cpp', /bullet->equivalent/))
-
-    File.delete(*generated_files)
+    assert(source_file_contains_match(build['Rifle.cpp'], /bullet->equivalent/),
+           'equivalent struct member was not referenced')
   end
 
   def test_reference_to_pointer
     test_spec = load_fixture('scope_with_reference_param')
-
     scope = Wrapture::Scope.new(test_spec)
+    build = Wrapture::CToCpp.wrap_scope(scope)
 
-    generated_files = Wrapture::CppWrapper.write_spec_source_files(scope)
-    validate_wrapper_results(test_spec, generated_files)
+    validate_cpp_build(scope, build)
 
-    assert(file_contains_match('Rifle.cpp', /bullet\.equivalent/))
-
-    File.delete(*generated_files)
+    assert(source_file_contains_match(build['Rifle.cpp'], /bullet\.equivalent/),
+           'equivalent struct member was not referenced')
   end
 end

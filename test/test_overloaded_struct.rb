@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2019-2021 Joel E. Anderson
+# Copyright 2019-2025 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,26 +25,25 @@ require 'wrapture'
 class OverloadedStructTest < Minitest::Test
   def test_overloaded_struct
     test_spec = load_fixture('overloaded_struct')
-
     scope = Wrapture::Scope.new(test_spec)
 
     assert_equal(test_spec['classes'].count, scope.classes.count)
 
-    generated_files = Wrapture::CppWrapper.write_spec_source_files(scope)
-    validate_wrapper_results(test_spec, generated_files)
+    build = Wrapture::CToCpp.wrap_scope(scope)
 
-    def_file = 'Parent.cpp'
+    validate_cpp_build(scope, build)
 
-    assert(file_contains_match('Parent.hpp', 'newParent'))
-    assert(file_contains_match(def_file, 'Parent \*Parent::newParent'))
-    assert(file_contains_match(def_file, 'Parent \*Parent::OverloadedType'))
-    assert(file_contains_match(def_file, 'return newParent \('))
+    source = build['Parent.cpp']
 
-    includes = get_include_list(def_file)
+    assert(source_file_contains_match(source, 'newParent'))
+    assert(source_file_contains_match(source, 'Parent \*Parent::newParent'))
+    assert(source_file_contains_match(source,
+                                      'Parent \*Parent::OverloadedType'))
+    assert(source_file_contains_match(source, 'return newParent \('))
+
+    includes = get_source_file_include_list(source)
 
     assert_includes(includes, 'ChildOne.hpp')
     assert_includes(includes, 'ChildTwo.hpp')
-
-    File.delete(*generated_files)
   end
 end

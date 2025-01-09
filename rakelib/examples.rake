@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2023-2024 Joel E. Anderson
+# Copyright 2023-2025 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,9 +20,8 @@ def run_cpp_example(name, lib, sources, build_dir)
   example_dir = File.absolute_path("docs/examples/#{name}")
 
   scope = Wrapture::Scope.load_files("#{example_dir}/#{lib}.yml")
-  wrapper = Wrapture::CppWrapper.new(scope)
-  wrapper.write_source_files(dir: build_dir)
-  wrapper.write_cmake_files(dir: build_dir)
+  build = Wrapture::CToCpp.wrap_scope(scope)
+  Wrapture::CmakeBuild.new(build).write_sources(build_dir)
 
   Dir.chdir(build_dir) do
     usage_opts = "-I. -I#{example_dir} -o #{lib}_usage_cpp"
@@ -49,20 +48,23 @@ def run_python_example(name, lib, sources, build_dir)
   load_dir = File.absolute_path(build_dir)
 
   scope = Wrapture::Scope.load_files("#{example_dir}/#{lib}.yml")
-  wrapper = Wrapture::PythonWrapper.new(scope)
-  wrapper.write_source_files(dir: build_dir)
-  wrapper.write_pyproject_files(dir: build_dir)
+  build = Wrapture::CToPython.wrap_scope(scope)
+  python_build = Wrapture::PyprojectBuild.new(build)
 
   Dir.chdir(build_dir) do
+    # build the shared library if needed
     if sources
       source_opts = "-shared -o lib#{lib}.so -fPIC -I#{example_dir}"
       source_files = sources.map { |s| "#{example_dir}/#{s}" }.join(' ')
       sh "gcc #{source_files} #{source_opts}"
     end
+
+    # generate, build, and install the python example
+    python_build.write_sources
     cflags = "-I#{example_dir} -L#{load_dir}"
-    sh "CFLAGS=\"#{cflags}\" python3 -m build --wheel"
+    sh "CFLAGS=\"#{cflags}\" #{python_build.build_command} --wheel"
     sh 'python3 -m venv usage-env'
-    sh 'usage-env/bin/python3 -m pip install dist/*.whl'
+    sh python_build.install_command(python: 'usage-env/bin/python3')
     envs = 'LD_LIBRARY_PATH=.'
     sh "#{envs} usage-env/bin/python3 #{example_dir}/#{lib}_usage.py"
   end

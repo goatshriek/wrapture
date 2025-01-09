@@ -15,7 +15,17 @@
 # limitations under the License.
 
 module Wrapture
-  module Named
-    def snake_case_name: () -> String
+  class PyprojectBuild
+    include Build
+
+    @python_build: Wrapture::PythonBuild
+
+    attr_reader python_build: Wrapture::PythonBuild
+
+    def initialize: (Wrapture::PythonBuild) -> void
+    def build_command: (?python: String) -> String
+    def install_command: (?python: String, ?target: String) -> String
+    def pyproject: -> Wrapture::SourceFile
+    def sources: -> Array[Wrapture::SourceFile]
   end
 end

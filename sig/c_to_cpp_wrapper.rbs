@@ -1,10 +1,25 @@
+# SPDX-License-Identifier: Apache-2.0
+
+# Copyright 2025 Joel E. Anderson
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 module Wrapture
-  class CppWrapper
+  class CToCppWrapper
     def self.declaration_filename: ( Wrapture::ClassSpec class_spec ) -> String
     def self.declare_spec: ( (Wrapture::ClassSpec | Wrapture::FunctionSpec | Wrapture::Scope) spec ) { (String) -> void } -> void
     def self.define_spec: ( (Wrapture::ClassSpec | Wrapture::EnumSpec | Wrapture::FunctionSpec | Wrapture::Scope) spec ) { (String) -> void } -> void
     def self.source_files: ( (Wrapture::ClassSpec | Wrapture::EnumSpec | Wrapture::FunctionSpec | Wrapture::Scope) spec ) -> Array[String]
-    def self.write_spec_source_files: ( (Wrapture::ClassSpec | Wrapture::EnumSpec | Wrapture::FunctionSpec | Wrapture::Scope) spec, ?String dir) -> Array[String]
 
     def initialize: ( (Wrapture::ClassSpec | Wrapture::EnumSpec | Wrapture::FunctionSpec | Wrapture::Scope) spec) -> void
     def ancestor_suffix: -> String
@@ -17,9 +32,6 @@ module Wrapture
     def resolve_param: (Wrapture::ParamSpec) -> String
     def source_files: -> Array[String]
     def write_cmake_files: (?String dir) -> Array[String]
-    def write_declaration_file: (?String dir) -> String
-    def write_definition_file: (?String dir) -> String
-    def write_source_files: (?String dir) -> Array[String]
 
     private
     def action_expression: (Wrapture::ActionSpec) -> String
@@ -41,7 +53,7 @@ module Wrapture
     def enum_element_doc: (spec_hash element) { (String) -> void } -> void
     def equivalent_member_declaration: -> String
     def equivalent_member_field: -> String
-    def error_check: (Wrapture::WrappedFunctionSpec, ?return_val: String)  { (String) -> void } -> void
+    def error_check: (Wrapture::CFunctionSpec, ?return_val: String)  { (String) -> void } -> void
     def factory_constructor_hash: -> String
     def function_captures_return?: (Wrapture::FunctionSpec) -> bool
     def function_declaration_param_list: (Wrapture::FunctionSpec) -> String

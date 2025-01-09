@@ -142,9 +142,9 @@ module Wrapture
       @owner = owner
       @spec = FunctionSpec.normalize_spec_hash(spec)
       @wrapped = if @spec.key?('wrapped-function')
-                   WrappedFunctionSpec.new(@spec['wrapped-function'])
+                   CFunctionSpec.new(@spec['wrapped-function'])
                  elsif @spec.key?('wrapped-code')
-                   WrappedCodeSpec.new(@spec['wrapped-code'])
+                   CCodeSpec.new(@spec['wrapped-code'])
                  end
       @params = ParamSpec.new_list(@spec['params'])
       @return_type = TypeSpec.new(@spec['return']['type'])

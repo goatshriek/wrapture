@@ -15,7 +15,9 @@
 # limitations under the License.
 
 module Wrapture
-  module Named
-    def snake_case_name: () -> String
+  module Build
+    def []: (String | Pathname) -> Wrapture::SourceFile
+    def include?: (String | Pathname) -> bool
+    def write_sources: (?Pathname) -> void
   end
 end

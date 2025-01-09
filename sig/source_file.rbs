@@ -15,7 +15,17 @@
 # limitations under the License.
 
 module Wrapture
-  module Named
-    def snake_case_name: () -> String
+  class SourceFile
+    @contents: Array[String]
+    @path: Pathname
+
+    attr_reader contents: Array[String]
+    attr_reader path: Pathname
+
+    def initialize: (Pathname | String) -> void
+    def ==: (Wrapture::SourceFile) -> bool
+    alias eql? ==
+    def hash: -> Integer
+    def puts: (*String) -> void
   end
 end

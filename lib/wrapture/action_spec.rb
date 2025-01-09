@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2020-2024 Joel E. Anderson
+# Copyright 2020-2025 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ module Wrapture
       end
 
       if spec.include?('wrapped-function')
-        wrap = WrappedFunctionSpec.normalize_spec_hash(spec['wrapped-function'])
+        wrap = CFunctionSpec.normalize_spec_hash(spec['wrapped-function'])
         normalized['wrapped-function'] = wrap
       end
 

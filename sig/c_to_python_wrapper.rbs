@@ -1,14 +1,27 @@
+# SPDX-License-Identifier: Apache-2.0
+
+# Copyright 2025 Joel E. Anderson
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 module Wrapture
-  class PythonWrapper
+  class CToPythonWrapper
     def self.type_object_name: (Wrapture::Named class_spec) -> String
     def self.type_struct_name: (Wrapture::Named class_spec) -> String
-    def self.write_spec_pyproject_files: ((Wrapture::ClassSpec | Wrapture::EnumSpec | Wrapture::FunctionSpec | Wrapture::Scope), ?String dir) -> Array[String]
-    def self.write_spec_source_files: ((Wrapture::ClassSpec | Wrapture::EnumSpec | Wrapture::FunctionSpec | Wrapture::Scope), ?String dir) -> Array[String]
 
     def initialize: (Wrapture::ClassSpec | Wrapture::EnumSpec | Wrapture::FunctionSpec | Wrapture::Scope) -> void
+    def define_module: { (String) -> void } -> void
     def resolve_param: (Wrapture::ParamSpec) -> String
-    def write_pyproject_files: (?String dir) -> Array[String]
-    def write_source_files: (?String dir) -> Array[String]
 
     private
     def action_block: (Wrapture::ClassSpec, Wrapture::ActionSpec) { (String) -> void } -> void
@@ -34,10 +47,9 @@ module Wrapture
     def define_function_arg_parser: (Wrapture::FunctionSpec) { (String) -> void } -> void
     def define_function_group_wrapper: (Wrapture::ClassSpec, Array[Wrapture::FunctionSpec]) { (String) -> void } -> void
     def define_function_wrapper: (Wrapture::ClassSpec, Wrapture::FunctionSpec) { (String) -> void } -> void
-    def define_module: { (String) -> void } -> void
     def define_scope_type_objects: { (String) -> void } -> void
     def equivalent_member_declaration: -> String
-    def error_check: (Wrapture::ClassSpec, Wrapture::WrappedFunctionSpec, ?return_val: String)  { (String) -> void } -> void
+    def error_check: (Wrapture::ClassSpec, Wrapture::CFunctionSpec, ?return_val: String)  { (String) -> void } -> void
     def function_args_format: (Wrapture::FunctionSpec) -> String
     def function_flags: (Wrapture::FunctionSpec) -> String
     def function_locals: (Wrapture::FunctionSpec) { (String) -> void } -> void

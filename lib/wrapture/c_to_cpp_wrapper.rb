@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2021-2024 Joel E. Anderson
+# Copyright 2021-2025 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@
 #++
 
 module Wrapture
-  # A wrapper that generates C++ wrappers for given specs.
-  class CppWrapper
+  # A wrapper that generates C++ wrappers for C code.
+  class CToCppWrapper
     # Gives the filename used for the declaration of a given class spec.
     def self.declaration_filename(class_spec)
       "#{class_spec.name}.hpp"
@@ -46,14 +46,6 @@ module Wrapture
     def self.source_files(spec)
       wrapper = new(spec)
       wrapper.source_files
-    end
-
-    # Generates C++ source files, returning a list of the files generated. This
-    # is equivalent to instantiating a wrapper with the given spec, and then
-    # calling write_files on that.
-    def self.write_spec_source_files(spec, **kwargs)
-      wrapper = new(spec)
-      wrapper.write_source_files(**kwargs)
     end
 
     # Creates a C++ wrapper for a given spec.
@@ -232,46 +224,6 @@ module Wrapture
       end
 
       [filename]
-    end
-
-    # Generates the C++ declaration file, returning the name of the file
-    # generated.
-    # +dir+ specifies the directory that the file should be written into. The
-    # default is the current working directory.
-    def write_declaration_file(dir: Dir.pwd)
-      File.open(File.join(dir, declaration_filename), 'w') do |file|
-        declare { |line| file.puts(line) }
-      end
-
-      declaration_filename
-    end
-
-    # Generates the C++ definition file, returning the name of the file
-    # generated.
-    # +dir+ specifies the directory that the file should be written into. The
-    # default is the current working directory.
-    def write_definition_file(dir: Dir.pwd)
-      File.open(File.join(dir, definition_filename), 'w') do |file|
-        self.class.define_spec(@spec) { |line| file.puts(line) }
-      end
-
-      definition_filename
-    end
-
-    # Generates C++ source files, returning a list of the files generated.
-    # +dir+ specifies the directory that the files should be written into. The
-    # default is the current working directory.
-    def write_source_files(dir: Dir.pwd)
-      if @spec.is_a?(Scope)
-        @spec.flat_map do |spec|
-          self.class.write_spec_source_files(spec, dir: dir)
-        end
-      elsif forward_declared?
-        [write_declaration_file(dir: dir),
-         write_definition_file(dir: dir)]
-      else
-        [write_definition_file(dir: dir)]
-      end
     end
 
     private
@@ -538,7 +490,7 @@ module Wrapture
         yield ''
       end
 
-      if @spec.wrapped.is_a?(WrappedFunctionSpec)
+      if @spec.wrapped.is_a?(CFunctionSpec)
         yield "  #{wrapped_call_expression};"
       else
         @spec.wrapped.lines.each { |line| yield "  #{line}" }

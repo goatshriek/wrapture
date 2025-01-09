@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2019-2021 Joel E. Anderson
+# Copyright 2019-2025 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ require 'helper'
 
 require 'fixture'
 require 'minitest/autorun'
+require 'pathname'
 require 'wrapture'
 
 class ClassSpecTest < Minitest::Test
@@ -47,17 +48,18 @@ class ClassSpecTest < Minitest::Test
     test_spec = load_fixture('class_with_return_val_in_constructor')
 
     spec = Wrapture::ClassSpec.new(test_spec)
-    generated_files = Wrapture::CppWrapper.write_spec_source_files(spec)
-    validate_wrapper_results(test_spec, generated_files)
+    build = Wrapture::CToCpp.wrap_class(spec)
+    validate_cpp_build(spec, build)
 
-    source_file = "#{test_spec['name']}.cpp"
+    source_name = "#{test_spec['name']}.cpp"
 
-    assert(file_contains_match(source_file, 'this->equivalent == NULL'),
+    assert_includes(build, source_name)
+    source_file = build[source_name]
+
+    assert(source_file_contains_match(source_file, 'this->equivalent == NULL'),
            'no error check against the equivalent struct was found')
-    refute(file_contains_match(source_file, 'return_val'),
+    refute(source_file_contains_match(source_file, 'return_val'),
            'a return value variable was still generated')
-
-    File.delete(*generated_files)
   end
 
   def test_future_spec_version
@@ -70,54 +72,42 @@ class ClassSpecTest < Minitest::Test
 
   def test_generate_wrappers
     test_spec = load_fixture('basic_class')
+    spec = Wrapture::ClassSpec.new(test_spec)
+    build = Wrapture::CToCpp.wrap_class(spec)
 
-    spec = Wrapture::ClassSpec.new test_spec
-
-    classes = Wrapture::CppWrapper.write_spec_source_files(spec)
-    validate_wrapper_results(test_spec, classes)
-
-    File.delete(*classes)
+    validate_cpp_build(spec, build)
   end
 
   def test_child_class
     test_spec = load_fixture('child_class')
-
     spec = Wrapture::ClassSpec.new(test_spec)
+    build = Wrapture::CToCpp.wrap_class(spec)
 
-    classes = Wrapture::CppWrapper.write_spec_source_files(spec)
-    validate_wrapper_results(test_spec, classes)
-
-    File.delete(*classes)
+    validate_cpp_build(spec, build)
   end
 
   def test_class_with_constructor
     test_spec = load_fixture('constructor_class')
-
     spec = Wrapture::ClassSpec.new(test_spec)
+    build = Wrapture::CToCpp.wrap_class(spec)
 
-    generated_files = Wrapture::CppWrapper.write_spec_source_files(spec)
-    validate_wrapper_results(test_spec, generated_files)
+    validate_cpp_build(spec, build)
 
     class_name = test_spec['name']
-    header_file = "#{class_name}.hpp"
-
+    header = build["#{class_name}.hpp"]
     member_regex = /^\s*#{class_name}\( int member/
-
-    assert(file_contains_match(header_file, member_regex),
-           'the member constructor had a return type specified in the header')
-
     spec_regex = /^\s*#{class_name}\( struct/
-
-    assert(file_contains_match(header_file, spec_regex),
-           'the spec constructor had a return type specified in the header')
-
     destructor_regex = /^\s*~#{class_name}/
 
-    assert(file_contains_match(header_file, destructor_regex),
-           'the destructor had a return type specified in the header')
+    assert(source_file_contains_match(header, member_regex),
+           'the member constructor declaration was not found')
+    assert(source_file_contains_match(header, spec_regex),
+           'the struct constructor declaration was not found')
+    assert(source_file_contains_match(header, destructor_regex),
+           'the destructor declaration was not found')
 
-    source_file = "#{class_name}.cpp"
-    includes = get_include_list(source_file)
+    source = build["#{class_name}.cpp"]
+    includes = get_source_file_include_list(source)
 
     all_spec_includes(test_spec).each do |inc|
       assert_includes(includes, inc)
@@ -125,163 +115,136 @@ class ClassSpecTest < Minitest::Test
 
     forbidden = Wrapture::EQUIVALENT_STRUCT_KEYWORD
 
-    refute(file_contains_match(source_file, forbidden))
+    refute(source_file_contains_match(source, forbidden),
+           'the source file contained a wrapture keyword')
 
     member_regex = /^\s*#{class_name}::#{class_name}\( int member/
-
-    assert(file_contains_match(source_file, member_regex),
-           'the member constructor had a return type specified when defined')
-
     spec_regex = /^\s*#{class_name}::#{class_name}\( struct/
-
-    assert(file_contains_match(source_file, spec_regex),
-           'the spec constructor had a return type specified when defined')
-
     destructor_regex = /^\s*#{class_name}::~#{class_name}/
 
-    assert(file_contains_match(source_file, destructor_regex),
-           'the destructor was not defined properly')
+    assert(source_file_contains_match(source, member_regex),
+           'the member constructor definition was not found')
+    assert(source_file_contains_match(source, spec_regex),
+           'the spec constructor definition was not found')
+    assert(source_file_contains_match(source, destructor_regex),
+           'the destructor definition was not found')
 
     wrapped_function = test_spec['constructors'][0]['wrapped-function']
 
-    assert(file_contains_match(source_file, /= #{wrapped_function['name']}/))
-
-    File.delete(*generated_files)
+    assert(source_file_contains_match(source, /= #{wrapped_function['name']}/),
+           'source file does not include the wrapped function')
   end
 
   def test_class_with_constant
     test_spec = load_fixture('constant_class')
-
     spec = Wrapture::ClassSpec.new(test_spec)
+    build = Wrapture::CToCpp.wrap_class(spec)
 
-    classes = Wrapture::CppWrapper.write_spec_source_files(spec)
-    validate_wrapper_results(test_spec, classes)
-
-    File.delete(*classes)
+    validate_cpp_build(spec, build)
   end
 
   def test_class_with_documentation
     test_spec = load_fixture('documented_class')
-
     spec = Wrapture::ClassSpec.new(test_spec)
+    build = Wrapture::CToCpp.wrap_class(spec)
 
-    generated_files = Wrapture::CppWrapper.write_spec_source_files(spec)
-    validate_wrapper_results(test_spec, generated_files)
+    validate_cpp_build(spec, build)
 
-    File.open('DocumentedClass.hpp').each do |line|
+    source = build['DocumentedClass.hpp']
+
+    source.contents.each do |line|
       if line.lstrip.start_with?('/**', '*')
         refute(line.chomp.end_with?(' '))
         assert_operator(line.chomp.length, :<=, 80)
       end
     end
 
-    assert(file_contains_match('DocumentedClass.hpp', '\s\*$'))
-
-    File.delete(*generated_files)
+    assert(source_file_contains_match(source, '\s\*$'),
+           'the end of the comment block was missing')
   end
 
   def test_class_with_no_struct
     test_spec = load_fixture('no_struct_class')
-
     spec = Wrapture::ClassSpec.new(test_spec)
+    build = Wrapture::CToCpp.wrap_class(spec)
 
-    generated_files = Wrapture::CppWrapper.write_spec_source_files(spec)
-    validate_wrapper_results(test_spec, generated_files)
-
-    File.delete(*generated_files)
+    validate_cpp_build(spec, build)
   end
 
   def test_class_with_no_struct_overloads
     test_spec = load_fixture('no_struct_class')
-
     spec = Wrapture::ClassSpec.new(test_spec)
+    build = Wrapture::CToCpp.wrap_class(spec)
 
-    generated_files = Wrapture::CppWrapper.write_spec_source_files(spec)
-    validate_wrapper_results(test_spec, generated_files)
+    validate_cpp_build(spec, build)
 
     overload_specs = load_fixture('overloaded_struct')
     parent_spec = Wrapture::ClassSpec.new(overload_specs['classes'].first)
     spec.overloads?(parent_spec)
-
-    File.delete(*generated_files)
   end
 
   def test_class_with_static_function
     test_spec = load_fixture('static_function_class')
-
     spec = Wrapture::ClassSpec.new test_spec
+    build = Wrapture::CToCpp.wrap_class(spec)
 
-    classes = Wrapture::CppWrapper.write_spec_source_files(spec)
-    validate_wrapper_results(test_spec, classes)
+    validate_cpp_build(spec, build)
 
-    static_function_found = false
-    File.open("#{test_spec['name']}.hpp", 'r').each do |line|
-      static_function_found = true if line.include? 'static'
-    end
+    header = build["#{test_spec['name']}.hpp"]
 
-    assert static_function_found, 'No static function defined.'
-
-    File.delete(*classes)
+    assert(source_file_contains_match(header, 'static'),
+           'static keyword not found')
   end
 
   def test_default_constructor_generation
     test_spec = load_fixture('default_value_members')
-
     spec = Wrapture::ClassSpec.new(test_spec)
+    build = Wrapture::CToCpp.wrap_class(spec)
 
-    classes = Wrapture::CppWrapper.write_spec_source_files(spec)
-    validate_wrapper_results(test_spec, classes)
+    validate_cpp_build(spec, build)
 
-    assert(file_contains_match('DefaultMembersClass.hpp', 'member_1 = 42'),
+    header = build['DefaultMembersClass.hpp']
+
+    assert(source_file_contains_match(header, 'member_1 = 42'),
            'default value not present in signature')
-
-    File.delete(*classes)
   end
 
   def test_delegating_constructor
     test_spec = load_fixture('delegating_constructor')
     spec = Wrapture::ClassSpec.new(test_spec)
-    classes = Wrapture::CppWrapper.write_spec_source_files(spec)
-    validate_wrapper_results(test_spec, classes)
+    build = Wrapture::CToCpp.wrap_class(spec)
 
+    validate_cpp_build(spec, build)
+
+    source = build['DelegatingConstructorClass.cpp']
     sig = "#{spec.name}\\( void \\) : #{spec.name}\\( 3 \\)"
 
-    assert(file_contains_match('DelegatingConstructorClass.cpp', sig),
+    assert(source_file_contains_match(source, sig),
            'delegating constructor not present')
-
-    File.delete(*classes)
   end
 
   def test_versioned_class
     test_spec = load_fixture('versioned_class')
-
     spec = Wrapture::ClassSpec.new(test_spec)
+    build = Wrapture::CToCpp.wrap_class(spec)
 
-    classes = Wrapture::CppWrapper.write_spec_source_files(spec)
-    validate_wrapper_results(test_spec, classes)
-
-    File.delete(*classes)
+    validate_cpp_build(spec, build)
   end
 
   def test_wrapper_class
     test_spec = load_fixture('struct_wrapper_class')
-
     spec = Wrapture::ClassSpec.new test_spec
+    build = Wrapture::CToCpp.wrap_class(spec)
 
-    classes = Wrapture::CppWrapper.write_spec_source_files(spec)
-    validate_wrapper_results(test_spec, classes)
+    validate_cpp_build(spec, build)
 
-    filename = 'StructWrapperClass.cpp'
-    assignment = 'this->equivalent.member_1 = member_1;'
-    failure_msg = 'member assignment not present in definition'
+    source = build['StructWrapperClass.cpp']
+    member_assignment = 'this->equivalent.member_1 = member_1;'
+    pointer_assignment = 'this->equivalent.member_1 = equivalent->member_1;'
 
-    assert(file_contains_match(filename, assignment), failure_msg)
-
-    assignment = 'this->equivalent.member_1 = equivalent->member_1;'
-    failure_msg = 'pointer member assignment not present in definition'
-
-    assert(file_contains_match(filename, assignment), failure_msg)
-
-    File.delete(*classes)
+    assert(source_file_contains_match(source, member_assignment),
+           'member assignment not present in definition')
+    assert(source_file_contains_match(source, pointer_assignment),
+           'pointer member assignment not present in definition')
   end
 end

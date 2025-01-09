@@ -1,5 +1,5 @@
 module Wrapture
-  class WrappedFunctionSpec
+  class CFunctionSpec
     @spec: spec_hash
     @error_action: (Wrapture::ActionSpec | nil)
     @error_rules: Array[Wrapture::RuleSpec]
@@ -11,7 +11,7 @@ module Wrapture
     attr_reader error_rules: Array[Wrapture::RuleSpec]
 
     def initialize: (spec_hash spec) -> void
-    def call_from: (Wrapture::CppWrapper | Wrapture::PythonWrapper) -> String
+    def call_from: (Wrapture::CToCppWrapper | Wrapture::CToPythonWrapper) -> String
     def error_check?: -> bool
     def includes: -> Array[String]
     def libraries: -> Array[String]
