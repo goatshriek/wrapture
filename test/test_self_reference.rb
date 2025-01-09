@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2019-2024 Joel E. Anderson
+# Copyright 2019-2025 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,24 +25,21 @@ require 'wrapture'
 class SelfReferenceTest < Minitest::Test
   def test_self_reference_function
     test_spec = load_fixture('self_reference_class')
-
     spec = Wrapture::ClassSpec.new(test_spec)
+    build = Wrapture::CToCpp.wrap_class(spec)
 
-    generated_files = Wrapture::CToCppWrapper.write_spec_source_files(spec)
-    validate_wrapper_results(test_spec, generated_files)
+    validate_cpp_build(spec, build)
 
     forbidden = Wrapture::SELF_REFERENCE_KEYWORD
 
-    generated_files.each do |filename|
-      refute(file_contains_match(filename, forbidden),
-             "#{filename} should not contain '#{forbidden}'")
+    build.sources.each do |src|
+      refute(source_file_contains_match(src, forbidden),
+             "#{src.path} contains wrapture keyword #{forbidden}")
     end
 
-    source_file = "#{test_spec['name']}.cpp"
+    source = build["#{test_spec['name']}.cpp"]
 
-    assert(file_contains_match(source_file, /return \*this;/))
-    refute(file_contains_match(source_file, 'return_val'))
-
-    File.delete(*generated_files)
+    assert(source_file_contains_match(source, /return \*this;/))
+    refute(source_file_contains_match(source, 'return_val'))
   end
 end

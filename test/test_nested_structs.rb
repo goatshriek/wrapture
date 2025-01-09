@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2024 Joel E. Anderson
+# Copyright 2024-2025 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,24 +25,19 @@ require 'wrapture'
 class NestedStructsTest < Minitest::Test
   def test_nested_structs
     test_spec = load_fixture('nested_structs')
-
     scope = Wrapture::Scope.new(test_spec)
+    build = Wrapture::CToCpp.wrap_scope(scope)
+
+    validate_cpp_build(scope, build)
 
     assert_equal(test_spec['classes'].count, scope.classes.count)
 
-    generated_files = Wrapture::CToCppWrapper.write_spec_source_files(scope)
-    validate_wrapper_results(test_spec, generated_files)
+    header_includes = get_source_file_include_list(build['Gym.hpp'])
+    source_includes = get_source_file_include_list(build['Gym.cpp'])
 
-    includes = get_include_list('Gym.hpp')
-
-    assert_includes(includes, 'Pool.hpp')
-    assert_includes(includes, 'Track.hpp')
-
-    includes = get_include_list('Gym.cpp')
-
-    assert_includes(includes, 'Pool.hpp')
-    assert_includes(includes, 'Track.hpp')
-
-    File.delete(*generated_files)
+    assert_includes(header_includes, 'Pool.hpp')
+    assert_includes(header_includes, 'Track.hpp')
+    assert_includes(source_includes, 'Pool.hpp')
+    assert_includes(source_includes, 'Track.hpp')
   end
 end

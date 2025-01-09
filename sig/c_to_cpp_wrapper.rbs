@@ -4,7 +4,7 @@ module Wrapture
     def self.declare_spec: ( (Wrapture::ClassSpec | Wrapture::FunctionSpec | Wrapture::Scope) spec ) { (String) -> void } -> void
     def self.define_spec: ( (Wrapture::ClassSpec | Wrapture::EnumSpec | Wrapture::FunctionSpec | Wrapture::Scope) spec ) { (String) -> void } -> void
     def self.source_files: ( (Wrapture::ClassSpec | Wrapture::EnumSpec | Wrapture::FunctionSpec | Wrapture::Scope) spec ) -> Array[String]
-    def self.write_spec_source_files: ( (Wrapture::ClassSpec | Wrapture::EnumSpec | Wrapture::FunctionSpec | Wrapture::Scope) spec, ?String dir) -> Array[String]
+    # def self.write_spec_source_files: ( (Wrapture::ClassSpec | Wrapture::EnumSpec | Wrapture::FunctionSpec | Wrapture::Scope) spec, ?String dir) -> Array[String]
 
     def initialize: ( (Wrapture::ClassSpec | Wrapture::EnumSpec | Wrapture::FunctionSpec | Wrapture::Scope) spec) -> void
     def ancestor_suffix: -> String
@@ -17,9 +17,9 @@ module Wrapture
     def resolve_param: (Wrapture::ParamSpec) -> String
     def source_files: -> Array[String]
     def write_cmake_files: (?String dir) -> Array[String]
-    def write_declaration_file: (?String dir) -> String
-    def write_definition_file: (?String dir) -> String
-    def write_source_files: (?String dir) -> Array[String]
+    # def write_declaration_file: (?String dir) -> String
+    # def write_definition_file: (?String dir) -> String
+    # def write_source_files: (?String dir) -> Array[String]
 
     private
     def action_expression: (Wrapture::ActionSpec) -> String

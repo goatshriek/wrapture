@@ -77,6 +77,16 @@ def count_matches(filename, regex)
   count
 end
 
+def count_source_file_matches(source_file, regex)
+  count = 0
+
+  source_file.contents.each do |line|
+    count = count.succ if line.match(regex)
+  end
+
+  count
+end
+
 def file_contains_match(filename, regex)
   File.open(filename).each do |line|
     return true if line.match(regex)
@@ -89,6 +99,18 @@ def get_include_list(filename)
   includes = []
   File.open(filename).each do |line|
     if (m = line.match(/#\s*include\s*["<](.*)[">]/))
+      includes << m[1]
+    end
+  end
+
+  includes
+end
+
+def get_source_file_include_list(source_file)
+  includes = []
+
+  source_file.contents.each do |line|
+    if !line.nil? && (m = line.match(/#\s*include\s*["<](.*)[">]/))
       includes << m[1]
     end
   end

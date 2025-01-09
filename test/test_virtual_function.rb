@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2019-2024 Joel E. Anderson
+# Copyright 2019-2025 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,15 +25,15 @@ require 'wrapture'
 class FunctionSpecTest < Minitest::Test
   def test_class_with_virtual_function
     test_spec = load_fixture('class_with_virtual_function')
-
     spec = Wrapture::ClassSpec.new(test_spec)
+    build = Wrapture::CToCpp.wrap_class(spec)
 
-    classes = Wrapture::CToCppWrapper.write_spec_source_files(spec)
-    validate_wrapper_results(test_spec, classes)
+    validate_cpp_build(spec, build)
 
-    assert(file_contains_match('BaseClass.hpp', 'virtual void'))
+    header = build['BaseClass.hpp']
 
-    File.delete(*classes)
+    assert(source_file_contains_match(header, 'virtual void'),
+           'a virtual void function was not found')
   end
 
   def test_virtual_function

@@ -51,7 +51,7 @@ module Wrapture
 
     # Generate a source file with the definition of an enumeration.
     def self.define_enum(enum_spec)
-      src = SourceFile.new("#{enum_spec.name}.cpp")
+      src = SourceFile.new("#{enum_spec.name}.hpp")
 
       wrapper = CToCppWrapper.new(enum_spec)
       wrapper.define do |line|
