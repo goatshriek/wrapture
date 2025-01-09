@@ -58,9 +58,13 @@ module Wrapture
     end
 
     # Adds a raw line of code to a source file, followed by a newline.
-    def puts(line)
-      @contents << line
-      @contents << "\n"
+    def puts(*parts)
+      parts.each do |line|
+        @contents << line
+        @contents << "\n"
+      end
+
+      @contents << "\n" if parts.empty?
     end
   end
 end

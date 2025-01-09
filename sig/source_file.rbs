@@ -26,6 +26,6 @@ module Wrapture
     def ==: (Wrapture::SourceFile) -> bool
     alias eql? ==
     def hash: -> Integer
-    def puts: (String) -> void
+    def puts: (*String) -> void
   end
 end

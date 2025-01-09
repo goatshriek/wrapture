@@ -43,9 +43,9 @@ module Wrapture
       file.puts("project(#{@cpp_build.name})")
       file.puts
 
-      file.puts("set(#{@cpp_build.upcase}_HEADERS")
+      file.puts("set(#{@cpp_build.name.upcase}_HEADERS")
       @cpp_build.lib_headers.each do |header|
-        file.puts("  #{header}")
+        file.puts("  #{header.path}")
       end
       file.puts(')')
       file.puts
@@ -53,8 +53,8 @@ module Wrapture
       unless @cpp_build.lib_sources.empty?
         source_list = "#{@cpp_build.name.upcase}_SOURCES"
         file.puts("set(#{source_list}")
-        sources.each do |source|
-          file.puts("  #{source}")
+        @cpp_build.lib_sources.each do |source|
+          file.puts("  #{source.path}")
         end
         file.puts(')')
         file.puts

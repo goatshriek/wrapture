@@ -59,7 +59,7 @@ module Wrapture
       end
 
       build.lib_links.each do |lnk|
-        add_lib_link(lnk)
+        add_link(lnk)
       end
 
       self
@@ -77,7 +77,7 @@ module Wrapture
 
     # Add a library that the project's libary must be linked with.
     def add_link(lib)
-      @lib_links << lib
+      @lib_links << lib unless @lib_links.include?(lib)
     end
 
     # All source files (including headers) in this project.

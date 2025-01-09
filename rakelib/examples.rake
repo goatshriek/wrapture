@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2023-2024 Joel E. Anderson
+# Copyright 2023-2025 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,11 +20,8 @@ def run_cpp_example(name, lib, sources, build_dir)
   example_dir = File.absolute_path("docs/examples/#{name}")
 
   scope = Wrapture::Scope.load_files("#{example_dir}/#{lib}.yml")
-  # build = Wrapture::CToCpp.wrap_scope(scope)
-  # Wrapture::CMakeBuild.new(build).write_sources(build_dir)
-  wrapper = Wrapture::CToCppWrapper.new(scope)
-  wrapper.write_source_files(dir: build_dir)
-  wrapper.write_cmake_files(dir: build_dir)
+  build = Wrapture::CToCpp.wrap_scope(scope)
+  Wrapture::CmakeBuild.new(build).write_sources(build_dir)
 
   Dir.chdir(build_dir) do
     usage_opts = "-I. -I#{example_dir} -o #{lib}_usage_cpp"
