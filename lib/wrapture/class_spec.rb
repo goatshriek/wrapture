@@ -296,8 +296,16 @@ module Wrapture
         !@struct.rules.empty?
     end
 
+    # True if this class is a parent of others.
+    def parent?
+      @scope.classes.any? do |class_spec|
+        class_spec.parent_name == name
+      end
+    end
+
     # The name of the parent of this class, or nil if there is no parent.
     def parent_name
+      # TODO: this needs to use the actual class spec method instead of the hash
       @spec['parent']['name'] if child?
     end
 

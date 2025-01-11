@@ -346,7 +346,6 @@ module Wrapture
     # Passes lines of C code to the given block which creates the methods and
     # type object for the given class in this module.
     def define_class_type_object(class_spec, &block)
-      # define_class_type_struct(class_spec) { |line| block.call(line) }
       yield ''
 
       class_function_groups(class_spec).each do |func_group|
@@ -373,7 +372,9 @@ module Wrapture
       yield "  .tp_doc = \"#{class_spec.doc.text}\","
       yield "  .tp_basicsize = sizeof( #{type_struct_name(class_spec)} ),"
       yield '  .tp_itemsize = 0,'
-      yield '  .tp_flags = Py_TPFLAGS_DEFAULT,'
+      flags = 'Py_TPFLAGS_DEFAULT'
+      flags += ' | Py_TPFLAGS_BASETYPE' if class_spec.parent?
+      yield "  .tp_flags = #{flags},"
       yield "  .tp_new = #{snake_name}_new,"
       yield "  .tp_dealloc = ( destructor ) #{snake_name}_dealloc,"
       yield "  .tp_methods = #{snake_name}_methods,"
@@ -488,6 +489,9 @@ module Wrapture
       yield 'static int'
       name = "parse_#{function_wrapper_name(func_spec)}" if name.nil?
       signature_declarations = []
+      parse_args = []
+      parse_locals = []
+
       func_spec.params.each do |param_spec|
         param_type_spec = func_spec.resolve_type(param_spec.type)
         param_type = if func_spec.owner.scope.type?(param_type_spec)
@@ -496,12 +500,37 @@ module Wrapture
                        "#{param_type_spec} *"
                      end
         signature_declarations << "#{param_type} #{param_spec.name}"
+
+        parse_args << if param_type_spec == 'bool'
+                        parse_locals << { name: "#{param_spec.name}_int",
+                                          decl: "int #{param_spec.name}_int;",
+                                          param: param_spec.name }
+                        "&#{param_spec.name}_int"
+                      else
+                        param_spec.name
+                      end
       end
       wrapped_args = signature_declarations.join(', ')
       yield "#{name}( PyObject *args, PyObject *kwds, #{wrapped_args} ) {"
+      parse_locals.each { |local| yield local[:decl] }
+      unless parse_locals.empty?
+        yield 'int parse_result;'
+        yield ''
+      end
+
       format_str = "\"#{function_args_format(func_spec)}\""
-      params = func_spec.param_names.join(', ')
-      yield "  return PyArg_ParseTuple( args, #{format_str}, #{params} );"
+      params = parse_args.join(', ')
+      parse_call = "PyArg_ParseTuple( args, #{format_str}, #{params} )"
+
+      if parse_locals.empty?
+        yield "  return #{parse_call};"
+      else
+        yield "  parse_result = #{parse_call};"
+        parse_locals.each do |local|
+          yield "  *#{local[:param]} = #{local[:name]};"
+        end
+        yield '  return parse_result;'
+      end
       yield '}'
     end
 
