@@ -72,6 +72,8 @@ module Wrapture
       raise MissingNamespace unless spec.key?('namespace')
       raise MissingSpecKey, 'name key is required' unless spec.key?('name')
 
+      spec['name'] = Wrapture.normalize_name(spec, 'name')
+
       if spec.key?('doc')
         Comment.validate_doc(spec['doc'])
       else
@@ -269,7 +271,10 @@ module Wrapture
     end
 
     # The name of the class.
-    def name
+    alias name raw_name
+
+    # The words that make up the function name.
+    def name_words
       @spec['name']
     end
 

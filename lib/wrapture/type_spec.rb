@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2020-2024 Joel E. Anderson
+# Copyright 2020-2025 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@ module Wrapture
     # a parameter list and return type for the signature to be clear.
     def initialize(spec = 'void')
       actual_spec = if spec.is_a?(String)
-                      { 'name' => spec }
+                      { 'name' => [spec] }
                     else
                       spec
                     end
@@ -98,7 +98,10 @@ module Wrapture
     end
 
     # The name of the type.
-    def name
+    alias name raw_name
+
+    # The words that make up the function name.
+    def name_words
       @spec['name']
     end
 

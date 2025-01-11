@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2020-2023 Joel E. Anderson
+# Copyright 2020-2025 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -40,6 +40,8 @@ module Wrapture
       unless spec.key?('name')
         raise MissingSpecKey, 'a name is required for enumerations'
       end
+
+      spec['name'] = Wrapture.normalize_name(spec, 'name')
 
       if spec.key?('elements')
         unless spec['elements'].is_a?(Array)
@@ -120,8 +122,11 @@ module Wrapture
       @spec['libraries']
     end
 
-    # The name of the enumeration.
-    def name
+    # The name of the constant.
+    alias name raw_name
+
+    # The name of the constant.
+    def name_words
       @spec['name']
     end
 
