@@ -33,6 +33,7 @@ module Wrapture
     # normalize the include list.
     def self.normalize_spec_hash!(spec)
       spec['includes'] = Wrapture.normalize_array(spec['includes'])
+      spec['name'] = Wrapture.normalize_name(spec, 'name')
       spec
     end
 
@@ -48,7 +49,7 @@ module Wrapture
     # a parameter list and return type for the signature to be clear.
     def initialize(spec = 'void')
       actual_spec = if spec.is_a?(String)
-                      { 'name' => [spec] }
+                      { 'name' => spec }
                     else
                       spec
                     end
