@@ -24,14 +24,8 @@ module Wrapture
   # This module expects that +name_words+ gives an enumerable of parts that make
   # up the name. These words are used to form the name forms that this module
   # provides.
-  #
-  # This module expects that +name+ gives a CamelCase name. Other
-  # transformations are based on this assumption. Names with multiple capital
-  # letters in sequence, such as 'AARConnection', contain an initialism and are
-  # interpreted as such. So for example, the result of +snake_case_name+ of the
-  # previous example would be 'aar_connection'.
   module Named
-    # The name in CamelCase.
+    # The name in UpperCamelCase.
     def camel_case_name
       name_words.map(&:capitalize).join
     end
