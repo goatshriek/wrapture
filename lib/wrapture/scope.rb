@@ -212,9 +212,6 @@ module Wrapture
       self
     end
 
-    # The name of the class.
-    alias name raw_name
-
     # The name of the scope.
     #
     # Since the name of a scope is optional, it is derived using the following

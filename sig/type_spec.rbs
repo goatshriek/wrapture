@@ -30,7 +30,6 @@ module Wrapture
     def function: -> (Wrapture::FunctionSpec | nil)
     def function?: -> bool
     def includes: -> untyped
-    alias name raw_name
     def name_words: -> Array[String]
     def pointer?: -> bool
     def resolve: (Wrapture::FunctionSpec owner) -> Wrapture::TypeSpec

@@ -28,7 +28,6 @@ module Wrapture
     def doc: -> Wrapture::Comment
     def initializers: -> spec_hash
     def libraries: -> Array[String]
-    alias name raw_name
     def name_words: -> Array[String]
     def optional_params: -> Array[Wrapture::ParamSpec]
     def param_names: -> Array[String]

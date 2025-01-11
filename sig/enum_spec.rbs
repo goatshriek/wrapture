@@ -29,7 +29,6 @@ module Wrapture
     def definition_includes: -> Array[String]
     def elements: -> spec_hash
     def libraries: -> Array[String]
-    alias name raw_name
     def name_words: -> Array[String]
     def namespace: -> (String | nil)
     def namespace?: -> bool

@@ -34,7 +34,6 @@ module Wrapture
     def each: { ((Wrapture::ClassSpec | Wrapture::EnumSpec) spec) -> void } -> void
     def libraries: -> Array[String]
     def merge_file: (String spec_filename) -> Wrapture::Scope
-    alias name raw_name
     def name_words: -> Array[String]
     def overloads: (untyped parent) -> Array[bot]
     def overloads?: (untyped parent) -> bool

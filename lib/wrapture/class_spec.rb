@@ -270,9 +270,6 @@ module Wrapture
       @functions.select { |spec| !spec.constructor? && !spec.destructor? }
     end
 
-    # The name of the class.
-    alias name raw_name
-
     # The words that make up the function name.
     def name_words
       @spec['name']

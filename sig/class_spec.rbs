@@ -44,7 +44,6 @@ module Wrapture
     def factory?: -> bool
     def libraries: -> Array[String]
     def method_specs: -> Array[Wrapture::FunctionSpec]
-    alias name raw_name
     def name_words: -> Array[String]
     def namespace: -> String
     def overloads?: (untyped parent_spec) -> bool

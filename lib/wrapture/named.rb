@@ -41,6 +41,9 @@ module Wrapture
       name_words.join
     end
 
+    # The default name is the raw one.
+    alias name raw_name
+
     # The name in snake_case.
     def snake_case_name
       name_words.map(&:downcase).join('_')

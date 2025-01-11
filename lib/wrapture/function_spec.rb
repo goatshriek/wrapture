@@ -240,9 +240,6 @@ module Wrapture
       end
     end
 
-    # The name of the function.
-    alias name raw_name
-
     # The words that make up the function name.
     def name_words
       @spec['name']

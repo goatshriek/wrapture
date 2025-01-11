@@ -83,9 +83,6 @@ module Wrapture
     end
 
     # The name of the constant.
-    alias name raw_name
-
-    # The name of the constant.
     def name_words
       @spec['name']
     end
