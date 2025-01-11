@@ -72,6 +72,8 @@ module Wrapture
       raise MissingNamespace unless spec.key?('namespace')
       raise MissingSpecKey, 'name key is required' unless spec.key?('name')
 
+      spec['name'] = Wrapture.normalize_name(spec, 'name')
+
       if spec.key?('doc')
         Comment.validate_doc(spec['doc'])
       else
@@ -268,8 +270,8 @@ module Wrapture
       @functions.select { |spec| !spec.constructor? && !spec.destructor? }
     end
 
-    # The name of the class.
-    def name
+    # The words that make up the function name.
+    def name_words
       @spec['name']
     end
 
@@ -291,8 +293,16 @@ module Wrapture
         !@struct.rules.empty?
     end
 
+    # True if this class is a parent of others.
+    def parent?
+      @scope.classes.any? do |class_spec|
+        class_spec.parent_name == name
+      end
+    end
+
     # The name of the parent of this class, or nil if there is no parent.
     def parent_name
+      # TODO: this needs to use the actual class spec method instead of the hash
       @spec['parent']['name'] if child?
     end
 

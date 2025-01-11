@@ -61,6 +61,7 @@ module Wrapture
       Wrapture.normalize_boolean!(spec, 'virtual')
       spec['params'] = ParamSpec.normalize_param_list(spec['params'])
       spec['return'] = normalize_return_hash(spec['return'])
+      spec['name'] = Wrapture.normalize_name(spec, 'name')
 
       spec['initializers'] = [] unless spec.key?('initializers')
       if spec['initializers'].any? { |i| !i.key?('name') && !i['delegate'] }
@@ -239,8 +240,8 @@ module Wrapture
       end
     end
 
-    # The name of the function.
-    def name
+    # The words that make up the function name.
+    def name_words
       @spec['name']
     end
 

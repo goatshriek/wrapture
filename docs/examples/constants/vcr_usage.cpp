@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /*
- * Copyright 2023 Joel E. Anderson
+ * Copyright 2023-2025 Joel E. Anderson
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,16 +17,16 @@
  */
 
 #include <cstdlib>
-#include <VCR.hpp>
+#include <Vcr.hpp>
 
 using namespace mediacenter;
 
 int main(int argc, char **argv) {
-  VCR living_room ( 3 );
-  VCR bedroom ( 4 );
+  Vcr living_room ( 3 );
+  Vcr bedroom ( 4 );
 
-  living_room.SendCommand( VCR::PAUSE_COMMAND );
-  bedroom.SendCommand( VCR::PLAY_COMMAND );
+  living_room.SendCommand( Vcr::PAUSE_COMMAND );
+  bedroom.SendCommand( Vcr::PLAY_COMMAND );
 
   return EXIT_SUCCESS;
 }

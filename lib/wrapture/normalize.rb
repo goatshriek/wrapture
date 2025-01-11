@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2019 Joel E. Anderson
+# Copyright 2019-2025 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,6 +19,19 @@
 #++
 
 module Wrapture
+  # Normalizes an array in a spec, such as an include list for an element. A
+  # single string will be converted into an array containing the single string,
+  # and a nil will be converted to an empty array.
+  def self.normalize_array(entry)
+    if entry.nil?
+      []
+    elsif entry.is_a? String
+      [entry]
+    else
+      entry.uniq
+    end
+  end
+
   # Normalizes a spec key to be boolean, raising an error if it is not. Keys
   # that are not present are defaulted to false.
   def self.normalize_boolean(spec, key)
@@ -35,16 +48,28 @@ module Wrapture
     spec[key] = normalize_boolean(spec, key)
   end
 
-  # Normalizes an array in a spec, such as an include list for an element. A
-  # single string will be converted into an array containing the single string,
-  # and a nil will be converted to an empty array.
-  def self.normalize_array(entry)
-    if entry.nil?
-      []
-    elsif entry.is_a? String
-      [entry]
+  # Normalizes a name, returning an Array of words that make up the name.
+  #
+  # If the name is a string, it is interpreted as a CamelCase name and parsed
+  # as such to extract individual words.
+  #
+  # Otherwise, the argument's to_a method is called to get the array of Strings.
+  def self.normalize_name(spec, key)
+    return [] unless spec.key?(key)
+
+    name = spec[key]
+
+    case name
+    when String
+      # first match all CamelCase strings, including preceding capital letters
+      # if the start is a lowercase word, this will be the first part
+      name.scan(/[A-Z]*[^A-Z]*/).flat_map do |s|
+        # next, split out the preceding capital letters, if any
+        s.partition(/[A-Z][^A-Z]*$/)
+      end.reject(&:empty?) # and finally, remove the empty strings
     else
-      entry.uniq
+      # use map to avoid to_a returning the argument, as for example Array does
+      name.map.to_a
     end
   end
 

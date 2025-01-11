@@ -1,5 +1,5 @@
 classes:
-  - name: "VCR"
+  - name: "Vcr"
     namespace: "mediacenter"
     libraries: "vcr"
     equivalent-struct:

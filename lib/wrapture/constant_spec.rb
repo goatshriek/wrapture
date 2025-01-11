@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2019-2023 Joel E. Anderson
+# Copyright 2019-2025 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -42,6 +42,7 @@ module Wrapture
       spec['doc'] = '' unless spec.key?('doc')
       Comment.validate_doc(spec['doc'])
 
+      spec['name'] = Wrapture.normalize_name(spec, 'name')
       spec['version'] = Wrapture.spec_version(spec)
       spec['includes'] = Wrapture.normalize_array(spec['includes'])
 
@@ -82,7 +83,7 @@ module Wrapture
     end
 
     # The name of the constant.
-    def name
+    def name_words
       @spec['name']
     end
 

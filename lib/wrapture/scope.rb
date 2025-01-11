@@ -222,23 +222,23 @@ module Wrapture
     # * the name of the first class in the scope
     # * the name of the first enum in the scope
     # * an empty string
-    def name
+    def name_words
       return @spec['name'] if @spec.key?('name')
 
       @classes.each do |class_spec|
-        return class_spec.namespace unless class_spec.namespace.nil?
+        return [class_spec.namespace] unless class_spec.namespace.nil?
       end
 
       @enums.each do |enum_spec|
-        return enum_spec.namespace unless enum_spec.namespace.nil?
+        return [enum_spec.namespace] unless enum_spec.namespace.nil?
       end
 
       if @classes.any?
-        @classes.first.name
+        [@classes.first.name_words]
       elsif @enums.any?
-        @enums.first.name
+        [@enums.first.name_words]
       else
-        ''
+        []
       end
     end
 

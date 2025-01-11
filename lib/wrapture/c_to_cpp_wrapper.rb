@@ -597,7 +597,7 @@ module Wrapture
       factory_lines << "  return new #{@spec.name}( equivalent );"
       factory_lines << '}'
 
-      { 'name' => "new#{@spec.name}",
+      { 'name' => ['new'] + @spec.name_words,
         'static' => true,
         'params' => [{ 'name' => 'equivalent',
                        'type' => 'equivalent-struct-pointer' }],
