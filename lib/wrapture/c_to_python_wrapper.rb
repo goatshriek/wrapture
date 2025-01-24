@@ -132,8 +132,6 @@ module Wrapture
       end
     end
 
-    private
-
     # A string containing the invocation of the given action.
     def action_block(class_spec, action_spec)
       return unless action_spec.value?

@@ -23,7 +23,6 @@ module Wrapture
     def define_module: { (String) -> void } -> void
     def resolve_param: (Wrapture::ParamSpec) -> String
 
-    private
     def action_block: (Wrapture::ClassSpec, Wrapture::ActionSpec) { (String) -> void } -> void
     def add_class_type_object: (Wrapture::ClassSpec, ?Array[String]) { (String) -> void } -> void
     def add_scope_type_objects: { (String) -> void } -> void
