@@ -26,6 +26,11 @@ module Wrapture
     # block. The contents could be anything from Strings to other C source
     # elements to other blocks.
     module CBlock
+      # Add an include to the block. The include is created using the supplied
+      # arguments passed directly to the CInclude constructor.
+      def include(*args)
+        contents << CInclude.new(*args)
+      end
     end
   end
 end

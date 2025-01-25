@@ -24,6 +24,16 @@ module Wrapture
     # Generates a source file with the definition of a module for a scope.
     def self.define_module(scope)
       src = SourceFile.new("#{scope.name}.c")
+      src.extend(CSource::CBlock)
+
+      src.puts('#define PY_SSIZE_T_CLEAN')
+      src.include('Python.h')
+
+      # TODO: only include this if it's needed
+      src.puts('// for offsetof()')
+      src.include('stddef.h')
+
+      scope.definition_includes.each { |inc| src.include(inc) }
 
       wrapper = CToPythonWrapper.new(scope)
       wrapper.define_module do |line|
