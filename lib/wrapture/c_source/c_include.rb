@@ -37,9 +37,9 @@ module Wrapture
       # C source of this include directive.
       def to_s
         if @quote
-          "\"#{name}\""
+          "\"#{@file}\""
         else
-          "<#{@name}>"
+          "<#{@file}>"
         end
       end
     end
