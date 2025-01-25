@@ -16,6 +16,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require 'wrapture/c_source/c_block'
+require 'wrapture/c_source/c_include'
 require 'wrapture/c_source/c_type'
 
 module Wrapture
