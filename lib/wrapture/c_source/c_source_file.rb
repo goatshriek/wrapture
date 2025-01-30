@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
+# frozen_string_literal: true
+
 # Copyright 2025 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,19 +16,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require 'wrapture/source_file'
+
 module Wrapture
   module CSource
-    class CInclude
-      @comment: Comment
-      @file: String
-      @quote: bool
+    # A C source file.
+    class CSourceFile < SourceFile
+      include CBlock
 
-      attr_reader file: String
-      attr_reader comment: Comment
-      attr_reader quote: bool
+      # A newly created C source file has an empty tree.
+      def initialize(*args)
+        super
+        @tree = []
+      end
 
-      def initialize: (String, ?comment: Comment, ?quote: bool) -> void
-      def to_s: () -> String
+      # The source file contents. This is equivalent to the formatted C source
+      # tree for this file.
+      alias contents format_block
     end
   end
 end

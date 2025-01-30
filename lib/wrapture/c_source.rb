@@ -18,10 +18,25 @@
 
 require 'wrapture/c_source/c_block'
 require 'wrapture/c_source/c_include'
+require 'wrapture/c_source/c_source_file'
 require 'wrapture/c_source/c_type'
 
 module Wrapture
-  # Classes for working with C source code.
+  # Classes and utilities for working with C source code.
   module CSource
+    # Formats a syntax tree of C source elements into a set of source file
+    # strings.
+    def format_block(tree)
+      tree.flat_map do |node|
+        case node
+        when String
+          node
+        when CBlock
+          format_block(node)
+        else
+          node.to_s
+        end
+      end
+    end
   end
 end

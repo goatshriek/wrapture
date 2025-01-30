@@ -22,14 +22,41 @@ module Wrapture
   module CSource
     # A block of C source code.
     #
-    # Blocks have an attribute named contents which has all of the things in the
-    # block. The contents could be anything from Strings to other C source
-    # elements to other blocks.
+    # Blocks have an attribute named tree which is an array representing the
+    # syntax tree of the items in the block. The tree contents could be anything
+    # from Strings to other C source instances to other blocks.
     module CBlock
+      # Convert the block into an enumberable of Strings that together represent
+      # C source code of this block.
+      #
+      # Note that this is not necessarily a list of individual lines of source
+      # code. There may be a newline in the middle of a string, for example.
+      def format_block
+        @tree.map do |element|
+          case element
+          when String
+            element
+          else
+            "#{element}\n"
+          end
+        end
+      end
+
       # Add an include to the block. The include is created using the supplied
       # arguments passed directly to the CInclude constructor.
-      def include(*args)
-        contents << CInclude.new(*args)
+      def include(*args, **kwargs)
+        @tree << CInclude.new(*args, **kwargs)
+        self
+      end
+
+      # Adds raw strings directly to the block.
+      def puts(*parts)
+        parts.each do |line|
+          @tree << line
+          @tree << "\n"
+        end
+
+        @tree << "\n" if parts.empty?
       end
     end
   end

@@ -16,17 +16,15 @@
 
 module Wrapture
   module CSource
-    class CInclude
-      @comment: Comment
-      @file: String
-      @quote: bool
+    class CSourceFile < SourceFile
+      include CBlock
 
-      attr_reader file: String
-      attr_reader comment: Comment
-      attr_reader quote: bool
+      @tree: Array[untyped]
 
-      def initialize: (String, ?comment: Comment, ?quote: bool) -> void
-      def to_s: () -> String
+      attr_reader tree: Array[untyped]
+
+      def initialize: (Pathname | String) -> void
+      alias contents format_block
     end
   end
 end

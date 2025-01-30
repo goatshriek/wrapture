@@ -22,24 +22,37 @@ module Wrapture
   module CSource
     # An include directive for C source files.
     class CInclude
-      # Whether or not double quotes are used for this include.
-      attr_reader :quote
+      # A comment associated with the include.
+      attr_reader :comment
 
       # The file the include specifies.
       attr_reader :file
 
+      # Whether or not double quotes are used for this include.
+      attr_reader :quote
+
       # Creates an include for the given filename.
-      def initialize(file, quote: false)
+      def initialize(file, comment: Comment.new, quote: false)
+        @comment = comment
         @file = file
         @quote = quote
       end
 
       # C source of this include directive.
+      #
+      # This may include multiple lines if there is a sufficiently long comment
+      # associated with the include.
       def to_s
+        suffix = if @comment.empty?
+                   ''
+                 else
+                   " // #{comment.text}"
+                 end
+
         if @quote
-          "\"#{@file}\""
+          "#include \"#{@file}\"#{suffix}"
         else
-          "<#{@file}>"
+          "#include <#{@file}>#{suffix}"
         end
       end
     end

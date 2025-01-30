@@ -16,17 +16,6 @@
 
 module Wrapture
   module CSource
-    class CInclude
-      @comment: Comment
-      @file: String
-      @quote: bool
-
-      attr_reader file: String
-      attr_reader comment: Comment
-      attr_reader quote: bool
-
-      def initialize: (String, ?comment: Comment, ?quote: bool) -> void
-      def to_s: () -> String
-    end
+    def format_block: (CBlock) -> Enumerable[String]
   end
 end

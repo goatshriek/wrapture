@@ -23,15 +23,14 @@ module Wrapture
   module CToPython
     # Generates a source file with the definition of a module for a scope.
     def self.define_module(scope)
-      src = SourceFile.new("#{scope.name}.c")
-      src.extend(CSource::CBlock)
+      src = CSource::CSourceFile.new("#{scope.name}.c")
 
       src.puts('#define PY_SSIZE_T_CLEAN')
       src.include('Python.h')
 
       # TODO: only include this if it's needed
-      src.puts('// for offsetof()')
-      src.include('stddef.h')
+      # src.puts('// for offsetof()')
+      src.include('stddef.h', comment: Comment.new('for offsetof()'))
 
       scope.definition_includes.each { |inc| src.include(inc) }
 
