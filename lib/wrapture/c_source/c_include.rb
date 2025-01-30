@@ -33,7 +33,12 @@ module Wrapture
 
       # Creates an include for the given filename.
       def initialize(file, comment: Comment.new, quote: false)
-        @comment = comment
+        @comment = case comment
+                   when String
+                     Comment.new(comment)
+                   else
+                     comment
+                   end
         @file = file
         @quote = quote
       end

@@ -18,7 +18,7 @@ module Wrapture
   module CSource
     module CBlock
       def format_block: () -> Enumerable[String]
-      def include: (String, ?comment: Comment, ?quote: bool) -> CBlock
+      def include: (String, ?comment: Comment | String, ?quote: bool) -> CBlock
       def puts: (*String) -> void
     end
   end

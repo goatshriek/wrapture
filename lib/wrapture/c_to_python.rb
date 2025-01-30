@@ -29,8 +29,7 @@ module Wrapture
       src.include('Python.h')
 
       # TODO: only include this if it's needed
-      # src.puts('// for offsetof()')
-      src.include('stddef.h', comment: Comment.new('for offsetof()'))
+      src.include('stddef.h', comment: 'for offsetof()')
 
       scope.definition_includes.each { |inc| src.include(inc) }
 
