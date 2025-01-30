@@ -24,7 +24,7 @@ module Wrapture
       attr_reader tree: Array[untyped]
 
       def initialize: (Pathname | String) -> void
-      alias contents format_block
+      def contents: () -> Enumerable[String]
     end
   end
 end

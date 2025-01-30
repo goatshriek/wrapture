@@ -32,7 +32,9 @@ module Wrapture
 
       # The source file contents. This is equivalent to the formatted C source
       # tree for this file.
-      alias contents format_block
+      def contents
+        CSource.format_block(@tree)
+      end
     end
   end
 end

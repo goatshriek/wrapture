@@ -19,6 +19,7 @@
 require 'wrapture/c_source/c_block'
 require 'wrapture/c_source/c_include'
 require 'wrapture/c_source/c_source_file'
+require 'wrapture/c_source/c_struct'
 require 'wrapture/c_source/c_type'
 
 module Wrapture
@@ -26,7 +27,7 @@ module Wrapture
   module CSource
     # Formats a syntax tree of C source elements into a set of source file
     # strings.
-    def format_block(tree)
+    def self.format_block(tree)
       tree.flat_map do |node|
         case node
         when String
@@ -34,7 +35,7 @@ module Wrapture
         when CBlock
           format_block(node)
         else
-          node.to_s
+          "#{node}\n"
         end
       end
     end

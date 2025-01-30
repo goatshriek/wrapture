@@ -16,6 +16,6 @@
 
 module Wrapture
   module CSource
-    def format_block: (CBlock) -> Enumerable[String]
+    def self.format_block: (CBlock) -> Enumerable[String]
   end
 end

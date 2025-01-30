@@ -26,22 +26,6 @@ module Wrapture
     # syntax tree of the items in the block. The tree contents could be anything
     # from Strings to other C source instances to other blocks.
     module CBlock
-      # Convert the block into an enumberable of Strings that together represent
-      # C source code of this block.
-      #
-      # Note that this is not necessarily a list of individual lines of source
-      # code. There may be a newline in the middle of a string, for example.
-      def format_block
-        @tree.map do |element|
-          case element
-          when String
-            element
-          else
-            "#{element}\n"
-          end
-        end
-      end
-
       # Add an include to the block. The include is created using the supplied
       # arguments passed directly to the CInclude constructor.
       def include(*args, **kwargs)
