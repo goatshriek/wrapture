@@ -17,6 +17,18 @@
 module Wrapture
   module CSource
     class CDeclaration
+      @c_type: CType
+      @name: String
+      @attributes: Array[String]
+      @value: Array[untyped] | String | nil
+
+      attr_reader c_type: CType
+      attr_reader name: String
+      attr_reader attributes: Array[String]
+      attr_reader value: Array[untyped] | String | nil
+
+      def initialize: (CType, String, ?Array[String], ?String) -> void
+      def initialized?: () -> bool
     end
   end
 end

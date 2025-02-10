@@ -18,7 +18,6 @@ module Wrapture
   module CSource
     class CType
       def initialize: (String) -> void
-      def declare: (String) -> String
       def to_s: () -> String
     end
   end

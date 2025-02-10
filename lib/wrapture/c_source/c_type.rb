@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2021-2025 Joel E. Anderson
+# Copyright 2025 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,18 +29,9 @@ module Wrapture
         @base = base
       end
 
-      # C source code declaring a variable of this type.
-      def declare(name)
-        if name.empty?
-          @base
-        else
-          "#{@base} #{name}"
-        end
-      end
-
       # C source code representing the type.
       def to_s
-        declaration('')
+        "#{@base} #{name}"
       end
     end
   end

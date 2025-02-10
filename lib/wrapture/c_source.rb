@@ -35,6 +35,16 @@ module Wrapture
           node
         when CBlock
           format_block(node)
+        when CDeclaration
+          attr = node.attributes.join(' ')
+          decl = "#{attr} struct #{node.c_type.name} #{node.name}"
+
+          if node.initialized?
+            vals = node.value.join(",\n  ")
+            "#{decl} = {\n  #{vals}\n};"
+          else
+            "#{decl};"
+          end
         else
           "#{node}\n"
         end

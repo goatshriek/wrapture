@@ -33,6 +33,16 @@ module Wrapture
 
       scope.definition_includes.each { |inc| src.include(inc) }
 
+      module_name = scope.snake_case_name
+      module_struct = CSource::CStruct.new(name: 'PyModuleDef')
+      module_fields = ['PyModuleDef_HEAD_INIT',
+                       ".m_name = \"#{module_name}\"",
+                       '.m_doc = NULL',
+                       '.m_size = -1']
+      src.declare(module_struct, "#{module_name}_module",
+                  attributes: ['static'],
+                  value: module_fields)
+
       wrapper = CToPythonWrapper.new(scope)
       wrapper.define_module do |line|
         src.puts(line)

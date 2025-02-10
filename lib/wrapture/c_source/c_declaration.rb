@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2021-2025 Joel E. Anderson
+# Copyright 2025 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,6 +22,30 @@ module Wrapture
   module CSource
     # A declaration of a type in C code.
     class CDeclaration
+      # The type of the declaration.
+      attr_reader :c_type
+
+      # The name of the variable to declare.
+      attr_reader :name
+
+      # An array of attributes for the declaration.
+      attr_reader :attributes
+
+      # The value of the variable to use for initialization.
+      attr_reader :value
+
+      # A declaration has a type, and optionally a name and/or value.
+      def initialize(c_type, name, attributes: [], value: nil)
+        @c_type = c_type
+        @name = name
+        @attributes = attributes
+        @value = value
+      end
+
+      # True if the declaration is initialized (that is, if it has a value).
+      def initialized?
+        !@value.nil?
+      end
     end
   end
 end

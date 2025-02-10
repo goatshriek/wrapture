@@ -651,12 +651,12 @@ module Wrapture
     # Yields lines of C code to define all type objects and supporting functions
     # for this module.
     def define_scope_type_objects(&block)
-      yield "static struct PyModuleDef #{@spec.name}_module = {"
-      yield '  PyModuleDef_HEAD_INIT,'
-      yield "  .m_name = \"#{@spec.name}\","
-      yield '  .m_doc = NULL,'
-      yield '  .m_size = -1'
-      yield '};'
+      yield "//static struct PyModuleDef #{@spec.name}_module = {"
+      yield '//  PyModuleDef_HEAD_INIT,'
+      yield "//  .m_name = \"#{@spec.name}\","
+      yield '//  .m_doc = NULL,'
+      yield '//  .m_size = -1'
+      yield '//};'
       yield ''
 
       @spec.classes.each do |item|
