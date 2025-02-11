@@ -26,11 +26,18 @@ module Wrapture
     # syntax tree of the items in the block. The tree contents could be anything
     # from Strings to other C source instances to other blocks.
     module CBlock
+      # Adds an element directly to the source tree.
+      def <<(element)
+        @tree << element
+        self
+      end
+
       # Add a variable declaration to the block. The declaration is created
       # using the supplied arguments passed directly to the CDeclaration
       # constructor.
       def declare(*args, **kwargs)
         @tree << CDeclaration.new(*args, **kwargs)
+        self
       end
 
       # Add an include to the block. The include is created using the supplied
@@ -48,6 +55,8 @@ module Wrapture
         end
 
         @tree << "\n" if parts.empty?
+
+        self
       end
     end
   end

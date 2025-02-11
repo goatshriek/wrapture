@@ -21,6 +21,20 @@
 module Wrapture
   # A collection of wrappers for generating Python wrappers for C code.
   module CToPython
+    # Declares the module definition struct (PyModuleDef) in a source file for
+    # a scope.
+    def self.declare_module_struct(src, scope)
+      module_name = scope.snake_case_name
+      module_struct = CSource::CStruct.new(name: 'PyModuleDef')
+      module_fields = ['PyModuleDef_HEAD_INIT',
+                       ".m_name = \"#{module_name}\"",
+                       '.m_doc = NULL',
+                       '.m_size = -1']
+      src.declare(module_struct, "#{module_name}_module",
+                  attributes: ['static'],
+                  value: module_fields)
+    end
+
     # Generates a source file with the definition of a module for a scope.
     def self.define_module(scope)
       src = CSource::CSourceFile.new("#{scope.name}.c")
@@ -33,22 +47,31 @@ module Wrapture
 
       scope.definition_includes.each { |inc| src.include(inc) }
 
-      module_name = scope.snake_case_name
-      module_struct = CSource::CStruct.new(name: 'PyModuleDef')
-      module_fields = ['PyModuleDef_HEAD_INIT',
-                       ".m_name = \"#{module_name}\"",
-                       '.m_doc = NULL',
-                       '.m_size = -1']
-      src.declare(module_struct, "#{module_name}_module",
-                  attributes: ['static'],
-                  value: module_fields)
+      declare_module_struct(src, scope)
 
       wrapper = CToPythonWrapper.new(scope)
       wrapper.define_module do |line|
         src.puts(line)
       end
 
-      src
+      define_module_init(src, scope)
+    end
+
+    # Add the definition of the module init function to a source file.
+    def self.define_module_init(src, scope)
+      return_type = CSource::CType.new('PyMODINIT_FUNC')
+      init_func = CSource::CFunction.new("PyInit_#{scope.snake_case_name}",
+                                         return_type: return_type)
+      init_func.puts('PyObject *m;')
+      # scope_types_ready { |line| block.call("  #{line}") }
+      init_func.puts("m = PyModule_Create( &#{scope.snake_case_name}_module );")
+      init_func.puts('if( !m ){')
+      init_func.puts('  return NULL;')
+      init_func.puts('}')
+      # add_scope_type_objects { |line| block.call("  #{line}") }
+      init_func.puts('return m;')
+
+      src << init_func
     end
 
     # Generates a build for a Python library wrapping the provided scope.

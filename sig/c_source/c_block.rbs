@@ -17,8 +17,10 @@
 module Wrapture
   module CSource
     module CBlock
+      def <<: (untyped) -> CBlock
+      def declare: (CType, String, ?Array[String], ?String) -> CBlock
       def include: (String, ?comment: Comment | String, ?quote: bool) -> CBlock
-      def puts: (*String) -> void
+      def puts: (*String) -> CBlock
     end
   end
 end

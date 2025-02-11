@@ -18,6 +18,7 @@
 
 require 'wrapture/c_source/c_block'
 require 'wrapture/c_source/c_declaration'
+require 'wrapture/c_source/c_function'
 require 'wrapture/c_source/c_include'
 require 'wrapture/c_source/c_source_file'
 require 'wrapture/c_source/c_struct'
@@ -33,18 +34,22 @@ module Wrapture
         case node
         when String
           node
-        when CBlock
-          format_block(node)
         when CDeclaration
           attr = node.attributes.join(' ')
           decl = "#{attr} struct #{node.c_type.name} #{node.name}"
 
           if node.initialized?
             vals = node.value.join(",\n  ")
-            "#{decl} = {\n  #{vals}\n};"
+            [decl, " = {\n  ", vals, "\n};"]
           else
-            "#{decl};"
+            [decl, ';']
           end
+        when CFunction
+          ["// #{node.name} function definition\n/*"] +
+            format_block(node.tree) +
+            ["\n*/"]
+        when CBlock
+          format_block(node)
         else
           "#{node}\n"
         end

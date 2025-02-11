@@ -80,19 +80,6 @@ module Wrapture
 
     # Yields the full contents of the module source file to the provided block.
     def define_module(&block)
-      # yield '#define PY_SSIZE_T_CLEAN'
-      # yield '#include <Python.h>'
-      # yield '#include <stddef.h> // for offsetof()' # TODO: only add if needed
-      # yield '#if PY_VERSION_HEX < 0x30C00F0  // under Python 3.12.0'
-      # yield '  #include <structmember.h> // for PyMemberDef'
-      # yield '  #define Py_T_INT T_INT'
-      # yield '  #define Py_READONLY READONLY'
-      # yield '#endif'
-
-      # @spec.definition_includes.each do |include_file|
-      #   yield "#include <#{include_file}>"
-      # end
-
       yield ''
       define_scope_type_objects { |line| block.call(line) }
       yield 'PyMODINIT_FUNC'
@@ -651,14 +638,6 @@ module Wrapture
     # Yields lines of C code to define all type objects and supporting functions
     # for this module.
     def define_scope_type_objects(&block)
-      yield "//static struct PyModuleDef #{@spec.name}_module = {"
-      yield '//  PyModuleDef_HEAD_INIT,'
-      yield "//  .m_name = \"#{@spec.name}\","
-      yield '//  .m_doc = NULL,'
-      yield '//  .m_size = -1'
-      yield '//};'
-      yield ''
-
       @spec.classes.each do |item|
         define_class_type_struct(item) { |line| block.call(line) }
         yield ''

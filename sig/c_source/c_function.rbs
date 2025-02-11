@@ -16,13 +16,18 @@
 
 module Wrapture
   module CSource
-    class CSourceFile < SourceFile
+    class CFunction
       include CBlock
 
+      @name: String
       @tree: Array[untyped]
 
-      def initialize: (Pathname | String) -> void
-      def contents: () -> Enumerable[String]
+      attr_reader name: String
+      attr_reader params: Array[CDeclaration]
+      attr_reader return_type: CType
+
+      def initialize: (String, ?params: Array[CDeclaration], ?return_type: CType) -> void
+      def add_param: (CDeclaration) -> CFunction
     end
   end
 end

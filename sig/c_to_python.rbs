@@ -16,7 +16,9 @@
 
 module Wrapture
   module CToPython
+    def self.declare_module_struct: (Wrapture::SourceFile, Wrapture::Scope) -> Wrapture::SourceFile
     def self.define_module: (Wrapture::Scope) -> Wrapture::SourceFile
+    def self.define_module_init: (Wrapture::SourceFile, Wrapture::Scope) -> Wrapture::SourceFile
     def self.wrap_scope: (Wrapture::Scope) -> Wrapture::PythonBuild
   end
 end
