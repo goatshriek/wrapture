@@ -19,6 +19,7 @@
 require 'wrapture/c_source/c_block'
 require 'wrapture/c_source/c_declaration'
 require 'wrapture/c_source/c_function'
+require 'wrapture/c_source/c_if'
 require 'wrapture/c_source/c_include'
 require 'wrapture/c_source/c_source_file'
 require 'wrapture/c_source/c_struct'
@@ -45,15 +46,30 @@ module Wrapture
             [decl, ';']
           end
         when CFunction
-          ["// #{node.name} function definition\n/*"] +
-            format_block(node.tree) +
-            ["\n*/"]
+          format_function(node)
+        when CIf
+          format_if(node)
         when CBlock
           format_block(node)
         else
           "#{node}\n"
         end
       end
+    end
+
+    # Formats a function definition into a set of source code strings.
+    def self.format_function(func)
+      # TODO: fix indentation
+      [func.return_type, "\n", func.name, "( void ){\n"] +
+        format_block(func.tree).map { |s| "  #{s}" } +
+        ['}']
+    end
+
+    def self.format_if(if_condition)
+      # TODO: add else block handling
+      ['if( ', if_condition.condition, " ){\n"] +
+        format_block(if_condition.if_block.tree).map { |s| "  #{s}" } +
+        ['}']
     end
   end
 end

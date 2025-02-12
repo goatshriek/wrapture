@@ -25,6 +25,7 @@ module Wrapture
       attr_reader name: String
       attr_reader params: Array[CDeclaration]
       attr_reader return_type: CType
+      attr_reader tree: Array[untyped]
 
       def initialize: (String, ?params: Array[CDeclaration], ?return_type: CType) -> void
       def add_param: (CDeclaration) -> CFunction

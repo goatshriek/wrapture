@@ -31,7 +31,7 @@ module Wrapture
 
       # C source code representing the type.
       def to_s
-        "#{@base} #{name}"
+        @base
       end
     end
   end

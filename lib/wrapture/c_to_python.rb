@@ -65,9 +65,7 @@ module Wrapture
       init_func.puts('PyObject *m;')
       # scope_types_ready { |line| block.call("  #{line}") }
       init_func.puts("m = PyModule_Create( &#{scope.snake_case_name}_module );")
-      init_func.puts('if( !m ){')
-      init_func.puts('  return NULL;')
-      init_func.puts('}')
+      init_func.if('!m') { |block| block.puts('return NULL;') }
       # add_scope_type_objects { |line| block.call("  #{line}") }
       init_func.puts('return m;')
 

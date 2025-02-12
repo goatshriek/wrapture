@@ -83,7 +83,7 @@ module Wrapture
       yield ''
       define_scope_type_objects { |line| block.call(line) }
       yield 'PyMODINIT_FUNC'
-      yield "PyInit_#{@spec.name}( void )"
+      yield "PyInit_#{@spec.name}_old( void )"
       yield '{'
       yield '  PyObject *m;'
       yield ''

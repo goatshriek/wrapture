@@ -16,20 +16,13 @@
 
 module Wrapture
   module CSource
-    module CBlock
-      def <<: (untyped) -> CBlock
-      def declare: (CType, String, ?Array[String], ?String) -> CBlock
-      def if: (String) { (CBlock) -> void } -> CIf
-      def include: (String, ?comment: Comment | String, ?quote: bool) -> CBlock
-      def puts: (*String) -> CBlock
-    end
+    class CIf
+      attr_reader condition: String
+      attr_reader if_block: CBlock
+      attr_reader else_block: CBlock | nil
 
-    class PlainCBlock
-      include CBlock
-
-      attr_reader tree: Array[untyped]
-
-      def initialize: (?Array[untyped]) -> void
+      def initialize: (String) { (CBlock) -> void } -> void
+      def else: { (CBlock) -> void } -> CIf
     end
   end
 end

@@ -21,6 +21,8 @@ module Wrapture
 
       @tree: Array[untyped]
 
+      attr_reader tree: Array[untyped]
+
       def initialize: (Pathname | String) -> void
       def contents: () -> Enumerable[String]
     end

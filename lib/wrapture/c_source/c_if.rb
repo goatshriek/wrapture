@@ -16,27 +16,33 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'wrapture/source_file'
-
 module Wrapture
   module CSource
-    # A C source file.
-    class CSourceFile < SourceFile
-      include CBlock
+    # A conditional if check and block, optionally with an accompanying else
+    # block as well.
+    class CIf
+      # The condition checked in the if statement.
+      attr_reader :condition
 
-      # The source tree of this file.
-      attr_reader :tree
+      # The block executed when the if condition is true.
+      attr_reader :if_block
 
-      # A newly created C source file has an empty tree.
-      def initialize(*args)
-        super
-        @tree = []
+      # The else block for when the if condition is not true. This may be nil
+      # if there is no else block accompanying the if.
+      attr_reader :else_block
+
+      def initialize(condition, &block)
+        @condition = condition
+        @if_block = PlainCBlock.new
+        @else_block = nil
+
+        block.call(@if_block)
       end
 
-      # The source file contents. This is equivalent to the formatted C source
-      # tree for this file.
-      def contents
-        CSource.format_block(@tree)
+      def else(&block)
+        @else_block = PlainCBlock.new
+        block.call(@else_block)
+        self
       end
     end
   end

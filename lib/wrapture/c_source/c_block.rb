@@ -28,7 +28,7 @@ module Wrapture
     module CBlock
       # Adds an element directly to the source tree.
       def <<(element)
-        @tree << element
+        tree << element
         self
       end
 
@@ -36,27 +36,45 @@ module Wrapture
       # using the supplied arguments passed directly to the CDeclaration
       # constructor.
       def declare(*args, **kwargs)
-        @tree << CDeclaration.new(*args, **kwargs)
+        tree << CDeclaration.new(*args, **kwargs)
         self
+      end
+
+      # Add an if condition to the block. The newly created if block is
+      # returned, allowing a chained call to else if needed.
+      def if(condition, &block)
+        if_condition = CIf.new(condition, &block)
+        tree << if_condition
+
+        if_condition
       end
 
       # Add an include to the block. The include is created using the supplied
       # arguments passed directly to the CInclude constructor.
       def include(*args, **kwargs)
-        @tree << CInclude.new(*args, **kwargs)
+        tree << CInclude.new(*args, **kwargs)
         self
       end
 
       # Adds raw strings directly to the block.
       def puts(*parts)
         parts.each do |line|
-          @tree << line
-          @tree << "\n"
+          tree << line
+          tree << "\n"
         end
 
-        @tree << "\n" if parts.empty?
+        tree << "\n" if parts.empty?
 
         self
+      end
+    end
+
+    # A plain block is just a source tree and nothing else.
+    PlainCBlock = Data.define(:tree) do
+      include CBlock
+
+      def initialize(tree: [])
+        super(tree:)
       end
     end
   end
