@@ -10,7 +10,6 @@ RUN sudo apt-get update && \
     ./configure prefix=/usr && \
     make && \
     sudo make install && \
-    pip3.12 install --upgrade pip \
     pip3.12 install build && \
     cd .. && \
     rm -rf Python-3.12.9 && \
