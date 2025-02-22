@@ -19,6 +19,10 @@ module Wrapture
     def self.declare_module_struct: (Wrapture::SourceFile, Wrapture::Scope) -> Wrapture::SourceFile
     def self.define_module: (Wrapture::Scope) -> Wrapture::SourceFile
     def self.define_module_init: (Wrapture::SourceFile, Wrapture::Scope) -> Wrapture::SourceFile
+    def self.finalize_module_types: (Wrapture::CSource::CBlock, Wrapture::Scope) -> Wrapture::SourceFile
+    def self.runtime_class?: (Wrapture::ClassSpec) -> bool
+    def self.type_object_name: (Wrapture::Named class_spec) -> String
+    def self.type_struct_name: (Wrapture::Named class_spec) -> String
     def self.wrap_scope: (Wrapture::Scope) -> Wrapture::PythonBuild
   end
 end

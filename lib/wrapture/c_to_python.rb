@@ -63,13 +63,50 @@ module Wrapture
       init_func = CSource::CFunction.new("PyInit_#{scope.snake_case_name}",
                                          return_type: return_type)
       init_func.puts('PyObject *m;')
-      # scope_types_ready { |line| block.call("  #{line}") }
+      finalize_module_types(init_func, scope)
       init_func.puts("m = PyModule_Create( &#{scope.snake_case_name}_module );")
       init_func.if('!m') { |block| block.puts('return NULL;') }
       # add_scope_type_objects { |line| block.call("  #{line}") }
       init_func.puts('return m;')
 
       src << init_func
+    end
+
+    # Performs runtime setup of the types in a module and calls PyType_Ready so
+    # to register them.
+    def self.finalize_module_types(blk, scope)
+      scope.classes.each do |cls|
+        py_type = type_object_name(cls)
+
+        if runtime_class?(cls)
+          blk.puts("#{py_type}.tp_base = #{base_type_object(cls)};")
+          base_size = "#{base_type_object(cls)}->tp_basicsize"
+          self_size = "sizeof( #{type_struct_name(cls)}"
+          blk.puts("#{py_type}.tp_basicsize =  #{base_size} + #{self_size} );")
+        end
+
+        blk.if("PyType_Ready( &#{py_type} ) < 0") do |fail_blk|
+          fail_blk.puts('return NULL;')
+        end
+      end
+    end
+
+    # True if some aspects of the class need to be defined at runtime.
+    #
+    # Exception classes are one example of this case, as the Exception class and
+    # its associated type information is not available until runtime.
+    def self.runtime_class?(class_spec)
+      class_spec.exception?
+    end
+
+    # Gives the name of the type object instance for a given class.
+    def self.type_object_name(class_spec)
+      "#{class_spec.snake_case_name}_type_object"
+    end
+
+    # Gives the name of the type struct for a given class.
+    def self.type_struct_name(class_spec)
+      "#{class_spec.snake_case_name}_type_struct"
     end
 
     # Generates a build for a Python library wrapping the provided scope.

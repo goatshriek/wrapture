@@ -82,20 +82,6 @@ module Wrapture
     def define_module(&block)
       yield ''
       define_scope_type_objects { |line| block.call(line) }
-      yield 'PyMODINIT_FUNC'
-      yield "PyInit_#{@spec.name}_old( void )"
-      yield '{'
-      yield '  PyObject *m;'
-      yield ''
-      scope_types_ready { |line| block.call("  #{line}") }
-      yield "  m = PyModule_Create( &#{@spec.name}_module );"
-      yield '  if( !m ){'
-      yield '    return NULL;'
-      yield '  }'
-      yield ''
-      add_scope_type_objects { |line| block.call("  #{line}") }
-      yield '  return m;'
-      yield '}'
     end
 
     # Gives an expression for using a given parameter.
@@ -926,26 +912,6 @@ module Wrapture
       type_object = base_type_object(class_spec)
       real_self = "((intptr_t)#{var_name}) + #{type_object}->tp_basicsize"
       "( #{type_struct_name} * )( #{real_self} )"
-    end
-
-    # Passes lines of C code to the given block which executes PyType_Ready
-    # on each type in the module.
-    def scope_types_ready
-      @spec.classes.each do |item|
-        type_object = "#{item.snake_case_name}_type_object"
-
-        if runtime_class?(item)
-          yield "#{type_object}.tp_base = #{base_type_object(item)};"
-          base_size = "#{base_type_object(item)}->tp_basicsize"
-          self_size = "sizeof( #{self.class.type_struct_name(item)}"
-          yield "#{type_object}.tp_basicsize =  #{base_size}+ #{self_size} );"
-        end
-
-        yield "if ( PyType_Ready( &#{item.snake_case_name}_type_object ) < 0){"
-        yield '  return NULL;'
-        yield '}'
-        yield ''
-      end
     end
 
     # Gives a code snippet that accesses the equivalent struct from within the
