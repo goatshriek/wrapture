@@ -61,8 +61,8 @@ module Wrapture
     def self.format_function(func)
       # TODO: fix indentation
       [func.return_type, "\n", func.name, "( void ){\n"] +
-        format_block(func.tree).map { |s| "  #{s}" } +
-        ['}']
+        indent(func.tree) +
+        ["}\n"]
     end
 
     def self.format_if(if_condition)
@@ -73,8 +73,15 @@ module Wrapture
     end
 
     # Adds indentation to the given tree of source chunks. This is done by
-    # adding spaces after newlines
+    # adding spaces on lines that are not empty.
     def self.indent(tree)
+      format_block(tree).join.split("\n").map do |line|
+        if line.empty?
+          "\n"
+        else
+          "  #{line}\n"
+        end
+      end
     end
   end
 end

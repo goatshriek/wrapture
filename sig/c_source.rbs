@@ -18,5 +18,7 @@ module Wrapture
   module CSource
     def self.format_block: (CBlock) -> Enumerable[String]
     def self.format_function: (CFunction) -> Enumerable[String]
+    def self.format_if: (CIf) -> Enumerable[String]
+    def self.indent: (untyped) -> Enumerable[String]
   end
 end
