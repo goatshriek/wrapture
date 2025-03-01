@@ -69,7 +69,12 @@ module Wrapture
       # TODO: add else block handling
       ['if( ', if_condition.condition, " ){\n"] +
         format_block(if_condition.if_block.tree).map { |s| "  #{s}" } +
-        ['}']
+        ["}\n"]
+    end
+
+    # Adds indentation to the given tree of source chunks. This is done by
+    # adding spaces after newlines
+    def self.indent(tree)
     end
   end
 end
