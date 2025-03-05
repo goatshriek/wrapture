@@ -16,6 +16,9 @@
 
 module Wrapture
   module CToPython
+    def self.add_class_object: (Wrapture::SourceFile, Wrapture::ClassSpec) -> Wrapture::SourceFile
+    def self.add_enum_object: (Wrapture::SourceFile, Wrapture::EnumSpec) -> Wrapture::SourceFile
+    def self.add_module_objects: (Wrapture::SourceFile, Wrapture::Scope) -> Wrapture::SourceFile
     def self.declare_module_struct: (Wrapture::SourceFile, Wrapture::Scope) -> Wrapture::SourceFile
     def self.define_module: (Wrapture::Scope) -> Wrapture::SourceFile
     def self.define_module_init: (Wrapture::SourceFile, Wrapture::Scope) -> Wrapture::SourceFile

@@ -74,7 +74,7 @@ module Wrapture
       include CBlock
 
       def initialize(tree: [])
-        super(tree:)
+        super
       end
     end
   end

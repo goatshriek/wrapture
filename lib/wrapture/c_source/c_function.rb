@@ -22,6 +22,9 @@ module Wrapture
     class CFunction
       include CBlock
 
+      # The list of failure labels of the function.
+      attr_reader :fail_labels
+
       # The name of the function.
       attr_reader :name
 
@@ -40,6 +43,14 @@ module Wrapture
         @params = params
         @return_type = return_type
         @tree = []
+        @fail_labels = []
+      end
+
+      # Add a failure label to the function, along with code that is executed
+      # when this label is used. New labels are added before existing ones, so
+      # that jumping to them also runs the others as well.
+      def add_fail_label(name, tree)
+        @fail_labels << [name, tree]
       end
 
       # Add a parameter to the function, in the form of a declaration of the

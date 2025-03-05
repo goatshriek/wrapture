@@ -59,16 +59,17 @@ module Wrapture
 
     # Formats a function definition into a set of source code strings.
     def self.format_function(func)
-      # TODO: fix indentation
       [func.return_type, "\n", func.name, "( void ){\n"] +
         indent(func.tree) +
-        ["}\n"]
+        ["\n"] + func.fail_labels.reverse.map do |label|
+                   "#{label[0]}:\n  #{label[1]}\n"
+                 end + ["}\n"]
     end
 
     def self.format_if(if_condition)
       # TODO: add else block handling
       ['if( ', if_condition.condition, " ){\n"] +
-        format_block(if_condition.if_block.tree).map { |s| "  #{s}" } +
+        indent(if_condition.if_block.tree) +
         ["}\n"]
     end
 

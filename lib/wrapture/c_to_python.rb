@@ -21,6 +21,45 @@
 module Wrapture
   # A collection of wrappers for generating Python wrappers for C code.
   module CToPython
+    # Adds the type object for a class within a module's init function.
+    def self.add_class_object(src, class_spec, fail_label)
+      object_name = type_object_name(class_spec)
+      src.puts("Py_INCREF( &#{object_name} );")
+      add_params = "m, \"#{class_spec.name}\", ( PyObject * ) &#{object_name}"
+      src.if("PyModule_AddObject( #{add_params} ) < 0") do |blk|
+        blk.puts("goto #{fail_label};")
+      end
+
+      src
+    end
+
+    # Adds the type object for an enum within a module's init function.
+    def self.add_enum_object(src, enum_spec, fail_label)
+      snake_name = enum_spec.snake_case_name
+      # TODO: use failure label
+      src.puts("Py_DECREF( add_#{snake_name}_enum_to_module( m ) );")
+      src
+    end
+
+    # Adds code to a module init function to add the class and enum type objects
+    # to the corresponding module.
+    def self.add_module_objects(src, scope)
+      scope.classes.each do |class_spec|
+        object_name = type_object_name(class_spec)
+        fail_label = "fail_add_#{object_name}"
+        add_class_object(src, class_spec, fail_label)
+        src.add_fail_label(fail_label, "Py_DECREF( &#{object_name} );")
+      end
+
+      scope.enums.each do |enum_spec|
+        fail_label = "fail_add_#{enum_spec.snake_case_name}"
+        add_enum_object(src, enum_spec, fail_label)
+        src.add_fail_label(fail_label, '// TODO handle add enum failure')
+      end
+
+      src
+    end
+
     # Declares the module definition struct (PyModuleDef) in a source file for
     # a scope.
     def self.declare_module_struct(src, scope)
@@ -65,8 +104,9 @@ module Wrapture
       init_func.puts('PyObject *m;')
       finalize_module_types(init_func, scope)
       init_func.puts("m = PyModule_Create( &#{scope.snake_case_name}_module );")
-      init_func.if('!m') { |block| block.puts('return NULL;') }
-      # add_scope_type_objects { |line| block.call("  #{line}") }
+      init_func.if('!m') { |block| block.puts('goto fail;') }
+      init_func.add_fail_label('fail', 'return NULL;')
+      add_module_objects(init_func, scope)
       init_func.puts('return m;')
 
       src << init_func
