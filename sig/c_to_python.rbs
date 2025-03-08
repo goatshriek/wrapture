@@ -25,6 +25,7 @@ module Wrapture
     def self.finalize_module_types: (Wrapture::CSource::CBlock, Wrapture::Scope) -> Wrapture::SourceFile
     def self.runtime_class?: (Wrapture::ClassSpec) -> bool
     def self.type_object_name: (Wrapture::Named class_spec) -> String
+    def self.type_object_pointer: (Wrapture::ClassSpec class_spec) -> (String | nil)
     def self.type_struct_name: (Wrapture::Named class_spec) -> String
     def self.wrap_scope: (Wrapture::Scope) -> Wrapture::PythonBuild
   end

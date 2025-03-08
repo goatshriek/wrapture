@@ -49,7 +49,7 @@ module Wrapture
       # Add a failure label to the function, along with code that is executed
       # when this label is used. New labels are added before existing ones, so
       # that jumping to them also runs the others as well.
-      def add_fail_label(name, tree)
+      def add_fail_label(name, tree = '')
         @fail_labels << [name, tree]
       end
 

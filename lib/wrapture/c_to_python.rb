@@ -36,8 +36,9 @@ module Wrapture
     # Adds the type object for an enum within a module's init function.
     def self.add_enum_object(src, enum_spec, fail_label)
       snake_name = enum_spec.snake_case_name
-      # TODO: use failure label
-      src.puts("Py_DECREF( add_#{snake_name}_enum_to_module( m ) );")
+      src.if("add_#{snake_name}_enum_to_module( m ) == -1") do |blk|
+        blk.puts("goto #{fail_label};")
+      end
       src
     end
 
@@ -54,7 +55,7 @@ module Wrapture
       scope.enums.each do |enum_spec|
         fail_label = "fail_add_#{enum_spec.snake_case_name}"
         add_enum_object(src, enum_spec, fail_label)
-        src.add_fail_label(fail_label, '// TODO handle add enum failure')
+        src.add_fail_label(fail_label)
       end
 
       src
@@ -142,6 +143,17 @@ module Wrapture
     # Gives the name of the type object instance for a given class.
     def self.type_object_name(class_spec)
       "#{class_spec.snake_case_name}_type_object"
+    end
+
+    # Get the name of the type object for the given class's base, if one exists.
+    def self.base_type_object(class_spec)
+      if class_spec.child? && class_spec.parent_spec
+        return "(&#{self.class.type_object_name(class_spec.parent_spec)})"
+      end
+
+      return '(( PyTypeObject *) PyExc_Exception)' if class_spec.exception?
+
+      nil
     end
 
     # Gives the name of the type struct for a given class.

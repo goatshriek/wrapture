@@ -386,7 +386,7 @@ module Wrapture
     # TODO: need to add NULL checks
     def define_enum_constructor(enum_spec)
       snake_name = enum_spec.snake_case_name
-      yield "PyObject * add_#{snake_name}_enum_to_module( PyObject *m ) {"
+      yield "int add_#{snake_name}_enum_to_module( PyObject *m ) {"
       yield '  PyObject *element_dict;'
       yield '  PyObject *element_name;'
       yield '  PyObject *element_value;'
@@ -398,6 +398,7 @@ module Wrapture
       yield '  PyObject *enum_mod;'
       yield '  PyObject *enum_type;'
       yield '  PyObject *new_enum;'
+      yield '  int add_result;'
       yield ''
       yield '  // setting up the elements of the enumeration'
       yield '  element_dict = PyDict_New();'
@@ -439,8 +440,10 @@ module Wrapture
       yield '  Py_DECREF( call_kwargs );'
       yield ''
       yield '  // adding the new type to the module'
-      yield "  PyModule_AddObject( m, \"#{enum_spec.name}\", new_enum );"
-      yield '  return new_enum;'
+      add_params = "m, \"#{enum_spec.name}\", new_enum"
+      yield "  add_result = PyModule_AddObjectRef( #{add_params} );"
+      yield '  Py_DECREF( new_enum );'
+      yield '  return add_result;'
       yield '}'
     end
 

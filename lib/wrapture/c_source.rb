@@ -62,7 +62,9 @@ module Wrapture
       [func.return_type, "\n", func.name, "( void ){\n"] +
         indent(func.tree) +
         ["\n"] + func.fail_labels.reverse.map do |label|
-                   "#{label[0]}:\n  #{label[1]}\n"
+                   expr = "#{label[0]}:\n"
+                   expr += "  #{label[1]}\n" unless label[1].empty?
+                   expr
                  end + ["}\n"]
     end
 
