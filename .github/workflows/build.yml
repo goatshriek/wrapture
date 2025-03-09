@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        ruby: ['3.2', '3.3', 'jruby', 'truffleruby-head']
+        ruby: ['3.2', '3.3', 'jruby-head', 'truffleruby-head']
     name: ruby ${{ matrix.ruby }}
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
