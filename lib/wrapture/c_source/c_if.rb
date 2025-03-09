@@ -31,6 +31,9 @@ module Wrapture
       # if there is no else block accompanying the if.
       attr_reader :else_block
 
+      # An if block takes a string condition, and provides a CBlock to the block
+      # of the constructor that will be the body of the if statement when the
+      # condition is met.
       def initialize(condition, &block)
         @condition = condition
         @if_block = PlainCBlock.new
@@ -39,6 +42,8 @@ module Wrapture
         block.call(@if_block)
       end
 
+      # Calls the provided block with a CBlock that will be executed when the
+      # condition for this block is not met in an else statement.
       def else(&block)
         @else_block = PlainCBlock.new
         block.call(@else_block)

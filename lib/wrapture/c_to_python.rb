@@ -148,7 +148,7 @@ module Wrapture
     # Get the name of the type object for the given class's base, if one exists.
     def self.base_type_object(class_spec)
       if class_spec.child? && class_spec.parent_spec
-        return "(&#{self.class.type_object_name(class_spec.parent_spec)})"
+        return "(&#{type_object_name(class_spec.parent_spec)})"
       end
 
       return '(( PyTypeObject *) PyExc_Exception)' if class_spec.exception?

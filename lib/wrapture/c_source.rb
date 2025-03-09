@@ -68,6 +68,7 @@ module Wrapture
                  end + ["}\n"]
     end
 
+    # Formats an if-else block.
     def self.format_if(if_condition)
       # TODO: add else block handling
       ['if( ', if_condition.condition, " ){\n"] +
