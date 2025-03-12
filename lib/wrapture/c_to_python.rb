@@ -78,11 +78,15 @@ module Wrapture
     # Defines the struct used to to wrap objects of the class.
     def self.define_class_type_struct(src, class_spec)
       members = []
-      members << if class_spec.child?
-                   "#{type_struct_name(parent_spec)} super"
-                 else
-                   'PyObject_HEAD'
-                 end
+
+      if class_spec.child?
+        parent_spec = class_spec.parent_spec
+        unless parent_spec.nil?
+          members << "#{type_struct_name(parent_spec)} super"
+        end
+      else
+        members << 'PyObject_HEAD'
+      end
 
       class_spec.constants.each do |constant_spec|
         members << "#{constant_spec.type} #{constant_spec.snake_case_name}"

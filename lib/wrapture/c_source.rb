@@ -47,7 +47,7 @@ module Wrapture
           end
         when CStruct
           decl = ["struct #{node.name} {\n  ", node.members.join(";\n  "),
-                  "\n}"]
+                  ";\n}"]
 
           unless node.typedef.empty?
             decl.prepend('typedef ')
