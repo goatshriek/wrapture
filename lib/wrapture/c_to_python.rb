@@ -75,6 +75,27 @@ module Wrapture
                   value: module_fields)
     end
 
+    # Defines the struct used to to wrap objects of the class.
+    def self.define_class_type_struct(src, class_spec)
+      members = []
+      members << if class_spec.child?
+                   "#{type_struct_name(parent_spec)} super"
+                 else
+                   'PyObject_HEAD'
+                 end
+
+      class_spec.constants.each do |constant_spec|
+        members << "#{constant_spec.type} #{constant_spec.snake_case_name}"
+      end
+
+      if class_spec.equivalent_member?
+        members << equivalent_member_declaration(class_spec)
+      end
+
+      src << CSource::CStruct.new(members: members,
+                                  typedef: type_struct_name(class_spec))
+    end
+
     # Generates a source file with the definition of a module for a scope.
     def self.define_module(scope)
       src = CSource::CSourceFile.new("#{scope.name}.c")
@@ -88,6 +109,10 @@ module Wrapture
       scope.definition_includes.each { |inc| src.include(inc) }
 
       declare_module_struct(src, scope)
+
+      scope.classes.each do |class_spec|
+        define_class_type_struct(src, class_spec)
+      end
 
       wrapper = CToPythonWrapper.new(scope)
       wrapper.define_module do |line|
@@ -111,6 +136,15 @@ module Wrapture
       init_func.puts('return m;')
 
       src << init_func
+    end
+
+    # The declaration of the equivalent member of this class.
+    def self.equivalent_member_declaration(class_spec)
+      if class_spec.pointer_wrapper?
+        "#{class_spec.struct.pointer_declaration('equivalent')};"
+      else
+        "#{class_spec.struct.declaration('equivalent')};"
+      end
     end
 
     # Performs runtime setup of the types in a module and calls PyType_Ready so

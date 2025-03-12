@@ -628,7 +628,7 @@ module Wrapture
     # for this module.
     def define_scope_type_objects(&block)
       @spec.classes.each do |item|
-        define_class_type_struct(item) { |line| block.call(line) }
+        # define_class_type_struct(item) { |line| block.call(line) }
         yield ''
         yield "static PyTypeObject #{self.class.type_object_name(item)};"
         yield ''

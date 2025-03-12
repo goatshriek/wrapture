@@ -41,10 +41,20 @@ module Wrapture
 
           if node.initialized?
             vals = node.value.join(",\n  ")
-            [decl, " = {\n  ", vals, "\n};"]
+            [decl, " = {\n  ", vals, "\n};\n"]
           else
-            [decl, ';']
+            [decl, ";\n"]
           end
+        when CStruct
+          decl = ["struct #{node.name} {\n  ", node.members.join(";\n  "),
+                  "\n}"]
+
+          unless node.typedef.empty?
+            decl.prepend('typedef ')
+            decl.append(" #{node.typedef}")
+          end
+
+          decl << ";\n"
         when CFunction
           format_function(node)
         when CIf
