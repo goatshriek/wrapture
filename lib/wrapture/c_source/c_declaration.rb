@@ -36,7 +36,12 @@ module Wrapture
 
       # A declaration has a type, and optionally a name and/or value.
       def initialize(c_type, name, attributes: [], value: nil)
-        @c_type = c_type
+        @c_type = case c_type
+                  when String
+                    CType.new(c_type)
+                  else
+                    c_type
+                  end
         @name = name
         @attributes = attributes
         @value = value

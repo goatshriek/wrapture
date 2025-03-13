@@ -37,7 +37,17 @@ module Wrapture
           node
         when CDeclaration
           attr = node.attributes.join(' ')
-          decl = "#{attr} struct #{node.c_type.name} #{node.name}"
+          type_name = case node.c_type
+                      when CStruct
+                        if node.c_type.typedef.empty?
+                          "struct #{node.c_type.name}"
+                        else
+                          node.c_type.typedef
+                        end
+                      else
+                        node.c_type.to_s
+                      end
+          decl = "#{attr} #{type_name} #{node.name}"
 
           if node.initialized?
             vals = node.value.join(",\n  ")

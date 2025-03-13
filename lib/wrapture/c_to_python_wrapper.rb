@@ -359,28 +359,6 @@ module Wrapture
       yield ''
     end
 
-    # Yields lines of C code to define the struct used to wrap objects of the
-    # given class spec.
-    def define_class_type_struct(class_spec)
-      yield 'typedef struct {'
-      if class_spec.child?
-        parent_spec = class_spec.parent_spec
-        unless parent_spec.nil?
-          yield "  #{self.class.type_struct_name(parent_spec)} super;"
-        end
-      else
-        yield '  PyObject_HEAD'
-      end
-
-      class_spec.constants.each do |constant_spec|
-        yield "  #{constant_spec.type} #{constant_spec.snake_case_name};"
-      end
-      if class_spec.equivalent_member?
-        yield "  #{equivalent_member_declaration(class_spec)}"
-      end
-      yield "} #{type_struct_name(class_spec)};"
-    end
-
     # Passes lines of C code to the given block which define a function to
     # create the enum and add it to a supplied module object.
     # TODO: need to add NULL checks
@@ -627,13 +605,6 @@ module Wrapture
     # Yields lines of C code to define all type objects and supporting functions
     # for this module.
     def define_scope_type_objects(&block)
-      @spec.classes.each do |item|
-        # define_class_type_struct(item) { |line| block.call(line) }
-        yield ''
-        yield "static PyTypeObject #{self.class.type_object_name(item)};"
-        yield ''
-      end
-
       yield ''
 
       @spec.classes.select(&:factory?).each do |item|

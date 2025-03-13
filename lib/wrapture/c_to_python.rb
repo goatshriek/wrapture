@@ -61,22 +61,8 @@ module Wrapture
       src
     end
 
-    # Declares the module definition struct (PyModuleDef) in a source file for
-    # a scope.
-    def self.declare_module_struct(src, scope)
-      module_name = scope.snake_case_name
-      module_struct = CSource::CStruct.new(name: 'PyModuleDef')
-      module_fields = ['PyModuleDef_HEAD_INIT',
-                       ".m_name = \"#{module_name}\"",
-                       '.m_doc = NULL',
-                       '.m_size = -1']
-      src.declare(module_struct, "#{module_name}_module",
-                  attributes: ['static'],
-                  value: module_fields)
-    end
-
-    # Defines the struct used to to wrap objects of the class.
-    def self.define_class_type_struct(src, class_spec)
+    # The struct used to to wrap objects of the class.
+    def self.class_type_struct(class_spec)
       members = []
 
       if class_spec.child?
@@ -96,8 +82,22 @@ module Wrapture
         members << equivalent_member_declaration(class_spec)
       end
 
-      src << CSource::CStruct.new(members: members,
-                                  typedef: type_struct_name(class_spec))
+      CSource::CStruct.new(members: members,
+                           typedef: type_struct_name(class_spec))
+    end
+
+    # Declares the module definition struct (PyModuleDef) in a source file for
+    # a scope.
+    def self.declare_module_struct(src, scope)
+      module_name = scope.snake_case_name
+      module_struct = CSource::CStruct.new(name: 'PyModuleDef')
+      module_fields = ['PyModuleDef_HEAD_INIT',
+                       ".m_name = \"#{module_name}\"",
+                       '.m_doc = NULL',
+                       '.m_size = -1']
+      src.declare(module_struct, "#{module_name}_module",
+                  attributes: ['static'],
+                  value: module_fields)
     end
 
     # Generates a source file with the definition of a module for a scope.
@@ -115,7 +115,9 @@ module Wrapture
       declare_module_struct(src, scope)
 
       scope.classes.each do |class_spec|
-        define_class_type_struct(src, class_spec)
+        src << class_type_struct(class_spec)
+        src.declare('PyTypeObject', type_object_name(class_spec),
+                    attributes: ['static'])
       end
 
       wrapper = CToPythonWrapper.new(scope)
@@ -145,9 +147,9 @@ module Wrapture
     # The declaration of the equivalent member of this class.
     def self.equivalent_member_declaration(class_spec)
       if class_spec.pointer_wrapper?
-        "#{class_spec.struct.pointer_declaration('equivalent')};"
+        class_spec.struct.pointer_declaration('equivalent')
       else
-        "#{class_spec.struct.declaration('equivalent')};"
+        class_spec.struct.declaration('equivalent')
       end
     end
 

@@ -27,7 +27,7 @@ module Wrapture
       attr_reader attributes: Array[String]
       attr_reader value: Array[untyped] | String | nil
 
-      def initialize: (CType, String, ?Array[String], ?String) -> void
+      def initialize: ((CType | String), String, ?Array[String], ?String) -> void
       def initialized?: () -> bool
     end
   end
