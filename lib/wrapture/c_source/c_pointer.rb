@@ -22,6 +22,7 @@ module Wrapture
   module CSource
     # A pointer to a type used in C source code.
     class CPointer
+      # The type the pointer points to.
       attr_reader :c_type
 
       # A pointer has a base type (which may itself be a pointer).
