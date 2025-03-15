@@ -16,17 +16,12 @@
 
 module Wrapture
   module CSource
-    class CStruct
-      @name: String
-      @members: Array[CType]
-      @typedef: String
+    class CPointer
+      @c_type: (CType | CStruct)
 
-      attr_reader name: String
-      attr_reader members: Array[CType]
-      attr_reader typedef: String
+      attr_reader c_type: (CType | CStruct)
 
-      def self.from_spec: (Wrapture::StructSpec) -> Wrapture::CSource::CStruct
-      def initialize: (?name: String, ?members: Array[CType], ?typedef: String) -> void
+      def initialize: (CType | CStruct) -> void
     end
   end
 end

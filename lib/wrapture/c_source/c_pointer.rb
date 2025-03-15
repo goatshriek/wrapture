@@ -1,5 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
+# frozen_string_literal: true
+
+#--
 # Copyright 2025 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,20 +16,18 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+#++
 
 module Wrapture
   module CSource
-    class CStruct
-      @name: String
-      @members: Array[CType]
-      @typedef: String
+    # A pointer to a type used in C source code.
+    class CPointer
+      attr_reader :c_type
 
-      attr_reader name: String
-      attr_reader members: Array[CType]
-      attr_reader typedef: String
-
-      def self.from_spec: (Wrapture::StructSpec) -> Wrapture::CSource::CStruct
-      def initialize: (?name: String, ?members: Array[CType], ?typedef: String) -> void
+      # A pointer has a base type (which may itself be a pointer).
+      def initialize(c_type)
+        @c_type = c_type
+      end
     end
   end
 end
