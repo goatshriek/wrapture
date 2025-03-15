@@ -34,7 +34,7 @@ module Wrapture
 
       # Creates a CStruct from a struct spec.
       def self.from_spec(struct_spec)
-        new(struct_spec.name)
+        new(name: struct_spec.name)
       end
 
       # Creates a type for the base type given.

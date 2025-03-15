@@ -68,14 +68,14 @@ module Wrapture
       if class_spec.child?
         parent_spec = class_spec.parent_spec
         unless parent_spec.nil?
-          members << "#{type_struct_name(parent_spec)} super"
+          members << "#{type_struct_name(parent_spec)} super;"
         end
       else
-        members << 'PyObject_HEAD'
+        members << 'PyObject_HEAD;'
       end
 
       class_spec.constants.each do |constant_spec|
-        members << "#{constant_spec.type} #{constant_spec.snake_case_name}"
+        members << "#{constant_spec.type} #{constant_spec.snake_case_name};"
       end
 
       if class_spec.equivalent_member?
@@ -146,16 +146,16 @@ module Wrapture
 
     # The declaration of the equivalent member of this class.
     def self.equivalent_member_declaration(class_spec)
-      type = CStruct.from_spec(class_spec.struct)
+      type = Wrapture::CSource::CStruct.from_spec(class_spec.struct)
       if class_spec.pointer_wrapper?
         # class_spec.struct.pointer_declaration('equivalent')
-        type = CPointer.new(type)
+        type = Wrapture::CSource::CPointer.new(type)
         # else
         # class_spec.struct.declaration('equivalent')
         # decl
       end
 
-      CDeclaration.new(type, 'equivalent')
+      Wrapture::CSource::CDeclaration.new(type, 'equivalent')
     end
 
     # Performs runtime setup of the types in a module and calls PyType_Ready so

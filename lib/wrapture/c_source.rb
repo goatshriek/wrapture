@@ -37,35 +37,9 @@ module Wrapture
         when String
           node
         when CDeclaration
-          attr = node.attributes.join(' ')
-          type_name = case node.c_type
-                      when CStruct
-                        if node.c_type.typedef.empty?
-                          "struct #{node.c_type.name}"
-                        else
-                          node.c_type.typedef
-                        end
-                      else
-                        node.c_type.to_s
-                      end
-          decl = "#{attr} #{type_name} #{node.name}"
-
-          if node.initialized?
-            vals = node.value.join(",\n  ")
-            [decl, " = {\n  ", vals, "\n};\n"]
-          else
-            [decl, ";\n"]
-          end
+          format_declaration(node)
         when CStruct
-          decl = ["struct #{node.name} {\n  ", node.members.join(";\n  "),
-                  ";\n}"]
-
-          unless node.typedef.empty?
-            decl.prepend('typedef ')
-            decl.append(" #{node.typedef}")
-          end
-
-          decl << ";\n"
+          format_struct(node)
         when CFunction
           format_function(node)
         when CIf
@@ -75,6 +49,41 @@ module Wrapture
         else
           "#{node}\n"
         end
+      end
+    end
+
+    # Formats a declaration into a set of source code strings.
+    def self.format_declaration(decl)
+      name = decl.name
+      c_type = decl.c_type
+
+      if c_type.is_a?(CPointer)
+        name = "*#{name}"
+        c_type = c_type.c_type
+      end
+
+      type_name = case c_type
+                  when CStruct
+                    if c_type.typedef.empty?
+                      "struct #{c_type.name}"
+                    else
+                      c_type.typedef
+                    end
+                  else
+                    c_type.to_s
+                  end
+
+      stmt = []
+
+      stmt << "#{decl.attributes.join(' ')} " unless decl.attributes.empty?
+
+      stmt << "#{type_name} #{name}"
+
+      if decl.initialized?
+        vals = decl.value.join(",\n  ")
+        stmt + [" = {\n  ", vals, "\n};\n"]
+      else
+        stmt << ";\n"
       end
     end
 
@@ -95,6 +104,24 @@ module Wrapture
       ['if( ', if_condition.condition, " ){\n"] +
         indent(if_condition.if_block.tree) +
         ["}\n"]
+    end
+
+    # Formats a struct definition into a set of source code strings.
+    def self.format_struct(c_struct)
+      src = ["struct #{c_struct.name} {\n"]
+
+      c_struct.members.each do |member|
+        src += indent(format_block([member]) + ["\n"])
+      end
+
+      src << '}'
+
+      unless c_struct.typedef.empty?
+        src.prepend('typedef ')
+        src.append(" #{c_struct.typedef}")
+      end
+
+      src << ";\n"
     end
 
     # Adds indentation to the given tree of source chunks. This is done by
