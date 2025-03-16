@@ -1,5 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
+# frozen_string_literal: true
+
+#--
 # Copyright 2025 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,15 +16,24 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+#++
 
 module Wrapture
   module CSource
-    module CBlock
-      def <<: (untyped) -> CBlock
-      def declare: (CType, String, ?Array[String], ?String) -> CBlock
-      def if: (String) { (CBlock) -> void } -> CIf
-      def include: (String, ?comment: Comment | String, ?quote: bool) -> CBlock
-      def puts: (*String) -> CBlock
+    # A plain block is just a source tree and nothing else.
+    #
+    # This will become a Data class once minimum support is Ruby 3.2.
+    class PlainCBlock
+      include CBlock
+
+      # The source tree for this block.
+      attr_reader :tree
+
+      # A plain block can be created with or without anything in the source
+      # tree.
+      def initialize(tree: [])
+        @tree = tree
+      end
     end
   end
 end

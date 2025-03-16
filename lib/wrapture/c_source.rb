@@ -25,6 +25,7 @@ require 'wrapture/c_source/c_pointer'
 require 'wrapture/c_source/c_source_file'
 require 'wrapture/c_source/c_struct'
 require 'wrapture/c_source/c_type'
+require 'wrapture/c_source/plain_c_block'
 
 module Wrapture
   # Classes and utilities for working with C source code.

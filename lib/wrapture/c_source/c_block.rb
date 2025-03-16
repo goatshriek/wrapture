@@ -68,14 +68,5 @@ module Wrapture
         self
       end
     end
-
-    # A plain block is just a source tree and nothing else.
-    PlainCBlock = Data.define(:tree) do
-      include CBlock
-
-      def initialize(tree: [])
-        super
-      end
-    end
   end
 end
