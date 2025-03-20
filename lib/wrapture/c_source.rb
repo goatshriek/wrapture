@@ -63,6 +63,11 @@ module Wrapture
         c_type = c_type.c_type
       end
 
+      case c_type
+      when CFunction
+        return format_function_declaration(decl)
+      end
+
       type_name = case c_type
                   when CStruct
                     if c_type.typedef.empty?
@@ -82,10 +87,10 @@ module Wrapture
 
       if decl.initialized?
         vals = decl.value.join(",\n  ")
-        stmt + [" = {\n  ", vals, "\n};\n"]
-      else
-        stmt << ";\n"
+        stmt + [" = {\n  ", vals, "\n}"]
       end
+
+      stmt
     end
 
     # Formats a function definition into a set of source code strings.
@@ -97,6 +102,28 @@ module Wrapture
                    expr += "  #{label[1]}\n" unless label[1].empty?
                    expr
                  end + ["}\n"]
+    end
+
+    # Formats a function declaration into a set of source code strings.
+    def self.format_function_declaration(decl)
+      stmts = []
+
+      func = decl.c_type
+      return_type_decl = CDeclaration.new(func.return_type, '')
+      stmts += format_declaration(return_type_decl)
+      stmts << "\n"
+      stmts << func.name
+      stmts << '( '
+
+      stmts << if func.params.empty?
+                 ' void '
+               else
+                 func.params.map do |p|
+                   format_declaration(p)
+                 end.join(', ')
+               end
+
+      stmts << " );\n"
     end
 
     # Formats an if-else block.
@@ -112,7 +139,7 @@ module Wrapture
       src = ["struct #{c_struct.name} {\n"]
 
       c_struct.members.each do |member|
-        src += indent(format_block([member]) + ["\n"])
+        src += indent(format_block([member]) + [";\n"])
       end
 
       src << '}'

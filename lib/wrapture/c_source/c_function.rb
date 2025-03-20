@@ -59,6 +59,11 @@ module Wrapture
         @params << decl
         self
       end
+
+      # A declaration of this function.
+      def declare
+        Wrapture::CSource::CDeclaration.new(self, @name)
+      end
     end
   end
 end

@@ -4,7 +4,7 @@ module Wrapture
 
     @owner: Wrapture::ClassSpec | Wrapture::Scope
     @spec: spec_hash
-    @wrapped: Wrapture::CFunctionSpec | Wrapture::WrappedCodeSpec | nil
+    @wrapped: Wrapture::CFunctionSpec | Wrapture::CCodeSpec | nil
     @params: Array[Wrapture::ParamSpec]
     @constructor: bool
     @destructor: bool

@@ -32,11 +32,12 @@ module Wrapture
         self
       end
 
-      # Add a variable declaration to the block. The declaration is created
-      # using the supplied arguments passed directly to the CDeclaration
-      # constructor.
+      # Add a variable declaration statement to the block. The declaration is
+      # created using the supplied arguments passed directly to the CDeclaration
+      # constructor, followed by a semicolon and newline.
       def declare(*args, **kwargs)
         tree << CDeclaration.new(*args, **kwargs)
+        tree << ";\n"
         self
       end
 

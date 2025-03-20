@@ -22,7 +22,8 @@ module Wrapture
   module CSource
     # A declaration of a type in C code.
     class CDeclaration
-      # The type of the declaration.
+      # The type of the declaration. Note that this may be a variety of types,
+      # and is not limited to just CType instances.
       attr_reader :c_type
 
       # The name of the variable to declare.

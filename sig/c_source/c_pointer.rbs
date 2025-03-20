@@ -21,7 +21,7 @@ module Wrapture
 
       attr_reader c_type: (CType | CStruct)
 
-      def initialize: (CType | CStruct) -> void
+      def initialize: (CType | CStruct | String) -> void
     end
   end
 end

@@ -248,15 +248,6 @@ module Wrapture
       end
     end
 
-    # Yields a declaration of a factory constructor for the given class.
-    #
-    # A factory constructor creates an instance of a class based on a struct
-    # that is overloaded.
-    def declare_factory_constructor(class_spec)
-      param_decl = "struct #{class_spec.struct.name} *equivalent"
-      yield "PyObject * new_#{class_spec.name}( #{param_decl} );"
-    end
-
     # The default constructor for python classes if one is not given or derived.
     def default_constructor(class_spec)
       spec_hash = { 'name' => "#{class_spec.name}_new",
@@ -606,11 +597,6 @@ module Wrapture
     # for this module.
     def define_scope_type_objects(&block)
       yield ''
-
-      @spec.classes.select(&:factory?).each do |item|
-        declare_factory_constructor(item, &block)
-        yield ''
-      end
 
       @spec.classes.each do |item|
         define_class_type_object(item) { |line| block.call(line) }

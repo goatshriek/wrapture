@@ -27,7 +27,12 @@ module Wrapture
 
       # A pointer has a base type (which may itself be a pointer).
       def initialize(c_type)
-        @c_type = c_type
+        @c_type = case c_type
+                  when String
+                    CType.new(c_type)
+                  else
+                    c_type
+                  end
       end
     end
   end

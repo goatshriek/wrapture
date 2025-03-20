@@ -33,7 +33,6 @@ module Wrapture
     def class_function_groups: (Wrapture::ClassSpec) -> Array[Array[Wrapture::FunctionSpec]]
     def class_module_name: (Wrapture::ClassSpec) -> String
     def create_python_object: (Wrapture::TypeSpec, String) -> String
-    def declare_factory_constructor: (Wrapture::ClassSpec) { (String) -> void } -> void
     def default_constructor: (Wrapture::ClassSpec) -> Wrapture::FunctionSpec
     def default_destructor: (Wrapture::ClassSpec) -> Wrapture::FunctionSpec
     def define_class_members: (Wrapture::ClassSpec) { (String) -> void } -> void

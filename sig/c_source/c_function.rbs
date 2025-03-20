@@ -20,16 +20,19 @@ module Wrapture
       include CBlock
 
       @name: String
+      @params: Enumerable[CDeclaration]
+      @return_type: CType
       @tree: Array[untyped]
 
       attr_reader name: String
-      attr_reader params: Array[CDeclaration]
+      attr_reader params: Enumerable[CDeclaration]
       attr_reader return_type: CType
       attr_reader tree: Array[untyped]
 
-      def initialize: (String, ?params: Array[CDeclaration], ?return_type: CType) -> void
+      def initialize: (String, ?params: Enumerable[CDeclaration], ?return_type: CType) -> void
       def add_fail_label: (String, ?String) -> CFunction
       def add_param: (CDeclaration) -> CFunction
+      def declare: () -> CDeclaration
     end
   end
 end

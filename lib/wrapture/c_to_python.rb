@@ -68,10 +68,10 @@ module Wrapture
       if class_spec.child?
         parent_spec = class_spec.parent_spec
         unless parent_spec.nil?
-          members << "#{type_struct_name(parent_spec)} super;"
+          members << "#{type_struct_name(parent_spec)} super"
         end
       else
-        members << 'PyObject_HEAD;'
+        members << 'PyObject_HEAD'
       end
 
       class_spec.constants.each do |constant_spec|
@@ -118,6 +118,8 @@ module Wrapture
         src << class_type_struct(class_spec)
         src.declare('PyTypeObject', type_object_name(class_spec),
                     attributes: ['static'])
+
+        src << factory_constructor(class_spec).declare if class_spec.factory?
       end
 
       wrapper = CToPythonWrapper.new(scope)
@@ -148,14 +150,23 @@ module Wrapture
     def self.equivalent_member_declaration(class_spec)
       type = Wrapture::CSource::CStruct.from_spec(class_spec.struct)
       if class_spec.pointer_wrapper?
-        # class_spec.struct.pointer_declaration('equivalent')
         type = Wrapture::CSource::CPointer.new(type)
-        # else
-        # class_spec.struct.declaration('equivalent')
-        # decl
       end
 
       Wrapture::CSource::CDeclaration.new(type, 'equivalent')
+    end
+
+    # The factory constructor for an overloaded struct.
+    def self.factory_constructor(class_spec)
+      name = "new_#{class_spec.name}"
+      struct_type = Wrapture::CSource::CStruct.from_spec(class_spec.struct)
+      pointer_type = Wrapture::CSource::CPointer.new(struct_type)
+      params = [Wrapture::CSource::CDeclaration.new(pointer_type, 'equivalent')]
+      return_type = Wrapture::CSource::CPointer.new('PyObject')
+      Wrapture::CSource::CFunction.new(name, params: params,
+                                             return_type: return_type)
+
+      # TODO: pick up here with the function body
     end
 
     # Performs runtime setup of the types in a module and calls PyType_Ready so
