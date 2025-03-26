@@ -87,7 +87,7 @@ module Wrapture
 
       if decl.initialized?
         vals = decl.value.join(",\n  ")
-        stmt + [" = {\n  ", vals, "\n}"]
+        stmt += [" = {\n  ", vals, "\n}"]
       end
 
       stmt
