@@ -12,7 +12,7 @@ fixes, check out the
 ## [0.6.0 - 2025-03-09
 ### Added
  - Support for Ruby 3.2 through 3.4.
- - Ruby 2.6, 2.7, 3.0, and 3.1 are no longer supported.
+ - Ruby 2.6 is no longer supported.
  - RBS signatures.
  - Python wrapper generation.
 
