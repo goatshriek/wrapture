@@ -61,7 +61,7 @@ module Wrapture
       end
 
       # A declaration of this function.
-      def declare
+      def declaration
         Wrapture::CSource::CDeclaration.new(self, @name)
       end
     end

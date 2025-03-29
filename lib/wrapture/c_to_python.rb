@@ -61,6 +61,24 @@ module Wrapture
       src
     end
 
+    # Gives a code snippet that accesses the equivalent struct pointer from
+    # within the class using the given variable name.
+    def self.class_struct_pointer(class_spec, var_name: 'self')
+      # TODO: handle if parent struct isn't used
+      parent_in_scope = class_spec.scope.type?(class_spec.parent_name)
+      name = if class_spec.child? && parent_in_scope
+               "#{var_name}->super.equivalent"
+             else
+               "#{var_name}->equivalent"
+             end
+
+      if class_spec.pointer_wrapper?
+        name
+      else
+        "&(#{name})"
+      end
+    end
+
     # The struct used to to wrap objects of the class.
     def self.class_type_struct(class_spec)
       members = []
@@ -119,7 +137,14 @@ module Wrapture
         src.declare('PyTypeObject', type_object_name(class_spec),
                     attributes: ['static'])
 
-        src << factory_constructor(class_spec).declare if class_spec.factory?
+        next unless class_spec.factory?
+
+        # TODO: do we need this forward declaration?
+        src << factory_constructor(class_spec).declaration
+      end
+
+      scope.classes.select(&:factory?).each do |class_spec|
+        src << factory_constructor(class_spec)
       end
 
       wrapper = CToPythonWrapper.new(scope)
@@ -163,10 +188,44 @@ module Wrapture
       pointer_type = Wrapture::CSource::CPointer.new(struct_type)
       params = [Wrapture::CSource::CDeclaration.new(pointer_type, 'equivalent')]
       return_type = Wrapture::CSource::CPointer.new('PyObject')
-      Wrapture::CSource::CFunction.new(name, params: params,
-                                             return_type: return_type)
+      func = Wrapture::CSource::CFunction.new(name, params: params,
+                                                    return_type: return_type)
 
-      # TODO: pick up here with the function body
+      type_object_type = Wrapture::CSource::CPointer.new('PyTypeObject')
+      func.declare(type_object_type, 'type')
+      func.declare(return_type, 'obj')
+
+      cond = nil
+      class_spec.scope.overloads(class_spec).each do |overload|
+        cond = if cond.nil?
+                 func.if(overload.struct.rules_check('equivalent'))
+               else
+                 cond.else_if(overload.struct.rules_check('equivalent'))
+               end
+
+        blk = cond.if_block
+        blk.puts("type = &#{type_object_name(overload)};")
+        struct_type = type_struct_name(overload)
+        blk.puts("#{struct_type} *new_#{struct_type};")
+        struct_name = "new_#{struct_type}"
+        alloc_call = "(#{struct_type} *) type->tp_alloc( type, 0 )"
+        blk.puts("#{struct_name} = #{alloc_call};")
+        equiv = class_struct_pointer(overload, var_name: struct_name)
+        blk.puts("#{equiv} = equivalent;")
+        blk.puts("obj = (PyObject *) new_#{struct_type};")
+      end
+
+      cond.else do |blk|
+        blk.puts("type = &#{type_object_name(class_spec)};")
+        struct_type = type_struct_name(class_spec)
+        blk.puts("#{struct_type} *new_#{struct_type};")
+        alloc_call = "(#{struct_type} *) type->tp_alloc( type, 0 )"
+        blk.puts("new_#{struct_type} = #{alloc_call};")
+        blk.puts("new_#{struct_type}->equivalent = equivalent;")
+        blk.puts("obj = (PyObject *) new_#{struct_type};")
+      end
+
+      func.puts('return obj;')
     end
 
     # Performs runtime setup of the types in a module and calls PyType_Ready so

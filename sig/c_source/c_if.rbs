@@ -19,10 +19,11 @@ module Wrapture
     class CIf
       attr_reader condition: String
       attr_reader if_block: CBlock
-      attr_reader else_block: CBlock | nil
+      attr_reader else_block: CBlock | CIf | nil
 
       def initialize: (String) { (CBlock) -> void } -> void
       def else: { (CBlock) -> void } -> CIf
+      def else_if: (String) { (CBlock) -> void } -> CIf
     end
   end
 end

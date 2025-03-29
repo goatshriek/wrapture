@@ -42,7 +42,7 @@ module Wrapture
         when CStruct
           format_struct(node)
         when CFunction
-          format_function(node)
+          format_function_definition(node)
         when CIf
           format_if(node)
         when CBlock
@@ -65,7 +65,7 @@ module Wrapture
 
       case c_type
       when CFunction
-        return format_function_declaration(decl)
+        return format_function_declaration(c_type) + [";\n"]
       end
 
       type_name = case c_type
@@ -80,58 +80,67 @@ module Wrapture
                   end
 
       stmt = []
-
       stmt << "#{decl.attributes.join(' ')} " unless decl.attributes.empty?
-
       stmt << "#{type_name} #{name}"
-
-      if decl.initialized?
-        vals = decl.value.join(",\n  ")
-        stmt += [" = {\n  ", vals, "\n}"]
-      end
+      stmt += [" = {\n  ", decl.value.join(",\n  "), "\n}"] if decl.initialized?
 
       stmt
     end
 
-    # Formats a function definition into a set of source code strings.
-    def self.format_function(func)
-      [func.return_type, "\n", func.name, "( void ){\n"] +
-        indent(func.tree) +
-        ["\n"] + func.fail_labels.reverse.map do |label|
-                   expr = "#{label[0]}:\n"
-                   expr += "  #{label[1]}\n" unless label[1].empty?
-                   expr
-                 end + ["}\n"]
+    # Formats a function declaration into a set of source code strings.
+    def self.format_function_declaration(func)
+      strs = []
+
+      return_type_decl = CDeclaration.new(func.return_type, '')
+      strs += format_declaration(return_type_decl)
+      strs << "\n"
+      strs << func.name
+      strs << '( '
+
+      strs << if func.params.empty?
+                ' void '
+              else
+                func.params.map do |p|
+                  format_declaration(p)
+                end.join(', ')
+              end
+
+      strs << ' )'
     end
 
-    # Formats a function declaration into a set of source code strings.
-    def self.format_function_declaration(decl)
-      stmts = []
+    # Formats a function definition into a set of source code strings.
+    def self.format_function_definition(func)
+      strs = format_function_declaration(func)
+      strs << "{\n"
+      strs += indent(func.tree)
 
-      func = decl.c_type
-      return_type_decl = CDeclaration.new(func.return_type, '')
-      stmts += format_declaration(return_type_decl)
-      stmts << "\n"
-      stmts << func.name
-      stmts << '( '
+      unless func.fail_labels.empty?
+        strs << "\n"
+        func.fail_labels.reverse.map do |label|
+          expr = "#{label[0]}:\n"
+          expr += "  #{label[1]}\n" unless label[1].empty?
+          strs << expr
+        end
+      end
 
-      stmts << if func.params.empty?
-                 ' void '
-               else
-                 func.params.map do |p|
-                   format_declaration(p)
-                 end.join(', ')
-               end
-
-      stmts << " );\n"
+      strs << "}\n"
     end
 
     # Formats an if-else block.
     def self.format_if(if_condition)
-      # TODO: add else block handling
-      ['if( ', if_condition.condition, " ){\n"] +
-        indent(if_condition.if_block.tree) +
-        ["}\n"]
+      src = ['if( ', if_condition.condition, " ){\n"]
+      src += indent(if_condition.if_block.tree)
+      src << '}'
+
+      else_block = if_condition.else_block
+      case else_block
+      when CIf
+        src + [' else '] + format_if(else_block)
+      when nil
+        src + ["\n"]
+      else
+        src + [' else {'] + indent(format_block(else_block.tree)) + ["}\n"]
+      end
     end
 
     # Formats a struct definition into a set of source code strings.

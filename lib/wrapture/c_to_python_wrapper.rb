@@ -606,11 +606,6 @@ module Wrapture
         define_enum_constructor(item) { |line| block.call(line) }
         yield ''
       end
-
-      @spec.classes.select(&:factory?).each do |item|
-        define_factory_constructor(item, &block)
-        yield ''
-      end
     end
 
     # The declaration of the equivalent member of this class.
