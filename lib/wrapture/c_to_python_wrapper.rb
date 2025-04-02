@@ -326,28 +326,6 @@ module Wrapture
       # TODO: don't define these when not needed
       define_class_members(class_spec, &block)
       yield ''
-
-      snake_name = class_spec.snake_case_name
-      yield "static PyTypeObject #{self.class.type_object_name(class_spec)} = {"
-      yield '  PyVarObject_HEAD_INIT( NULL, 0 )'
-      yield "  .tp_name = \"#{@spec.name}.#{class_spec.name}\","
-      yield "  .tp_doc = \"#{class_spec.doc.text}\","
-      yield "  .tp_basicsize = sizeof( #{type_struct_name(class_spec)} ),"
-      yield '  .tp_itemsize = 0,'
-      flags = 'Py_TPFLAGS_DEFAULT'
-      flags += ' | Py_TPFLAGS_BASETYPE' if class_spec.parent?
-      yield "  .tp_flags = #{flags},"
-      yield "  .tp_new = #{snake_name}_new,"
-      yield "  .tp_dealloc = ( destructor ) #{snake_name}_dealloc,"
-      yield "  .tp_methods = #{snake_name}_methods,"
-
-      if base_type_object(class_spec) && !runtime_class?(class_spec)
-        yield "  .tp_base = #{base_type_object(class_spec)},"
-      end
-
-      yield "  .tp_members = #{snake_name}_members"
-      yield '};'
-      yield ''
     end
 
     # Passes lines of C code to the given block which define a function to
@@ -615,46 +593,6 @@ module Wrapture
       else
         "#{class_spec.struct.declaration('equivalent')};"
       end
-    end
-
-    # Yields a definition of a factory constructor for the given class.
-    #
-    # A factory constructor creates an instance of a class based on a struct
-    # that is overloaded.
-    def define_factory_constructor(class_spec)
-      param_decl = "struct #{class_spec.struct.name} *equivalent"
-      yield "PyObject * new_#{class_spec.name}( #{param_decl} ){"
-      yield '  PyTypeObject *type;'
-      yield '  PyObject *obj;'
-      yield ''
-      line_prefix = ''
-      class_spec.scope.overloads(class_spec).each do |overload|
-        check = overload.struct.rules_check('equivalent')
-        yield "  #{line_prefix}if( #{check} ) {"
-        yield "    type = &#{self.class.type_object_name(overload)};"
-        struct_type = self.class.type_struct_name(overload)
-        yield "    #{struct_type} *new_#{struct_type};"
-        struct_name = "new_#{struct_type}"
-        alloc_call = "(#{struct_type} *) type->tp_alloc( type, 0 )"
-        yield "    #{struct_name} = #{alloc_call};"
-        yield "    #{this_struct_pointer(overload,
-                                         var_name: struct_name)} = equivalent;"
-        yield "    obj = (PyObject *) new_#{struct_type};"
-        line_prefix = '} else '
-      end
-
-      yield "  #{line_prefix}{"
-      yield "    type = &#{self.class.type_object_name(class_spec)};"
-      struct_type = self.class.type_struct_name(class_spec)
-      yield "    #{struct_type} *new_#{struct_type};"
-      alloc_call = "(#{struct_type} *) type->tp_alloc( type, 0 )"
-      yield "    new_#{struct_type} = #{alloc_call};"
-      yield "    new_#{struct_type}->equivalent = equivalent;"
-      yield "    obj = (PyObject *) new_#{struct_type};"
-      yield '  }'
-      yield ''
-      yield '  return obj;'
-      yield '}'
     end
 
     # Yields each line of the error check and any actions taken for the given

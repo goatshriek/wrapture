@@ -82,7 +82,13 @@ module Wrapture
       stmt = []
       stmt << "#{decl.attributes.join(' ')} " unless decl.attributes.empty?
       stmt << "#{type_name} #{name}"
-      stmt += [" = {\n  ", decl.value.join(",\n  "), "\n}"] if decl.initialized?
+      if decl.initialized?
+        stmt << " = {\n  "
+        stmt << decl.value.map do |val|
+          "#{val}#{',' if val.start_with?('.')}"
+        end.join("\n  ").delete_suffix(',')
+        stmt << "\n};\n"
+      end
 
       stmt
     end

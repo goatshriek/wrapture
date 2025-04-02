@@ -30,7 +30,7 @@ group :test do
   gem 'minitest', '>= 5.9'
   gem 'rake', '>= 0.9.2'
   gem 'rexml', '>= 3.3.2' # included explicitly to address CVE-2024-39908
-  gem 'rubocop', '>= 1.72', require: false
+  gem 'rubocop', '>= 1.72', require: false # minimum version for plugins support
   gem 'rubocop-minitest', require: false
   gem 'rubocop-rake', require: false
   gem 'simplecov', '>= 0.16.1', require: false

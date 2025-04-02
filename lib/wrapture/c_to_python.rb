@@ -109,13 +109,43 @@ module Wrapture
     def self.declare_module_struct(src, scope)
       module_name = scope.snake_case_name
       module_struct = CSource::CStruct.new(name: 'PyModuleDef')
-      module_fields = ['PyModuleDef_HEAD_INIT',
+      module_fields = ['.m_base = PyModuleDef_HEAD_INIT',
                        ".m_name = \"#{module_name}\"",
                        '.m_doc = NULL',
                        '.m_size = -1']
       src.declare(module_struct, "#{module_name}_module",
                   attributes: ['static'],
                   value: module_fields)
+    end
+
+    # Defines a PyTypeObject struct for the given class.
+    def self.define_class_type_object(src, class_spec)
+      snake_name = class_spec.snake_case_name
+      type_name = "#{class_spec.scope.name}.#{class_spec.name}"
+      flags = 'Py_TPFLAGS_DEFAULT'
+      flags += ' | Py_TPFLAGS_BASETYPE' if class_spec.parent?
+
+      members = [
+        'PyVarObject_HEAD_INIT( NULL, 0 )',
+        ".tp_name = \"#{type_name}\"",
+        ".tp_doc = \"#{class_spec.doc.text}\"",
+        ".tp_basicsize = sizeof( #{type_struct_name(class_spec)} )",
+        '.tp_itemsize = 0',
+        ".tp_flags = #{flags}",
+        ".tp_new = #{snake_name}_new",
+        ".tp_dealloc = ( destructor ) #{snake_name}_dealloc",
+        ".tp_methods = #{snake_name}_methods",
+        ".tp_members = #{snake_name}_members"
+      ]
+
+      if base_type_object(class_spec) && !runtime_class?(class_spec)
+        members << ".tp_base = #{base_type_object(class_spec)}"
+      end
+
+      src << Wrapture::CSource::CDeclaration.new('PyTypeObject',
+                                                 type_object_name(class_spec),
+                                                 attributes: ['static'],
+                                                 value: members)
     end
 
     # Generates a source file with the definition of a module for a scope.
@@ -147,9 +177,15 @@ module Wrapture
         src << factory_constructor(class_spec)
       end
 
+      src.puts('// START LEGACY WRAPPER CODE')
       wrapper = CToPythonWrapper.new(scope)
       wrapper.define_module do |line|
         src.puts(line)
+      end
+      src.puts('// END LEGACY WRAPPER CODE')
+
+      scope.classes.each do |class_spec|
+        define_class_type_object(src, class_spec)
       end
 
       define_module_init(src, scope)
