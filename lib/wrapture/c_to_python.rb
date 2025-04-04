@@ -79,6 +79,63 @@ module Wrapture
       end
     end
 
+    # Defines an array of PyMemberDef structures for a given class spec.
+    def self.class_members_declaration(class_spec)
+      # yield "static PyMemberDef #{snake_name}_members[] = {"
+
+      # class_spec.constants.each do |constant_spec|
+      #   yield "  { .name = \"#{constant_spec.name}\","
+      #   yield "    .type = #{member_type(constant_spec.type)},"
+
+      #   offset_struct = type_struct_name(class_spec)
+      #   offset_field = constant_spec.snake_case_name
+      #   yield "    .offset = offsetof( #{offset_struct}, #{offset_field} ),"
+      #   yield '    .flags = Py_READONLY,'
+      #   yield "    .doc = \"#{constant_spec.doc.text}\" },"
+      # end
+
+      # yield '  {NULL}'
+      # yield '};'
+
+      snake_name = class_spec.snake_case_name
+      members = ['{NULL}']
+
+      Wrapture::CSource::CDeclaration.new('PyMemberDef',
+                                          "#{snake_name}_members[]",
+                                          attributes: ['static'],
+                                          value: members)
+    end
+
+    # Defines a PyTypeObject struct for the given class.
+    def self.class_type_object_declaration(class_spec)
+      snake_name = class_spec.snake_case_name
+      type_name = "#{class_spec.scope.name}.#{class_spec.name}"
+      flags = 'Py_TPFLAGS_DEFAULT'
+      flags += ' | Py_TPFLAGS_BASETYPE' if class_spec.parent?
+
+      members = [
+        'PyVarObject_HEAD_INIT( NULL, 0 )',
+        ".tp_name = \"#{type_name}\"",
+        ".tp_doc = \"#{class_spec.doc.text}\"",
+        ".tp_basicsize = sizeof( #{type_struct_name(class_spec)} )",
+        '.tp_itemsize = 0',
+        ".tp_flags = #{flags}",
+        ".tp_new = #{snake_name}_new",
+        ".tp_dealloc = ( destructor ) #{snake_name}_dealloc",
+        ".tp_methods = #{snake_name}_methods",
+        ".tp_members = #{snake_name}_members"
+      ]
+
+      if base_type_object(class_spec) && !runtime_class?(class_spec)
+        members << ".tp_base = #{base_type_object(class_spec)}"
+      end
+
+      Wrapture::CSource::CDeclaration.new('PyTypeObject',
+                                          type_object_name(class_spec),
+                                          attributes: ['static'],
+                                          value: members)
+    end
+
     # The struct used to to wrap objects of the class.
     def self.class_type_struct(class_spec)
       members = []
@@ -118,36 +175,6 @@ module Wrapture
                   value: module_fields)
     end
 
-    # Defines a PyTypeObject struct for the given class.
-    def self.define_class_type_object(src, class_spec)
-      snake_name = class_spec.snake_case_name
-      type_name = "#{class_spec.scope.name}.#{class_spec.name}"
-      flags = 'Py_TPFLAGS_DEFAULT'
-      flags += ' | Py_TPFLAGS_BASETYPE' if class_spec.parent?
-
-      members = [
-        'PyVarObject_HEAD_INIT( NULL, 0 )',
-        ".tp_name = \"#{type_name}\"",
-        ".tp_doc = \"#{class_spec.doc.text}\"",
-        ".tp_basicsize = sizeof( #{type_struct_name(class_spec)} )",
-        '.tp_itemsize = 0',
-        ".tp_flags = #{flags}",
-        ".tp_new = #{snake_name}_new",
-        ".tp_dealloc = ( destructor ) #{snake_name}_dealloc",
-        ".tp_methods = #{snake_name}_methods",
-        ".tp_members = #{snake_name}_members"
-      ]
-
-      if base_type_object(class_spec) && !runtime_class?(class_spec)
-        members << ".tp_base = #{base_type_object(class_spec)}"
-      end
-
-      src << Wrapture::CSource::CDeclaration.new('PyTypeObject',
-                                                 type_object_name(class_spec),
-                                                 attributes: ['static'],
-                                                 value: members)
-    end
-
     # Generates a source file with the definition of a module for a scope.
     def self.define_module(scope)
       src = CSource::CSourceFile.new("#{scope.name}.c")
@@ -185,7 +212,8 @@ module Wrapture
       src.puts('// END LEGACY WRAPPER CODE')
 
       scope.classes.each do |class_spec|
-        define_class_type_object(src, class_spec)
+        src << class_members_declaration(class_spec)
+        src << class_type_object_declaration(class_spec)
       end
 
       define_module_init(src, scope)

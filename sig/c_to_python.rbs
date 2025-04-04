@@ -21,8 +21,9 @@ module Wrapture
     def self.add_module_objects: (Wrapture::SourceFile, Wrapture::Scope) -> Wrapture::SourceFile
     def self.declare_module_struct: (Wrapture::SourceFile, Wrapture::Scope) -> Wrapture::SourceFile
     def self.class_struct_pointer: (Wrapture::ClassSpec, ?var_name: String) -> String
+    def self.class_members_declaration: (Wrapture::ClassSpec) -> Wrapture::CSource::CDeclaration
+    def self.class_type_object_declaration: (Wrapture::ClassSpec) -> Wrapture::CSource::CDeclaration
     def self.class_type_struct: (Wrapture::ClassSpec) -> Wrapture::CSource::CStruct
-    def self.define_class_type_object: (Wrapture::SourceFile, Wrapture::ClassSpec) -> Wrapture::SourceFile
     def self.define_module: (Wrapture::Scope) -> Wrapture::SourceFile
     def self.define_module_init: (Wrapture::SourceFile, Wrapture::Scope) -> Wrapture::SourceFile
     def self.equivalent_member_declaration: (Wrapture::ClassSpec) -> Wrapture::CSource::CDeclaration
