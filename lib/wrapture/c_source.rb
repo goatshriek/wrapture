@@ -83,11 +83,7 @@ module Wrapture
       stmt << "#{decl.attributes.join(' ')} " unless decl.attributes.empty?
       stmt << "#{type_name} #{name}"
       if decl.initialized?
-        stmt << " = {\n  "
-        stmt << decl.value.map do |val|
-          "#{val}#{',' if val.start_with?('.')}"
-        end.join("\n  ").delete_suffix(',')
-        stmt << "\n};\n"
+        stmt += [' = '] + format_initialization(decl) + [";\n"]
       end
 
       stmt
@@ -147,6 +143,25 @@ module Wrapture
       else
         src + [' else {'] + indent(format_block(else_block.tree)) + ["}\n"]
       end
+    end
+
+    # Formats the initialization of a declaration.
+    def self.format_initialization(decl)
+      stmts = decl.value.flat_map do |val|
+        if val.is_a?(CDeclaration)
+          format_initialization(val) + [",\n"]
+        else
+          suffix = if val.is_a?(String) && val.start_with?('.')
+                     ",\n"
+                   else
+                     "\n"
+                   end
+
+          [val, suffix]
+        end
+      end
+      stmts.pop # trim off the last suffix
+      ["{\n"] + indent(stmts) + ['}']
     end
 
     # Formats a struct definition into a set of source code strings.

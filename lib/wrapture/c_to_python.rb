@@ -21,6 +21,27 @@
 module Wrapture
   # A collection of wrappers for generating Python wrappers for C code.
   module CToPython
+    # Mapping of basic types to their Py_T counterparts.
+    MEMBER_TYPE_MAP = {
+      'byte' => 'Py_T_BYTE',
+      'char' => 'Py_T_CHAR',
+      'short' => 'Py_T_SHORT',
+      'int' => 'Py_T_INT',
+      'long' => 'Py_T_LONG',
+      'long long' => 'Py_T_LONGLONG',
+      'unsigned char' => 'Py_T_UBYTE',
+      'unsigned short' => 'Py_T_USHORT',
+      'unsigned int' => 'Py_T_UINT',
+      'unsigned long' => 'Py_T_ULONG',
+      'unsigned long long' => 'Py_T_ULONGLONG',
+      'size_t' => 'Py_T_PYSSIZET',
+      'float' => 'Py_T_FLOAT',
+      'double' => 'Py_T_DOUBLE',
+      'bool' => 'Py_T_BOOL',
+      # no current wrapture construct for Py_T_STRING_INPLACE
+      'string' => 'Py_T_STRING'
+    }.freeze
+
     # Adds the type object for a class within a module's init function.
     def self.add_class_object(src, class_spec, fail_label)
       object_name = type_object_name(class_spec)
@@ -81,24 +102,22 @@ module Wrapture
 
     # Defines an array of PyMemberDef structures for a given class spec.
     def self.class_members_declaration(class_spec)
-      # yield "static PyMemberDef #{snake_name}_members[] = {"
-
-      # class_spec.constants.each do |constant_spec|
-      #   yield "  { .name = \"#{constant_spec.name}\","
-      #   yield "    .type = #{member_type(constant_spec.type)},"
-
-      #   offset_struct = type_struct_name(class_spec)
-      #   offset_field = constant_spec.snake_case_name
-      #   yield "    .offset = offsetof( #{offset_struct}, #{offset_field} ),"
-      #   yield '    .flags = Py_READONLY,'
-      #   yield "    .doc = \"#{constant_spec.doc.text}\" },"
-      # end
-
-      # yield '  {NULL}'
-      # yield '};'
-
       snake_name = class_spec.snake_case_name
-      members = ['{NULL}']
+      members = class_spec.constants.map do |constant_spec|
+        offset_struct = type_struct_name(class_spec)
+        offset_field = constant_spec.snake_case_name
+        init = [".name = \"#{constant_spec.name}\"",
+                ".type = #{member_type(constant_spec.type)}",
+                ".offset = offsetof( #{offset_struct}, #{offset_field} )",
+                '.flags = Py_READONLY']
+
+        unless constant_spec.doc.empty?
+          init << ".doc = \"#{constant_spec.doc.text}\""
+        end
+
+        CSource::CDeclaration.new('PyMemberDef', nil, value: init)
+      end
+      members << '{NULL}'
 
       Wrapture::CSource::CDeclaration.new('PyMemberDef',
                                           "#{snake_name}_members[]",
@@ -182,8 +201,9 @@ module Wrapture
       src.puts('#define PY_SSIZE_T_CLEAN')
       src.include('Python.h')
 
-      # TODO: only include this if it's needed
-      src.include('stddef.h', comment: 'for offsetof()')
+      if scope.classes.any? { |class_spec| !class_spec.constants.empty? }
+        src.include('stddef.h', comment: 'for offsetof()')
+      end
 
       scope.definition_includes.each { |inc| src.include(inc) }
 
@@ -309,6 +329,12 @@ module Wrapture
           fail_blk.puts('return NULL;')
         end
       end
+    end
+
+    # The Python member type symbol to use for this type, suitable for use with
+    # the PyMemberDef.type struct field.
+    def self.member_type(type_spec)
+      MEMBER_TYPE_MAP.fetch(type_spec.name, 'Py_T_OBJECT_EX')
     end
 
     # True if some aspects of the class need to be defined at runtime.

@@ -264,27 +264,6 @@ module Wrapture
       FunctionSpec.new(spec_hash, class_spec, destructor: true)
     end
 
-    # Passes lines of C code to the given block which define the members of the
-    # given class as an array of PyMemberDef structures.
-    def define_class_members(class_spec)
-      snake_name = class_spec.snake_case_name
-      yield "static PyMemberDef #{snake_name}_members[] = {"
-
-      class_spec.constants.each do |constant_spec|
-        yield "  { .name = \"#{constant_spec.name}\","
-        yield "    .type = #{member_type(constant_spec.type)},"
-
-        offset_struct = type_struct_name(class_spec)
-        offset_field = constant_spec.snake_case_name
-        yield "    .offset = offsetof( #{offset_struct}, #{offset_field} ),"
-        yield '    .flags = Py_READONLY,'
-        yield "    .doc = \"#{constant_spec.doc.text}\" },"
-      end
-
-      yield '  {NULL}'
-      yield '};'
-    end
-
     # Passes lines of C code to the given block which define the methods of the
     # given class as an array of PyMethodDef structures.
     def define_class_methods(class_spec)
@@ -321,10 +300,6 @@ module Wrapture
 
       # TODO: don't define these when not needed
       define_class_methods(class_spec, &block)
-      yield ''
-
-      # TODO: don't define these when not needed
-      define_class_members(class_spec, &block)
       yield ''
     end
 
