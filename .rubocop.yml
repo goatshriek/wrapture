@@ -25,7 +25,7 @@ Metrics/MethodLength:
   Max: 60
 
 Metrics/ModuleLength:
-  Max: 300
+  Max: 800
 
 Metrics/PerceivedComplexity:
   Max: 15

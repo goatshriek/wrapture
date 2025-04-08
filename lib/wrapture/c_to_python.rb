@@ -100,7 +100,7 @@ module Wrapture
       end
     end
 
-    # Defines an array of PyMemberDef structures for a given class spec.
+    # Declares an array of PyMemberDef structures for a given class spec.
     def self.class_members_declaration(class_spec)
       snake_name = class_spec.snake_case_name
       members = class_spec.constants.map do |constant_spec|
@@ -119,10 +119,32 @@ module Wrapture
       end
       members << '{NULL}'
 
-      Wrapture::CSource::CDeclaration.new('PyMemberDef',
-                                          "#{snake_name}_members[]",
-                                          attributes: ['static'],
-                                          value: members)
+      CSource::CDeclaration.new('PyMemberDef',
+                                "#{snake_name}_members[]",
+                                attributes: ['static'],
+                                value: members)
+    end
+
+    # Declares an array of PyMemberDef structures for a given class spec.
+    def self.class_methods_declaration(class_spec)
+      snake_name = class_spec.snake_case_name
+
+      members = class_spec.method_specs.map do |func_spec|
+        value = [
+          ".ml_name = \"#{func_spec.name}\"",
+          ".ml_meth = ( PyCFunction ) #{function_wrapper_name(func_spec)}",
+          ".ml_flags = #{method_flags(func_spec)}",
+          ".ml_doc = \"#{func_spec.doc.text}\""
+        ]
+
+        CSource::CDeclaration.new('PyMethodDef', nil, value: value)
+      end
+      members << '{NULL}'
+
+      CSource::CDeclaration.new('PyMethodDef',
+                                "#{snake_name}_methods[]",
+                                attributes: ['static'],
+                                value: members)
     end
 
     # Defines a PyTypeObject struct for the given class.
@@ -201,6 +223,7 @@ module Wrapture
       src.puts('#define PY_SSIZE_T_CLEAN')
       src.include('Python.h')
 
+      # offsetof is only needed for the member definition for constants
       if scope.classes.any? { |class_spec| !class_spec.constants.empty? }
         src.include('stddef.h', comment: 'for offsetof()')
       end
@@ -232,6 +255,7 @@ module Wrapture
       src.puts('// END LEGACY WRAPPER CODE')
 
       scope.classes.each do |class_spec|
+        src << class_methods_declaration(class_spec)
         src << class_members_declaration(class_spec)
         src << class_type_object_declaration(class_spec)
       end
@@ -331,10 +355,34 @@ module Wrapture
       end
     end
 
+    # The name of the function that will be defined to wrap the given function.
+    def self.function_wrapper_name(func_spec)
+      "#{func_spec.owner.snake_case_name}_" + if func_spec.constructor?
+                                                'new'
+                                              elsif func_spec.destructor?
+                                                'dealloc'
+                                              else
+                                                func_spec.name
+                                              end
+    end
+
     # The Python member type symbol to use for this type, suitable for use with
     # the PyMemberDef.type struct field.
     def self.member_type(type_spec)
       MEMBER_TYPE_MAP.fetch(type_spec.name, 'Py_T_OBJECT_EX')
+    end
+
+    # Gives the flags used to define the python method for the given function.
+    def self.method_flags(func_spec)
+      flags = if func_spec.params.empty?
+                ['METH_NOARGS']
+              else
+                ['METH_VARARGS']
+              end
+
+      flags << 'METH_STATIC' if func_spec.static?
+
+      flags.join(' | ')
     end
 
     # True if some aspects of the class need to be defined at runtime.

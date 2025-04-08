@@ -22,6 +22,7 @@ module Wrapture
     def self.declare_module_struct: (Wrapture::SourceFile, Wrapture::Scope) -> Wrapture::SourceFile
     def self.class_struct_pointer: (Wrapture::ClassSpec, ?var_name: String) -> String
     def self.class_members_declaration: (Wrapture::ClassSpec) -> Wrapture::CSource::CDeclaration
+    def self.class_methods_declaration: (Wrapture::ClassSpec) -> Wrapture::CSource::CDeclaration
     def self.class_type_object_declaration: (Wrapture::ClassSpec) -> Wrapture::CSource::CDeclaration
     def self.class_type_struct: (Wrapture::ClassSpec) -> Wrapture::CSource::CStruct
     def self.define_module: (Wrapture::Scope) -> Wrapture::SourceFile
@@ -29,7 +30,9 @@ module Wrapture
     def self.equivalent_member_declaration: (Wrapture::ClassSpec) -> Wrapture::CSource::CDeclaration
     def self.factory_constructor: (Wrapture::ClassSpec) -> Wrapture::CSource::CFunction
     def self.finalize_module_types: (Wrapture::CSource::CBlock, Wrapture::Scope) -> Wrapture::SourceFile
+    def self.function_wrapper_name: (Wrapture::FunctionSpec) -> String
     def self.member_type: (Wrapture::TypeSpec) -> String
+    def self.method_flags: (Wrapture::FunctionSpec) -> String
     def self.runtime_class?: (Wrapture::ClassSpec) -> bool
     def self.type_object_name: (Wrapture::Named class_spec) -> String
     def self.type_object_pointer: (Wrapture::ClassSpec class_spec) -> (String | nil)

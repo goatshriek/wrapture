@@ -264,26 +264,6 @@ module Wrapture
       FunctionSpec.new(spec_hash, class_spec, destructor: true)
     end
 
-    # Passes lines of C code to the given block which define the methods of the
-    # given class as an array of PyMethodDef structures.
-    def define_class_methods(class_spec)
-      snake_name = class_spec.snake_case_name
-      yield "static PyMethodDef #{snake_name}_methods[] = {"
-
-      # class_spec.functions.each do |func_spec|
-      # class_function_groups(class_spec).map(&:first).each do |func_spec|
-      class_spec.method_specs.each do |func_spec|
-        wrapper_name = function_wrapper_name(func_spec)
-        yield "  { .ml_name = \"#{func_spec.name}\","
-        yield "    .ml_meth = ( PyCFunction ) #{wrapper_name},"
-        yield "    .ml_flags = #{function_flags(func_spec)},"
-        yield "    .ml_doc = \"#{func_spec.doc.text}\" },"
-      end
-
-      yield '  {NULL}'
-      yield '};'
-    end
-
     # Passes lines of C code to the given block which creates the methods and
     # type object for the given class in this module.
     def define_class_type_object(class_spec, &block)
@@ -297,10 +277,6 @@ module Wrapture
         end
         yield ''
       end
-
-      # TODO: don't define these when not needed
-      define_class_methods(class_spec, &block)
-      yield ''
     end
 
     # Passes lines of C code to the given block which define a function to
