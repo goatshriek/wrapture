@@ -82,11 +82,9 @@ module Wrapture
       stmt = []
       stmt << "#{decl.attributes.join(' ')} " unless decl.attributes.empty?
       stmt << "#{type_name} #{name}"
-      if decl.initialized?
-        stmt += [' = '] + format_initialization(decl) + [";\n"]
-      end
-
-      stmt
+      stmt += [' = '] + format_initialization(decl) if decl.initialized?
+      stmt << ';' unless name&.empty?
+      stmt << "\n"
     end
 
     # Formats a function declaration into a set of source code strings.
@@ -95,7 +93,6 @@ module Wrapture
 
       return_type_decl = CDeclaration.new(func.return_type, '')
       strs += format_declaration(return_type_decl)
-      strs << "\n"
       strs << func.name
       strs << '( '
 
@@ -169,7 +166,7 @@ module Wrapture
       src = ["struct #{c_struct.name} {\n"]
 
       c_struct.members.each do |member|
-        src += indent(format_block([member]) + [";\n"])
+        src += indent(format_block([member]))
       end
 
       src << '}'

@@ -37,7 +37,6 @@ module Wrapture
       # constructor, followed by a semicolon and newline.
       def declare(*args, **kwargs)
         tree << CDeclaration.new(*args, **kwargs)
-        tree << ";\n"
         self
       end
 
