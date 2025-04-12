@@ -241,6 +241,7 @@ module Wrapture
 
         # TODO: do we need this forward declaration?
         src << factory_constructor(class_spec).declaration
+        src << ";\n"
       end
 
       scope.classes.select(&:factory?).each do |class_spec|
@@ -256,8 +257,11 @@ module Wrapture
 
       scope.classes.each do |class_spec|
         src << class_methods_declaration(class_spec)
+        src << ";\n"
         src << class_members_declaration(class_spec)
+        src << ";\n"
         src << class_type_object_declaration(class_spec)
+        src << ";\n"
       end
 
       define_module_init(src, scope)

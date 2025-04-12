@@ -65,7 +65,7 @@ module Wrapture
 
       case c_type
       when CFunction
-        return format_function_declaration(c_type) + [";\n"]
+        return format_function_declaration(c_type)
       end
 
       type_name = case c_type
@@ -83,8 +83,8 @@ module Wrapture
       stmt << "#{decl.attributes.join(' ')} " unless decl.attributes.empty?
       stmt << "#{type_name} #{name}"
       stmt += [' = '] + format_initialization(decl) if decl.initialized?
-      stmt << ';' unless name&.empty?
-      stmt << "\n"
+
+      stmt
     end
 
     # Formats a function declaration into a set of source code strings.
@@ -166,7 +166,7 @@ module Wrapture
       src = ["struct #{c_struct.name} {\n"]
 
       c_struct.members.each do |member|
-        src += indent(format_block([member]))
+        src += indent(format_block([member]) + [";\n"])
       end
 
       src << '}'
