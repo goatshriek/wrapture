@@ -19,11 +19,13 @@ module Wrapture
     class CFunction
       include CBlock
 
+      @attributes: Array[String]
       @name: String
       @params: Enumerable[CDeclaration]
       @return_type: CType
       @tree: Array[untyped]
 
+      attr_reader attributes: Enumerable[String]
       attr_reader name: String
       attr_reader params: Enumerable[CDeclaration]
       attr_reader return_type: CType

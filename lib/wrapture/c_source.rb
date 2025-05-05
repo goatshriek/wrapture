@@ -91,13 +91,14 @@ module Wrapture
     def self.format_function_declaration(func)
       strs = []
 
-      return_type_decl = CDeclaration.new(func.return_type, '')
+      return_type_decl = CDeclaration.new(func.return_type, '',
+                                          attributes: func.attributes)
       strs += format_declaration(return_type_decl)
       strs << func.name
       strs << '( '
 
       strs << if func.params.empty?
-                ' void '
+                'void'
               else
                 func.params.map do |p|
                   format_declaration(p)

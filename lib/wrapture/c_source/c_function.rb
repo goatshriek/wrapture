@@ -22,6 +22,9 @@ module Wrapture
     class CFunction
       include CBlock
 
+      # The attributes of the function.
+      attr_reader :attributes
+
       # The list of failure labels of the function.
       attr_reader :fail_labels
 
@@ -38,7 +41,12 @@ module Wrapture
       attr_reader :tree
 
       # A new function has no parameters, void return, and an empty body.
-      def initialize(name, params: [], return_type: CType.new('void'))
+      #
+      # An enumerable of CDeclaration objects can be provided in +params+, which
+      # will be used as the function parameters.
+      def initialize(name, params: [], return_type: CType.new('void'),
+                     attributes: [])
+        @attributes = attributes
         @name = name
         @params = params
         @return_type = return_type

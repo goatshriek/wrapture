@@ -30,6 +30,7 @@ module Wrapture
     def libraries: -> Array[String]
     def name_words: -> Array[String]
     def optional_params: -> Array[Wrapture::ParamSpec]
+    def overloaded?: -> bool
     def param_names: -> Array[String]
     def params?: -> bool
     def qualified_name: -> String

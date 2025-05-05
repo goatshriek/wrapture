@@ -97,22 +97,6 @@ module Wrapture
       "#{@spec['name']}( #{resolved_params.join(', ')} )"
     end
 
-    # Yields each line of the error check and any actions taken for this wrapped
-    # function. If this function does not have any error check defined, then
-    # this function returns without yielding anything.
-    #
-    # +return_val+ is used as the replacement for a return value signified by
-    # the use of RETURN_VALUE_KEYWORD in the spec. If not specified it defaults
-    # to +'return_val'+. This parameter was added in release 0.4.2.
-    # def error_check(return_val: 'return_val')
-    #   return if @error_rules.empty?
-
-    #   checks = @error_rules.map { |rule| rule.check(return_val: return_val) }
-    #   yield "if( #{checks.join(' && ')} ){"
-    #   yield "  #{@error_action.take};"
-    #   yield '}'
-    # end
-
     # True if the wrapped function has an error check associated with it.
     def error_check?
       !@error_rules.empty?
@@ -127,9 +111,19 @@ module Wrapture
       includes
     end
 
+    # The name of the function.
+    def name
+      @spec['name']
+    end
+
     # An array of libraries required for this function call.
     def libraries
       @spec['libraries'].dup
+    end
+
+    # The parameters for this function.
+    def params
+      @spec['params'].dup
     end
 
     # A TypeSpec describing the type of the return value.
