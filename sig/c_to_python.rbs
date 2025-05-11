@@ -45,15 +45,17 @@ module Wrapture
     def self.overloaded_wrapper: (Wrapture::FunctionSpec) -> Wrapture::CSource::CFunction
     def self.param_format: (Wrapture::FunctionSpec, Wrapture::ParamSpec) -> String
     def self.param_uses_equivalent?: (Wrapture::FunctionSpec, spec_hash) -> bool
+    def self.parse_tuple_call: (Wrapture::FunctionSpec) -> String
     def self.parsing_wrapper: (Wrapture::FunctionSpec) -> Wrapture::CSource::CFunction
     def self.resolve_wrapped_param: (Wrapture::FunctionSpec, Wrapture::ParamSpec) -> String
     def self.return_statement: (Wrapture::FunctionSpec) -> String
     def self.runtime_class?: (Wrapture::ClassSpec) -> bool
-    def self.self_declaration: (Wrapture::ClassSpec) -> Wrapture::CSrouce::CDeclaration
+    def self.self_declaration: (Wrapture::ClassSpec) -> Wrapture::CSource::CDeclaration
     def self.type_object_name: (Wrapture::Named class_spec) -> String
     def self.type_object_pointer: (Wrapture::ClassSpec class_spec) -> (String | nil)
     def self.type_struct_name: (Wrapture::Named class_spec) -> String
     def self.wrap_scope: (Wrapture::Scope) -> Wrapture::PythonBuild
     def self.wrapped_function_call: (Wrapture::FunctionSpec) -> String
+    def self.wrapper_param_locals: (Wrapture::FunctionSpec) -> Enumerable[Wrapture::CSource::CDeclaration]
   end
 end

@@ -309,14 +309,9 @@ module Wrapture
     # Declares the local variables used to pass parameters to the wrapped
     # function for the given function spec.
     def self.declare_wrapper_param_locals(blk, func_spec)
-      func_spec.params.each do |param_spec|
-        param_type = func_spec.resolve_type(param_spec.type)
-
-        if func_spec.owner.scope.type?(param_type)
-          param_type = CSource::CPointer.new(type_struct_name(param_type))
-        end
-
-        blk.declare(param_type, param_spec.name)
+      wrapper_param_locals(func_spec).each do |decl|
+        blk << decl
+        blk.puts(';')
       end
 
       blk
@@ -586,7 +581,7 @@ module Wrapture
     # Overloaded function wrappers do not do any Python argument parsing, but
     # instead take the C arguments directly.
     def self.overloaded_wrapper(func_spec)
-      # TODO: implement
+      # TODO: pick up here, implement wrapper
       f = CSource::CFunction.new(function_wrapper_name(func_spec),
                                  attributes: ['static'])
 
@@ -611,6 +606,13 @@ module Wrapture
         func_spec.owner.type?(param.type)
     end
 
+    # The expression containing the call to the PyArg_ParseTuple.
+    def self.parse_tuple_call(func_spec)
+      format_str = "\"#{arg_parse_format(func_spec)}\""
+      arg_vars = wrapper_param_locals(func_spec).map { |decl| "&#{decl.name}" }
+      "PyArg_ParseTuple( args, #{format_str}, #{arg_vars.join(', ')} )"
+    end
+
     # A function wrapper for a function that parses its parameters from Python
     # arguments.
     def self.parsing_wrapper(func_spec)
@@ -624,12 +626,9 @@ module Wrapture
       f = CSource::CFunction.new(name, params: params,
                                        attributes: ['static'])
 
-      format_str = arg_parse_format(func_spec)
-
-      # TODO: pick up here, actually make parsing call
-      f.puts("// PyArg_ParseTuple( args, \"#{format_str}\", locals );")
       declare_wrapper_locals(f, func_spec)
       initialize_optional_params(f, func_spec)
+      f.puts("#{parse_tuple_call(func_spec)};")
       f.puts("#{wrapped_function_call(func_spec)};")
       f.puts(return_statement(func_spec))
 
@@ -742,6 +741,20 @@ module Wrapture
         "return_val = #{call}"
       else
         call
+      end
+    end
+
+    # Declares the local variables used to pass parameters to the wrapped
+    # function for the given function spec.
+    def self.wrapper_param_locals(func_spec)
+      func_spec.params.map do |param_spec|
+        param_type = func_spec.resolve_type(param_spec.type)
+
+        if func_spec.owner.scope.type?(param_type)
+          param_type = CSource::CPointer.new(type_struct_name(param_type))
+        end
+
+        CSource::CDeclaration.new(param_type, param_spec.name)
       end
     end
   end
