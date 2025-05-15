@@ -48,6 +48,17 @@ module Wrapture
         @value = value
       end
 
+      # Compares with another declaration.
+      def ==(other)
+        @name == other.name &&
+          @value == other.value &&
+          @attributes == other.attributes &&
+          @c_type == other.c_type
+      end
+
+      # Alias to support Enumerable#uniq.
+      alias eql? ==
+
       # True if the declaration is initialized (that is, if it has a value).
       def initialized?
         !@value.nil?

@@ -18,6 +18,8 @@ module Wrapture
   module CSource
     class CType
       def initialize: (String) -> void
+      def ==: (CType) -> bool
+      alias eql? ==
       def to_s: () -> String
     end
   end

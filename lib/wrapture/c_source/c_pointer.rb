@@ -34,6 +34,14 @@ module Wrapture
                     c_type
                   end
       end
+
+      # Compares with another pointer.
+      def ==(other)
+        @c_type == other.c_type
+      end
+
+      # Alias to support Enumerable#uniq.
+      alias eql? ==
     end
   end
 end

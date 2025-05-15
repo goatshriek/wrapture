@@ -16,7 +16,7 @@ module Wrapture
     def includes: -> Array[String]
     def libraries: -> Array[String]
     def name: -> String
-    def params: -> Array[Hash]
+    def params: -> Array[spec_hash]
     def return_val_type: -> Wrapture::TypeSpec
     def use_return?: -> bool
   end

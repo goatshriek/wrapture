@@ -103,6 +103,20 @@ module Wrapture
       src
     end
 
+    # Allocates a new instance of the given class to the self variable in the
+    # given source block. Assumes that the type variable has a pointer to the
+    # PyTypeObject structure for the class.
+    #
+    # This is useful for constructors that need to construct the self instance
+    # before calling the wrapped function with the instance.
+    def self.alloc_self(blk, class_spec)
+      self_type = "#{type_struct_name(class_spec)} *"
+      blk.puts("self = ( #{self_type} ) type->tp_alloc( type, 0 );")
+      blk.if('!self') do |if_blk|
+        if_blk.puts('return NULL;')
+      end
+    end
+
     # The format string to use for argument parsing functions, such as
     # +PyArg_ParseTuple+.
     def self.arg_parse_format(func_spec)
@@ -267,6 +281,21 @@ module Wrapture
                            typedef: type_struct_name(class_spec))
     end
 
+    # Creates a Python object using a variable with the given name and type.
+    def self.create_python_object(type, name)
+      case type.name
+      when 'int'
+        "PyLong_FromLong(#{name})"
+      when 'bool'
+        "PyBool_FromLong(#{name})"
+      when 'const char *'
+        "PyUnicode_FromString(#{name})"
+      else
+        # TODO: default case
+        "// TODO default case for #{type.name}, #{name}"
+      end
+    end
+
     # Declares the module definition struct (PyModuleDef) in a source file for
     # a scope.
     def self.declare_module_struct(src, scope)
@@ -349,10 +378,24 @@ module Wrapture
         src << factory_constructor(class_spec)
       end
 
+      overload_groups = {}
       scope.classes.each do |class_spec|
         class_spec.functions.each do |func_spec|
           src << function_wrapper(func_spec)
+
+          # collect the overloads to define the dispatcher later
+          if func_spec.overloaded?
+            if overload_groups.include?(func_spec.name)
+              overload_groups[func_spec.name] << func_spec
+            else
+              overload_groups[func_spec.name] = [func_spec]
+            end
+          end
         end
+      end
+
+      overload_groups.each_value do |funcs|
+        src << overload_dispatcher(funcs)
       end
 
       src.puts('// START LEGACY WRAPPER CODE')
@@ -485,7 +528,7 @@ module Wrapture
     # +destructor_wrapper+.
     #
     # For functions that are overloaded, this function is equivalent to calling
-    # +overloaded_wrapper+.
+    # +overload_wrapper+.
     #
     # For functions that have parameters and aren't overloaded, this is
     # equivalent to calling +parsing_wrapper+.
@@ -495,7 +538,7 @@ module Wrapture
       if func_spec.destructor?
         destructor_wrapper(func_spec)
       elsif func_spec.overloaded?
-        overloaded_wrapper(func_spec)
+        overload_wrapper(func_spec)
       elsif func_spec.params?
         parsing_wrapper(func_spec)
       else
@@ -514,18 +557,7 @@ module Wrapture
                       func_spec.name
                     end
 
-      suffix = if func_spec.overloaded?
-                 types = if func_spec.params.empty?
-                           'no_args'
-                         else
-                           func_spec.params.map { |p| p.type.base }.join('_')
-                         end
-                 "_#{types}"
-               else
-                 ''
-               end
-
-      "#{base}_#{method_name}#{suffix}"
+      "#{base}_#{method_name}"
     end
 
     # Initializes the optional params for a function within the given block.
@@ -551,10 +583,10 @@ module Wrapture
 
     # Gives the flags used to define the python method for the given function.
     def self.method_flags(func_spec)
-      flags = if func_spec.params.empty?
-                ['METH_NOARGS']
-              else
+      flags = if func_spec.params?
                 ['METH_VARARGS']
+              else
+                ['METH_NOARGS']
               end
 
       flags << 'METH_STATIC' if func_spec.static?
@@ -564,14 +596,80 @@ module Wrapture
 
     # A function wrapper for a function that does not have an parameters.
     def self.no_args_wrapper(func_spec)
-      params = [self_declaration(func_spec.owner)]
+      params = if func_spec.constructor?
+                 type = CSource::CPointer.new('PyTypeObject')
+                 [CSource::CDeclaration.new(type, 'type')]
+               else
+                 [self_declaration(func_spec.owner)]
+               end
 
       name = function_wrapper_name(func_spec)
       f = CSource::CFunction.new(name, params: params,
                                        attributes: ['static'])
       declare_wrapper_locals(f, func_spec)
+
+      alloc_self(f, func_spec.owner) if func_spec.constructor?
+      # TODO: will need to set up class constants here too
+      # the alloc_self call should probably be moved into a function to do
+      # constructor setup stuff (rename alloc_self to init_self or create_self?)
+
       f.puts("#{wrapped_function_call(func_spec)};")
       f.puts(return_statement(func_spec))
+
+      f
+    end
+
+    # A function that dispatches to the overload wrappers, based on the
+    # arguments provided.
+    def self.overload_dispatcher(funcs)
+      # use the first function spec to determine things that are assumed to be
+      # the same across all functions
+      spec = funcs.first
+
+      name = function_wrapper_name(spec)
+      params = if spec.constructor?
+                 type = CSource::CPointer.new('PyTypeObject')
+                 [CSource::CDeclaration.new(type, 'type')]
+               else
+                 [self_declaration(spec.owner)]
+               end
+
+      pyobject_ptr = CSource::CPointer.new('PyObject')
+      params << CSource::CDeclaration.new(pyobject_ptr, 'args')
+      params << CSource::CDeclaration.new(pyobject_ptr, 'kwds')
+
+      f = CSource::CFunction.new(name, params: params, attributes: ['static'])
+
+      funcs.flat_map { |it| wrapper_param_locals(it) }.uniq.each do |param_decl|
+        f << param_decl
+        f.puts(';')
+      end
+      f.declare('int', 'parse_result')
+
+      alloc_self(f, spec.owner) if spec.constructor?
+      # TODO: will also need to initialize class constants (see other notes)
+
+      funcs.select(&:params?).each do |func_spec|
+        # TODO: there may be a more efficient way to do this than repeatedly
+        # initialize the optionals for every overload
+        initialize_optional_params(f, func_spec)
+        f.puts("parse_result = #{parse_tuple_call(func_spec)};")
+        f.if('parse_result') do |if_blk|
+          if_blk.puts("return #{overload_wrapper_call(func_spec)};")
+        end
+      end
+
+      unless funcs.all?(&:params?)
+        f.puts('// TODO need to handle no arg case cleaner')
+        f.puts('// preferably, check if args are empty up front')
+        f.puts('// for now, it is the fallback case')
+        no_args = funcs.find { |func_spec| !func_spec.params? }
+        f.puts("return #{overload_wrapper_call(no_args)};")
+      end
+
+      f.puts('// TODO need to throw an error if no overload matched')
+      f.puts('// PyArg_ParseTuple will raise an exception on failure:')
+      f.puts('// we probably need to replace this with our own')
 
       f
     end
@@ -580,14 +678,38 @@ module Wrapture
     #
     # Overloaded function wrappers do not do any Python argument parsing, but
     # instead take the C arguments directly.
-    def self.overloaded_wrapper(func_spec)
-      # TODO: pick up here, implement wrapper
-      f = CSource::CFunction.new(function_wrapper_name(func_spec),
-                                 attributes: ['static'])
+    def self.overload_wrapper(func_spec)
+      params = [self_declaration(func_spec.owner)]
+      params += wrapper_param_locals(func_spec)
 
-      f.puts('// overloaded wrapper')
+      f = CSource::CFunction.new(overload_wrapper_name(func_spec),
+                                 params: params, attributes: ['static'])
+
+      declare_wrapper_locals(f, func_spec)
+      f.puts("#{wrapped_function_call(func_spec)};")
+      f.puts(return_statement(func_spec))
 
       f
+    end
+
+    # A call to the overload wrapper defined for +func_spec+.
+    def self.overload_wrapper_call(func_spec)
+      name = overload_wrapper_name(func_spec)
+      args = wrapper_param_locals(func_spec).map(&:name)
+      "#{name}( #{args.join(', ')} )"
+    end
+
+    # The name of the function that will be defined to wrap the given function.
+    def self.overload_wrapper_name(func_spec)
+      base = function_wrapper_name(func_spec)
+
+      types = if func_spec.params?
+                func_spec.params.map { |p| p.type.base }.join('_')
+              else
+                'no_args'
+              end
+
+      "#{base}_#{types}"
     end
 
     # The format string for PyArg_ParseTuple for the given function parameter.
@@ -618,17 +740,31 @@ module Wrapture
     def self.parsing_wrapper(func_spec)
       name = function_wrapper_name(func_spec)
 
+      params = if func_spec.constructor?
+                 type = CSource::CPointer.new('PyTypeObject')
+                 [CSource::CDeclaration.new(type, 'type')]
+               else
+                 [self_declaration(func_spec.owner)]
+               end
+
       pyobject_ptr = CSource::CPointer.new('PyObject')
-      params = [self_declaration(func_spec.owner),
-                CSource::CDeclaration.new(pyobject_ptr, 'args'),
-                CSource::CDeclaration.new(pyobject_ptr, 'kwds')]
+      params << CSource::CDeclaration.new(pyobject_ptr, 'args')
+      params << CSource::CDeclaration.new(pyobject_ptr, 'kwds')
 
       f = CSource::CFunction.new(name, params: params,
                                        attributes: ['static'])
 
       declare_wrapper_locals(f, func_spec)
       initialize_optional_params(f, func_spec)
-      f.puts("#{parse_tuple_call(func_spec)};")
+
+      f.puts("parse_result = #{parse_tuple_call(func_spec)};")
+      f.if('!parse_result') do |if_blk|
+        if_blk.puts('return NULL;')
+      end
+
+      alloc_self(f, func_spec.owner) if func_spec.constructor?
+      # TODO: will also need to initialize class constants
+
       f.puts("#{wrapped_function_call(func_spec)};")
       f.puts(return_statement(func_spec))
 

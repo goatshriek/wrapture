@@ -43,6 +43,16 @@ module Wrapture
         @members = members
         @typedef = typedef
       end
+
+      # Compares with another struct.
+      def ==(other)
+        @name == other.name &&
+          @members == other.members &&
+          @typedef == other.typedef
+      end
+
+      # Alias to support Enumerable#uniq.
+      alias eql? ==
     end
   end
 end

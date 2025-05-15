@@ -22,6 +22,8 @@ module Wrapture
       attr_reader c_type: (CType | CStruct)
 
       def initialize: (CType | CStruct | String) -> void
+      def ==: (CPointer) -> bool
+      alias eql? ==
     end
   end
 end

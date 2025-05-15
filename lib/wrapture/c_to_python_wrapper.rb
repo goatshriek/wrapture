@@ -527,9 +527,9 @@ module Wrapture
     def define_scope_type_objects(&block)
       yield ''
 
-      @spec.classes.each do |item|
-        define_class_type_object(item) { |line| block.call(line) }
-      end
+      # @spec.classes.each do |item|
+      #   define_class_type_object(item) { |line| block.call(line) }
+      # end
 
       @spec.enums.each do |item|
         define_enum_constructor(item) { |line| block.call(line) }

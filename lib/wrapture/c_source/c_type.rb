@@ -29,6 +29,14 @@ module Wrapture
         @base = base
       end
 
+      # Compares with another type.
+      def ==(other)
+        to_s == other.to_s
+      end
+
+      # Alias to support Enumerable#uniq.
+      alias eql? ==
+
       # C source code representing the type.
       def to_s
         @base
