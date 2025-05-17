@@ -103,20 +103,6 @@ module Wrapture
       src
     end
 
-    # Allocates a new instance of the given class to the self variable in the
-    # given source block. Assumes that the type variable has a pointer to the
-    # PyTypeObject structure for the class.
-    #
-    # This is useful for constructors that need to construct the self instance
-    # before calling the wrapped function with the instance.
-    def self.alloc_self(blk, class_spec)
-      self_type = "#{type_struct_name(class_spec)} *"
-      blk.puts("self = ( #{self_type} ) type->tp_alloc( type, 0 );")
-      blk.if('!self') do |if_blk|
-        if_blk.puts('return NULL;')
-      end
-    end
-
     # The format string to use for argument parsing functions, such as
     # +PyArg_ParseTuple+.
     def self.arg_parse_format(func_spec)
@@ -281,6 +267,16 @@ module Wrapture
                            typedef: type_struct_name(class_spec))
     end
 
+    # The parameters used for a constructor wrapper.
+    def self.constructor_params
+      type_object_ptr = CSource::CPointer.new('PyTypeObject')
+      pyobject_ptr = CSource::CPointer.new('PyObject')
+
+      [CSource::CDeclaration.new(type_object_ptr, 'type'),
+       CSource::CDeclaration.new(pyobject_ptr, 'args'),
+       CSource::CDeclaration.new(pyobject_ptr, 'kwds')]
+    end
+
     # Creates a Python object using a variable with the given name and type.
     def self.create_python_object(type, name)
       case type.name
@@ -293,6 +289,26 @@ module Wrapture
       else
         # TODO: default case
         "// TODO default case for #{type.name}, #{name}"
+      end
+    end
+
+    # Allocates a new instance of the given class to the self variable in the
+    # given source block, and performs any setup needed on it. Assumes that the
+    # type variable has a pointer to the PyTypeObject structure for the class.
+    #
+    # This is useful for constructors that need to construct the self instance
+    # before calling the wrapped function with the instance.
+    def self.create_self(blk, class_spec)
+      self_type = "#{type_struct_name(class_spec)} *"
+      blk.puts("self = ( #{self_type} ) type->tp_alloc( type, 0 );")
+      blk.if('!self') do |if_blk|
+        if_blk.puts('return NULL;')
+      end
+
+      class_spec.constants.each do |constant_spec|
+        field_name = constant_spec.snake_case_name
+        field_value = constant_spec.value
+        blk.puts("self->#{field_name} = #{field_value};")
       end
     end
 
@@ -350,6 +366,23 @@ module Wrapture
     end
 
     # The default constructor for a class that does not have one defined.
+    def self.default_constructor(class_spec)
+      name = "#{class_spec.snake_case_name}_new"
+      params = constructor_params
+      return_type = Wrapture::CSource::CPointer.new('PyObject')
+
+      f = CSource::CFunction.new(name, params: params, return_type: return_type,
+                                       attributes: ['static'])
+
+      f << self_declaration(class_spec)
+      f.puts(';')
+      create_self(f, class_spec)
+      f.puts('return ( PyObject * ) self;')
+
+      f
+    end
+
+    # The default destructor for a class that does not have one defined.
     def self.default_destructor(class_spec)
       name = "#{class_spec.snake_case_name}_dealloc"
       params = [self_declaration(class_spec)]
@@ -395,6 +428,10 @@ module Wrapture
 
       overload_groups = {}
       scope.classes.each do |class_spec|
+        unless class_spec.functions.any?(&:constructor?)
+          src << default_constructor(class_spec)
+        end
+
         unless class_spec.functions.any?(&:destructor?)
           src << default_destructor(class_spec)
         end
@@ -629,10 +666,7 @@ module Wrapture
                                        attributes: ['static'])
       declare_wrapper_locals(f, func_spec)
 
-      alloc_self(f, func_spec.owner) if func_spec.constructor?
-      # TODO: will need to set up class constants here too
-      # the alloc_self call should probably be moved into a function to do
-      # constructor setup stuff (rename alloc_self to init_self or create_self?)
+      create_self(f, func_spec.owner) if func_spec.constructor?
 
       f.puts("#{wrapped_function_call(func_spec)};")
       f.puts(return_statement(func_spec))
@@ -673,8 +707,7 @@ module Wrapture
         f.puts(';')
       end
 
-      alloc_self(f, spec.owner) if spec.constructor?
-      # TODO: will also need to initialize class constants (see other notes)
+      create_self(f, spec.owner) if spec.constructor?
 
       funcs.select(&:params?).each do |func_spec|
         # TODO: there may be a more efficient way to do this than repeatedly
@@ -769,21 +802,18 @@ module Wrapture
     # arguments.
     def self.parsing_wrapper(func_spec)
       name = function_wrapper_name(func_spec)
+      pyobject_ptr = CSource::CPointer.new('PyObject')
 
       params = if func_spec.constructor?
-                 type = CSource::CPointer.new('PyTypeObject')
-                 [CSource::CDeclaration.new(type, 'type')]
+                 constructor_params
                else
-                 [self_declaration(func_spec.owner)]
+                 [self_declaration(func_spec.owner),
+                  CSource::CDeclaration.new(pyobject_ptr, 'args'),
+                  CSource::CDeclaration.new(pyobject_ptr, 'kwds')]
                end
 
-      pyobject_ptr = CSource::CPointer.new('PyObject')
-      params << CSource::CDeclaration.new(pyobject_ptr, 'args')
-      params << CSource::CDeclaration.new(pyobject_ptr, 'kwds')
-      return_type = CSource::CPointer.new('PyObject')
-
       f = CSource::CFunction.new(name, params: params,
-                                       return_type: return_type,
+                                       return_type: pyobject_ptr,
                                        attributes: ['static'])
 
       declare_wrapper_locals(f, func_spec)
@@ -794,8 +824,7 @@ module Wrapture
         if_blk.puts('return NULL;')
       end
 
-      alloc_self(f, func_spec.owner) if func_spec.constructor?
-      # TODO: will also need to initialize class constants
+      create_self(f, func_spec.owner) if func_spec.constructor?
 
       f.puts("#{wrapped_function_call(func_spec)};")
       f.puts(return_statement(func_spec))
