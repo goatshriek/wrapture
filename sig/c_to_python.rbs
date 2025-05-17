@@ -32,6 +32,7 @@ module Wrapture
     def self.declare_module_struct: (Wrapture::SourceFile, Wrapture::Scope) -> Wrapture::SourceFile
     def self.declare_wrapper_locals: (Wrapture::CSource::CBlock, Wrapture::FunctionSpec) -> Wrapture::CSource::CBlock
     def self.declare_wrapper_param_locals: (Wrapture::CSource::CBlock, Wrapture::FunctionSpec) -> Wrapture::CSource::CBlock
+    def self.default_destructor: (Wrapture::ClassSpec) -> Wrapture::CSource::CFunction
     def self.define_module: (Wrapture::Scope) -> Wrapture::SourceFile
     def self.define_module_init: (Wrapture::SourceFile, Wrapture::Scope) -> Wrapture::SourceFile
     def self.destructor_wrapper: (Wrapture::FunctionSpec) -> Wrapture::CSource::CFunction

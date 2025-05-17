@@ -313,12 +313,15 @@ module Wrapture
     # Declares the local variables used in the wrapper for the given function in
     # the given block.
     def self.declare_wrapper_locals(blk, func_spec)
-      if func_spec.constructor? || runtime_class?(func_spec.owner)
+      if !func_spec.overloaded? &&
+         (func_spec.constructor? || runtime_class?(func_spec.owner))
         blk << self_declaration(func_spec.owner)
         blk.puts(';')
       end
 
-      blk.declare('int', 'parse_result') if func_spec.params?
+      if func_spec.params? && !func_spec.overloaded?
+        blk.declare('int', 'parse_result')
+      end
 
       if !func_spec.void_return? || func_spec.wrapped.use_return?
         effective_return = func_spec.wrapped.return_val_type
@@ -332,7 +335,7 @@ module Wrapture
         blk.declare(effective_return, 'return_val')
       end
 
-      declare_wrapper_param_locals(blk, func_spec)
+      declare_wrapper_param_locals(blk, func_spec) unless func_spec.overloaded?
     end
 
     # Declares the local variables used to pass parameters to the wrapped
@@ -344,6 +347,18 @@ module Wrapture
       end
 
       blk
+    end
+
+    # The default constructor for a class that does not have one defined.
+    def self.default_destructor(class_spec)
+      name = "#{class_spec.snake_case_name}_dealloc"
+      params = [self_declaration(class_spec)]
+
+      f = CSource::CFunction.new(name, params: params,
+                                       attributes: ['static'])
+      f.puts('Py_TYPE( self )->tp_free( ( PyObject * ) self );')
+
+      f
     end
 
     # Generates a source file with the definition of a module for a scope.
@@ -380,6 +395,10 @@ module Wrapture
 
       overload_groups = {}
       scope.classes.each do |class_spec|
+        unless class_spec.functions.any?(&:destructor?)
+          src << default_destructor(class_spec)
+        end
+
         class_spec.functions.each do |func_spec|
           src << function_wrapper(func_spec)
 
@@ -596,15 +615,17 @@ module Wrapture
 
     # A function wrapper for a function that does not have an parameters.
     def self.no_args_wrapper(func_spec)
+      name = function_wrapper_name(func_spec)
       params = if func_spec.constructor?
                  type = CSource::CPointer.new('PyTypeObject')
                  [CSource::CDeclaration.new(type, 'type')]
                else
                  [self_declaration(func_spec.owner)]
                end
+      return_type = CSource::CPointer.new('PyObject')
 
-      name = function_wrapper_name(func_spec)
       f = CSource::CFunction.new(name, params: params,
+                                       return_type: return_type,
                                        attributes: ['static'])
       declare_wrapper_locals(f, func_spec)
 
@@ -637,14 +658,20 @@ module Wrapture
       pyobject_ptr = CSource::CPointer.new('PyObject')
       params << CSource::CDeclaration.new(pyobject_ptr, 'args')
       params << CSource::CDeclaration.new(pyobject_ptr, 'kwds')
+      return_type = CSource::CPointer.new('PyObject')
 
-      f = CSource::CFunction.new(name, params: params, attributes: ['static'])
+      f = CSource::CFunction.new(name, params: params, attributes: ['static'],
+                                       return_type: return_type)
 
       funcs.flat_map { |it| wrapper_param_locals(it) }.uniq.each do |param_decl|
         f << param_decl
         f.puts(';')
       end
       f.declare('int', 'parse_result')
+      if spec.constructor? || runtime_class?(spec.owner)
+        f << self_declaration(spec.owner)
+        f.puts(';')
+      end
 
       alloc_self(f, spec.owner) if spec.constructor?
       # TODO: will also need to initialize class constants (see other notes)
@@ -681,8 +708,10 @@ module Wrapture
     def self.overload_wrapper(func_spec)
       params = [self_declaration(func_spec.owner)]
       params += wrapper_param_locals(func_spec)
+      return_type = CSource::CPointer.new('PyObject')
 
       f = CSource::CFunction.new(overload_wrapper_name(func_spec),
+                                 return_type: return_type,
                                  params: params, attributes: ['static'])
 
       declare_wrapper_locals(f, func_spec)
@@ -696,6 +725,7 @@ module Wrapture
     def self.overload_wrapper_call(func_spec)
       name = overload_wrapper_name(func_spec)
       args = wrapper_param_locals(func_spec).map(&:name)
+      args.prepend('self')
       "#{name}( #{args.join(', ')} )"
     end
 
@@ -750,8 +780,10 @@ module Wrapture
       pyobject_ptr = CSource::CPointer.new('PyObject')
       params << CSource::CDeclaration.new(pyobject_ptr, 'args')
       params << CSource::CDeclaration.new(pyobject_ptr, 'kwds')
+      return_type = CSource::CPointer.new('PyObject')
 
       f = CSource::CFunction.new(name, params: params,
+                                       return_type: return_type,
                                        attributes: ['static'])
 
       declare_wrapper_locals(f, func_spec)
