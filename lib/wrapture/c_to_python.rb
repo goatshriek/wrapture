@@ -117,6 +117,17 @@ module Wrapture
       "#{required_formats.join}|#{optional_formats.join}"
     end
 
+    # Get the name of the type object for the given class's base, if one exists.
+    def self.base_type_object(class_spec)
+      if class_spec.child? && class_spec.parent_spec
+        return "(&#{type_object_name(class_spec.parent_spec)})"
+      end
+
+      return '(( PyTypeObject *) PyExc_Exception)' if class_spec.exception?
+
+      nil
+    end
+
     # Returns a cast of the equivalent member of an instance of the given class
     # with the given name to the given type.
     def self.cast_equivalent(class_spec, var_name, to)
@@ -653,20 +664,30 @@ module Wrapture
     # A function wrapper for a function that does not have an parameters.
     def self.no_args_wrapper(func_spec)
       name = function_wrapper_name(func_spec)
+      runtime_class = runtime_class?(func_spec.owner)
+      pyobject_ptr = CSource::CPointer.new('PyObject')
+      unused_args = CSource::CDeclaration.new(pyobject_ptr,
+                                              'Py_UNUSED( ignored )')
       params = if func_spec.constructor?
-                 type = CSource::CPointer.new('PyTypeObject')
-                 [CSource::CDeclaration.new(type, 'type')]
+                 constructor_params
+               elsif runtime_class
+                 [CSource::CDeclaration.new('void *', 'runtime_self'),
+                  unused_args]
                else
-                 [self_declaration(func_spec.owner)]
+                 [self_declaration(func_spec.owner), unused_args]
                end
-      return_type = CSource::CPointer.new('PyObject')
 
       f = CSource::CFunction.new(name, params: params,
-                                       return_type: return_type,
+                                       return_type: pyobject_ptr,
                                        attributes: ['static'])
       declare_wrapper_locals(f, func_spec)
 
-      create_self(f, func_spec.owner) if func_spec.constructor?
+      if func_spec.constructor?
+        create_self(f, func_spec.owner)
+      elsif runtime_class
+        self_cast = runtime_type_cast(func_spec.owner, 'runtime_self')
+        f.puts("self = #{self_cast};")
+      end
 
       f.puts("#{wrapped_function_call(func_spec)};")
       f.puts(return_statement(func_spec))
@@ -876,9 +897,17 @@ module Wrapture
     # True if some aspects of the class need to be defined at runtime.
     #
     # Exception classes are one example of this case, as the Exception class and
-    # its associated type information is not available until runtime.
+    # its associated type information are not available until runtime.
     def self.runtime_class?(class_spec)
       class_spec.exception?
+    end
+
+    # A cast of a runtime type to the class type struct.
+    def self.runtime_type_cast(class_spec, var_name)
+      type_struct_name = type_struct_name(class_spec)
+      type_object = base_type_object(class_spec)
+      real_self = "((intptr_t)#{var_name}) + #{type_object}->tp_basicsize"
+      "( #{type_struct_name} * )( #{real_self} )"
     end
 
     # A declaration of the self pointer for a class.
@@ -890,17 +919,6 @@ module Wrapture
     # Gives the name of the type object instance for a given class.
     def self.type_object_name(class_spec)
       "#{class_spec.snake_case_name}_type_object"
-    end
-
-    # Get the name of the type object for the given class's base, if one exists.
-    def self.base_type_object(class_spec)
-      if class_spec.child? && class_spec.parent_spec
-        return "(&#{type_object_name(class_spec.parent_spec)})"
-      end
-
-      return '(( PyTypeObject *) PyExc_Exception)' if class_spec.exception?
-
-      nil
     end
 
     # Gives the name of the type struct for a given class.
