@@ -11,10 +11,12 @@ module Wrapture
     attr_reader error_rules: Array[Wrapture::RuleSpec]
 
     def initialize: (spec_hash spec) -> void
-    def call_from: (Wrapture::CToCppWrapper | Wrapture::CToPythonWrapper) -> String
+    def call_from: (Wrapture::CToCppWrapper) -> String
     def error_check?: -> bool
     def includes: -> Array[String]
     def libraries: -> Array[String]
+    def name: -> String
+    def params: -> Array[spec_hash]
     def return_val_type: -> Wrapture::TypeSpec
     def use_return?: -> bool
   end

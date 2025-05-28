@@ -61,6 +61,7 @@ module Wrapture
 
     case name
     when String
+      # TODO: try to detect whether the string is SCREAMING_SNAKE_CASE
       # first match all CamelCase strings, including preceding capital letters
       # if the start is a lowercase word, this will be the first part
       name.scan(/[A-Z]*[^A-Z]*/).flat_map do |s|

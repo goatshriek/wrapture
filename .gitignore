@@ -3,6 +3,7 @@ coverage/*
 docs/html/*
 Gemfile.lock
 *.gem
+.ruby_version
 
 # ignore bundler files
 .bundle/*

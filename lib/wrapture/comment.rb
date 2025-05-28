@@ -56,6 +56,7 @@ module Wrapture
     end
 
     # Yields each line of the comment formatted as specified.
+    # TODO: functionality should be moved to C source somewhere
     def format(line_prefix: '// ', first_line: nil, last_line: nil,
                max_line_length: 80)
       return if @text.empty?
@@ -71,6 +72,7 @@ module Wrapture
 
     # Calls the given block for each line of the comment formatted using Doxygen
     # style.
+    # TODO: functionality should be moved to C source somewhere
     def format_as_doxygen(max_line_length: 80, &block)
       format(line_prefix: ' * ', first_line: '/**',
              last_line: ' */', max_line_length: max_line_length, &block)
@@ -78,6 +80,8 @@ module Wrapture
 
     # Calls the given block for each line of the comment formatted as a Python
     # string triple-double-quote string.
+    # TODO: functionality should be moved to Python source somewhere
+    # (is this even used?)
     def format_as_python_string(max_line_length: 80, &block)
       format(line_prefix: '', first_line: '"""',
              last_line: '"""', max_line_length: max_line_length, &block)

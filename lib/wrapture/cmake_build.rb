@@ -39,7 +39,7 @@ module Wrapture
     def cmake_lists
       file = SourceFile.new('CMakeLists.txt')
 
-      file.puts('cmake_minimum_required(VERSION 3.0.2)')
+      file.puts('cmake_minimum_required(VERSION 3.10)')
       file.puts("project(#{@cpp_build.name})")
       file.puts
 

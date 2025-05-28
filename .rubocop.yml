@@ -1,4 +1,4 @@
-require:
+plugins:
   - rubocop-minitest
   - rubocop-rake
 
@@ -10,7 +10,7 @@ Layout/LineLength:
   Max: 80
 
 Metrics/AbcSize:
-  Max: 60
+  Max: 80
 
 Metrics/ClassLength:
   Max: 800
@@ -19,13 +19,16 @@ Metrics/BlockLength:
   Max: 50
 
 Metrics/CyclomaticComplexity:
-  Max: 15
+  Max: 20
 
 Metrics/MethodLength:
-  Max: 55
+  Max: 60
+
+Metrics/ModuleLength:
+  Max: 800
 
 Metrics/PerceivedComplexity:
-  Max: 15
+  Max: 20
 
 Minitest/AssertWithExpectedArgument:
   Enabled: false

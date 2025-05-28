@@ -153,7 +153,8 @@ module Wrapture
       @destructor = destructor
     end
 
-    # The owner of this function, if there is one.
+    # The owner of this function. This may be an empty scope if no owner was
+    # defined for this function.
     attr_reader :owner
 
     # A list of the ParamSpecs this function accepts.
@@ -248,6 +249,20 @@ module Wrapture
     # The parameters that are optional (have default values) for this function.
     def optional_params
       @params.select(&:default_value?)
+    end
+
+    # True if this function is overloaded in it's owning scope.
+    def overloaded?
+      case @owner
+      when Scope
+        false
+      when ClassSpec
+        @owner.functions.count do |f|
+          f.name_words == name_words &&
+            f.constructor? == constructor? &&
+            f.destructor? == destructor?
+        end > 1
+      end
     end
 
     # An array of the names of the function params.
