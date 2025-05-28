@@ -11,7 +11,7 @@ module Wrapture
     attr_reader error_rules: Array[Wrapture::RuleSpec]
 
     def initialize: (spec_hash spec) -> void
-    def call_from: (Wrapture::CToCppWrapper | Wrapture::CToPythonWrapper) -> String
+    def call_from: (Wrapture::CToCppWrapper) -> String
     def error_check?: -> bool
     def includes: -> Array[String]
     def libraries: -> Array[String]
