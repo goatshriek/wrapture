@@ -421,6 +421,10 @@ module Wrapture
 
       declare_module_struct(src, scope)
 
+      scope.enums.each do |enum_spec|
+        src << enum_constructor(enum_spec)
+      end
+
       scope.classes.each do |class_spec|
         src << class_type_struct(class_spec)
         src.declare('PyTypeObject', type_object_name(class_spec),
@@ -468,7 +472,7 @@ module Wrapture
       src.puts('// START LEGACY WRAPPER CODE')
       wrapper = CToPythonWrapper.new(scope)
       wrapper.define_module do |line|
-        src.puts(line)
+        src.puts("// #{line}")
       end
       src.puts('// END LEGACY WRAPPER CODE')
 
@@ -509,6 +513,84 @@ module Wrapture
                                        attributes: ['static'])
       f.puts("#{wrapped_function_call(func_spec)};")
       f.puts('Py_TYPE( self )->tp_free( ( PyObject * ) self );')
+
+      f
+    end
+
+    # A C function which creates the given enum and adds it to the module given
+    # as an argument.
+    def self.enum_constructor(enum_spec)
+      name = "add_#{enum_spec.snake_case_name}_enum_to_module"
+
+      pyobject_ptr = CSource::CPointer.new('PyObject')
+      params = [CSource::CDeclaration.new(pyobject_ptr, 'm')]
+      f = CSource::CFunction.new(name, params: params, return_type: 'int',
+                                       attributes: ['static'])
+
+      # set up all of the local variables
+      objs = %w[element_dict element_name element_value enum_name call_args
+                call_kwargs kw_name kw_value enum_mod enum_type new_enum]
+      objs.each do |it|
+        f.declare(pyobject_ptr, it)
+      end
+      f.declare('int', 'add_result')
+
+      f.puts('element_dict = PyDict_New();')
+      f.if('!element_dict') do |fail_block|
+        fail_block.puts('goto dict_fail;')
+      end
+      f.add_fail_label('dict_fail', 'return -1;')
+
+      next_val = 0
+      enum_spec.elements.each do |it|
+        f.puts("element_name = PyUnicode_FromString( \"#{it['name']}\" );")
+
+        val = it['value']
+        val = next_val if val.nil?
+        f.puts("element_value = PyLong_FromLong( #{val} );")
+
+        f.puts('PyObject_SetItem( element_dict, element_name, element_value );')
+        f.puts('Py_DECREF( element_name );')
+        f.puts('Py_DECREF( element_value );')
+
+        next_val = if val.is_a?(Integer)
+                     val + 1
+                   else
+                     # TODO: this increment operation could be cleaner
+                     next_val = "#{val} + 1"
+                   end
+      end
+
+      # building the positional arguments to enum.Enum'
+      f.puts("enum_name = PyUnicode_FromString( \"#{enum_spec.name}\" );")
+      f.puts('call_args = PyTuple_Pack( 2, enum_name, element_dict );')
+      f.puts('Py_DECREF( enum_name );')
+      f.puts('Py_DECREF( element_dict );')
+
+      # building the keyword argument to enum.Enum
+      f.puts('call_kwargs = PyDict_New();')
+      f.puts('kw_name = PyUnicode_FromString( "module" );')
+      f.puts('kw_value = PyModule_GetNameObject( m );')
+      f.puts('PyObject_SetItem( call_kwargs, kw_name, kw_value );')
+      f.puts('Py_DECREF( kw_name );')
+      f.puts('Py_DECREF( kw_value );')
+
+      # importing enum and getting the Enum type from it
+      f.puts('enum_mod = PyImport_ImportModule( "enum" );')
+      f.puts('enum_type = PyObject_GetAttrString( enum_mod, "Enum" );')
+      f.puts('Py_DECREF( enum_mod );')
+
+      # making the call to enum.Enum to create the new type
+      f.puts('new_enum = PyObject_Call( enum_type, call_args, call_kwargs );')
+      f.puts('Py_DECREF( enum_type );')
+      f.puts('Py_DECREF( call_args );')
+      f.puts('Py_DECREF( call_kwargs );')
+
+      # adding the new type to the module
+      add_params = "m, \"#{enum_spec.name}\", new_enum"
+      f.puts("add_result = PyModule_AddObjectRef( #{add_params} );")
+      f.puts('Py_DECREF( new_enum );')
+      f.puts('return add_result;')
 
       f
     end
