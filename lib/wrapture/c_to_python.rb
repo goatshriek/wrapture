@@ -469,13 +469,6 @@ module Wrapture
         src << overload_dispatcher(funcs)
       end
 
-      src.puts('// START LEGACY WRAPPER CODE')
-      wrapper = CToPythonWrapper.new(scope)
-      wrapper.define_module do |line|
-        src.puts("// #{line}")
-      end
-      src.puts('// END LEGACY WRAPPER CODE')
-
       scope.classes.each do |class_spec|
         src << class_methods_declaration(class_spec)
         src << ";\n"
