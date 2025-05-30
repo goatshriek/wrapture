@@ -46,6 +46,20 @@ module Wrapture
       end
     end
 
+    # Creates a build instance from a hash.
+    def from_hash(spec)
+      unless spec.key?(:build_system)
+        raise(MissingSpecKey, 'build_system must be specified')
+      end
+
+      case spec[:build_system]
+      when 'cmake'
+        CmakeBuild.from_hash(spec)
+      else
+        raise(InvalidSpecKey, "unsupported build system #{spec[:build_system]}")
+      end
+    end
+
     # True if this build includes the provided source.
     #
     # If +src+ is a Pathname, then the sources list of the build is searched for

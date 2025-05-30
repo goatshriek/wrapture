@@ -18,11 +18,11 @@ module Wrapture
   class CmakeBuild
     include Build
 
-    @cpp_build: Wrapture::CppBuild
+    @build_info: (Wrapture::CppBuild | Wrapture::CBuild)
 
-    attr_reader cpp_build: Wrapture::CppBuild
+    attr_reader build_info: (Wrapture::CppBuild | Wrapture::CBuild)
 
-    def initialize: (Wrapture::CppBuild) -> void
+    def initialize: (Wrapture::CppBuild | Wrapture::CBuild) -> void
     def cmake_lists: -> Wrapture::SourceFile
     def sources: -> Array[Wrapture::SourceFile]
   end

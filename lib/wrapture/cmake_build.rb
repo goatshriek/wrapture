@@ -19,16 +19,23 @@
 #++
 
 module Wrapture
-  # A CMake project that builds a C++ library.
+  # A CMake project that builds a library.
+  #
+  # This currently supports C and C++ libraries.
   class CmakeBuild
     include Build
 
-    # Build information for the C++ library.
-    attr_reader :cpp_build
+    # The build information for the source code of the library.
+    attr_reader :build_info
 
-    # Create a CMake build for a given C++ library build.
-    def initialize(cpp_build)
-      @cpp_build = cpp_build
+    # Creates a CMake build from a provided hash.
+    def self.from_hash(spec)
+      # TODO: pick up here
+    end
+
+    # Create a CMake build for a given library build.
+    def initialize(build_info)
+      @build_info = build_info
     end
 
     # A CMakeLists.txt file that could be used to build this project.
@@ -40,28 +47,28 @@ module Wrapture
       file = SourceFile.new('CMakeLists.txt')
 
       file.puts('cmake_minimum_required(VERSION 3.10)')
-      file.puts("project(#{@cpp_build.name})")
+      file.puts("project(#{@build_info.name})")
       file.puts
 
-      file.puts("set(#{@cpp_build.name.upcase}_HEADERS")
-      @cpp_build.lib_headers.each do |header|
+      file.puts("set(#{@build_info.name.upcase}_HEADERS")
+      @build_info.lib_headers.each do |header|
         file.puts("  #{header.path}")
       end
       file.puts(')')
       file.puts
 
-      unless @cpp_build.lib_sources.empty?
-        source_list = "#{@cpp_build.name.upcase}_SOURCES"
+      unless @build_info.lib_sources.empty?
+        source_list = "#{@build_info.name.upcase}_SOURCES"
         file.puts("set(#{source_list}")
-        @cpp_build.lib_sources.each do |source|
+        @build_info.lib_sources.each do |source|
           file.puts("  #{source.path}")
         end
         file.puts(')')
         file.puts
 
         lib_targets = []
-        @cpp_build.lib_links.each do |lib|
-          target_name = "#{@cpp_build.name}_#{lib}"
+        @build_info.lib_links.each do |lib|
+          target_name = "#{@build_info.name}_#{lib}"
           file.puts("find_library(LIB#{lib.upcase}_FOUND #{lib})")
           file.puts("add_library(#{target_name} SHARED IMPORTED)")
           file.puts("set_target_properties(#{target_name} PROPERTIES")
@@ -73,8 +80,8 @@ module Wrapture
         end
 
         lib_deps = lib_targets.join(' ')
-        file.puts("add_library(#{@cpp_build.name} ${#{source_list}})")
-        file.puts("target_link_libraries(#{@cpp_build.name}")
+        file.puts("add_library(#{@build_info.name} ${#{source_list}})")
+        file.puts("target_link_libraries(#{@build_info.name}")
         file.puts("  PRIVATE #{lib_deps}")
         file.puts(')')
         file.puts
@@ -88,9 +95,9 @@ module Wrapture
     # All source files in this project.
     #
     # This includes CMakeLists.txt as well as the sources of the underlying
-    # C++ project.
+    # project.
     def sources
-      [cmake_lists] + @cpp_build.sources
+      [cmake_lists] + @build_info.sources
     end
   end
 end
