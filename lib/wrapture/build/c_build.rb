@@ -19,11 +19,11 @@
 #++
 
 module Wrapture
-  # A generated C++ project along with the information required to build it.
+  # A generated C project along with the information required to build it.
   #
-  # C++ projects are generated as individual libraries, defined by the scope
+  # C projects are generated as individual libraries, defined by the scope
   # containing all of the specs for it.
-  class CppBuild
+  class CBuild
     include Build
 
     # The header files for the project's library.
@@ -48,7 +48,7 @@ module Wrapture
       @lib_sources = []
     end
 
-    # Add the content of another C++ build to this one.
+    # Add the content of another C build to this one.
     def <<(build)
       build.lib_headers.each do |hdr|
         add_lib_header(hdr)

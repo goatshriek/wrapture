@@ -15,7 +15,7 @@
 # limitations under the License.
 
 module Wrapture
-  class CppBuild
+  class CBuild
     include Build
 
     @lib_headers: Array[Wrapture::SourceFile]
@@ -29,7 +29,7 @@ module Wrapture
     attr_reader name: String
 
     def initialize: (String) -> void
-    def <<: (Wrapture::CppBuild) -> (Wrapture::CppBuild)
+    def <<: (Wrapture::CBuild) -> (Wrapture::CBuild)
     def add_lib_header: (Wrapture::SourceFile) -> void
     def add_lib_source: (Wrapture::SourceFile) -> void
     def add_link: (String) -> void

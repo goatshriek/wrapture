@@ -63,7 +63,7 @@ module Wrapture
 
     # Generates a build for a C++ library wrapping a class.
     def self.wrap_class(class_spec)
-      build = CppBuild.new(class_spec.name)
+      build = Wrapture::CppBuild.new(class_spec.name)
 
       build.add_lib_header(declare_class(class_spec))
       build.add_lib_source(define_class(class_spec))
@@ -77,7 +77,7 @@ module Wrapture
 
     # Generates a build for a C++ library wrapping the provided enum.
     def self.wrap_enum(enum_spec)
-      build = CppBuild.new(enum_spec.name)
+      build = Wrapture::CppBuild.new(enum_spec.name)
 
       build.add_lib_header(define_enum(enum_spec))
 

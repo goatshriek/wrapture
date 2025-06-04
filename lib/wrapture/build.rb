@@ -19,6 +19,11 @@
 #++
 
 require 'pathname'
+require 'wrapture/build/c_build'
+require 'wrapture/build/cmake_build'
+require 'wrapture/build/cpp_build'
+require 'wrapture/build/pyproject_build'
+require 'wrapture/build/python_build'
 
 module Wrapture
   # Build information for generated source code.
@@ -55,6 +60,8 @@ module Wrapture
       case spec[:build_system]
       when 'cmake'
         CmakeBuild.from_hash(spec)
+      when 'pyproject'
+        PyprojectBuild.from_hash(spec)
       else
         raise(InvalidSpecKey, "unsupported build system #{spec[:build_system]}")
       end

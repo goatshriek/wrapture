@@ -30,7 +30,9 @@ module Wrapture
 
     # Creates a CMake build from a provided hash.
     def self.from_hash(spec)
-      # TODO: pick up here
+      unless spec.key?(:lib_language)
+        raise(MissingSpecKey, 'build_system must be specified')
+      end
     end
 
     # Create a CMake build for a given library build.
