@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2019-2025 Joel E. Anderson
+# Copyright 2025 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,21 +16,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'yaml'
+require 'helper'
 
-# Slated for removal after migrating to symbolize_names loading.
-def load_fixture(name)
-  fixture_path = File.expand_path('fixtures', __dir__)
-  YAML.load_file(File.join(fixture_path, "#{name}.yml"))
-end
+require 'fixture'
+require 'minitest/autorun'
+require 'wrapture'
 
-# Creates a hash for a Wrapture spec, finding and loading the YAML file
-# corresponding to +name+.
-def fixture_hash(name)
-  YAML.safe_load_file(fixture_yaml_path(name), symbolize_names: true)
-end
-
-# Builds the path for a fixture's YAML file corresponding to +name+.
-def fixture_yaml_path(name)
-  File.join(File.expand_path('fixtures', __dir__), "#{name}.yml")
+class BuildTest < Minitest::Test
+  def test_invalid_type
+    build = Wrapture::Build.from_hash
+  end
 end
