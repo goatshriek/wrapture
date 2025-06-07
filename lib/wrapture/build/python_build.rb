@@ -19,44 +19,47 @@
 #++
 
 module Wrapture
-  # A generated Python project along with the information required to build it.
-  #
-  # Python projects are generated as single modules, defined by the scope
-  # containing all of the specs for it.
-  class PythonBuild
-    include Build
-
-    # The libraries this project's module links with.
-    attr_reader :module_links
-
-    # The source files for the module.
-    attr_reader :module_sources
-
-    # The name of the project being build
-    attr_reader :name
-
-    # Create an empty Python project.
+  module Build
+    # A generated Python project along with the information required to build
+    # it.
     #
-    # +name+ will be used as the name of the module the project builds.
-    def initialize(name)
-      @name = name
-      @module_links = []
-      @module_sources = []
-    end
+    # Python projects are generated as single modules, defined by the scope
+    # containing all of the specs for it.
+    class PythonBuild
+      include Build
 
-    # Add a source file to the project's module's list.
-    def add_module_source(source)
-      @module_sources << source
-    end
+      # The libraries this project's module links with.
+      attr_reader :module_links
 
-    # Add a library that the project's module must be linked with.
-    def add_link(lib)
-      @module_links << lib
-    end
+      # The source files for the module.
+      attr_reader :module_sources
 
-    # All source files in this project.
-    def sources
-      @module_sources
+      # The name of the project being build
+      attr_reader :name
+
+      # Create an empty Python project.
+      #
+      # +name+ will be used as the name of the module the project builds.
+      def initialize(name)
+        @name = name
+        @module_links = []
+        @module_sources = []
+      end
+
+      # Add a source file to the project's module's list.
+      def add_module_source(source)
+        @module_sources << source
+      end
+
+      # Add a library that the project's module must be linked with.
+      def add_link(lib)
+        @module_links << lib
+      end
+
+      # All source files in this project.
+      def sources
+        @module_sources
+      end
     end
   end
 end

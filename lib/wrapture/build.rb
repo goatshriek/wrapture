@@ -21,7 +21,6 @@
 require 'pathname'
 require 'wrapture/build/c_build'
 require 'wrapture/build/cmake_build'
-require 'wrapture/build/cpp_build'
 require 'wrapture/build/pyproject_build'
 require 'wrapture/build/python_build'
 
@@ -31,6 +30,22 @@ module Wrapture
   # Classes can use this module by implementing +sources+ to give a list of
   # source files they contain.
   module Build
+    # Creates a build instance from a hash.
+    def self.from_hash(spec)
+      unless spec.key?(:build_system)
+        raise(MissingSpecKey, 'build_system must be specified')
+      end
+
+      case spec[:build_system]
+      when 'cmake'
+        CmakeBuild.from_hash(spec)
+      when 'pyproject'
+        PyprojectBuild.from_hash(spec)
+      else
+        raise(InvalidSpecKey, "unsupported build system #{spec[:build_system]}")
+      end
+    end
+
     # Get the source file associated with a key.
     #
     # If +key+ is a Pathname, then a SourceFile with a matching path is
@@ -48,22 +63,6 @@ module Wrapture
         sources.find { |src| src.path == key }
       else
         sources.find { |src| src == key }
-      end
-    end
-
-    # Creates a build instance from a hash.
-    def from_hash(spec)
-      unless spec.key?(:build_system)
-        raise(MissingSpecKey, 'build_system must be specified')
-      end
-
-      case spec[:build_system]
-      when 'cmake'
-        CmakeBuild.from_hash(spec)
-      when 'pyproject'
-        PyprojectBuild.from_hash(spec)
-      else
-        raise(InvalidSpecKey, "unsupported build system #{spec[:build_system]}")
       end
     end
 

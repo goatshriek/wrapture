@@ -15,15 +15,19 @@
 # limitations under the License.
 
 module Wrapture
-  class CmakeBuild
-    include Build
+  module Build
+    class CmakeBuild
+      include Build
 
-    @build_info: (Wrapture::CppBuild | Wrapture::CBuild)
+      @build_info: (Wrapture::Build::CppBuild | Wrapture::Build::CBuild)
 
-    attr_reader build_info: (Wrapture::CppBuild | Wrapture::CBuild)
+      attr_reader build_info: (Wrapture::Build::CppBuild | Wrapture::Build::CBuild)
 
-    def initialize: (Wrapture::CppBuild | Wrapture::CBuild) -> void
-    def cmake_lists: -> Wrapture::SourceFile
-    def sources: -> Array[Wrapture::SourceFile]
+      def self.from_hash: (spec_hash) -> Wrapture::Build::CmakeBuild
+
+      def initialize: (Wrapture::Build::CppBuild | Wrapture::Build::CBuild) -> void
+      def cmake_lists: -> Wrapture::SourceFile
+      def sources: -> Array[Wrapture::SourceFile]
+    end
   end
 end

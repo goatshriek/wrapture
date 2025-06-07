@@ -15,17 +15,19 @@
 # limitations under the License.
 
 module Wrapture
-  class PyprojectBuild
-    include Build
+  module Build
+    class PyprojectBuild
+      include Build
 
-    @python_build: Wrapture::PythonBuild
+      @python_build: Wrapture::Build::PythonBuild
 
-    attr_reader python_build: Wrapture::PythonBuild
+      attr_reader python_build: Wrapture::Build::PythonBuild
 
-    def initialize: (Wrapture::PythonBuild) -> void
-    def build_command: (?python: String) -> String
-    def install_command: (?python: String, ?target: String) -> String
-    def pyproject: -> Wrapture::SourceFile
-    def sources: -> Array[Wrapture::SourceFile]
+      def initialize: (Wrapture::Build::PythonBuild) -> void
+      def build_command: (?python: String) -> String
+      def install_command: (?python: String, ?target: String) -> String
+      def pyproject: -> Wrapture::SourceFile
+      def sources: -> Array[Wrapture::SourceFile]
+    end
   end
 end

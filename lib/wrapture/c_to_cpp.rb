@@ -63,7 +63,7 @@ module Wrapture
 
     # Generates a build for a C++ library wrapping a class.
     def self.wrap_class(class_spec)
-      build = Wrapture::CppBuild.new(class_spec.name)
+      build = Build::CppBuild.new(class_spec.name)
 
       build.add_lib_header(declare_class(class_spec))
       build.add_lib_source(define_class(class_spec))
@@ -77,7 +77,7 @@ module Wrapture
 
     # Generates a build for a C++ library wrapping the provided enum.
     def self.wrap_enum(enum_spec)
-      build = Wrapture::CppBuild.new(enum_spec.name)
+      build = Build::CppBuild.new(enum_spec.name)
 
       build.add_lib_header(define_enum(enum_spec))
 
@@ -89,7 +89,7 @@ module Wrapture
     # +scope+ describes all of the classes and other entities that will be
     # wrapped. These will all be put into a namespace named after the scope.
     def self.wrap_scope(scope)
-      build = CppBuild.new(scope.name)
+      build = Build::CppBuild.new(scope.name)
 
       scope.each do |scope_member|
         build << wrap(scope_member)
