@@ -1006,7 +1006,7 @@ module Wrapture
     # +scope+ describes all of the classes and other entities that will be
     # wrapped. These will all be put into a namespace named after the scope.
     def self.wrap_scope(scope)
-      build = PythonBuild.new(scope.name)
+      build = Build::PythonBuild.new(scope.name)
 
       build.add_module_source(define_module(scope))
 

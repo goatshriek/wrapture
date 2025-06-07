@@ -21,7 +21,7 @@ def run_cpp_example(name, lib, sources, build_dir)
 
   scope = Wrapture::Scope.load_files("#{example_dir}/#{lib}.yml")
   build = Wrapture::CToCpp.wrap_scope(scope)
-  Wrapture::CmakeBuild.new(build).write_sources(build_dir)
+  Wrapture::Build::CmakeBuild.new(build).write_sources(build_dir)
 
   Dir.chdir(build_dir) do
     usage_opts = "-I. -I#{example_dir} -o #{lib}_usage_cpp"
@@ -49,7 +49,7 @@ def run_python_example(name, lib, sources, build_dir)
 
   scope = Wrapture::Scope.load_files("#{example_dir}/#{lib}.yml")
   build = Wrapture::CToPython.wrap_scope(scope)
-  python_build = Wrapture::PyprojectBuild.new(build)
+  python_build = Wrapture::Build::PyprojectBuild.new(build)
 
   Dir.chdir(build_dir) do
     # build the shared library if needed
