@@ -52,15 +52,17 @@ module Wrapture
 
         if spec.key?(:lib_links)
           spec[:lib_links].each do |it|
-            build.add_lib_link(Wrapture::SourceFile.new(it))
+            build.add_lib_link(it)
           end
         end
 
         if spec.key?(:lib_sources)
           spec[:lib_sources].each do |it|
-            build.add_lib_source(it)
+            build.add_lib_source(Wrapture::SourceFile.new(it))
           end
         end
+
+        build
       end
 
       # Create an empty C project.

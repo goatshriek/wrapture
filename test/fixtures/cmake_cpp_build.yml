@@ -1,0 +1,7 @@
+build_system: "cmake"
+cpp_build:
+  name: "cppfixture"
+  lib_headers:
+    - "cppfixture.hpp"
+  lib_sources:
+    - "cppfixture.cpp"
