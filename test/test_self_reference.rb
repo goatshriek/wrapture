@@ -33,13 +33,13 @@ class SelfReferenceTest < Minitest::Test
     forbidden = Wrapture::SELF_REFERENCE_KEYWORD
 
     build.sources.each do |src|
-      refute(source_file_contains_match(src, forbidden),
+      refute(source_file_contains_match?(src, forbidden),
              "#{src.path} contains wrapture keyword #{forbidden}")
     end
 
     source = build["#{test_spec['name']}.cpp"]
 
-    assert(source_file_contains_match(source, /return \*this;/))
-    refute(source_file_contains_match(source, 'return_val'))
+    assert(source_file_contains_match?(source, /return \*this;/))
+    refute(source_file_contains_match?(source, 'return_val'))
   end
 end

@@ -50,11 +50,11 @@ class EnumSpecTest < Minitest::Test
 
     source = build.sources.first
 
-    assert(source_file_contains_match(source, test_spec['doc']),
+    assert(source_file_contains_match?(source, test_spec['doc']),
            'the doc for the enum was not in the definition')
 
     test_spec['elements'].each do |elem|
-      assert(source_file_contains_match(source, elem['doc']),
+      assert(source_file_contains_match?(source, elem['doc']),
              "the doc for #{elem['name']} was not in the definition")
     end
   end
@@ -136,21 +136,21 @@ class EnumSpecTest < Minitest::Test
 
     assert(source_file.path.basename.fnmatch?(expected_filename))
 
-    assert(source_file_contains_match(source_file, '#ifndef'),
+    assert(source_file_contains_match?(source_file, '#ifndef'),
            'header guard is missing')
 
     if spec_hash.key?('namespace')
       namespace = spec_hash['namespace']
 
-      assert(source_file_contains_match(source_file, namespace),
+      assert(source_file_contains_match?(source_file, namespace),
              "the enum did not reference the namespace '#{namespace}'")
     end
 
-    assert(source_file_contains_match(source_file, enum_name),
+    assert(source_file_contains_match?(source_file, enum_name),
            "the enumeration name ('#{enum_name}') was not found in the file")
 
     spec_hash['elements'].each do |element|
-      assert(source_file_contains_match(source_file, element['name']),
+      assert(source_file_contains_match?(source_file, element['name']),
              "enumeration did not have element '#{element['name']}'")
     end
   end

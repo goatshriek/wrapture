@@ -38,11 +38,11 @@ module Wrapture
     def self.normalize_param_list(spec_list)
       if spec_list.nil?
         []
-      elsif spec_list.count { |spec| spec['name'] == '...' }.zero?
+      elsif spec_list.none? { |spec| spec['name'] == '...' }
         spec_list.map { |spec| normalize_spec_hash(spec) }
       else
         error_msg = "'...' may not be the only parameter"
-        raise(InvalidSpecKey, error_msg) if spec_list.count == 1
+        raise(InvalidSpecKey, error_msg) if spec_list.one?
 
         i = spec_list.find_index { |spec| spec['name'] == '...' }
         var = spec_list[i]

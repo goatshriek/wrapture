@@ -69,7 +69,7 @@ module Wrapture
       build.add_lib_source(define_class(class_spec))
 
       class_spec.libraries.each do |lib|
-        build.add_link(lib)
+        build.add_lib_link(lib)
       end
 
       build

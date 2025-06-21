@@ -81,10 +81,10 @@ class ScopeTest < Minitest::Test
     header = build["#{enum_name}.hpp"]
 
     refute_nil(header)
-    assert(source_file_contains_match(header, enum_name))
+    assert(source_file_contains_match?(header, enum_name))
 
     test_spec['enums'][0]['elements'].each do |element|
-      assert(source_file_contains_match(header, element['name']))
+      assert(source_file_contains_match?(header, element['name']))
     end
   end
 

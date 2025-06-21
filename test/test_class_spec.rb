@@ -56,9 +56,9 @@ class ClassSpecTest < Minitest::Test
     assert_includes(build, source_name)
     source_file = build[source_name]
 
-    assert(source_file_contains_match(source_file, 'this->equivalent == NULL'),
+    assert(source_file_contains_match?(source_file, 'this->equivalent == NULL'),
            'no error check against the equivalent struct was found')
-    refute(source_file_contains_match(source_file, 'return_val'),
+    refute(source_file_contains_match?(source_file, 'return_val'),
            'a return value variable was still generated')
   end
 
@@ -99,11 +99,11 @@ class ClassSpecTest < Minitest::Test
     spec_regex = /^\s*#{class_name}\( struct/
     destructor_regex = /^\s*~#{class_name}/
 
-    assert(source_file_contains_match(header, member_regex),
+    assert(source_file_contains_match?(header, member_regex),
            'the member constructor declaration was not found')
-    assert(source_file_contains_match(header, spec_regex),
+    assert(source_file_contains_match?(header, spec_regex),
            'the struct constructor declaration was not found')
-    assert(source_file_contains_match(header, destructor_regex),
+    assert(source_file_contains_match?(header, destructor_regex),
            'the destructor declaration was not found')
 
     source = build["#{class_name}.cpp"]
@@ -115,23 +115,23 @@ class ClassSpecTest < Minitest::Test
 
     forbidden = Wrapture::EQUIVALENT_STRUCT_KEYWORD
 
-    refute(source_file_contains_match(source, forbidden),
+    refute(source_file_contains_match?(source, forbidden),
            'the source file contained a wrapture keyword')
 
     member_regex = /^\s*#{class_name}::#{class_name}\( int member/
     spec_regex = /^\s*#{class_name}::#{class_name}\( struct/
     destructor_regex = /^\s*#{class_name}::~#{class_name}/
 
-    assert(source_file_contains_match(source, member_regex),
+    assert(source_file_contains_match?(source, member_regex),
            'the member constructor definition was not found')
-    assert(source_file_contains_match(source, spec_regex),
+    assert(source_file_contains_match?(source, spec_regex),
            'the spec constructor definition was not found')
-    assert(source_file_contains_match(source, destructor_regex),
+    assert(source_file_contains_match?(source, destructor_regex),
            'the destructor definition was not found')
 
     wrapped_function = test_spec['constructors'][0]['wrapped-function']
 
-    assert(source_file_contains_match(source, /= #{wrapped_function['name']}/),
+    assert(source_file_contains_match?(source, /= #{wrapped_function['name']}/),
            'source file does not include the wrapped function')
   end
 
@@ -159,7 +159,7 @@ class ClassSpecTest < Minitest::Test
       end
     end
 
-    assert(source_file_contains_match(source, '\s\*$'),
+    assert(source_file_contains_match?(source, '\s\*$'),
            'the end of the comment block was missing')
   end
 
@@ -180,7 +180,8 @@ class ClassSpecTest < Minitest::Test
 
     overload_specs = load_fixture('overloaded_struct')
     parent_spec = Wrapture::ClassSpec.new(overload_specs['classes'].first)
-    spec.overloads?(parent_spec)
+
+    refute(spec.overloads?(parent_spec))
   end
 
   def test_class_with_static_function
@@ -192,7 +193,7 @@ class ClassSpecTest < Minitest::Test
 
     header = build["#{test_spec['name']}.hpp"]
 
-    assert(source_file_contains_match(header, 'static'),
+    assert(source_file_contains_match?(header, 'static'),
            'static keyword not found')
   end
 
@@ -205,7 +206,7 @@ class ClassSpecTest < Minitest::Test
 
     header = build['DefaultMembersClass.hpp']
 
-    assert(source_file_contains_match(header, 'member_1 = 42'),
+    assert(source_file_contains_match?(header, 'member_1 = 42'),
            'default value not present in signature')
   end
 
@@ -219,7 +220,7 @@ class ClassSpecTest < Minitest::Test
     source = build['DelegatingConstructorClass.cpp']
     sig = "#{spec.name}\\( void \\) : #{spec.name}\\( 3 \\)"
 
-    assert(source_file_contains_match(source, sig),
+    assert(source_file_contains_match?(source, sig),
            'delegating constructor not present')
   end
 
@@ -242,9 +243,9 @@ class ClassSpecTest < Minitest::Test
     member_assignment = 'this->equivalent.member_1 = member_1;'
     pointer_assignment = 'this->equivalent.member_1 = equivalent->member_1;'
 
-    assert(source_file_contains_match(source, member_assignment),
+    assert(source_file_contains_match?(source, member_assignment),
            'member assignment not present in definition')
-    assert(source_file_contains_match(source, pointer_assignment),
+    assert(source_file_contains_match?(source, pointer_assignment),
            'pointer member assignment not present in definition')
   end
 end

@@ -476,7 +476,9 @@ module Wrapture
     # Gives each line of the definition of a FunctionSpec to the provided
     # block.
     def define_function
-      @spec.definable!
+      unless @spec.definable?
+        raise UndefinableSpec, 'no wrapped function or code was specified'
+      end
 
       signature = function_definition_signature(@spec)
 

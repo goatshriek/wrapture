@@ -386,30 +386,30 @@ module Wrapture
     # the given spec, assuming it is a hash. Returns true if any changes were
     # made, false otherwise.
     def replace_uses_in_hash(spec)
-      changes = []
+      changed = false
 
       if use?(spec)
         merge_use_with_hash(spec) if use?(spec)
-        changes << true
+        changed = true
       end
 
       spec.each_pair do |key, value|
         if direct_use?(value)
           spec[key] = instantiate(value[TEMPLATE_USE_KEYWORD]['params'])
-          changes << true
+          changed = true
         else
-          changes << replace_uses(value)
+          changed ||= replace_uses(value)
         end
       end
 
-      changes.any?
+      changed
     end
 
     # Replaces all references to this template with an instantiation of it in
     # the given spec, assuming it is an array. Returns true if any changes were
     # made, false otherwise.
     def replace_uses_in_array(spec)
-      changes = []
+      changed = false
 
       spec.dup.each_index do |i|
         if direct_use?(spec[i])
@@ -420,16 +420,16 @@ module Wrapture
           else
             spec.insert(i, result)
           end
-          changes << true
+          changed = true
         elsif use?(spec[i])
           merge_use_with_hash(spec[i])
-          changes << true
+          changed = true
         else
-          changes << replace_uses(spec[i])
+          changed ||= replace_uses(spec[i])
         end
       end
 
-      changes.any?
+      changed
     end
   end
 end

@@ -33,7 +33,7 @@ class ClassSpecTest < Minitest::Test
     header = build['ExplicitPointerWrapper.hpp']
     declaration = 'struct basic_struct \*equivalent;'
 
-    assert(source_file_contains_match(header, declaration))
+    assert(source_file_contains_match?(header, declaration))
   end
 
   # TODO: this should be reworked, since it uses c++ specific types in the spec
@@ -60,7 +60,7 @@ class ClassSpecTest < Minitest::Test
     header = build['PointerWrappingClass.hpp']
     expected_signature = 'PointerWrappingClass\( struct wrapped_struct \*'
 
-    assert(source_file_contains_match(header, expected_signature))
+    assert(source_file_contains_match?(header, expected_signature))
   end
 
   def test_pointer_class_and_child
@@ -73,12 +73,12 @@ class ClassSpecTest < Minitest::Test
     header = build['ChildPointer.hpp']
     equivalent_signature = 'struct wrapped_struct \*equivalent;'
 
-    refute(source_file_contains_match(header, equivalent_signature))
+    refute(source_file_contains_match?(header, equivalent_signature))
 
     source = build['ChildPointer.cpp']
     parent_initializer = 'equivalent \) : ParentPointer\('
 
-    assert(source_file_contains_match(source, parent_initializer))
+    assert(source_file_contains_match?(source, parent_initializer))
   end
 
   def test_pointer_class_and_child_with_different_struct
@@ -91,12 +91,12 @@ class ClassSpecTest < Minitest::Test
     header = build['ChildPointer.hpp']
     equivalent_signature = 'struct wrapped_struct \*equivalent;'
 
-    refute(source_file_contains_match(header, equivalent_signature))
+    refute(source_file_contains_match?(header, equivalent_signature))
 
     source = build['ChildPointer.cpp']
     parent_initializer = 'equivalent \) : ParentPointer\('
 
-    refute(source_file_contains_match(source, parent_initializer))
+    refute(source_file_contains_match?(source, parent_initializer))
   end
 
   def test_pointer_class_with_equivalent_pointer_constructor

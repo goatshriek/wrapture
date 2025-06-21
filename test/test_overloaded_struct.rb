@@ -35,11 +35,11 @@ class OverloadedStructTest < Minitest::Test
 
     source = build['Parent.cpp']
 
-    assert(source_file_contains_match(source, 'newParent'))
-    assert(source_file_contains_match(source, 'Parent \*Parent::newParent'))
-    assert(source_file_contains_match(source,
-                                      'Parent \*Parent::OverloadedType'))
-    assert(source_file_contains_match(source, 'return newParent \('))
+    assert(source_file_contains_match?(source, 'newParent'))
+    assert(source_file_contains_match?(source, 'Parent \*Parent::newParent'))
+    assert(source_file_contains_match?(source,
+                                       'Parent \*Parent::OverloadedType'))
+    assert(source_file_contains_match?(source, 'return newParent \('))
 
     includes = get_source_file_include_list(source)
 

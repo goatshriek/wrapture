@@ -181,19 +181,7 @@ module Wrapture
 
     # True if this function can be defined, false if not.
     def definable?
-      definable!
-    rescue UndefinableSpec
-      false
-    end
-
-    # Raises an exception if this function cannot be defined as is. Returns
-    # true otherwise.
-    def definable!
-      if @wrapped.nil?
-        raise UndefinableSpec, 'no wrapped function or code was specified'
-      end
-
-      true
+      !@wrapped.nil?
     end
 
     # A list of includes needed for the definition of the function.

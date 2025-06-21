@@ -32,7 +32,7 @@ class FunctionSpecTest < Minitest::Test
 
     header = build['BaseClass.hpp']
 
-    assert(source_file_contains_match(header, 'virtual void'),
+    assert(source_file_contains_match?(header, 'virtual void'),
            'a virtual void function was not found')
   end
 
