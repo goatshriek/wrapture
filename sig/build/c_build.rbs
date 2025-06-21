@@ -35,7 +35,7 @@ module Wrapture
       def <<: (Wrapture::Build::CBuild) -> (Wrapture::Build::CBuild)
       def add_lib_header: (Wrapture::SourceFile) -> void
       def add_lib_source: (Wrapture::SourceFile) -> void
-      def add_link: (String) -> void
+      def add_lib_link: (String) -> void
       def sources: -> Array[Wrapture::SourceFile]
     end
   end

@@ -22,20 +22,12 @@ require 'fixture'
 require 'minitest/autorun'
 require 'wrapture'
 
-class BuildTest < Minitest::Test
-  def test_cmake_c_build_from_hash
-    build_hash = fixture_hash('cmake_c_build')
-    build = Wrapture::Build.from_hash(build_hash)
+class InvalidCBuild < Minitest::Test
+  def test_missing_name
+    test_spec = fixture_hash('invalid/c_build_without_name')
 
-    assert_instance_of(Wrapture::Build::CmakeBuild, build)
-    assert_instance_of(Wrapture::Build::CBuild, build.build_info)
-  end
-
-  def test_cmake_cpp_build_from_hash
-    build_hash = fixture_hash('cmake_cpp_build')
-    build = Wrapture::Build.from_hash(build_hash)
-
-    assert_instance_of(Wrapture::Build::CmakeBuild, build)
-    assert_instance_of(Wrapture::Build::CppBuild, build.build_info)
+    assert_raises(Wrapture::MissingSpecKey) do
+      Wrapture::Build::CBuild.from_hash(test_spec)
+    end
   end
 end

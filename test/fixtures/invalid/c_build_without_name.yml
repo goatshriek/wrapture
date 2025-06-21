@@ -1,0 +1,6 @@
+lib_headers:
+  - "cfixture.h"
+lib_sources:
+  - "cfixture.c"
+lib_links:
+  - "libfixturelink"
