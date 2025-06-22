@@ -31,5 +31,15 @@ class CmakeBuildTest < Minitest::Test
     source_files.each do |it|
       assert_instance_of(Wrapture::SourceFile, it)
     end
+
+    assert(source_files.one? { |it| it.path.basename.to_s == 'CMakeLists.txt' })
+  end
+
+  def test_cmakelists_for_lib
+    build_hash = fixture_build_hash('cmake_c_library')
+    build = Wrapture::Build::CmakeBuild.from_hash(build_hash)
+    cmake_lists = build.cmake_lists
+
+    assert_instance_of(Wrapture::SourceFile, cmake_lists)
   end
 end

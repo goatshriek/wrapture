@@ -24,10 +24,20 @@ def load_fixture(name)
   YAML.load_file(File.join(fixture_path, "#{name}.yml"))
 end
 
+# Creates a build hash for the fixture corresponding to +name+.
+def fixture_build_hash(name)
+  YAML.safe_load_file(fixture_build_path(name), symbolize_names: true)
+end
+
 # Creates a hash for a Wrapture spec, finding and loading the YAML file
 # corresponding to +name+.
 def fixture_hash(name)
   YAML.safe_load_file(fixture_yaml_path(name), symbolize_names: true)
+end
+
+# Builds the path for a fixture's build YAML file corresponding to +name+.
+def fixture_build_path(name)
+  File.join(File.join(File.expand_path('fixtures', __dir__), name), 'build.yml')
 end
 
 # Builds the path for a fixture's YAML file corresponding to +name+.
