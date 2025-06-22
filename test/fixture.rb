@@ -26,13 +26,21 @@ end
 
 # Creates a build hash for the fixture corresponding to +name+.
 def fixture_build_hash(name)
-  YAML.safe_load_file(fixture_build_path(name), symbolize_names: true)
+  if YAML.respond_to?('safe_load_file')
+    YAML.safe_load_file(fixture_build_path(name), symbolize_names: true)
+  else
+    YAML.load_file(fixture_build_path(name), symbolize_names: true)
+  end
 end
 
 # Creates a hash for a Wrapture spec, finding and loading the YAML file
 # corresponding to +name+.
 def fixture_hash(name)
-  YAML.safe_load_file(fixture_yaml_path(name), symbolize_names: true)
+  if YAML.respond_to?('safe_load_file')
+    YAML.safe_load_file(fixture_yaml_path(name), symbolize_names: true)
+  else
+    YAML.load_file(fixture_yaml_path(name), symbolize_names: true)
+  end
 end
 
 # Builds the path for a fixture's build YAML file corresponding to +name+.
