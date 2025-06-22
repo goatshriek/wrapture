@@ -29,7 +29,7 @@ def fixture_build_hash(name)
   if YAML.respond_to?('safe_load_file')
     YAML.safe_load_file(fixture_build_path(name), symbolize_names: true)
   else
-    YAML.load_file(fixture_build_path(name), symbolize_names: true)
+    YAML.load_file(fixture_build_path(name))
   end
 end
 
@@ -39,7 +39,7 @@ def fixture_hash(name)
   if YAML.respond_to?('safe_load_file')
     YAML.safe_load_file(fixture_yaml_path(name), symbolize_names: true)
   else
-    YAML.load_file(fixture_yaml_path(name), symbolize_names: true)
+    YAML.load_file(fixture_yaml_path(name))
   end
 end
 
