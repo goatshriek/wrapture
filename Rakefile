@@ -94,15 +94,3 @@ namespace 'examples' do
     run_matching_tasks(lang_examples_regex('python'))
   end
 end
-
-# namespace 'test' do
-#   build_test_dir = "#{build_dir}/test/python"
-#   directory build_test_dir
-
-#   desc 'Run Python tests'
-#   task python: ['build/test/python'] do
-#     Dir.chdir(build_test_dir) do
-#       sh 'touch todo.txt'
-#     end
-#   end
-# end

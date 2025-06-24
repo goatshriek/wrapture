@@ -41,5 +41,7 @@ class CmakeBuildTest < Minitest::Test
     cmake_lists = build.cmake_lists
 
     assert_instance_of(Wrapture::SourceFile, cmake_lists)
+    assert(cmake_lists.contents.any? { |it| it.include?('cmakeclib.c') })
+    assert(cmake_lists.contents.any? { |it| it.include?('cmakeclib.h') })
   end
 end
