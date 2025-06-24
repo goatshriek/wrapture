@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2021-2023 Joel E. Anderson
+# Copyright 2021-2025 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,13 +23,30 @@ require 'wrapture'
 
 Bundler::GemHelper.install_tasks
 
-Rake::TestTask.new do |task|
-  task.libs << 'test'
-  task.pattern = 'test/**/test_*.rb'
+namespace 'test' do
+  Rake::TestTask.new(:unit) do |task|
+    task.description = 'Run unit tests'
+    task.libs << 'test'
+    task.pattern = 'test/unit/**/test_*.rb'
+  end
+
+  namespace 'integration' do
+    Rake::TestTask.new(:python) do |task|
+      task.description = 'Run Python integration tests'
+      task.libs << 'test'
+      task.pattern = 'test/integration/python/**/test_*.rb'
+    end
+  end
+
+  desc 'Run all integration tests'
+  task integration: 'test:integration:python'
 end
 
-desc 'Run tests'
-task default: :test
+desc 'Run all tests'
+task test: ['test:integration', 'test:unit']
+
+desc 'Run unit tests (test:unit)'
+task default: 'test:unit'
 
 # build directory to hold intermediate and generated files
 build_dir = 'build' # this should be made configurable later
@@ -78,14 +95,14 @@ namespace 'examples' do
   end
 end
 
-namespace 'test' do
-  build_test_dir = "#{build_dir}/test/python"
-  directory build_test_dir
+# namespace 'test' do
+#   build_test_dir = "#{build_dir}/test/python"
+#   directory build_test_dir
 
-  desc 'Run Python tests'
-  task python: ['build/test/python'] do
-    Dir.chdir(build_test_dir) do
-      sh 'touch todo.txt'
-    end
-  end
-end
+#   desc 'Run Python tests'
+#   task python: ['build/test/python'] do
+#     Dir.chdir(build_test_dir) do
+#       sh 'touch todo.txt'
+#     end
+#   end
+# end
