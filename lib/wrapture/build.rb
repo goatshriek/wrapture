@@ -28,7 +28,9 @@ module Wrapture
   # Build information for source code.
   #
   # Classes can use this module by implementing +sources+ as an enumerable of
-  # source files they use.
+  # source files they use. Optionally, they may also implement
+  # +build_system_sources+ which is the subset of the sources that are only for
+  # the build system, such as a Makefile.
   module Build
     # Creates a build instance from a hash.
     def self.from_hash(spec)
@@ -94,6 +96,19 @@ module Wrapture
     # written to the current directory.
     def save(dir = '.')
       sources.map { |it| it.save(dir) }
+    end
+
+    # Writes all build system sources to the file system, returning an Array of
+    # the Pathnames created.
+    #
+    # This is useful when the build has been created to describe source files
+    # that Wrapture didn't generate, but where it did generate the build system.
+    # The build system files can be generated with this method, and then the
+    # build command can be issued to build the existing sources.
+    def save_build_system(dir = '.')
+      if respond_to?(:build_system_sources)
+        build_system_sources.map{ |it| it.save(dir) }
+      end
     end
   end
 end

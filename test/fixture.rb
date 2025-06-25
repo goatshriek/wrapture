@@ -24,11 +24,16 @@ def load_fixture(name)
   YAML.load_file(File.join(fixture_path, "#{name}.yml"))
 end
 
+# The build spec for the fixture corresponding to +name+.
+def fixture_build(name)
+  Wrapture::Build.from_hash(fixture_build_hash(name))
+end
+
 # Creates a build hash for the fixture corresponding to +name+.
 def fixture_build_hash(name)
-  # drop this badk to safe_load_file after Ruby 2.7 is dropped
+  # drop this back to safe_load_file after Ruby 2.7 is dropped
   if YAML.respond_to?('safe_load_file')
-    YAML.safe_load_file(fixture_build_path(name), symbolize_names: true)
+    YAML.safe_load_file(fixture_build_spec_path(name), symbolize_names: true)
   else
     filename = fixture_build_path(name)
     File.open(filename, 'r:bom|utf-8') do |f|
@@ -51,8 +56,16 @@ def fixture_hash(name)
   end
 end
 
+# The path for a fixture's build output corresponding to +name+. The directory
+# will be created if it does not exist.
+def fixture_build_dir(name)
+  dir = File.join(File.expand_path('../build/test/fixtures', __dir__), name)
+  FileUtils.mkdir_p(dir)
+  dir
+end
+
 # Builds the path for a fixture's build YAML file corresponding to +name+.
-def fixture_build_path(name)
+def fixture_build_spec_path(name)
   File.join(File.join(File.expand_path('fixtures', __dir__), name), 'build.yml')
 end
 

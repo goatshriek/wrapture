@@ -24,6 +24,8 @@ require 'wrapture'
 
 class PythonFixtureUsageIntegrationTest < Minitest::Test
   def test_cmake_c_lib_usage
-    # TODO: implement
+    build_dir = fixture_build_dir('cmake_c_library')
+    build = fixture_build('cmake_c_library')
+    build.save_build_system(build_dir)
   end
 end

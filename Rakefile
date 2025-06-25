@@ -21,6 +21,12 @@ require 'rake/clean'
 require 'rake/testtask'
 require 'wrapture'
 
+# build directory to hold intermediate and generated files
+build_dir = 'build' # this should be made configurable later
+CLEAN.include("#{build_dir}/**/*.so")
+CLOBBER.include("#{build_dir}/**/*.c")
+CLOBBER.include("#{build_dir}/**/*.py")
+
 Bundler::GemHelper.install_tasks
 
 namespace 'test' do
@@ -47,12 +53,6 @@ task test: ['test:integration', 'test:unit']
 
 desc 'Run unit tests (test:unit)'
 task default: 'test:unit'
-
-# build directory to hold intermediate and generated files
-build_dir = 'build' # this should be made configurable later
-CLEAN.include("#{build_dir}/**/*.so")
-CLOBBER.include("#{build_dir}/**/*.c")
-CLOBBER.include("#{build_dir}/**/*.py")
 
 begin
   require 'rdoc/task'
