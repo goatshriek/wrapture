@@ -50,6 +50,11 @@ module Wrapture
         @build_info = build_info
       end
 
+      # The sources for the CMake build system.
+      def build_system_sources
+        [cmake_lists]
+      end
+
       # A CMakeLists.txt file that could be used to build this project.
       #
       # CMake is a common build system for C and C++ projects. It uses a file
@@ -109,7 +114,7 @@ module Wrapture
       # This includes CMakeLists.txt as well as the sources of the underlying
       # project.
       def sources
-        [cmake_lists] + @build_info.sources
+        build_system_sources + @build_info.sources
       end
     end
   end

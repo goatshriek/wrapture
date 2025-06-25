@@ -66,5 +66,25 @@ module Wrapture
 
       @contents << "\n" if parts.empty?
     end
+
+    # Creates this file in a directory (defaulting to the current directory),
+    # and returns a Pathname to the newly-created file.
+    def save(dir = '.')
+      out_dir = case dir
+                when String
+                  Pathname.new(dir)
+                else
+                  dir
+                end
+
+      write_path = out_dir.join(source.path)
+      write_path.open('wb') do |source_file|
+        source.contents.each do |chunk|
+          source_file.write(chunk)
+        end
+      end
+
+      write_path
+    end
   end
 end

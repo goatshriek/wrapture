@@ -27,5 +27,6 @@ module Wrapture
     alias eql? ==
     def hash: -> Integer
     def puts: (*String) -> void
+    def save: (?(String | Pathname)) -> Pathname
   end
 end

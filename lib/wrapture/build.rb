@@ -25,10 +25,10 @@ require 'wrapture/build/pyproject_build'
 require 'wrapture/build/python_build'
 
 module Wrapture
-  # Build information for generated source code.
+  # Build information for source code.
   #
-  # Classes can use this module by implementing +sources+ to give a list of
-  # source files they contain.
+  # Classes can use this module by implementing +sources+ as an enumerable of
+  # source files they use.
   module Build
     # Creates a build instance from a hash.
     def self.from_hash(spec)
@@ -87,26 +87,13 @@ module Wrapture
       end
     end
 
-    # Writes all source files to the file system.
+    # Writes all source files to the file system, returning an Array of the
+    # Pathnames created.
     #
     # +dir+ is the directory to write the files to. If not provided, files are
     # written to the current directory.
-    def write_sources(dir = '.')
-      out_dir = case dir
-                when String
-                  Pathname.new(dir)
-                else
-                  dir
-                end
-
-      sources.each do |source|
-        write_path = out_dir.join(source.path)
-        write_path.open('wb') do |source_file|
-          source.contents.each do |chunk|
-            source_file.write(chunk)
-          end
-        end
-      end
+    def save(dir = '.')
+      sources.map { |it| it.save(dir) }
     end
   end
 end
