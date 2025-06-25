@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2020-2024 Joel E. Anderson
+# Copyright 2020-2025 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ require 'wrapture'
 
 class ActionSpecTest < Minitest::Test
   def test_basic
-    test_spec = load_fixture('basic_action')
+    test_spec = fixture_hash('basic_action')
 
     spec = Wrapture::ActionSpec.new(test_spec)
 
@@ -34,12 +34,12 @@ class ActionSpecTest < Minitest::Test
   end
 
   def test_exception_without_params
-    test_spec = load_fixture('exception_action_without_params')
+    test_spec = fixture_hash('exception_action_without_params')
     Wrapture::ActionSpec.new(test_spec)
   end
 
   def test_extra_key
-    test_spec = load_fixture('extra_key_action')
+    test_spec = fixture_hash('extra_key_action')
 
     assert_raises(Wrapture::InvalidSpecKey) do
       Wrapture::ActionSpec.new(test_spec)
@@ -47,7 +47,7 @@ class ActionSpecTest < Minitest::Test
   end
 
   def test_missing_key
-    test_spec = load_fixture('missing_key_action')
+    test_spec = fixture_hash('missing_key_action')
 
     assert_raises(Wrapture::MissingSpecKey) do
       Wrapture::ActionSpec.new(test_spec)

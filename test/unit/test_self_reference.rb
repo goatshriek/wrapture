@@ -24,7 +24,7 @@ require 'wrapture'
 
 class SelfReferenceTest < Minitest::Test
   def test_self_reference_function
-    test_spec = load_fixture('self_reference_class')
+    test_spec = fixture_hash('self_reference_class')
     spec = Wrapture::ClassSpec.new(test_spec)
     build = Wrapture::CToCpp.wrap_class(spec)
 

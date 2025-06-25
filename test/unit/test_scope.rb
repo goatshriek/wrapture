@@ -24,7 +24,7 @@ require 'wrapture'
 
 class ScopeTest < Minitest::Test
   def test_future_scope_version
-    test_spec = load_fixture('future_version_scope')
+    test_spec = fixture_hash('future_version_scope')
 
     assert_raises(Wrapture::UnsupportedSpecVersion) do
       Wrapture::Scope.new(test_spec)
@@ -32,19 +32,20 @@ class ScopeTest < Minitest::Test
   end
 
   def test_minimal_scope
-    test_spec = load_fixture('minimal_scope')
+    test_spec = fixture_hash('minimal_scope')
     scope = Wrapture::Scope.new(test_spec)
 
-    assert_equal(test_spec['classes'].count, scope.classes.count)
+    assert_equal(test_spec[:classes].count, scope.classes.count)
     assert_equal(0, scope.enums.count)
 
     build = Wrapture::CToCpp.wrap_scope(scope)
 
     assert_equal(scope.classes.count, build.sources.count / 2)
+    assert_equal(scope.name, 'wrapture_test')
   end
 
   def test_nested_templates
-    test_spec = load_fixture('scope_with_nested_templates')
+    test_spec = fixture_hash('scope_with_nested_templates')
     scope = Wrapture::Scope.new(test_spec)
 
     assert_equal(test_spec['classes'].count, scope.classes.count)
@@ -56,11 +57,11 @@ class ScopeTest < Minitest::Test
   end
 
   def test_templatized_classes
-    spec_with_template = load_fixture('scope_with_template')
+    spec_with_template = fixture_hash('scope_with_template')
     scope = Wrapture::Scope.new(spec_with_template)
     with_template_build = Wrapture::CToCpp.wrap_scope(scope)
 
-    spec_without_template = load_fixture('scope_without_template')
+    spec_without_template = fixture_hash('scope_without_template')
     scope = Wrapture::Scope.new(spec_without_template)
     no_template_build = Wrapture::CToCpp.wrap_scope(scope)
 
@@ -71,7 +72,7 @@ class ScopeTest < Minitest::Test
   end
 
   def test_scope_with_enum
-    test_spec = load_fixture('scope_with_enum')
+    test_spec = fixture_hash('scope_with_enum')
     scope = Wrapture::Scope.new(test_spec)
     build = Wrapture::CToCpp.wrap_scope(scope)
 
@@ -89,11 +90,11 @@ class ScopeTest < Minitest::Test
   end
 
   def test_sequential_scope_load
-    class_specs = [load_fixture('basic_class'),
-                   load_fixture('child_class'),
-                   load_fixture('constant_class'),
-                   load_fixture('constructor_class')]
-    enum_specs = [load_fixture('basic_enum')]
+    class_specs = [fixture_hash('basic_class'),
+                   fixture_hash('child_class'),
+                   fixture_hash('constant_class'),
+                   fixture_hash('constructor_class')]
+    enum_specs = [fixture_hash('basic_enum')]
     scope = Wrapture::Scope.new
     class_specs.each { |spec| scope.add_class_spec_hash(spec) }
     enum_specs.each { |spec| scope.add_enum_spec_hash(spec) }
@@ -111,13 +112,13 @@ class ScopeTest < Minitest::Test
   end
 
   def test_versioned_scope
-    test_spec = load_fixture('versioned_scope')
+    test_spec = fixture_hash('versioned_scope')
     scope = Wrapture::Scope.new(test_spec)
     build = Wrapture::CToCpp.wrap_scope(scope)
 
     validate_cpp_build(scope, build)
 
-    assert_equal(test_spec['classes'].count, scope.classes.count)
+    assert_equal(test_spec[:classes].count, scope.classes.count)
     assert_equal(scope.classes.count, build.sources.count / 2)
   end
 end

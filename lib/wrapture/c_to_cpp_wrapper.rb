@@ -685,7 +685,7 @@ module Wrapture
     def function_returns_call_directly?(func_spec)
       !func_spec.constructor? &&
         !func_spec.destructor? &&
-        !%w[void self-reference].include?(func_spec.return_type.name) &&
+        ['void', SELF_REFERENCE_KEYWORD].include?(func_spec.return_type.name) &&
         !func_spec.wrapped.error_check?
     end
 

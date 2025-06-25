@@ -56,7 +56,7 @@ class InvalidTest < Minitest::Test
   end
 
   def test_rule_missing_condition
-    test_spec = load_fixture('invalid/rule_missing_condition')
+    test_spec = fixture_hash('invalid/rule_missing_condition')
 
     assert_raises(Wrapture::MissingSpecKey) do
       Wrapture::Scope.new(test_spec)
@@ -64,7 +64,7 @@ class InvalidTest < Minitest::Test
   end
 
   def test_rule_with_invalid_condition
-    test_spec = load_fixture('invalid/rule_with_invalid_condition')
+    test_spec = fixture_hash('invalid/rule_with_invalid_condition')
 
     assert_raises(Wrapture::InvalidSpecKey) do
       Wrapture::Scope.new(test_spec)

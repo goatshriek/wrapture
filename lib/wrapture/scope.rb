@@ -56,27 +56,27 @@ module Wrapture
       # the templates must be handled first, since they might add keys needed
       # for the spec to be valid
       TemplateSpec.replace_all_uses(spec, *templates)
-      spec['templates'] = [] unless spec.key?('templates')
-      new_templates = spec['templates'].collect do |template_hash|
+      spec[:templates] = [] unless spec.key?(:templates)
+      new_templates = spec[:templates].collect do |template_hash|
         TemplateSpec.new(template_hash)
       end
       TemplateSpec.replace_all_uses(spec, *new_templates)
 
-      if spec.key?('doc')
-        Comment.validate_doc(spec['doc'])
+      if spec.key?(:doc)
+        Comment.validate_doc(spec[:doc])
       else
-        spec['doc'] = ''
+        spec[:doc] = ''
       end
 
-      spec['version'] = Wrapture.spec_version(spec)
+      spec[:version] = Wrapture.spec_version(spec)
 
-      spec['classes'] = [] unless spec.key?('classes')
-      spec['classes'].each do |class_hash|
+      spec[:classes] = [] unless spec.key?(:classes)
+      spec[:classes].each do |class_hash|
         ClassSpec.normalize_spec_hash!(class_hash)
       end
 
-      spec['enums'] = [] unless spec.key?('enums')
-      spec['enums'].each do |enum_hash|
+      spec[:enums] = [] unless spec.key?('enums')
+      spec[:enums].each do |enum_hash|
         EnumSpec.normalize_spec_hash!(enum_hash)
       end
 
@@ -107,17 +107,17 @@ module Wrapture
       @templates = []
 
       @spec = self.class.normalize_spec_hash(spec)
-      @doc = Comment.new(@spec['doc'])
+      @doc = Comment.new(@spec[:doc])
 
-      @templates = @spec['templates'].collect do |template_hash|
+      @templates = @spec[:templates].collect do |template_hash|
         TemplateSpec.new(template_hash)
       end
 
-      @spec['classes'].each do |class_hash|
+      @spec[:classes].each do |class_hash|
         ClassSpec.new(class_hash, scope: self)
       end
 
-      @spec['enums'].each do |enum_hash|
+      @spec[:enums].each do |enum_hash|
         EnumSpec.new(enum_hash, scope: self)
       end
     end
@@ -179,16 +179,16 @@ module Wrapture
       new_spec = YAML.safe_load_file(spec_filename)
       self.class.normalize_spec_hash!(new_spec, *@templates)
 
-      both_named = @spec.key?('name') && new_spec.key?('name')
-      if both_named && @spec['name'] != new_spec['name']
-        msg = "'#{new_spec['name']}' conflicts current name '#{@spec['name']}'"
+      both_named = @spec.key?(:name) && new_spec.key?(:name)
+      if both_named && @spec[:name] != new_spec[:name]
+        msg = "'#{new_spec[:name]}' conflicts current name '#{@spec[:name]}'"
         raise KeyConflict, msg
       end
 
-      versions = [@spec['version'], new_spec['version']]
-      @spec['version'] = Wrapture.max_version(*versions)
+      versions = [@spec[:version], new_spec[:version]]
+      @spec[:version] = Wrapture.max_version(*versions)
 
-      new_doc = Comment.new(new_spec['doc'])
+      new_doc = Comment.new(new_spec[:doc])
       unless new_doc.empty?
         if @doc.empty?
           @doc = new_doc
@@ -197,15 +197,15 @@ module Wrapture
         end
       end
 
-      new_spec['templates'].each do |template_hash|
+      new_spec[:templates].each do |template_hash|
         @templates << TemplateSpec.new(template_hash)
       end
 
-      new_spec['classes'].each do |class_hash|
+      new_spec[:classes].each do |class_hash|
         ClassSpec.new(class_hash, scope: self)
       end
 
-      new_spec['enums'].each do |enum_hash|
+      new_spec[:enums].each do |enum_hash|
         EnumSpec.new(enum_hash, scope: self)
       end
 
@@ -223,7 +223,7 @@ module Wrapture
     # * the name of the first enum in the scope
     # * an empty string
     def name_words
-      return @spec['name'] if @spec.key?('name')
+      return @spec[:name] if @spec.key?(:name)
 
       @classes.each do |class_spec|
         return [class_spec.namespace] unless class_spec.namespace.nil?

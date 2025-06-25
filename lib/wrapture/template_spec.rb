@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2020-2023 Joel E. Anderson
+# Copyright 2020-2025 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -241,9 +241,9 @@ module Wrapture
     # True if the provided spec is a template parameter with the given name.
     def self.param?(spec, param_name)
       spec.is_a?(Hash) &&
-        spec.key?('is-param') &&
-        spec['is-param'] &&
-        spec['name'] == param_name
+        spec.key?(:is_param) &&
+        spec[:is_param] &&
+        spec[:name] == param_name
     end
 
     # Creates a new spec based on the given one with all instances of a
@@ -312,12 +312,12 @@ module Wrapture
     # Returns a spec hash of this template with the provided parameters
     # substituted.
     def instantiate(params = nil)
-      result_spec = Marshal.load(Marshal.dump(@spec['value']))
+      result_spec = Marshal.load(Marshal.dump(@spec[:value]))
 
       return result_spec if params.nil?
 
       params.each do |param|
-        TemplateSpec.replace_param!(result_spec, param['name'], param['value'])
+        TemplateSpec.replace_param!(result_spec, param[:name], param[:value])
       end
 
       result_spec
@@ -347,22 +347,22 @@ module Wrapture
 
     # True if the given spec is a reference to this template.
     def use?(spec)
-      return false unless spec.is_a?(Hash) && spec.key?(TEMPLATE_USE_KEYWORD)
+      return false unless spec.is_a?(Hash) && spec.key?(:use_template)
 
-      invocation = spec[TEMPLATE_USE_KEYWORD]
+      invocation = spec[:use_template]
       case invocation
       when String
         invocation == name
       when Hash
-        unless invocation.key?('name')
-          error_message = "invocations of #{TEMPLATE_USE_KEYWORD} must have " \
+        unless invocation.key?(:name)
+          error_message = "invocations of #{:use_template} must have " \
                           'a name member'
           raise InvalidTemplateUsage, error_message
         end
 
-        invocation['name'] == name
+        invocation[:name] == name
       else
-        error_message = "#{TEMPLATE_USE_KEYWORD} must either be a String or " \
+        error_message = "#{:use_template} must either be a String or " \
                         'a Hash'
         raise InvalidTemplateUsage, error_message
       end
@@ -372,14 +372,14 @@ module Wrapture
 
     # Replaces a single use of the template in a Hash object.
     def merge_use_with_hash(use)
-      result = instantiate(use['use-template']['params'])
+      result = instantiate(use[:use_template][:params])
 
       error_message = "template #{name} was invoked in a Hash with other " \
                       'keys, but does not resolve to a hash itself'
       raise InvalidTemplateUsage, error_message unless result.is_a?(Hash)
 
       use.merge!(result) { |_, oldval, _| oldval }
-      use.delete(TEMPLATE_USE_KEYWORD)
+      use.delete(:use_template)
     end
 
     # Replaces all references to this template with an instantiation of it in
@@ -395,7 +395,7 @@ module Wrapture
 
       spec.each_pair do |key, value|
         if direct_use?(value)
-          spec[key] = instantiate(value[TEMPLATE_USE_KEYWORD]['params'])
+          spec[key] = instantiate(value[:use_template][:params])
           changed = true
         else
           changed ||= replace_uses(value)
@@ -413,7 +413,7 @@ module Wrapture
 
       spec.dup.each_index do |i|
         if direct_use?(spec[i])
-          result = instantiate(spec[i][TEMPLATE_USE_KEYWORD]['params'])
+          result = instantiate(spec[i][:use_template][:params])
           spec.delete_at(i)
           if result.is_a?(Array)
             spec.insert(i, *result)

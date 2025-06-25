@@ -24,7 +24,7 @@ require 'wrapture'
 
 class FunctionSpecTest < Minitest::Test
   def test_basic_new
-    test_spec = load_fixture('basic_function')
+    test_spec = fixture_hash('basic_function')
 
     spec = Wrapture::FunctionSpec.new(test_spec)
     code = Wrapture::CToCppWrapper.define_spec(spec, &block_collector)
@@ -34,7 +34,7 @@ class FunctionSpecTest < Minitest::Test
   end
 
   def test_documentation
-    test_spec = load_fixture('documented_function')
+    test_spec = fixture_hash('documented_function')
 
     spec = Wrapture::FunctionSpec.new(test_spec)
 
@@ -52,8 +52,7 @@ class FunctionSpecTest < Minitest::Test
   end
 
   def test_exception_throwing_function
-    test_spec = load_fixture('exception_throwing_function')
-
+    test_spec = fixture_hash('exception_throwing_function')
     spec = Wrapture::FunctionSpec.new(test_spec)
 
     throw_code = 'throw CodeException( return_val )'
@@ -67,7 +66,7 @@ class FunctionSpecTest < Minitest::Test
   end
 
   def test_exception_without_return_val
-    test_spec = load_fixture('exception_check_without_return_val')
+    test_spec = fixture_hash('exception_check_without_return_val')
 
     spec = Wrapture::FunctionSpec.new(test_spec)
 
@@ -78,7 +77,7 @@ class FunctionSpecTest < Minitest::Test
   end
 
   def test_function_pointer_argument
-    test_spec = load_fixture('function_pointer_argument')
+    test_spec = fixture_hash('function_pointer_argument')
 
     spec = Wrapture::FunctionSpec.new(test_spec)
 
@@ -99,7 +98,7 @@ class FunctionSpecTest < Minitest::Test
   end
 
   def test_function_pointer_return
-    test_spec = load_fixture('function_pointer_return')
+    test_spec = fixture_hash('function_pointer_return')
 
     spec = Wrapture::FunctionSpec.new(test_spec)
 
@@ -126,7 +125,7 @@ class FunctionSpecTest < Minitest::Test
   end
 
   def test_future_spec_version
-    test_spec = load_fixture('future_version_function')
+    test_spec = fixture_hash('future_version_function')
 
     assert_raises(Wrapture::UnsupportedSpecVersion) do
       Wrapture::FunctionSpec.new(test_spec)
@@ -134,7 +133,7 @@ class FunctionSpecTest < Minitest::Test
   end
 
   def test_matching_return_types
-    test_spec = load_fixture('no_cast_function')
+    test_spec = fixture_hash('no_cast_function')
 
     spec = Wrapture::FunctionSpec.new(test_spec)
 
@@ -147,7 +146,7 @@ class FunctionSpecTest < Minitest::Test
   end
 
   def test_nested_function_pointer_argument
-    test_spec = load_fixture('nested_function_pointer_argument')
+    test_spec = fixture_hash('nested_function_pointer_argument')
 
     spec = Wrapture::FunctionSpec.new(test_spec)
 
@@ -161,7 +160,7 @@ class FunctionSpecTest < Minitest::Test
   end
 
   def test_nested_function_pointer_return
-    test_spec = load_fixture('nested_function_pointer_return')
+    test_spec = fixture_hash('nested_function_pointer_return')
 
     spec = Wrapture::FunctionSpec.new(test_spec)
 
@@ -180,7 +179,7 @@ class FunctionSpecTest < Minitest::Test
   end
 
   def test_only_documented_params
-    test_spec = load_fixture('documented_params')
+    test_spec = fixture_hash('documented_params')
 
     spec = Wrapture::FunctionSpec.new(test_spec)
 
@@ -197,7 +196,7 @@ class FunctionSpecTest < Minitest::Test
   end
 
   def test_only_variadic_param
-    test_spec = load_fixture('invalid/only_variadic_param')
+    test_spec = fixture_hash('invalid/only_variadic_param')
 
     error = assert_raises(Wrapture::InvalidSpecKey) do
       Wrapture::FunctionSpec.new(test_spec)
@@ -207,7 +206,7 @@ class FunctionSpecTest < Minitest::Test
   end
 
   def test_undefinable
-    test_spec = load_fixture('undefinable_function')
+    test_spec = fixture_hash('undefinable_function')
 
     spec = Wrapture::FunctionSpec.new(test_spec)
 
@@ -219,7 +218,7 @@ class FunctionSpecTest < Minitest::Test
   end
 
   def test_variadic_functions
-    test_specs = load_fixture('variadic_functions')
+    test_specs = fixture_hash('variadic_functions')
 
     test_specs.each do |test_spec|
       spec = Wrapture::FunctionSpec.new(test_spec)
@@ -241,7 +240,7 @@ class FunctionSpecTest < Minitest::Test
   end
 
   def test_versioned_function
-    test_spec = load_fixture('versioned_function')
+    test_spec = fixture_hash('versioned_function')
 
     Wrapture::FunctionSpec.new(test_spec)
   end

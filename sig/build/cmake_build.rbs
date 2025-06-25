@@ -26,7 +26,8 @@ module Wrapture
       def self.from_hash: (spec_hash) -> Wrapture::Build::CmakeBuild
 
       def initialize: (Wrapture::Build::CppBuild | Wrapture::Build::CBuild) -> void
-      def build_system_sources: -> Enumerable[Wrapture::SourceFile]
+      def build_commands: -> Array[String]
+      def build_system_sources: -> Array[Wrapture::SourceFile]
       def cmake_lists: -> Wrapture::SourceFile
       def sources: -> Enumerable[Wrapture::SourceFile]
     end

@@ -29,6 +29,9 @@ module Wrapture
       # The build information for the source code of the library.
       attr_reader :build_info
 
+      # The root path for files in the underlying build.
+      attr_accessor :build_info_dir
+
       # Creates a CMake build from a provided hash.
       def self.from_hash(spec)
         unless spec.key?(:c_build) || spec.key?(:cpp_build)
@@ -48,6 +51,12 @@ module Wrapture
       # Create a CMake build for a given library build.
       def initialize(build_info)
         @build_info = build_info
+        @build_info_dir = nil
+      end
+
+      # Invocations of CMake to configure and build this project.
+      def build_commands
+        ['cmake .', "cmake --build . --target #{@build_info.name}"]
       end
 
       # The sources for the CMake build system.
@@ -67,9 +76,20 @@ module Wrapture
         file.puts("project(#{@build_info.name})")
         file.puts
 
+        path_prefix = if @build_info_dir
+                        file.puts("set(#{@build_info.name.upcase}_DIR")
+                        file.puts("  \"#{@build_info_dir}\"")
+                        file.puts(')')
+                        file.puts
+
+                        "${#{@build_info.name.upcase}_DIR}/"
+                      else
+                        ''
+                      end
+
         file.puts("set(#{@build_info.name.upcase}_HEADERS")
         @build_info.lib_headers.each do |header|
-          file.puts("  #{header.path}")
+          file.puts("  \"#{path_prefix}#{header.path}\"")
         end
         file.puts(')')
         file.puts
@@ -78,7 +98,7 @@ module Wrapture
           source_list = "#{@build_info.name.upcase}_SOURCES"
           file.puts("set(#{source_list}")
           @build_info.lib_sources.each do |source|
-            file.puts("  #{source.path}")
+            file.puts("  \"#{path_prefix}#{source.path}\"")
           end
           file.puts(')')
           file.puts

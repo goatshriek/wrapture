@@ -24,7 +24,7 @@ require 'wrapture'
 
 class EnumSpecTest < Minitest::Test
   def test_basic_enum
-    test_spec = load_fixture('basic_enum')
+    test_spec = fixture_hash('basic_enum')
     spec = Wrapture::EnumSpec.new(test_spec)
     build = Wrapture::CToCpp.wrap_enum(spec)
 
@@ -44,7 +44,7 @@ class EnumSpecTest < Minitest::Test
   end
 
   def test_documentation
-    test_spec = load_fixture('documented_enum')
+    test_spec = fixture_hash('documented_enum')
     spec = Wrapture::EnumSpec.new(test_spec)
     build = Wrapture::CToCpp.wrap_enum(spec)
 
@@ -60,7 +60,7 @@ class EnumSpecTest < Minitest::Test
   end
 
   def test_elements_not_array
-    test_spec = load_fixture('invalid/enum_with_non_array_elements')
+    test_spec = fixture_hash('invalid/enum_with_non_array_elements')
 
     error = assert_raises(Wrapture::InvalidSpecKey) do
       Wrapture::EnumSpec.new(test_spec)
@@ -70,7 +70,7 @@ class EnumSpecTest < Minitest::Test
   end
 
   def test_enum_with_namespace
-    test_spec = load_fixture('enum_with_namespace')
+    test_spec = fixture_hash('enum_with_namespace')
     spec = Wrapture::EnumSpec.new(test_spec)
     build = Wrapture::CToCpp.wrap_enum(spec)
 
@@ -82,7 +82,7 @@ class EnumSpecTest < Minitest::Test
   end
 
   def test_no_elements
-    test_spec = load_fixture('invalid/enum_without_elements')
+    test_spec = fixture_hash('invalid/enum_without_elements')
 
     error = assert_raises(Wrapture::MissingSpecKey) do
       Wrapture::EnumSpec.new(test_spec)
@@ -92,7 +92,7 @@ class EnumSpecTest < Minitest::Test
   end
 
   def test_no_name
-    test_spec = load_fixture('invalid/enum_without_name')
+    test_spec = fixture_hash('invalid/enum_without_name')
 
     error = assert_raises(Wrapture::MissingSpecKey) do
       Wrapture::EnumSpec.new(test_spec)

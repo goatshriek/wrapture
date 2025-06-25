@@ -24,7 +24,7 @@ require 'wrapture'
 
 class ParamSpecTest < Minitest::Test
   def test_missing_type
-    test_spec = load_fixture('invalid/param_missing_type')
+    test_spec = fixture_hash('invalid/param_missing_type')
 
     error = assert_raises(Wrapture::MissingSpecKey) do
       Wrapture::ParamSpec.new(test_spec)

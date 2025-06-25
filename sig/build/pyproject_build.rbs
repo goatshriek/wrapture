@@ -24,8 +24,8 @@ module Wrapture
       attr_reader python_build: Wrapture::Build::PythonBuild
 
       def initialize: (Wrapture::Build::PythonBuild) -> void
-      def build_command: (?python: String) -> String
-      def install_command: (?python: String, ?target: String) -> String
+      def build_commands: (?python: String) -> Array[String]
+      def install_commands: (?python: String, ?target: String) -> Array[String]
       def pyproject: -> Wrapture::SourceFile
       def sources: -> Array[Wrapture::SourceFile]
     end

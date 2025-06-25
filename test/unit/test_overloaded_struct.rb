@@ -24,10 +24,10 @@ require 'wrapture'
 
 class OverloadedStructTest < Minitest::Test
   def test_overloaded_struct
-    test_spec = load_fixture('overloaded_struct')
+    test_spec = fixture_hash('overloaded_struct')
     scope = Wrapture::Scope.new(test_spec)
 
-    assert_equal(test_spec['classes'].count, scope.classes.count)
+    assert_equal(test_spec[:classes].count, scope.classes.count)
 
     build = Wrapture::CToCpp.wrap_scope(scope)
 

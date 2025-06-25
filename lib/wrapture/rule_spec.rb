@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2019-2020 Joel E. Anderson
+# Copyright 2019-2025 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,23 +25,23 @@ module Wrapture
   class RuleSpec
     # A map of condition strings to their operators.
     CONDITIONS = { 'equals' => '==',
-                   'greater-than' => '>',
-                   'greater-than-equal' => '>=',
-                   'less-than' => '<',
-                   'less-than-equal' => '<=',
-                   'not-equals' => '!=' }.freeze
+                   'greater_than' => '>',
+                   'greater_than_equal' => '>=',
+                   'less_than' => '<',
+                   'less_than_equal' => '<=',
+                   'not_equals' => '!=' }.freeze
 
     # Normalizes a hash specification of a rule. Normalization checks for
     # invalid keys and unrecognized conditions.
     def self.normalize_spec_hash(spec)
       normalized = spec.dup
 
-      required_keys = if spec.key?('member-name')
-                        normalized['type'] = 'struct-member'
-                        %w[member-name condition value].freeze
+      required_keys = if spec.key?(:member_name)
+                        normalized[:type] = 'struct_member'
+                        %w[member_name condition value].freeze
                       else
-                        normalized['type'] = 'expression'
-                        %w[left-expression condition right-expression].freeze
+                        normalized[:type] = 'expression'
+                        %w[left_expression condition right_expression].freeze
                       end
 
       missing_keys = required_keys - spec.keys
@@ -56,8 +56,8 @@ module Wrapture
         raise(InvalidSpecKey, extra_msg)
       end
 
-      unless RuleSpec::CONDITIONS.keys.include?(spec['condition'])
-        condition_msg = "#{spec['condition']} is an invalid condition"
+      unless RuleSpec::CONDITIONS.keys.include?(spec[:condition])
+        condition_msg = "#{spec[:condition]} is an invalid condition"
         raise(InvalidSpecKey, condition_msg)
       end
 
@@ -94,13 +94,13 @@ module Wrapture
     # the use of RETURN_VALUE_KEYWORD in the spec. If not specified it defaults
     # to +'return_val'+. This parameter was added in release 0.4.2.
     def check(variable: nil, return_val: 'return_val')
-      condition = RuleSpec::CONDITIONS[@spec['condition']]
+      condition = RuleSpec::CONDITIONS[@spec[:condition]]
 
-      if @spec['type'] == 'struct-member'
-        "#{variable}->#{@spec['member-name']} #{condition} #{@spec['value']}"
+      if @spec[:type] == 'struct_member'
+        "#{variable}->#{@spec[:member_name]} #{condition} #{@spec[:value]}"
       else
-        left = @spec['left-expression']
-        right = @spec['right-expression']
+        left = @spec[:left_expression]
+        right = @spec[:right_expression]
         "#{left} #{condition} #{right}".sub(RETURN_VALUE_KEYWORD, return_val)
       end
     end
@@ -110,9 +110,9 @@ module Wrapture
     #
     # This method was added in release 0.4.2.
     def use_return?
-      @spec['type'] == 'expression' &&
-        [@spec['left-expression'],
-         @spec['right-expression']].include?(RETURN_VALUE_KEYWORD)
+      @spec[:type] == 'expression' &&
+        [@spec[:left_expression],
+         @spec[:right_expression]].include?(RETURN_VALUE_KEYWORD)
     end
   end
 end

@@ -26,18 +26,18 @@ require 'wrapture'
 class ClassSpecTest < Minitest::Test
   def test_invalid_type
     assert_raises(Wrapture::InvalidSpecKey) do
-      Wrapture::ClassSpec.new(load_fixture('invalid_type_class'))
+      Wrapture::ClassSpec.new(fixture_hash('invalid_type_class'))
     end
   end
 
   def test_no_name
     assert_raises(Wrapture::MissingSpecKey) do
-      Wrapture::ClassSpec.new(load_fixture('no_name_class'))
+      Wrapture::ClassSpec.new(fixture_hash('no_name_class'))
     end
   end
 
   def test_normalize
-    test_spec = load_fixture('minimal_class')
+    test_spec = fixture_hash('minimal_class')
 
     normalized_spec = Wrapture::ClassSpec.normalize_spec_hash test_spec
 
@@ -45,7 +45,7 @@ class ClassSpecTest < Minitest::Test
   end
 
   def test_return_val_in_constructor
-    test_spec = load_fixture('class_with_return_val_in_constructor')
+    test_spec = fixture_hash('class_with_return_val_in_constructor')
 
     spec = Wrapture::ClassSpec.new(test_spec)
     build = Wrapture::CToCpp.wrap_class(spec)
@@ -63,7 +63,7 @@ class ClassSpecTest < Minitest::Test
   end
 
   def test_future_spec_version
-    test_spec = load_fixture('future_version_class')
+    test_spec = fixture_hash('future_version_class')
 
     assert_raises(Wrapture::UnsupportedSpecVersion) do
       Wrapture::ClassSpec.new(test_spec)
@@ -71,7 +71,7 @@ class ClassSpecTest < Minitest::Test
   end
 
   def test_generate_wrappers
-    test_spec = load_fixture('basic_class')
+    test_spec = fixture_hash('basic_class')
     spec = Wrapture::ClassSpec.new(test_spec)
     build = Wrapture::CToCpp.wrap_class(spec)
 
@@ -79,7 +79,7 @@ class ClassSpecTest < Minitest::Test
   end
 
   def test_child_class
-    test_spec = load_fixture('child_class')
+    test_spec = fixture_hash('child_class')
     spec = Wrapture::ClassSpec.new(test_spec)
     build = Wrapture::CToCpp.wrap_class(spec)
 
@@ -87,7 +87,7 @@ class ClassSpecTest < Minitest::Test
   end
 
   def test_class_with_constructor
-    test_spec = load_fixture('constructor_class')
+    test_spec = fixture_hash('constructor_class')
     spec = Wrapture::ClassSpec.new(test_spec)
     build = Wrapture::CToCpp.wrap_class(spec)
 
@@ -136,7 +136,7 @@ class ClassSpecTest < Minitest::Test
   end
 
   def test_class_with_constant
-    test_spec = load_fixture('constant_class')
+    test_spec = fixture_hash('constant_class')
     spec = Wrapture::ClassSpec.new(test_spec)
     build = Wrapture::CToCpp.wrap_class(spec)
 
@@ -144,7 +144,7 @@ class ClassSpecTest < Minitest::Test
   end
 
   def test_class_with_documentation
-    test_spec = load_fixture('documented_class')
+    test_spec = fixture_hash('documented_class')
     spec = Wrapture::ClassSpec.new(test_spec)
     build = Wrapture::CToCpp.wrap_class(spec)
 
@@ -164,7 +164,7 @@ class ClassSpecTest < Minitest::Test
   end
 
   def test_class_with_no_struct
-    test_spec = load_fixture('no_struct_class')
+    test_spec = fixture_hash('no_struct_class')
     spec = Wrapture::ClassSpec.new(test_spec)
     build = Wrapture::CToCpp.wrap_class(spec)
 
@@ -172,20 +172,20 @@ class ClassSpecTest < Minitest::Test
   end
 
   def test_class_with_no_struct_overloads
-    test_spec = load_fixture('no_struct_class')
+    test_spec = fixture_hash('no_struct_class')
     spec = Wrapture::ClassSpec.new(test_spec)
     build = Wrapture::CToCpp.wrap_class(spec)
 
     validate_cpp_build(spec, build)
 
-    overload_specs = load_fixture('overloaded_struct')
+    overload_specs = fixture_hash('overloaded_struct')
     parent_spec = Wrapture::ClassSpec.new(overload_specs['classes'].first)
 
     refute(spec.overloads?(parent_spec))
   end
 
   def test_class_with_static_function
-    test_spec = load_fixture('static_function_class')
+    test_spec = fixture_hash('static_function_class')
     spec = Wrapture::ClassSpec.new test_spec
     build = Wrapture::CToCpp.wrap_class(spec)
 
@@ -198,7 +198,7 @@ class ClassSpecTest < Minitest::Test
   end
 
   def test_default_constructor_generation
-    test_spec = load_fixture('default_value_members')
+    test_spec = fixture_hash('default_value_members')
     spec = Wrapture::ClassSpec.new(test_spec)
     build = Wrapture::CToCpp.wrap_class(spec)
 
@@ -211,7 +211,7 @@ class ClassSpecTest < Minitest::Test
   end
 
   def test_delegating_constructor
-    test_spec = load_fixture('delegating_constructor')
+    test_spec = fixture_hash('delegating_constructor')
     spec = Wrapture::ClassSpec.new(test_spec)
     build = Wrapture::CToCpp.wrap_class(spec)
 
@@ -225,7 +225,7 @@ class ClassSpecTest < Minitest::Test
   end
 
   def test_versioned_class
-    test_spec = load_fixture('versioned_class')
+    test_spec = fixture_hash('versioned_class')
     spec = Wrapture::ClassSpec.new(test_spec)
     build = Wrapture::CToCpp.wrap_class(spec)
 
@@ -233,7 +233,7 @@ class ClassSpecTest < Minitest::Test
   end
 
   def test_wrapper_class
-    test_spec = load_fixture('struct_wrapper_class')
+    test_spec = fixture_hash('struct_wrapper_class')
     spec = Wrapture::ClassSpec.new test_spec
     build = Wrapture::CToCpp.wrap_class(spec)
 

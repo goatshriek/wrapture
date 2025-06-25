@@ -37,32 +37,32 @@ module Wrapture
     # If the 'doc' key is present, it is validated using Comment::validate_doc.
     # If not, it is set to an empty string.
     def self.normalize_spec_hash!(spec)
-      unless spec.key?('name')
+      unless spec.key?(:name)
         raise MissingSpecKey, 'a name is required for enumerations'
       end
 
-      spec['name'] = Wrapture.normalize_name(spec, 'name')
+      spec[:name] = Wrapture.normalize_name(spec, :name)
 
-      if spec.key?('elements')
-        unless spec['elements'].is_a?(Array)
+      if spec.key?(:elements)
+        unless spec[:elements].is_a?(Array)
           raise InvalidSpecKey, 'the elements key must be an array'
         end
       else
         raise MissingSpecKey, 'elements are required for enumerations'
       end
 
-      if spec.key?('doc')
-        Comment.validate_doc(spec['doc'])
+      if spec.key?(:doc)
+        Comment.validate_doc(spec[:doc])
       else
-        spec['doc'] = ''
+        spec[:doc] = ''
       end
 
-      spec['includes'] = Wrapture.normalize_array(spec['includes'])
-      spec['elements'].each do |element|
-        element['includes'] = Wrapture.normalize_array(element['includes'])
+      spec[:includes] = Wrapture.normalize_array(spec[:includes])
+      spec[:elements].each do |element|
+        element[:includes] = Wrapture.normalize_array(element[:includes])
       end
 
-      spec['libraries'] = Wrapture.normalize_array(spec['libraries'])
+      spec[:libraries] = Wrapture.normalize_array(spec[:libraries])
 
       spec
     end
@@ -90,7 +90,7 @@ module Wrapture
     # languages if it is not specified.
     def initialize(spec, scope: Scope.new)
       @spec = EnumSpec.normalize_spec_hash(spec)
-      @doc = Comment.new(@spec['doc'])
+      @doc = Comment.new(@spec[:doc])
 
       scope << self
       @scope = scope
@@ -101,10 +101,10 @@ module Wrapture
 
     # A list of the includes needed for the definition of the enumeration.
     def definition_includes
-      includes = @spec['includes'].dup
+      includes = @spec[:includes].dup
 
-      @spec['elements'].each do |element|
-        includes.concat(element['includes'])
+      @spec[:elements].each do |element|
+        includes.concat(element[:includes])
       end
 
       includes.uniq
@@ -114,27 +114,27 @@ module Wrapture
     # TODO: This should be redefined as a separate type of spec
     # instead of being a raw array of hashes.
     def elements
-      @spec['elements']
+      @spec[:elements]
     end
 
     # An array of libraries needed for everything in this enum.
     def libraries
-      @spec['libraries']
+      @spec[:libraries]
     end
 
     # The name of the constant.
     def name_words
-      @spec['name']
+      @spec[:name]
     end
 
     # The namespace of the enumeration, or nil if it does not have one.
     def namespace
-      @spec.fetch('namespace', nil)
+      @spec.fetch(:namespace, nil)
     end
 
     # True if the enumeration has a namespace, false if not.
     def namespace?
-      @spec.key?('namespace')
+      @spec.key?(:namespace)
     end
   end
 end

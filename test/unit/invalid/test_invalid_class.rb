@@ -24,7 +24,7 @@ require 'wrapture'
 
 class InvalidClassTest < Minitest::Test
   def test_initializer_missing_name
-    test_spec = load_fixture('invalid/initializer_missing_name')
+    test_spec = fixture_hash('invalid/initializer_missing_name')
 
     assert_raises(Wrapture::MissingSpecKey) do
       Wrapture::ClassSpec.new(test_spec)

@@ -24,7 +24,7 @@ require 'wrapture'
 
 class TemplateSpecTest < Minitest::Test
   def test_hash_template_usage_in_array
-    scope_spec = load_fixture('hash_template_usage_in_array')
+    scope_spec = fixture_hash('hash_template_usage_in_array')
 
     temp = Wrapture::TemplateSpec.new(scope_spec['templates'].first)
 
@@ -37,7 +37,7 @@ class TemplateSpecTest < Minitest::Test
   end
 
   def test_instantiation
-    temp_spec = load_fixture('template_with_params')
+    temp_spec = fixture_hash('template_with_params')
 
     temp = Wrapture::TemplateSpec.new(temp_spec)
 
@@ -54,7 +54,7 @@ class TemplateSpecTest < Minitest::Test
   end
 
   def test_merge_override
-    temp_spec = load_fixture('basic_hash_template')
+    temp_spec = fixture_hash('basic_hash_template')
 
     temp = Wrapture::TemplateSpec.new(temp_spec)
 
@@ -70,13 +70,13 @@ class TemplateSpecTest < Minitest::Test
   end
 
   def test_multiple_uses
-    hash_temp_spec = load_fixture('basic_hash_template')
-    array_temp_spec = load_fixture('basic_array_template')
+    hash_temp_spec = fixture_hash('basic_hash_template')
+    array_temp_spec = fixture_hash('basic_array_template')
 
     hash_temp = Wrapture::TemplateSpec.new(hash_temp_spec)
     array_temp = Wrapture::TemplateSpec.new(array_temp_spec)
 
-    usage = load_fixture('multiple_template_uses')
+    usage = fixture_hash('multiple_template_uses')
 
     hash_temp.replace_uses(usage)
     array_temp.replace_uses(usage)
@@ -88,7 +88,7 @@ class TemplateSpecTest < Minitest::Test
   end
 
   def test_no_param_instantiation
-    temp_spec = load_fixture('basic_hash_template')
+    temp_spec = fixture_hash('basic_hash_template')
 
     temp = Wrapture::TemplateSpec.new(temp_spec)
 
@@ -96,7 +96,7 @@ class TemplateSpecTest < Minitest::Test
   end
 
   def test_param_replacement
-    temp_spec = load_fixture('template_with_params')
+    temp_spec = fixture_hash('template_with_params')
 
     result = Wrapture::TemplateSpec.replace_param(temp_spec['value'],
                                                   'buckle-thing',
@@ -107,8 +107,8 @@ class TemplateSpecTest < Minitest::Test
   end
 
   def test_replace_in_array
-    temp_spec = load_fixture('basic_array_template')
-    usage = load_fixture('template_usage_in_array')
+    temp_spec = fixture_hash('basic_array_template')
+    usage = fixture_hash('template_usage_in_array')
 
     temp = Wrapture::TemplateSpec.new(temp_spec)
 
@@ -123,8 +123,8 @@ class TemplateSpecTest < Minitest::Test
   end
 
   def test_replace_in_hash
-    temp_spec = load_fixture('basic_hash_template')
-    usage = load_fixture('template_usage_in_hash')
+    temp_spec = fixture_hash('basic_hash_template')
+    usage = fixture_hash('template_usage_in_hash')
 
     temp = Wrapture::TemplateSpec.new(temp_spec)
 
@@ -138,9 +138,9 @@ class TemplateSpecTest < Minitest::Test
   end
 
   def test_replace_with_no_uses
-    temp_spec = load_fixture('basic_hash_template')
-    class_spec_original = load_fixture('basic_class')
-    class_spec_replaced = load_fixture('basic_class')
+    temp_spec = fixture_hash('basic_hash_template')
+    class_spec_original = fixture_hash('basic_class')
+    class_spec_replaced = fixture_hash('basic_class')
 
     temp = Wrapture::TemplateSpec.new(temp_spec)
     temp.replace_uses(class_spec_replaced)
@@ -149,9 +149,9 @@ class TemplateSpecTest < Minitest::Test
   end
 
   def test_shorthand_usage
-    temp_spec = load_fixture('basic_hash_template')
-    shorthand_usage = load_fixture('template_shorthand_usage')
-    verbose_usage = load_fixture('template_usage_in_hash')
+    temp_spec = fixture_hash('basic_hash_template')
+    shorthand_usage = fixture_hash('template_shorthand_usage')
+    verbose_usage = fixture_hash('template_usage_in_hash')
 
     temp = Wrapture::TemplateSpec.new(temp_spec)
 
@@ -162,7 +162,7 @@ class TemplateSpecTest < Minitest::Test
   end
 
   def test_string_template_usage_in_array
-    scope_spec = load_fixture('string_template_usage_in_array')
+    scope_spec = fixture_hash('string_template_usage_in_array')
 
     temp = Wrapture::TemplateSpec.new(scope_spec['templates'].first)
 
@@ -176,7 +176,7 @@ class TemplateSpecTest < Minitest::Test
   end
 
   def test_string_template_usage_in_hash
-    scope_spec = load_fixture('string_template_usage_in_hash')
+    scope_spec = fixture_hash('string_template_usage_in_hash')
 
     temp = Wrapture::TemplateSpec.new(scope_spec['templates'].first)
 

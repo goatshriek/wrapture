@@ -64,7 +64,7 @@ class ClassSpecTest < Minitest::Test
   end
 
   def test_pointer_class_and_child
-    test_spec = load_fixture('pointer_class_and_child')
+    test_spec = fixture_hash('pointer_class_and_child')
     spec = Wrapture::Scope.new(test_spec)
     build = Wrapture::CToCpp.wrap_scope(spec)
 

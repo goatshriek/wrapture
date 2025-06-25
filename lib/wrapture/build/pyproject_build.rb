@@ -37,8 +37,8 @@ module Wrapture
       #
       # +python+ can be supplied to customize the Python interpreter used in the
       # build command.
-      def build_command(python: 'python3')
-        "#{python} -m build"
+      def build_commands(python: 'python3')
+        ["#{python} -m build"]
       end
 
       # A pip install command that will install this project.
@@ -53,9 +53,9 @@ module Wrapture
       # value uses a wildcard, which is potentially dangerous. If the exact
       # wheel file name is known, it should be given to prevent unintended
       # install behavior.
-      def install_command(python: 'python3',
+      def install_commands(python: 'python3',
                           target: "dist/#{@python_build.name}-*.whl")
-        "#{python} -m pip install #{target}"
+        ["#{python} -m pip install #{target}"]
       end
 
       # A pyproject.toml file that could be used to build this module.

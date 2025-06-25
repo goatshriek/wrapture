@@ -18,20 +18,17 @@
 
 require 'yaml'
 
-# Slated for removal after migrating to symbolize_names loading.
-def load_fixture(name)
-  fixture_path = File.expand_path('fixtures', __dir__)
-  YAML.load_file(File.join(fixture_path, "#{name}.yml"))
-end
-
 # The build spec for the fixture corresponding to +name+.
 def fixture_build(name)
-  Wrapture::Build.from_hash(fixture_build_hash(name))
+  build = Wrapture::Build.from_hash(fixture_build_hash(name))
+  build.build_info_dir = File.join(File.expand_path('fixtures', __dir__), name)
+
+  build
 end
 
 # Creates a build hash for the fixture corresponding to +name+.
 def fixture_build_hash(name)
-  # drop this back to safe_load_file after Ruby 2.7 is dropped
+  # simplify this to just safe_load_file after Ruby 2.7 is dropped
   if YAML.respond_to?('safe_load_file')
     YAML.safe_load_file(fixture_build_spec_path(name), symbolize_names: true)
   else
@@ -45,7 +42,7 @@ end
 # Creates a hash for a Wrapture spec, finding and loading the YAML file
 # corresponding to +name+.
 def fixture_hash(name)
-  # drop this badk to safe_load_file after Ruby 2.7 is dropped
+  # simplify this to just safe_load_file after Ruby 2.7 is dropped
   if YAML.respond_to?('safe_load_file')
     YAML.safe_load_file(fixture_yaml_path(name), symbolize_names: true)
   else
@@ -71,5 +68,10 @@ end
 
 # Builds the path for a fixture's YAML file corresponding to +name+.
 def fixture_yaml_path(name)
-  File.join(File.expand_path('fixtures', __dir__), "#{name}.yml")
+  f = File.join(File.expand_path('fixtures', __dir__), "#{name}.yml")
+  if File.exist?(f)
+    f
+  else
+    File.join(File.expand_path('fixtures', __dir__), "#{name}/spec.yml")
+  end
 end

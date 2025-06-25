@@ -24,13 +24,13 @@ require 'wrapture'
 
 class NestedStructsTest < Minitest::Test
   def test_nested_structs
-    test_spec = load_fixture('nested_structs')
+    test_spec = fixture_hash('nested_structs')
     scope = Wrapture::Scope.new(test_spec)
     build = Wrapture::CToCpp.wrap_scope(scope)
 
     validate_cpp_build(scope, build)
 
-    assert_equal(test_spec['classes'].count, scope.classes.count)
+    assert_equal(test_spec[:classes].count, scope.classes.count)
 
     header_includes = get_source_file_include_list(build['Gym.hpp'])
     source_includes = get_source_file_include_list(build['Gym.cpp'])

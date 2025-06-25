@@ -24,7 +24,7 @@ require 'wrapture'
 
 class TypeConversionTest < Minitest::Test
   def test_class_pointer_to_struct_pointer
-    test_spec = load_fixture('scope_with_pointer_param')
+    test_spec = fixture_hash('scope_with_pointer_param')
     scope = Wrapture::Scope.new(test_spec)
     build = Wrapture::CToCpp.wrap_scope(scope)
 
@@ -36,7 +36,7 @@ class TypeConversionTest < Minitest::Test
   end
 
   def test_reference_to_pointer
-    test_spec = load_fixture('scope_with_reference_param')
+    test_spec = fixture_hash('scope_with_reference_param')
     scope = Wrapture::Scope.new(test_spec)
     build = Wrapture::CToCpp.wrap_scope(scope)
 

@@ -62,9 +62,14 @@ def run_python_example(name, lib, sources, build_dir)
     # generate, build, and install the python example
     python_build.save
     cflags = "-I#{example_dir} -L#{load_dir}"
-    sh "CFLAGS=\"#{cflags}\" #{python_build.build_command} --wheel"
+    python_build.build_commands do |cmd|
+       # TODO: using --wheel directly on each cmd is brittle
+      sh "CFLAGS=\"#{cflags}\" #{cmd} --wheel"
+    end
     sh 'python3 -m venv usage-env'
-    sh python_build.install_command(python: 'usage-env/bin/python3')
+    python_build.install_commands(python: 'usage-env/bin/python3').each do |cmd|
+      sh cmd
+    end
     envs = 'LD_LIBRARY_PATH=.'
     sh "#{envs} usage-env/bin/python3 #{example_dir}/#{lib}_usage.py"
   end

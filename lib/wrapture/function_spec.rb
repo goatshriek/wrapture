@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2019-2023 Joel E. Anderson
+# Copyright 2019-2025 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,14 +29,14 @@ module Wrapture
     # Returns a copy of the return type specification +spec+.
     def self.normalize_return_hash(spec)
       if spec.nil?
-        { 'type' => 'void', 'includes' => [] }
+        { :type => 'void', :includes => [] }
       else
         normalized = Marshal.load(Marshal.dump(spec))
-        Comment.validate_doc(spec['doc']) if spec.key?('doc')
-        normalized['type'] ||= 'void'
-        normalized['includes'] = Wrapture.normalize_array(spec['includes'])
-        normalized['libraries'] = Wrapture.normalize_array(spec['libraries'])
-        Wrapture.normalize_boolean!(spec, 'overloaded')
+        Comment.validate_doc(spec[:doc]) if spec.key?(:doc)
+        normalized[:type] ||= 'void'
+        normalized[:includes] = Wrapture.normalize_array(spec[:includes])
+        normalized[:libraries] = Wrapture.normalize_array(spec[:libraries])
+        Wrapture.normalize_boolean!(spec, :overloaded)
         normalized
       end
     end
@@ -54,17 +54,17 @@ module Wrapture
     # in include lists, and will set missing keys to their default values
     # (for example, an empty list if no includes are given).
     def self.normalize_spec_hash!(spec)
-      Comment.validate_doc(spec['doc']) if spec.key?('doc')
+      Comment.validate_doc(spec[:doc]) if spec.key?(:doc)
 
-      spec['version'] = Wrapture.spec_version(spec)
-      Wrapture.normalize_boolean!(spec, 'static')
-      Wrapture.normalize_boolean!(spec, 'virtual')
-      spec['params'] = ParamSpec.normalize_param_list(spec['params'])
-      spec['return'] = normalize_return_hash(spec['return'])
-      spec['name'] = Wrapture.normalize_name(spec, 'name')
+      spec[:version] = Wrapture.spec_version(spec)
+      Wrapture.normalize_boolean!(spec, :static)
+      Wrapture.normalize_boolean!(spec, :virtual)
+      spec[:params] = ParamSpec.normalize_param_list(spec[:params])
+      spec[:return] = normalize_return_hash(spec[:return])
+      spec[:name] = Wrapture.normalize_name(spec, :name)
 
-      spec['initializers'] = [] unless spec.key?('initializers')
-      if spec['initializers'].any? { |i| !i.key?('name') && !i['delegate'] }
+      spec[:initializers] = [] unless spec.key?(:initializers)
+      if spec[:initializers].any? { |i| !i.key?(:name) && !i[:delegate] }
         msg = 'initializers must either have a name or be delegating ' \
               'constructors (have delegate set to true)'
         raise MissingSpecKey, msg
@@ -127,7 +127,7 @@ module Wrapture
     # return value itself. If neither of these is needed, then the return
     # specification may simply be omitted.
     #
-    # The 'type' key of the return spec may also be set to 'self-reference'
+    # The 'type' key of the return spec may also be set to 'self_reference'
     # which will have the function return a reference to the instance it was
     # called on. Of course, this cannot be used from a function that is not a
     # class method.
@@ -142,13 +142,13 @@ module Wrapture
                    destructor: false)
       @owner = owner
       @spec = FunctionSpec.normalize_spec_hash(spec)
-      @wrapped = if @spec.key?('wrapped-function')
-                   CFunctionSpec.new(@spec['wrapped-function'])
-                 elsif @spec.key?('wrapped-code')
-                   CCodeSpec.new(@spec['wrapped-code'])
+      @wrapped = if @spec.key?(:wrapped_function)
+                   CFunctionSpec.new(@spec[:wrapped_function])
+                 elsif @spec.key?(:wrapped_code)
+                   CCodeSpec.new(@spec[:wrapped_code])
                  end
-      @params = ParamSpec.new_list(@spec['params'])
-      @return_type = TypeSpec.new(@spec['return']['type'])
+      @params = ParamSpec.new_list(@spec[:params])
+      @return_type = TypeSpec.new(@spec[:return][:type])
       @constructor = constructor
       @destructor = destructor
     end
@@ -173,7 +173,7 @@ module Wrapture
 
     # A list of includes needed for the declaration of the function.
     def declaration_includes
-      includes = @spec['return']['includes'].dup
+      includes = @spec[:return][:includes].dup
       @params.each { |param| includes.concat(param.includes) }
       includes.concat(@return_type.includes)
       includes.uniq
@@ -187,7 +187,7 @@ module Wrapture
     # A list of includes needed for the definition of the function.
     def definition_includes
       includes = @wrapped.includes
-      includes.concat(@spec['return']['includes'])
+      includes.concat(@spec[:return][:includes])
       @params.each { |param| includes.concat(param.includes) }
       includes.concat(@return_type.includes)
       includes << 'stdarg.h' if variadic?
@@ -202,14 +202,14 @@ module Wrapture
     # A Comment holding the function documentation.
     def doc
       comment = String.new
-      comment << @spec['doc'] if @spec.key?('doc')
+      comment << @spec[:doc] if @spec.key?(:doc)
 
       @params
         .reject { |param| param.doc.empty? }
         .each { |param| comment << "\n\n" << param.doc.text }
 
-      if @spec['return'].key?('doc')
-        comment << "\n\n@return " << @spec['return']['doc']
+      if @spec[:return].key?(:doc)
+        comment << "\n\n@return " << @spec[:return][:doc]
       end
 
       Comment.new(comment)
@@ -217,7 +217,7 @@ module Wrapture
 
     # A list of initializer specs.
     def initializers
-      @spec['initializers']
+      @spec[:initializers]
     end
 
     # An array of libraries required for this function call.
@@ -231,7 +231,7 @@ module Wrapture
 
     # The words that make up the function name.
     def name_words
-      @spec['name']
+      @spec[:name]
     end
 
     # The parameters that are optional (have default values) for this function.
@@ -300,12 +300,12 @@ module Wrapture
 
     # True if the return type of this function is overloaded.
     def return_overloaded?
-      @spec['return']['overloaded']
+      @spec[:return][:overloaded]
     end
 
     # True if the function is static.
     def static?
-      @spec['static']
+      @spec[:static]
     end
 
     # True if the function is variadic.
@@ -315,7 +315,7 @@ module Wrapture
 
     # True if the function is virtual.
     def virtual?
-      @spec['virtual']
+      @spec[:virtual]
     end
 
     # True if the function has a void return type.
