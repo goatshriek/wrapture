@@ -77,9 +77,9 @@ module Wrapture
                   dir
                 end
 
-      write_path = out_dir.join(source.path)
+      write_path = out_dir.join(@path)
       write_path.open('wb') do |source_file|
-        source.contents.each do |chunk|
+        contents.each do |chunk|
           source_file.write(chunk)
         end
       end
