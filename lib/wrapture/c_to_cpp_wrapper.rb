@@ -211,7 +211,7 @@ module Wrapture
     # True if the provided wrapped param spec can be cast to when used in this
     # function.
     def castable?(wrapped_param)
-      param = @spec.params.find { |p| p.name == wrapped_param['value'] }
+      param = @spec.params.find { |p| p.name == wrapped_param[:value] }
 
       !param.nil? &&
         !wrapped_param[:type].nil? &&

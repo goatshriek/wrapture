@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2019-2020 Joel E. Anderson
+# Copyright 2019-2025 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -86,7 +86,7 @@ class InvalidTest < Minitest::Test
       Wrapture::Scope.new(scope_spec)
     end
 
-    assert_includes(error.message, Wrapture::TEMPLATE_USE_KEYWORD)
+    assert_includes(error.message, 'use_template')
   end
 
   def test_use_template_with_no_name

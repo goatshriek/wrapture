@@ -30,6 +30,8 @@ class TypeConversionTest < Minitest::Test
 
     validate_cpp_build(scope, build)
 
+    puts build['Rifle.cpp'].contents
+
     assert(source_file_contains_match?(build['Rifle.cpp'],
                                        /bullet->equivalent/),
            'equivalent struct member was not referenced')

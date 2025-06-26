@@ -38,7 +38,7 @@ module Wrapture
     def self.normalize_param_list(spec_list)
       if spec_list.nil?
         []
-      elsif spec_list.none? { |spec| spec['name'] == '...' }
+      elsif spec_list.none? { |spec| spec[:name] == '...' }
         spec_list.map { |spec| normalize_spec_hash(spec) }
       else
         error_msg = "'...' may not be the only parameter"

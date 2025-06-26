@@ -1,13 +1,29 @@
+# SPDX-License-Identifier: Apache-2.0
+
+# Copyright 2025 Joel E. Anderson
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 classes:
   - name: "Bullet"
     namespace: "wrapture_test"
-    equivalent-struct:
+    equivalent_struct:
       name: "bullet_struct"
       includes: "bullet_struct.h"
     type: "pointer"
   - name: "Rifle"
     namespace: "wrapture_test"
-    equivalent-struct:
+    equivalent_struct:
       name: "rifle_struct"
       includes: "rifle_struct.h"
     functions:
@@ -17,11 +33,11 @@ classes:
             type: "Bullet *"
             includes: "Bullet.hpp"
         return:
-          type: "self-reference"
-        wrapped-function:
+          type: "self_reference"
+        wrapped_function:
           name: "load_rifle_with_bullet"
           params:
-            - value: "equivalent-struct-pointer"
+            - value: "equivalent_struct_pointer"
             - type: "struct bullet_struct *"
               value: "bullet"
       - name: "fire"
@@ -30,10 +46,10 @@ classes:
             type: "Bullet *"
             includes: "Bullet.hpp"
         return:
-          type: "self-reference"
-        wrapped-function:
+          type: "self_reference"
+        wrapped_function:
           name: "fire_bullet_from_rifle"
           params:
-            - value: "equivalent-struct-pointer"
+            - value: "equivalent_struct_pointer"
             - type: "struct bullet_struct"
               value: "bullet"

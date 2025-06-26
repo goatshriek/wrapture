@@ -51,7 +51,7 @@ class ClassSpecTest < Minitest::Test
     build = Wrapture::CToCpp.wrap_class(spec)
     validate_cpp_build(spec, build)
 
-    source_name = "#{test_spec['name']}.cpp"
+    source_name = "#{test_spec[:name]}.cpp"
 
     assert_includes(build, source_name)
     source_file = build[source_name]
@@ -93,7 +93,7 @@ class ClassSpecTest < Minitest::Test
 
     validate_cpp_build(spec, build)
 
-    class_name = test_spec['name']
+    class_name = test_spec[:name]
     header = build["#{class_name}.hpp"]
     member_regex = /^\s*#{class_name}\( int member/
     spec_regex = /^\s*#{class_name}\( struct/
@@ -129,9 +129,9 @@ class ClassSpecTest < Minitest::Test
     assert(source_file_contains_match?(source, destructor_regex),
            'the destructor definition was not found')
 
-    wrapped_function = test_spec['constructors'][0]['wrapped-function']
+    wrapped_function = test_spec[:constructors][0][:wrapped_function]
 
-    assert(source_file_contains_match?(source, /= #{wrapped_function['name']}/),
+    assert(source_file_contains_match?(source, /= #{wrapped_function[:name]}/),
            'source file does not include the wrapped function')
   end
 
@@ -179,7 +179,7 @@ class ClassSpecTest < Minitest::Test
     validate_cpp_build(spec, build)
 
     overload_specs = fixture_hash('overloaded_struct')
-    parent_spec = Wrapture::ClassSpec.new(overload_specs['classes'].first)
+    parent_spec = Wrapture::ClassSpec.new(overload_specs[:classes].first)
 
     refute(spec.overloads?(parent_spec))
   end
@@ -191,7 +191,7 @@ class ClassSpecTest < Minitest::Test
 
     validate_cpp_build(spec, build)
 
-    header = build["#{test_spec['name']}.hpp"]
+    header = build["#{test_spec[:name]}.hpp"]
 
     assert(source_file_contains_match?(header, 'static'),
            'static keyword not found')

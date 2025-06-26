@@ -137,7 +137,7 @@ class FunctionSpecTest < Minitest::Test
 
     spec = Wrapture::FunctionSpec.new(test_spec)
 
-    call = test_spec['wrapped-function']['name']
+    call = test_spec[:wrapped_function][:name]
     Wrapture::CToCppWrapper.define_spec(spec) do |line|
       code = line.strip
 
