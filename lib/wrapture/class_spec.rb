@@ -95,10 +95,10 @@ module Wrapture
       end
 
       spec[:exception] = if spec.key?(:exception) && spec[:exception]
-                            true
-                          else
-                            false
-                          end
+                           true
+                         else
+                           false
+                         end
 
       spec
     end
@@ -126,7 +126,7 @@ module Wrapture
     # The hash must have the following keys:
     # name:: the name of the class, in CamelCase
     # namespace:: the namespace to put the class into
-    # equivalent-struct:: a hash describing the struct this class wraps
+    # equivalent_struct:: a hash describing the struct this class wraps
     #
     # The following keys are optional:
     # constants:: A list of constant specs that are in this class.
@@ -140,8 +140,8 @@ module Wrapture
     def initialize(spec, scope: Scope.new)
       @spec = ClassSpec.normalize_spec_hash(spec, *scope.templates)
 
-      @struct = if @spec.key?(EQUIVALENT_STRUCT_KEYWORD)
-                  StructSpec.new(@spec[EQUIVALENT_STRUCT_KEYWORD])
+      @struct = if @spec.key?(:equivalent_struct)
+                  StructSpec.new(@spec[:equivalent_struct])
                 end
 
       @functions = @spec[:constructors].map do |constructor_spec|

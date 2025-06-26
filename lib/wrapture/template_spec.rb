@@ -325,7 +325,7 @@ module Wrapture
 
     # The name of the template.
     def name
-      @spec['name']
+      @spec[:name]
     end
 
     # Replaces all references to this template with an instantiation of it in
@@ -355,14 +355,14 @@ module Wrapture
         invocation == name
       when Hash
         unless invocation.key?(:name)
-          error_message = "invocations of #{:use_template} must have " \
+          error_message = 'invocations of use_template must have ' \
                           'a name member'
           raise InvalidTemplateUsage, error_message
         end
 
         invocation[:name] == name
       else
-        error_message = "#{:use_template} must either be a String or " \
+        error_message = 'use_template must either be a String or ' \
                         'a Hash'
         raise InvalidTemplateUsage, error_message
       end

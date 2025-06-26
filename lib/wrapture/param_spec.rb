@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2020-2023 Joel E. Anderson
+# Copyright 2020-2025 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -44,11 +44,11 @@ module Wrapture
         error_msg = "'...' may not be the only parameter"
         raise(InvalidSpecKey, error_msg) if spec_list.one?
 
-        i = spec_list.find_index { |spec| spec['name'] == '...' }
+        i = spec_list.find_index { |spec| spec[:name] == '...' }
         var = spec_list[i]
 
         spec_list
-          .reject { |spec| spec['name'] == '...' }
+          .reject { |spec| spec[:name] == '...' }
           .map { |spec| normalize_spec_hash(spec) }
           .push(var)
       end
@@ -64,12 +64,12 @@ module Wrapture
     # Normalization will remove duplicate entries from include lists and
     # validate that required key values are set.
     def self.normalize_spec_hash!(spec)
-      Comment.validate_doc(spec['doc']) if spec.key?('doc')
-      spec['includes'] = Wrapture.normalize_array(spec['includes'])
+      Comment.validate_doc(spec['doc']) if spec.key?(:doc)
+      spec[:includes] = Wrapture.normalize_array(spec[:includes])
 
-      spec['type'] = '...' if spec['name'] == '...'
+      spec[:type] = '...' if spec[:name] == '...'
 
-      unless spec.key?('type')
+      unless spec.key?(:type)
         missing_type_msg = 'parameters must have a type key defined'
         raise(MissingSpecKey, missing_type_msg)
       end
@@ -95,23 +95,23 @@ module Wrapture
     # Creates a parameter specification based on the provided hash spec.
     def initialize(spec)
       @spec = ParamSpec.normalize_spec_hash(spec)
-      @type = TypeSpec.new(@spec['type'])
+      @type = TypeSpec.new(@spec[:type])
     end
 
     # The default value of the parameter.
     def default_value
-      @spec['default-value']
+      @spec[:default_value]
     end
 
     # True if this param has a default value.
     def default_value?
-      @spec.key?('default-value')
+      @spec.key?(:default_value)
     end
 
     # A Comment holding the parameter documentation.
     def doc
-      if @spec.key?('doc')
-        Comment.new("@param #{@spec['name']} #{@spec['doc']}")
+      if @spec.key?(:doc)
+        Comment.new("@param #{@spec[:name]} #{@spec[:doc]}")
       else
         Comment.new
       end
@@ -119,35 +119,13 @@ module Wrapture
 
     # A list of includes needed for this parameter.
     def includes
-      @spec['includes'].dup.concat(@type.includes)
+      @spec[:includes].dup.concat(@type.includes)
     end
 
     # The name of the parameter.
     def name
-      @spec['name']
+      @spec[:name]
     end
-
-    # The parameter type and name, suitable for use in a function signature or
-    # declaration. +owner+ must be the FunctionSpec that the parameter belongs
-    # to.
-    # def signature(owner)
-    #   sig = @type.resolve(owner).variable(name)
-
-    #   if @spec.key?('default-value')
-    #     default_value = @spec['default-value']
-
-    #     sig += ' = '
-    #     sig += if @spec['type'] == 'const char *'
-    #              "\"#{default_value}\""
-    #            elsif @spec['type'].end_with?('char')
-    #              "'#{default_value}'"
-    #            else
-    #              default_value.to_s
-    #            end
-    #   end
-
-    #   sig
-    # end
 
     # True if this parameter is variadic (the name is equal to '...').
     def variadic?

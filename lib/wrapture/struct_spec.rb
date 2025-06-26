@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2019-2023 Joel E. Anderson
+# Copyright 2019-2025 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,9 +29,9 @@ module Wrapture
       normalized = spec.dup
       normalized.default = []
 
-      normalized['includes'] = Wrapture.normalize_array(spec['includes'])
+      normalized[:includes] = Wrapture.normalize_array(spec[:includes])
 
-      normalized['members'] ||= []
+      normalized[:members] ||= []
 
       normalized
     end
@@ -53,23 +53,23 @@ module Wrapture
     def initialize(spec)
       @spec = StructSpec.normalize_spec_hash(spec)
 
-      @rules = @spec['rules'].map { |rule_spec| RuleSpec.new(rule_spec) }
+      @rules = @spec[:rules].map { |rule_spec| RuleSpec.new(rule_spec) }
     end
 
     # A declaration of the struct with the given variable name.
     def declaration(name)
-      "struct #{@spec['name']} #{name}"
+      "struct #{@spec[:name]} #{name}"
     end
 
     # A list of includes required for this struct.
     def includes
-      @spec['includes'].dup
+      @spec[:includes].dup
     end
 
     # A string containing the typed members of the struct, separated by commas.
     def member_list
-      members = @spec['members'].map do |member|
-        TypeSpec.new(member['type']).variable(member['name'])
+      members = @spec[:members].map do |member|
+        TypeSpec.new(member[:type]).variable(member[:name])
       end
 
       members.join ', '
@@ -78,11 +78,11 @@ module Wrapture
     # A string containing the typed members of the struct, with their default
     # values if provided, separated by commas.
     def member_list_with_defaults
-      @spec['members'].map do |member|
-        member_str = TypeSpec.new(member['type']).variable(member['name'])
+      @spec[:members].map do |member|
+        member_str = TypeSpec.new(member[:type]).variable(member[:name])
 
-        if member.key?('default-value')
-          default_value = member['default-value']
+        if member.key?(:default_value)
+          default_value = member[:default_value]
 
           member_str += ' = '
           member_str += if member['type'] == 'const char *'
@@ -100,22 +100,22 @@ module Wrapture
 
     # The members of the struct
     def members
-      @spec['members']
+      @spec[:members]
     end
 
     # True if there are members included in the struct specification.
     def members?
-      !@spec['members'].empty?
+      !@spec[:members].empty?
     end
 
     # The name of this struct
     def name
-      @spec['name']
+      @spec[:name]
     end
 
     # A declaration of a pointer to the struct with the given variable name.
     def pointer_declaration(name)
-      "struct #{@spec['name']} *#{name}"
+      "struct #{@spec[:name]} *#{name}"
     end
 
     # A string containing an expression that returns true if the struct with

@@ -14,8 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: "ExplicitPointerWrapper"
-namespace: "wrapture_test"
-type: "pointer"
-equivalent_struct:
-  name: "basic_struct"
+name: "c_function_with_args"
+includes:
+  - "c_functions.h"
+params:
+  - "param_1"
+  - name: param_2
+    value: 2
+  - name: param_3
+  - value: 4

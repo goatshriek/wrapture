@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
+# frozen_string_literal: true
+
 # Copyright 2025 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,9 +15,18 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+#
+# require 'helper'
 
-name: "ExplicitPointerWrapper"
-namespace: "wrapture_test"
-type: "pointer"
-equivalent_struct:
-  name: "basic_struct"
+require 'fixture'
+require 'minitest/autorun'
+require 'wrapture'
+
+class CFunctionSpecTest < Minitest::Test
+  def test_c_function_with_args
+    spec = fixture_hash('c_function_with_args')
+    c_func = Wrapture::CFunctionSpec.new(spec)
+
+    assert_equal('c_function_with_args', c_func.name)
+  end
+end

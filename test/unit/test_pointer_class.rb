@@ -24,7 +24,7 @@ require 'wrapture'
 
 class ClassSpecTest < Minitest::Test
   def test_explicit_class
-    test_spec = load_fixture('explicit_pointer_class')
+    test_spec = fixture_hash('explicit_pointer_class')
     spec = Wrapture::ClassSpec.new(test_spec)
     build = Wrapture::CToCpp.wrap_class(spec)
 
@@ -32,13 +32,14 @@ class ClassSpecTest < Minitest::Test
 
     header = build['ExplicitPointerWrapper.hpp']
     declaration = 'struct basic_struct \*equivalent;'
+    puts(header.contents)
 
     assert(source_file_contains_match?(header, declaration))
   end
 
   # TODO: this should be reworked, since it uses c++ specific types in the spec
   def test_overriding_constructor
-    test_spec = load_fixture('constructor_class')
+    test_spec = fixture_hash('constructor_class')
     spec = Wrapture::ClassSpec.new(test_spec)
     build = Wrapture::CToCpp.wrap_class(spec)
 
@@ -51,7 +52,7 @@ class ClassSpecTest < Minitest::Test
   end
 
   def test_pointer_class
-    test_spec = load_fixture('pointer_class')
+    test_spec = fixture_hash('pointer_class')
     spec = Wrapture::ClassSpec.new(test_spec)
     build = Wrapture::CToCpp.wrap_class(spec)
 
@@ -82,7 +83,7 @@ class ClassSpecTest < Minitest::Test
   end
 
   def test_pointer_class_and_child_with_different_struct
-    test_spec = load_fixture('pointer_class_and_child_with_different_struct')
+    test_spec = fixture_hash('pointer_class_and_child_with_different_struct')
     spec = Wrapture::Scope.new(test_spec)
     build = Wrapture::CToCpp.wrap_scope(spec)
 
@@ -101,7 +102,7 @@ class ClassSpecTest < Minitest::Test
 
   def test_pointer_class_with_equivalent_pointer_constructor
     spec_name = 'pointer_class_with_equivalent_pointer_constructor'
-    test_spec = load_fixture(spec_name)
+    test_spec = fixture_hash(spec_name)
     spec = Wrapture::ClassSpec.new(test_spec)
     build = Wrapture::CToCpp.wrap_class(spec)
 
@@ -115,7 +116,7 @@ class ClassSpecTest < Minitest::Test
   end
 
   def test_pointer_class_with_explicit_pointer_constructor
-    test_spec = load_fixture('pointer_class_with_explicit_pointer_constructor')
+    test_spec = fixture_hash('pointer_class_with_explicit_pointer_constructor')
     spec = Wrapture::ClassSpec.new(test_spec)
     build = Wrapture::CToCpp.wrap_class(spec)
 

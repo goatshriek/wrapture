@@ -932,19 +932,19 @@ module Wrapture
     # Equivalent structs and pointers are resolved, as well as casts between
     # types if they are known within the scope of this function.
     def self.resolve_wrapped_param(func_spec, param_hash)
-      used_param = func_spec.params.find { |p| p.name == param_hash['value'] }
+      used_param = func_spec.params.find { |p| p.name == param_hash[:value] }
 
-      if param_hash['value'] == EQUIVALENT_STRUCT_KEYWORD
+      if param_hash[:value] == EQUIVALENT_STRUCT_KEYWORD
         class_struct(func_spec.owner)
-      elsif param_hash['value'] == EQUIVALENT_POINTER_KEYWORD
+      elsif param_hash[:value] == EQUIVALENT_POINTER_KEYWORD
         class_struct_pointer(func_spec.owner)
-      elsif param_hash['value'] == '...'
+      elsif param_hash[:value] == '...'
         'variadic_args'
       elsif param_uses_equivalent?(func_spec, param_hash)
         param_class = func_spec.owner.type(used_param.type)
-        cast_equivalent(param_class, used_param.name, param_hash['type'])
+        cast_equivalent(param_class, used_param.name, param_hash[:type])
       else
-        param_hash['value']
+        param_hash[:value]
       end
     end
 

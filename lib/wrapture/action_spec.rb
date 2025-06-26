@@ -26,8 +26,8 @@ module Wrapture
     def self.normalize_spec_hash(spec)
       normalized = spec.dup
 
-      required_keys = %w[name type]
-      optional_keys = %w[value wrapped-function]
+      required_keys = %i[name type]
+      optional_keys = %i[value wrapped_function]
 
       extra_keys = spec.keys - required_keys - optional_keys
       unless extra_keys.empty?
@@ -41,14 +41,14 @@ module Wrapture
         raise(MissingSpecKey, missing_msg)
       end
 
-      if spec.include?('wrapped-function') && spec.include?('value')
-        extra_msg = 'wrapped-function and value cannot both be present'
+      if spec.include?(:wrapped_function) && spec.include?(:value)
+        extra_msg = 'wrapped_function and value cannot both be present'
         raise(KeyConflict, extra_msg)
       end
 
-      if spec.include?('wrapped-function')
-        wrap = CFunctionSpec.normalize_spec_hash(spec['wrapped-function'])
-        normalized['wrapped-function'] = wrap
+      if spec.include?(:wrapped_function)
+        wrap = CFunctionSpec.normalize_spec_hash(spec[:wrapped_function])
+        normalized[:wrapped_function] = wrap
       end
 
       normalized
@@ -57,7 +57,7 @@ module Wrapture
     # Creates an action spec based on the provided spec hash.
     #
     # The hash must have the following keys:
-    # name:: the type of action to take (currently only throw-exception is
+    # name:: the type of action to take (currently only throw_exception is
     # supported)
     # type:: the type of the exception thrown
     #
@@ -73,8 +73,8 @@ module Wrapture
 
     # A list of includes needed for the action.
     def includes
-      if @spec.include?('wrapped-function')
-        @spec['wrapped-function']['includes'].dup
+      if @spec.include?(:wrapped_function)
+        @spec[:wrapped_function][:includes].dup
       else
         []
       end
@@ -82,17 +82,17 @@ module Wrapture
 
     # The type of exception.
     def type
-      TypeSpec.new(@spec['type'])
+      TypeSpec.new(@spec[:type])
     end
 
     # The value of the action, if one is set.
     def value
-      @spec.fetch('value', nil)
+      @spec.fetch(:value, nil)
     end
 
     # True if this spec has a value defined.
     def value?
-      @spec.include?('value')
+      @spec.include?(:value)
     end
   end
 end

@@ -29,7 +29,7 @@ module Wrapture
     # Returns a copy of the return type specification +spec+.
     def self.normalize_return_hash(spec)
       if spec.nil?
-        { :type => 'void', :includes => [] }
+        { type: 'void', includes: [] }
       else
         normalized = Marshal.load(Marshal.dump(spec))
         Comment.validate_doc(spec[:doc]) if spec.key?(:doc)

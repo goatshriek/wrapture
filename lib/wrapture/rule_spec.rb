@@ -38,10 +38,10 @@ module Wrapture
 
       required_keys = if spec.key?(:member_name)
                         normalized[:type] = 'struct_member'
-                        %w[member_name condition value].freeze
+                        %i[member_name condition value].freeze
                       else
                         normalized[:type] = 'expression'
-                        %w[left_expression condition right_expression].freeze
+                        %i[left_expression condition right_expression].freeze
                       end
 
       missing_keys = required_keys - spec.keys

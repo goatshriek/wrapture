@@ -20,19 +20,19 @@
 
 module Wrapture
   # A string denoting an equivalent struct type or value.
-  EQUIVALENT_STRUCT_KEYWORD = :equivalent_struct
+  EQUIVALENT_STRUCT_KEYWORD = 'equivalent_struct'
 
   # A string denoting a pointer to an equivalent struct type or value.
-  EQUIVALENT_POINTER_KEYWORD = :equivalent_struct_pointer
+  EQUIVALENT_POINTER_KEYWORD = 'equivalent_struct_pointer'
 
   # A string denoting the return value of a wrapped function call.
-  RETURN_VALUE_KEYWORD = :return_value
+  RETURN_VALUE_KEYWORD = 'return_value'
 
   # A string denoting a reference to the object a method is called on.
   SELF_REFERENCE_KEYWORD = 'self_reference'
 
   # A string denoting a reference to a template.
-  TEMPLATE_USE_KEYWORD = :use_template
+  TEMPLATE_USE_KEYWORD = 'use_template'
 
   # A list of all keywords.
   KEYWORDS = [EQUIVALENT_STRUCT_KEYWORD, EQUIVALENT_POINTER_KEYWORD,

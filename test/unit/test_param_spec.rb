@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2020 Joel E. Anderson
+# Copyright 2020-2025 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -34,6 +34,6 @@ class ParamSpecTest < Minitest::Test
   end
 
   def test_variadic_parameter
-    Wrapture::ParamSpec.new({ 'name' => '...' })
+    Wrapture::ParamSpec.new({ name: '...' })
   end
 end

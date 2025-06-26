@@ -28,8 +28,8 @@ class RuleSpecTest < Minitest::Test
 
     spec = Wrapture::RuleSpec.new(test_spec)
 
-    left = test_spec['left-expression']
-    right = test_spec['right-expression']
+    left = test_spec[:left_expression]
+    right = test_spec[:right_expression]
 
     assert_equal("#{left} != #{right}", spec.check)
   end

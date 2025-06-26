@@ -130,22 +130,22 @@ module Wrapture
     # types if they are known within the scope of this function.
     # Expected to be called while @spec is a FunctionSpec.
     def resolve_param(param_spec)
-      used_param = @spec.params.find { |p| p.name == param_spec['value'] }
+      used_param = @spec.params.find { |p| p.name == param_spec[:value] }
 
-      if param_spec['value'] == EQUIVALENT_STRUCT_KEYWORD
+      if param_spec[:value] == EQUIVALENT_STRUCT_KEYWORD
         this_struct
-      elsif param_spec['value'] == EQUIVALENT_POINTER_KEYWORD
+      elsif param_spec[:value] == EQUIVALENT_POINTER_KEYWORD
         this_struct_pointer
-      elsif param_spec['value'] == '...'
+      elsif param_spec[:value] == '...'
         'variadic_args'
       elsif castable?(param_spec)
         param_class = @spec.owner.type(used_param.type)
         cast(param_class,
              used_param.name,
-             param_spec['type'],
+             param_spec[:type],
              used_param.type)
       else
-        param_spec['value']
+        param_spec[:value]
       end
     end
 
@@ -278,7 +278,7 @@ module Wrapture
       param = @spec.params.find { |p| p.name == wrapped_param['value'] }
 
       !param.nil? &&
-        !wrapped_param['type'].nil? &&
+        !wrapped_param[:type].nil? &&
         @spec.owner.type?(param.type)
     end
 
@@ -534,17 +534,17 @@ module Wrapture
 
     # The definition of an enum element.
     def enum_element_definition(element)
-      if element.key?('value')
-        "#{element['name']} = #{element['value']}"
+      if element.key?(:value)
+        "#{element[:name]} = #{element[:value]}"
       else
-        element['name']
+        element[:name]
       end
     end
 
     # Calls the given block once for each line of the documentation for an
     # element.
     def enum_element_doc(element, &block)
-      doc = Comment.new(element.fetch('doc', nil))
+      doc = Comment.new(element.fetch(:doc, nil))
       doc.format_as_doxygen(max_line_length: 74) { |line| block.call(line) }
     end
 
@@ -599,12 +599,12 @@ module Wrapture
       factory_lines << "  return new #{@spec.name}( equivalent );"
       factory_lines << '}'
 
-      { 'name' => ['new'] + @spec.name_words,
-        'static' => true,
-        'params' => [{ 'name' => 'equivalent',
-                       'type' => 'equivalent-struct-pointer' }],
-        'wrapped-code' => { 'lines' => factory_lines },
-        'return' => { 'type' => "#{@spec.name} *" } }
+      { name: ['new'] + @spec.name_words,
+        static: true,
+        params: [{ name: 'equivalent',
+                   type: 'equivalent-struct-pointer' }],
+        wrapped_code: { lines: factory_lines },
+        return: { type: "#{@spec.name} *" } }
     end
 
     # True if the return value of the function's wrapped call is saved.
@@ -700,13 +700,13 @@ module Wrapture
     def initializer_suffix
       return '' if @spec.initializers.empty?
 
-      if @spec.initializers.first['delegate']
-        params = @spec.initializers.first['values'].join(', ')
+      if @spec.initializers.first[:delegate]
+        params = @spec.initializers.first[:values].join(', ')
         return ": #{@spec.owner.name}( #{params} ) "
       end
 
       expressions = @spec.initializers.map do |initializer|
-        "#{initializer['name']}( #{initializer['values'].join(', ')} )"
+        "#{initializer[:name]}( #{initializer[:values].join(', ')} )"
       end
 
       ": #{expressions.join(', ')} "
@@ -715,12 +715,12 @@ module Wrapture
     # A spec hash for a member constructor for this class.
     def member_constructor_hash
       assignments = @spec.struct.members.map do |member|
-        "#{equivalent_member_field(member['name'])} = #{member['name']};"
+        "#{equivalent_member_field(member[:name])} = #{member[:name]};"
       end
 
-      { 'name' => @spec.name,
-        'params' => @spec.struct.members,
-        'wrapped-code' => { 'lines' => assignments } }
+      { name: @spec.name,
+        params: @spec.struct.members,
+        wrapped_code: { lines: assignments } }
     end
 
     # A spec hash for a pointer constructor for this class.
@@ -729,18 +729,18 @@ module Wrapture
                       ['this->equivalent = equivalent;']
                     else
                       @spec.struct.members.map do |member|
-                        lvalue = equivalent_member_field(member['name'])
-                        "#{lvalue} = equivalent->#{member['name']};"
+                        lvalue = equivalent_member_field(member[:name])
+                        "#{lvalue} = equivalent->#{member[:name]};"
                       end
                     end
 
-      spec_hash = { 'name' => @spec.name,
-                    'params' => [{ 'name' => 'equivalent',
-                                   'type' => 'equivalent-struct-pointer' }],
-                    'wrapped-code' => { 'lines' => assignments } }
+      spec_hash = { name: @spec.name,
+                    params: [{ name: 'equivalent',
+                               type: EQUIVALENT_POINTER_KEYWORD }],
+                    wrapped_code: { lines: assignments } }
       if @spec.parent_provides_initializer?
-        spec_hash['initializers'] = [{ 'name' => @spec.parent_name,
-                                       'values' => ['equivalent'] }]
+        spec_hash[:initializers] = [{ name: @spec.parent_name,
+                                      values: ['equivalent'] }]
       end
 
       spec_hash
