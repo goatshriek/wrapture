@@ -38,9 +38,9 @@ module Wrapture
   # the template is used.
   #
   # Templates can be used at any point in a specification by including a Hash
-  # member named +use-template+ which is itself a Hash containing a +name+
+  # member named +use_template+ which is itself a Hash containing a +name+
   # member and optionally a parameter list (see below). When a spec is created
-  # in a scope that has a template with the given name, the +use-template+
+  # in a scope that has a template with the given name, the +use_template+
   # object will be replaced with the template contents. Other members of the
   # Hash will be left intact.
   #
@@ -56,10 +56,10 @@ module Wrapture
   #
   #   classes:
   #     - name: "ClassA"
-  #       use-template:
+  #       use_template:
   #         name: "standard-class-properties"
   #     - name: "ClassB"
-  #       use-template:
+  #       use_template:
   #         name: "standard-class-properties"
   #
   # Which would result in an effective class specification of this:
@@ -77,20 +77,20 @@ module Wrapture
   # the invoking specification will override the template's member.
   #
   # In templates that don't have any parameters, you can save a small bit of
-  # typing by simply setting the value of the +use-template+ member to the name
+  # typing by simply setting the value of the +use_template+ member to the name
   # of the template directly. So, the previous invocation would become this:
   #
   #  classes:
   #    - name: "ClassA"
-  #      use-template: "standard-class-properties"
+  #      use_template: "standard-class-properties"
   #    - name: "ClassB"
-  #      use-template: "standard-class-properties"
+  #      use_template: "standard-class-properties"
   #
   # == Usage in Arrays
   # In some cases, you may want a template to expand to an array of elements
   # that are added to an existing array. This can be accomplished by invoking
   # the template in its own list element and making sure that the
-  # +use-template+ member is the only member of the hash. This will result in
+  # +use_template+ member is the only member of the hash. This will result in
   # the template result being inserted into the list at the point of the
   # template invocation. Consider this example specification snippet:
   #
@@ -102,11 +102,11 @@ module Wrapture
   #         - "macros.h"
   #   classes:
   #     - name: "StupendousMan"
-  #       equivalent-struct:
+  #       equivalent_struct:
   #         name: "stupendous_man"
   #         includes:
   #           - "man.h"
-  #           - use-template:
+  #           - use_template:
   #               name: "default-includes"
   #           - "stupendous.h"
   #
@@ -127,7 +127,7 @@ module Wrapture
   #     - "element-1"
   #     - "element-2"
   #     -
-  #       - use-template:
+  #       - use_template:
   #           name: "list-template"
   #
   # == Usage in other Templates
@@ -160,32 +160,32 @@ module Wrapture
   #   templates:
   #     - name: "simple-function"
   #       value:
-  #         wrapped-function:
+  #         wrapped_function:
   #           name:
   #             is-param: true
-  #             name: "wrapped-function"
+  #             name: "wrapped_function"
   #           params:
-  #             - value: "equivalent-struct-pointer"
+  #             - value: "equivalent_struct_pointer"
   #   classes:
   #     - name: "StupendousMan"
   #       functions:
   #         - name: "crawl"
-  #           use-template:
+  #           use_template:
   #             name: "simple-function"
   #             params:
-  #               name: "wrapped-function"
+  #               name: "wrapped_function"
   #               value: "stupendous_man_crawl"
   #         - name: "walk"
-  #           use-template:
+  #           use_template:
   #             name: "simple-function"
   #             params:
-  #               name: "wrapped-function"
+  #               name: "wrapped_function"
   #               value: "stupendous_man_walk"
   #         - name: "run"
-  #           use-template:
+  #           use_template:
   #             name: "simple-function"
   #             params:
-  #               name: "wrapped-function"
+  #               name: "wrapped_function"
   #               value: "stupendous_man_run"
   #
   # The above would result in a class specification of this:
@@ -193,20 +193,20 @@ module Wrapture
   #  name: "StupendousMan"
   #  functions:
   #    - name: "crawl"
-  #      wrapped-function:
+  #      wrapped_function:
   #            name: "stupendous_man_crawl"
   #            params:
-  #              - value: "equivalent-struct-pointer"
+  #              - value: "equivalent_struct_pointer"
   #    - name: "walk"
-  #      wrapped-function:
+  #      wrapped_function:
   #            name: "stupendous_man_walk"
   #            params:
-  #              - value: "equivalent-struct-pointer"
+  #              - value: "equivalent_struct_pointer"
   #    - name: "run"
-  #      wrapped-function:
+  #      wrapped_function:
   #            name: "stupendous_man_run"
   #            params:
-  #              - value: "equivalent-struct-pointer"
+  #              - value: "equivalent_struct_pointer"
   #
   # == Parameter Replacement
   # The rules for parameter replacement are not as complex as for template
@@ -304,7 +304,7 @@ module Wrapture
 
     # True if the given spec is a reference to this template that will be
     # completely replaced by the template. A direct use can be recognized as
-    # a hash with only a 'use-template' key and no others.
+    # a hash with only a 'use_template' key and no others.
     def direct_use?(spec)
       use?(spec) && spec.length == 1
     end
@@ -372,7 +372,10 @@ module Wrapture
 
     # Replaces a single use of the template in a Hash object.
     def merge_use_with_hash(use)
-      result = instantiate(use[:use_template][:params])
+      params = if use[:use_template].is_a?(Hash)
+                 use[:use_template].fetch(:params, nil)
+               end
+      result = instantiate(params)
 
       error_message = "template #{name} was invoked in a Hash with other " \
                       'keys, but does not resolve to a hash itself'
@@ -413,7 +416,10 @@ module Wrapture
 
       spec.dup.each_index do |i|
         if direct_use?(spec[i])
-          result = instantiate(spec[i][:use_template][:params])
+          params = if spec[i][:use_template].is_a?(Hash)
+                     spec[i][:use_template].fetch(:params, nil)
+                   end
+          result = instantiate(params)
           spec.delete_at(i)
           if result.is_a?(Array)
             spec.insert(i, *result)

@@ -39,12 +39,12 @@ module Wrapture
     # The include list will be an empty array if missing, and an array with
     # a single string if it is a string.
     def self.normalize_spec_hash!(spec)
-      spec['doc'] = '' unless spec.key?('doc')
-      Comment.validate_doc(spec['doc'])
+      spec[:doc] = '' unless spec.key?(:doc)
+      Comment.validate_doc(spec[:doc])
 
-      spec['name'] = Wrapture.normalize_name(spec, 'name')
-      spec['version'] = Wrapture.spec_version(spec)
-      spec['includes'] = Wrapture.normalize_array(spec['includes'])
+      spec[:name] = Wrapture.normalize_name(spec, :name)
+      spec[:version] = Wrapture.spec_version(spec)
+      spec[:includes] = Wrapture.normalize_array(spec[:includes])
 
       spec
     end
@@ -62,8 +62,8 @@ module Wrapture
     # doc:: a string containing the documentation for this constant
     def initialize(spec)
       @spec = ConstantSpec.normalize_spec_hash(spec)
-      @doc = Comment.new(@spec['doc'])
-      @type = TypeSpec.new(@spec['type'])
+      @doc = Comment.new(@spec[:doc])
+      @type = TypeSpec.new(@spec[:type])
     end
 
     # The documentation comment for this constant.
@@ -74,22 +74,22 @@ module Wrapture
 
     # A list of includes needed for the declaration of this constant.
     def declaration_includes
-      @spec['includes'].dup
+      @spec[:includes].dup
     end
 
     # A list of includes needed for the definition of this constant.
     def definition_includes
-      @spec['includes'].dup
+      @spec[:includes].dup
     end
 
     # The name of the constant.
     def name_words
-      @spec['name']
+      @spec[:name]
     end
 
     # The value of the constant.
     def value
-      @spec['value']
+      @spec[:value]
     end
   end
 end

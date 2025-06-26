@@ -75,7 +75,7 @@ module Wrapture
         ClassSpec.normalize_spec_hash!(class_hash)
       end
 
-      spec[:enums] = [] unless spec.key?('enums')
+      spec[:enums] = [] unless spec.key?(:enums)
       spec[:enums].each do |enum_hash|
         EnumSpec.normalize_spec_hash!(enum_hash)
       end

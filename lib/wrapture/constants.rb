@@ -31,11 +31,7 @@ module Wrapture
   # A string denoting a reference to the object a method is called on.
   SELF_REFERENCE_KEYWORD = 'self_reference'
 
-  # A string denoting a reference to a template.
-  TEMPLATE_USE_KEYWORD = 'use_template'
-
   # A list of all keywords.
   KEYWORDS = [EQUIVALENT_STRUCT_KEYWORD, EQUIVALENT_POINTER_KEYWORD,
-              SELF_REFERENCE_KEYWORD, RETURN_VALUE_KEYWORD,
-              TEMPLATE_USE_KEYWORD].freeze
+              SELF_REFERENCE_KEYWORD, RETURN_VALUE_KEYWORD].freeze
 end

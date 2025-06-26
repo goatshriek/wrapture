@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2020 Joel E. Anderson
+# Copyright 2020-2025 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,13 +25,10 @@ require 'wrapture'
 class TemplateSpecTest < Minitest::Test
   def test_hash_template_usage_in_array
     scope_spec = fixture_hash('hash_template_usage_in_array')
-
-    temp = Wrapture::TemplateSpec.new(scope_spec['templates'].first)
-
-    temp.replace_uses(scope_spec['classes'].first)
-    usage = scope_spec['classes'].first
-
-    first_function = usage['functions'].first
+    temp = Wrapture::TemplateSpec.new(scope_spec[:templates].first)
+    temp.replace_uses(scope_spec[:classes].first)
+    usage = scope_spec[:classes].first
+    first_function = usage[:functions].first
 
     assert_instance_of(Hash, first_function)
   end
@@ -41,14 +38,14 @@ class TemplateSpecTest < Minitest::Test
 
     temp = Wrapture::TemplateSpec.new(temp_spec)
 
-    param1 = { 'name' => 'buckle-thing', 'value' => 'shoe' }
-    param2 = { 'name' => 'third-thing', 'value' => 'three times a lady' }
+    param1 = { name: 'buckle-thing', value: 'shoe' }
+    param2 = { name: 'third-thing', value: 'three times a lady' }
 
     actual_result = temp.instantiate([param1, param2])
 
-    expected_result = temp_spec['value'].dup
-    expected_result['key-1'][3] = param1['value']
-    expected_result['key-3']['subkey-3'] = param2['value']
+    expected_result = temp_spec[:value].dup
+    expected_result[:key1][3] = param1[:value]
+    expected_result[:key3][:subkey3] = param2[:value]
 
     assert_equal(expected_result, actual_result)
   end
@@ -92,7 +89,7 @@ class TemplateSpecTest < Minitest::Test
 
     temp = Wrapture::TemplateSpec.new(temp_spec)
 
-    assert_equal(temp_spec['value'], temp.instantiate)
+    assert_equal(temp_spec[:value], temp.instantiate)
   end
 
   def test_param_replacement

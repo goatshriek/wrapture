@@ -41,14 +41,14 @@ class ScopeTest < Minitest::Test
     build = Wrapture::CToCpp.wrap_scope(scope)
 
     assert_equal(scope.classes.count, build.sources.count / 2)
-    assert_equal(scope.name, 'wrapture_test')
+    assert_equal('wrapture_test', scope.name)
   end
 
   def test_nested_templates
     test_spec = fixture_hash('scope_with_nested_templates')
     scope = Wrapture::Scope.new(test_spec)
 
-    assert_equal(test_spec['classes'].count, scope.classes.count)
+    assert_equal(test_spec[:classes].count, scope.classes.count)
     assert_equal(0, scope.enums.count)
 
     build = Wrapture::CToCpp.wrap_scope(scope)
@@ -77,15 +77,15 @@ class ScopeTest < Minitest::Test
     build = Wrapture::CToCpp.wrap_scope(scope)
 
     validate_cpp_build(scope, build)
+    enum_name = test_spec[:enums][0][:name]
+    header_name = "#{enum_name}.hpp"
 
-    enum_name = test_spec['enums'][0]['name']
-    header = build["#{enum_name}.hpp"]
+    assert_includes(build, header_name)
+    header = build[header_name]
 
     refute_nil(header)
-    assert(source_file_contains_match?(header, enum_name))
-
-    test_spec['enums'][0]['elements'].each do |element|
-      assert(source_file_contains_match?(header, element['name']))
+    test_spec[:enums][0][:elements].each do |element|
+      assert(source_file_contains_match?(header, element[:name]))
     end
   end
 
