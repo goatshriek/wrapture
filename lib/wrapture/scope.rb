@@ -176,7 +176,15 @@ module Wrapture
     # not provided, meaning that if the version was not given in both specs
     # then this will be the current Wrapture version.
     def merge_file(spec_filename)
-      new_spec = YAML.safe_load_file(spec_filename)
+      # simplify this to just safe_load_file after Ruby 2.7 is dropped
+      new_spec = if YAML.respond_to?('safe_load_file')
+                   YAML.safe_load_file(spec_filename, symbolize_names: true)
+                 else
+                   File.open(spec_filename, 'r:bom|utf-8') do |f|
+                     YAML.safe_load(f, filename: spec_filename,
+                                       symbolize_names: true)
+                   end
+                 end
       self.class.normalize_spec_hash!(new_spec, *@templates)
 
       both_named = @spec.key?(:name) && new_spec.key?(:name)

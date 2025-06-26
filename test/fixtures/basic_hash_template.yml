@@ -16,9 +16,9 @@
 
 name: "test-hash-template"
 value:
-  key_1: 3
-  key_2: "thing"
-  key_3:
+  key1: 3
+  key2: "thing"
+  key3:
     - "list"
     - "of"
     - "stuff"

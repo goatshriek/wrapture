@@ -124,7 +124,7 @@ module Wrapture
           file.puts
         end
 
-        file.puts('# todo add install command with headers')
+        file.puts('# todo add install command with headers (cmake_build)')
 
         file
       end

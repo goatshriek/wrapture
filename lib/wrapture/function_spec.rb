@@ -269,7 +269,7 @@ module Wrapture
     end
 
     # A resolved type, given a TypeSpec +type+. Resolved types will not have any
-    # placeholders like +equivalent-struct+, which will be resolved to their
+    # placeholders like +equivalent_struct+, which will be resolved to their
     # effective type.
     def resolve_type(type_spec)
       if type_spec.equivalent_struct?

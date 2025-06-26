@@ -48,10 +48,7 @@ module Wrapture
       spec[:error_check] ||= {}
       spec[:error_check][:rules] ||= []
 
-      unless spec.key?(:return)
-        spec[:return] = {}
-        spec[:return][:type] = 'void'
-      end
+      spec[:return] = { type: 'void' } unless spec.key?(:return)
 
       spec
     end

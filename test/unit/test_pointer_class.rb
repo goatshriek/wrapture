@@ -32,7 +32,6 @@ class ClassSpecTest < Minitest::Test
 
     header = build['ExplicitPointerWrapper.hpp']
     declaration = 'struct basic_struct \*equivalent;'
-    puts(header.contents)
 
     assert(source_file_contains_match?(header, declaration))
   end

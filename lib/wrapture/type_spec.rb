@@ -43,7 +43,7 @@ module Wrapture
     #
     # Type specs must have a 'name' key with either the type itself (for example
     # 'const char *') or a keyword specifying some other type (for example
-    # 'equivalent-struct'). The only exception is for function pointers, which
+    # 'equivalent_struct'). The only exception is for function pointers, which
     # instead use a 'function' key that contains a FunctionSpec specification.
     # This specification does not need to be definable, it only needs to have
     # a parameter list and return type for the signature to be clear.

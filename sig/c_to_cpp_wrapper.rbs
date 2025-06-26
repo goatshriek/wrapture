@@ -31,7 +31,7 @@ module Wrapture
     def header_guard: -> String
     def resolve_param: (Wrapture::ParamSpec) -> String
     def source_files: -> Array[String]
-    def write_cmake_files: (?String dir) -> Array[String]
+    # def write_cmake_files: (?String dir) -> Array[String]
 
     private
     def action_expression: (Wrapture::ActionSpec) -> String

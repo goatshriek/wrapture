@@ -55,12 +55,12 @@ class TemplateSpecTest < Minitest::Test
 
     temp = Wrapture::TemplateSpec.new(temp_spec)
 
-    first_key = temp_spec['value'].keys.first
+    first_key = temp_spec[:value].keys.first
     override_val = 67
     usage = { first_key => override_val,
-              'use-template' => { 'name' => temp_spec['name'] } }
+              use_template: { name: temp_spec[:name] } }
 
-    refute_equal(override_val, temp_spec['value'][first_key])
+    refute_equal(override_val, temp_spec[:value][first_key])
     temp.replace_uses(usage)
 
     assert_equal(override_val, usage[first_key])
@@ -78,10 +78,10 @@ class TemplateSpecTest < Minitest::Test
     hash_temp.replace_uses(usage)
     array_temp.replace_uses(usage)
 
-    assert(usage.key?('places'))
-    assert(usage.key?('key-1'))
-    assert_instance_of(Array, usage['other-stuff'])
-    assert_includes(usage['other-stuff'], 'thing-2')
+    assert(usage.key?(:places))
+    assert(usage.key?(:key1))
+    assert_instance_of(Array, usage[:other_stuff])
+    assert_includes(usage[:other_stuff], 'thing-2')
   end
 
   def test_no_param_instantiation
@@ -95,12 +95,12 @@ class TemplateSpecTest < Minitest::Test
   def test_param_replacement
     temp_spec = fixture_hash('template_with_params')
 
-    result = Wrapture::TemplateSpec.replace_param(temp_spec['value'],
+    result = Wrapture::TemplateSpec.replace_param(temp_spec[:value],
                                                   'buckle-thing',
                                                   'shoe')
 
-    assert_equal('shoe', result['key-1'][3])
-    refute_equal('shoe', temp_spec['value']['key-1'][3])
+    assert_equal('shoe', result[:key1][3])
+    refute_equal('shoe', temp_spec[:value][:key1][3])
   end
 
   def test_replace_in_array
@@ -116,7 +116,7 @@ class TemplateSpecTest < Minitest::Test
     assert_includes(usage, 'thing-a')
     assert_includes(usage, 'thing-b')
     assert_kind_of(Hash, usage.last)
-    assert_equal('thing-3', usage.last['key-1'])
+    assert_equal('thing-3', usage.last[:key1])
   end
 
   def test_replace_in_hash
@@ -127,11 +127,11 @@ class TemplateSpecTest < Minitest::Test
 
     temp.replace_uses(usage)
 
-    assert(usage.key?('name'))
-    assert(usage.key?('key-1'))
-    assert(usage.key?('key-2'))
-    assert(usage.key?('key-3'))
-    assert_kind_of(Array, usage['key-3'])
+    assert(usage.key?(:name))
+    assert(usage.key?(:key1))
+    assert(usage.key?(:key2))
+    assert(usage.key?(:key3))
+    assert_kind_of(Array, usage[:key3])
   end
 
   def test_replace_with_no_uses
@@ -151,7 +151,6 @@ class TemplateSpecTest < Minitest::Test
     verbose_usage = fixture_hash('template_usage_in_hash')
 
     temp = Wrapture::TemplateSpec.new(temp_spec)
-
     temp.replace_uses(shorthand_usage)
     temp.replace_uses(verbose_usage)
 
@@ -161,13 +160,13 @@ class TemplateSpecTest < Minitest::Test
   def test_string_template_usage_in_array
     scope_spec = fixture_hash('string_template_usage_in_array')
 
-    temp = Wrapture::TemplateSpec.new(scope_spec['templates'].first)
+    temp = Wrapture::TemplateSpec.new(scope_spec[:templates].first)
 
-    temp.replace_uses(scope_spec['classes'].first)
-    usage = scope_spec['classes'].first
+    temp.replace_uses(scope_spec[:classes].first)
+    usage = scope_spec[:classes].first
 
-    include_list = usage['equivalent-struct']['includes']
-    template_value = scope_spec['templates'].first['value']
+    include_list = usage[:equivalent_struct][:includes]
+    template_value = scope_spec[:templates].first[:value]
 
     assert_includes(include_list, template_value)
   end
@@ -175,11 +174,11 @@ class TemplateSpecTest < Minitest::Test
   def test_string_template_usage_in_hash
     scope_spec = fixture_hash('string_template_usage_in_hash')
 
-    temp = Wrapture::TemplateSpec.new(scope_spec['templates'].first)
+    temp = Wrapture::TemplateSpec.new(scope_spec[:templates].first)
 
-    temp.replace_uses(scope_spec['classes'].first)
-    usage = scope_spec['classes'].first
+    temp.replace_uses(scope_spec[:classes].first)
+    usage = scope_spec[:classes].first
 
-    assert_equal(scope_spec['templates'].first['value'], usage['namespace'])
+    assert_equal(scope_spec[:templates].first[:value], usage[:namespace])
   end
 end

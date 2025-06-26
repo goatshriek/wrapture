@@ -398,7 +398,10 @@ module Wrapture
 
       spec.each_pair do |key, value|
         if direct_use?(value)
-          spec[key] = instantiate(value[:use_template][:params])
+          params = if spec[:use_template].is_a?(Hash)
+                     spec[:use_template].fetch(:params, nil)
+                   end
+          spec[key] = instantiate(params)
           changed = true
         else
           changed ||= replace_uses(value)
