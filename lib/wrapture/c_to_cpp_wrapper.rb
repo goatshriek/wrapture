@@ -620,11 +620,13 @@ module Wrapture
     # True if the function returns the result of the wrapped function call
     # directly without any after actions.
     def function_returns_call_directly?(func_spec)
-      (!func_spec.constructor? &&
-       !func_spec.destructor? &&
-       !func_spec.wrapped.error_check? &&
-       ['void',
-        SELF_REFERENCE_KEYWORD].include?(func_spec.return_type.name)) || func_spec.return_overloaded?
+      !func_spec.constructor? &&
+        !func_spec.destructor? &&
+        !func_spec.wrapped.error_check? &&
+        (['void',
+          SELF_REFERENCE_KEYWORD].include?(func_spec.return_type.name) ||
+        func_spec.return_overloaded? ||
+        func_spec.return_type == func_spec.wrapped.return_val_type)
     end
 
     # True if the function returns the return_val variable.

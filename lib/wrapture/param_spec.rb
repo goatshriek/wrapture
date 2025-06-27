@@ -64,7 +64,7 @@ module Wrapture
     # Normalization will remove duplicate entries from include lists and
     # validate that required key values are set.
     def self.normalize_spec_hash!(spec)
-      Comment.validate_doc(spec['doc']) if spec.key?(:doc)
+      Comment.validate_doc(spec[:doc]) if spec.key?(:doc)
       spec[:includes] = Wrapture.normalize_array(spec[:includes])
 
       spec[:type] = '...' if spec[:name] == '...'

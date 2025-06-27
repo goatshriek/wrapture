@@ -30,7 +30,7 @@ class EnumSpecTest < Minitest::Test
 
     validate_cpp_build(spec, build)
 
-    assert_equal(test_spec['name'], spec.name)
+    assert_equal(test_spec[:name], spec.name)
     assert_equal(1, build.sources.count,
                  'only one file should have been generated')
 
@@ -50,12 +50,12 @@ class EnumSpecTest < Minitest::Test
 
     source = build.sources.first
 
-    assert(source_file_contains_match?(source, test_spec['doc']),
+    assert(source_file_contains_match?(source, test_spec[:doc]),
            'the doc for the enum was not in the definition')
 
-    test_spec['elements'].each do |elem|
-      assert(source_file_contains_match?(source, elem['doc']),
-             "the doc for #{elem['name']} was not in the definition")
+    test_spec[:elements].each do |elem|
+      assert(source_file_contains_match?(source, elem[:doc]),
+             "the doc for #{elem[:name]} was not in the definition")
     end
   end
 
@@ -74,7 +74,7 @@ class EnumSpecTest < Minitest::Test
     spec = Wrapture::EnumSpec.new(test_spec)
     build = Wrapture::CToCpp.wrap_enum(spec)
 
-    assert_equal(test_spec['name'], spec.name)
+    assert_equal(test_spec[:name], spec.name)
     assert_equal(1, build.sources.count,
                  'only one file should have been generated')
 
@@ -102,7 +102,7 @@ class EnumSpecTest < Minitest::Test
   end
 
   def validate_file_matches_spec(filename, spec_hash)
-    enum_name = spec_hash['name']
+    enum_name = spec_hash[:name]
 
     expected_filename = "#{enum_name}.hpp"
 
@@ -114,8 +114,8 @@ class EnumSpecTest < Minitest::Test
     assert(file_contains_match(filename, '#ifndef'),
            'header guard is missing')
 
-    if spec_hash.key?('namespace')
-      namespace = spec_hash['namespace']
+    if spec_hash.key?(:namespace)
+      namespace = spec_hash[:namespace]
 
       assert(file_contains_match(filename, namespace),
              "the enum did not reference the namespace '#{namespace}'")
@@ -125,13 +125,13 @@ class EnumSpecTest < Minitest::Test
            "the enumeration name ('#{enum_name}') was not found in the file")
 
     spec_hash['elements'].each do |element|
-      assert(file_contains_match(filename, element['name']),
-             "enumeration did not have element '#{element['name']}'")
+      assert(file_contains_match(filename, element[:name]),
+             "enumeration did not have element '#{element[:name]}'")
     end
   end
 
   def validate_source_file_matches_enum_spec(source_file, spec_hash)
-    enum_name = spec_hash['name']
+    enum_name = spec_hash[:name]
     expected_filename = "#{enum_name}.hpp"
 
     assert(source_file.path.basename.fnmatch?(expected_filename))
@@ -139,8 +139,8 @@ class EnumSpecTest < Minitest::Test
     assert(source_file_contains_match?(source_file, '#ifndef'),
            'header guard is missing')
 
-    if spec_hash.key?('namespace')
-      namespace = spec_hash['namespace']
+    if spec_hash.key?(:namespace)
+      namespace = spec_hash[:namespace]
 
       assert(source_file_contains_match?(source_file, namespace),
              "the enum did not reference the namespace '#{namespace}'")
@@ -149,9 +149,9 @@ class EnumSpecTest < Minitest::Test
     assert(source_file_contains_match?(source_file, enum_name),
            "the enumeration name ('#{enum_name}') was not found in the file")
 
-    spec_hash['elements'].each do |element|
-      assert(source_file_contains_match?(source_file, element['name']),
-             "enumeration did not have element '#{element['name']}'")
+    spec_hash[:elements].each do |element|
+      assert(source_file_contains_match?(source_file, element[:name]),
+             "enumeration did not have element '#{element[:name]}'")
     end
   end
 end
