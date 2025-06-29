@@ -107,7 +107,7 @@ module Wrapture
     # build command can be issued to build the existing sources.
     def save_build_system(dir = '.')
       if respond_to?(:build_system_sources)
-        build_system_sources.map{ |it| it.save(dir) }
+        build_system_sources.map { |it| it.save(dir) }
       end
     end
   end

@@ -54,7 +54,7 @@ module Wrapture
       # wheel file name is known, it should be given to prevent unintended
       # install behavior.
       def install_commands(python: 'python3',
-                          target: "dist/#{@python_build.name}-*.whl")
+                           target: "dist/#{@python_build.name}-*.whl")
         ["#{python} -m pip install #{target}"]
       end
 
