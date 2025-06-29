@@ -24,32 +24,34 @@ templates:
           type: "int"
       return:
         type: "bool"
-      wrapped-function:
+      wrapped_function:
         name:
-          is-param: true
+          is_param: true
           name: "wrapped-name"
         params:
           - value: "num"
         includes: "magic_math.h"
+        return:
+          type: "bool"
 classes:
   - name: "MagicMath"
     namespace: "magic_stuff"
     libraries: "magic_math"
     functions:
       - name: "IsMagical"
-        use-template:
+        use_template:
           name: "magical-static-function"
           params:
             - name: "wrapped-name"
               value: "is_magical"
       - name: "IsPrime"
-        use-template:
+        use_template:
           name: "magical-static-function"
           params:
             - name: "wrapped-name"
               value: "is_prime"
       - name: "IsRandom"
-        use-template:
+        use_template:
           name: "magical-static-function"
           params:
             - name: "wrapped-name"

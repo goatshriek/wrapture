@@ -620,11 +620,11 @@ module Wrapture
     # True if the function returns the result of the wrapped function call
     # directly without any after actions.
     def function_returns_call_directly?(func_spec)
-      !func_spec.constructor? &&
+      func_spec.return_type.name != 'void' &&
+        !func_spec.constructor? &&
         !func_spec.destructor? &&
         !func_spec.wrapped.error_check? &&
-        (['void',
-          SELF_REFERENCE_KEYWORD].include?(func_spec.return_type.name) ||
+        (func_spec.return_type.name == SELF_REFERENCE_KEYWORD ||
         func_spec.return_overloaded? ||
         func_spec.return_type == func_spec.wrapped.return_val_type)
     end
@@ -701,10 +701,10 @@ module Wrapture
 
     # The return value of a function.
     def return_cast(value)
-      if @spec.return_type == @spec.wrapped.return_val_type
-        value
-      elsif @spec.return_overloaded?
+      if @spec.return_overloaded?
         "new#{@spec.return_type.name.chomp('*').strip} ( #{value} )"
+      elsif @spec.return_type == @spec.wrapped.return_val_type
+        value
       else
         return_type = @spec.resolved_return
         "( #{type_variable(return_type)} )( #{value} )"
@@ -743,7 +743,7 @@ module Wrapture
       elsif @spec.return_type.name != 'void' &&
             !@spec.wrapped.is_a?(CCodeSpec) &&
             !function_returns_call_directly?(@spec)
-        'return return_val;'
+        "return #{return_cast('return_val')};"
       else
         ''
       end
@@ -799,7 +799,7 @@ module Wrapture
 
       if @spec.constructor?
         "this->equivalent = #{call}"
-      elsif @spec.wrapped.error_check?
+      elsif function_captures_return?(@spec)
         "return_val = #{call}"
       elsif function_returns_call_directly?(@spec)
         "return #{return_cast(call)}"

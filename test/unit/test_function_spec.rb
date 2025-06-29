@@ -138,8 +138,7 @@ class FunctionSpecTest < Minitest::Test
     call = test_spec[:wrapped_function][:name]
     Wrapture::CToCppWrapper.define_spec(spec) do |line|
       code = line.strip
-
-      assert(code.start_with?("return #{call}")) if code.start_with?('return')
+      assert(code.start_with?("return #{call}")) if code.start_with?('return ')
     end
   end
 
