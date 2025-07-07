@@ -14,20 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-classes:
-  - name: CmakeCLib
-    namespace: cmakeclib
-    functions:
-      - name: Add
-        static: true
-        params:
-          - name: "n1"
-            type: "int"
-          - name: "n2"
-            type: "int"
-        wrapped_function:
-          name: cmakeclib_add
-          params:
-            - name: n1
-            - name: n2
-          libraries: cmakeclib
+name: Undefinable
+namespace: undefinable
+functions:
+  - name: NoWrappedFunction

@@ -35,6 +35,7 @@ class ScopeTest < Minitest::Test
     test_spec = fixture_hash('minimal_scope')
     scope = Wrapture::Scope.new(test_spec)
 
+    assert_predicate(scope, :definable?)
     assert_equal(test_spec[:classes].count, scope.classes.count)
     assert_equal(0, scope.enums.count)
 
@@ -109,6 +110,13 @@ class ScopeTest < Minitest::Test
     expected_count = (scope.classes.count * 2) + scope.enums.count
 
     assert_equal(expected_count, build.sources.count)
+  end
+
+  def test_undefinable_scope
+    spec_hash = fixture_hash('undefinable_class')
+    class_spec = Wrapture::ClassSpec.new(spec_hash)
+
+    refute_predicate(class_spec.scope, :definable?)
   end
 
   def test_versioned_scope

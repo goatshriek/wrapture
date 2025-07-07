@@ -145,6 +145,11 @@ module Wrapture
       @enums << EnumSpec.new(spec)
     end
 
+    # True if this scope (and everything in it) can be defined.
+    def definable?
+      @classes.all? { |it| it.functions.all?(&:definable?) }
+    end
+
     # An array of includes needed to define everything in this scope.
     def definition_includes
       flat_map(&:definition_includes).uniq

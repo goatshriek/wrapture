@@ -407,6 +407,10 @@ module Wrapture
 
     # Generates a source file with the definition of a module for a scope.
     def self.define_module(scope)
+      unless scope.definable?
+        raise UndefinableSpec, "#{scope.name} is not definable"
+      end
+
       src = CSource::CSourceFile.new("#{scope.name}.c")
 
       src.puts('#define PY_SSIZE_T_CLEAN')

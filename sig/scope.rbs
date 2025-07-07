@@ -30,6 +30,7 @@ module Wrapture
     def <<: ( (Wrapture::TemplateSpec | Wrapture::ClassSpec | Wrapture::EnumSpec) spec) -> Wrapture::Scope
     def add_class_spec_hash: (spec_hash spec) -> Wrapture::ClassSpec
     def add_enum_spec_hash: (spec_hash spec) -> Wrapture::EnumSpec
+    def definable?: -> bool
     def definition_includes: -> Array[String]
     def each: { ((Wrapture::ClassSpec | Wrapture::EnumSpec) spec) -> void } -> void
     def libraries: -> Array[String]
