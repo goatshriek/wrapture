@@ -62,7 +62,7 @@ def run_python_example(name, lib, sources, build_dir)
     # generate, build, and install the python example
     python_build.save
     cflags = "-I#{example_dir} -L#{load_dir}"
-    python_build.build_commands do |cmd|
+    python_build.build_commands.each do |cmd|
       # TODO: using --wheel directly on each cmd is brittle
       sh "CFLAGS=\"#{cflags}\" #{cmd} --wheel"
     end

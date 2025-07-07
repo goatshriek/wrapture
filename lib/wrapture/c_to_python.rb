@@ -540,9 +540,9 @@ module Wrapture
 
       next_val = 0
       enum_spec.elements.each do |it|
-        f.puts("element_name = PyUnicode_FromString( \"#{it['name']}\" );")
+        f.puts("element_name = PyUnicode_FromString( \"#{it[:name]}\" );")
 
-        val = it['value']
+        val = it[:value]
         val = next_val if val.nil?
         f.puts("element_value = PyLong_FromLong( #{val} );")
 
@@ -884,10 +884,10 @@ module Wrapture
     # True if the provided wrapped param spec can be cast to when used in this
     # function. Expects @spec to be a function spec when called.
     def self.param_uses_equivalent?(func_spec, wrapped_param)
-      param = func_spec.params.find { |p| p.name == wrapped_param['value'] }
+      param = func_spec.params.find { |p| p.name == wrapped_param[:value] }
 
       !param.nil? &&
-        !wrapped_param['type'].nil? &&
+        !wrapped_param[:type].nil? &&
         func_spec.owner.type?(param.type)
     end
 
