@@ -22,9 +22,9 @@ require 'fixture'
 require 'minitest/autorun'
 require 'wrapture'
 
-class CBuildTest < Minitest::Test
-  def test_c_build_append
-    build_hash = fixture_hash('c_build')
+class CSourceSetTest < Minitest::Test
+  def test_c_source_set_append
+    build_hash = fixture_hash('c_source_set')
     build = Wrapture::Build::CBuild.from_hash(build_hash)
     added = Wrapture::Build::CBuild.new('appended')
     added.add_lib_link('appended_link')

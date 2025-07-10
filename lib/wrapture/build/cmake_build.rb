@@ -18,6 +18,8 @@
 # limitations under the License.
 #++
 
+require 'wrapture/source_set'
+
 module Wrapture
   module Build
     # A CMake project that builds a library.
@@ -25,42 +27,43 @@ module Wrapture
     # This currently supports C and C++ libraries.
     class CmakeBuild
       include Build
+      include SourceSet
 
-      # The build information for the source code of the library.
-      attr_reader :build_info
+      # The underlying sources for the project.
+      attr_reader :source_set
 
-      # The root path for files in the underlying build.
-      attr_accessor :build_info_dir
+      # The root path for source files.
+      attr_accessor :source_dir
 
       # Creates a CMake build from a provided hash.
       def self.from_hash(spec)
-        unless spec.key?(:c_build) || spec.key?(:cpp_build)
+        unless spec.key?(:c_sources) || spec.key?(:cpp_sources)
           raise(MissingSpecKey,
-                'an underlying c or c++ build must be specified')
+                'an underlying c or c++ source set must be specified')
         end
 
-        build_info = if spec.key?(:c_build)
-                       CBuild.from_hash(spec[:c_build])
+        build_info = if spec.key?(:c_sources)
+                       CSource::CSourceSet.from_hash(spec[:c_sources])
                      else
-                       CppBuild.from_hash(spec[:cpp_build])
+                       CSource::CppSourceSet.from_hash(spec[:cpp_sources])
                      end
 
         new(build_info)
       end
 
-      # Create a CMake build for a given library build.
-      def initialize(build_info)
-        @build_info = build_info
-        @build_info_dir = nil
+      # Create a CMake build for a set of source files.
+      def initialize(source_set)
+        @source_set = source_set
+        @source_dir = nil
       end
 
       # Invocations of CMake to configure and build this project.
       def build_commands
-        ['cmake .', "cmake --build . --target #{@build_info.name}"]
+        ['cmake .', "cmake --build . --target #{@source_set.name}"]
       end
 
       # The sources for the CMake build system.
-      def build_system_sources
+      def build_sources
         [cmake_lists]
       end
 
@@ -73,39 +76,39 @@ module Wrapture
         file = SourceFile.new('CMakeLists.txt')
 
         file.puts('cmake_minimum_required(VERSION 3.10)')
-        file.puts("project(#{@build_info.name})")
+        file.puts("project(#{@source_set.name})")
         file.puts
 
-        path_prefix = if @build_info_dir
-                        file.puts("set(#{@build_info.name.upcase}_DIR")
-                        file.puts("  \"#{@build_info_dir}\"")
+        path_prefix = if @source_dir
+                        file.puts("set(#{@source_set.name.upcase}_DIR")
+                        file.puts("  \"#{@source_dir}\"")
                         file.puts(')')
                         file.puts
 
-                        "${#{@build_info.name.upcase}_DIR}/"
+                        "${#{@source_set.name.upcase}_DIR}/"
                       else
                         ''
                       end
 
-        file.puts("set(#{@build_info.name.upcase}_HEADERS")
-        @build_info.lib_headers.each do |header|
+        file.puts("set(#{@source_set.name.upcase}_HEADERS")
+        @source_set.lib_headers.each do |header|
           file.puts("  \"#{path_prefix}#{header.path}\"")
         end
         file.puts(')')
         file.puts
 
-        unless @build_info.lib_sources.empty?
-          source_list = "#{@build_info.name.upcase}_SOURCES"
+        unless @source_set.lib_sources.empty?
+          source_list = "#{@source_set.name.upcase}_SOURCES"
           file.puts("set(#{source_list}")
-          @build_info.lib_sources.each do |source|
+          @source_set.lib_sources.each do |source|
             file.puts("  \"#{path_prefix}#{source.path}\"")
           end
           file.puts(')')
           file.puts
 
           lib_targets = []
-          @build_info.lib_links.each do |lib|
-            target_name = "#{@build_info.name}_#{lib}"
+          @source_set.lib_links.each do |lib|
+            target_name = "#{@source_set.name}_#{lib}"
             file.puts("find_library(LIB#{lib.upcase}_FOUND #{lib})")
             file.puts("add_library(#{target_name} SHARED IMPORTED)")
             file.puts("set_target_properties(#{target_name} PROPERTIES")
@@ -117,8 +120,8 @@ module Wrapture
           end
 
           lib_deps = lib_targets.join(' ')
-          file.puts("add_library(#{@build_info.name} ${#{source_list}})")
-          file.puts("target_link_libraries(#{@build_info.name}")
+          file.puts("add_library(#{@source_set.name} ${#{source_list}})")
+          file.puts("target_link_libraries(#{@source_set.name}")
           file.puts("  PRIVATE #{lib_deps}")
           file.puts(')')
           file.puts
@@ -134,7 +137,7 @@ module Wrapture
       # This includes CMakeLists.txt as well as the sources of the underlying
       # project.
       def sources
-        build_system_sources + @build_info.sources
+        build_sources + @source_set.sources
       end
     end
   end

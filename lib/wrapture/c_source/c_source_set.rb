@@ -19,10 +19,11 @@
 #++
 
 module Wrapture
-  module Build
-    # Describes a C project including the information required to build it.
-    class CBuild
-      include Build
+  module CSource
+    # Describes a C project with all of the source files, the relationships
+    # between them, and other information required to build it.
+    class CSourceSet
+      include SourceSet
 
       # The header files for the project's library.
       attr_reader :lib_headers
@@ -113,8 +114,8 @@ module Wrapture
       end
     end
 
-    # For now this is equivalent to a C build, but they may diverge in the
+    # For now this is equivalent to a C source set, but they may diverge in the
     # future.
-    CppBuild = CBuild
+    CppSourceSet = CSourceSet
   end
 end

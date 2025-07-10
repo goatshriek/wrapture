@@ -15,14 +15,9 @@
 # limitations under the License.
 
 module Wrapture
-  module CToCpp
-    extend Wrapper
-
-    def self.declare_class: (Wrapture::ClassSpec) -> Wrapture::SourceFile
-    def self.define_class: (Wrapture::ClassSpec) -> Wrapture::SourceFile
-    def self.define_enum: (Wrapture::ClassSpec) -> Wrapture::SourceFile
-    def self.wrap_class: (Wrapture::ClassSpec) -> Wrapture::CppSource::CppSourceSet
-    def self.wrap_enum: (Wrapture::EnumSpec) -> Wrapture::CppSource::CppSourceSet
-    def self.wrap_scope: (Wrapture::Scope) -> Wrapture::CppSource::CppSourceSet
+  module SourceSet
+    def []: (String | Pathname) -> Wrapture::SourceFile
+    def include?: (String | Pathname) -> bool
+    def save: (?(String | Pathname)) -> Array[Pathname]
   end
 end

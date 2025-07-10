@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
+# frozen_string_literal: true
+
 # Copyright 2025 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,15 +16,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-module Wrapture
-  module CToCpp
-    extend Wrapper
+require 'wrapture/cpp_source/cpp_source_set'
 
-    def self.declare_class: (Wrapture::ClassSpec) -> Wrapture::SourceFile
-    def self.define_class: (Wrapture::ClassSpec) -> Wrapture::SourceFile
-    def self.define_enum: (Wrapture::ClassSpec) -> Wrapture::SourceFile
-    def self.wrap_class: (Wrapture::ClassSpec) -> Wrapture::CppSource::CppSourceSet
-    def self.wrap_enum: (Wrapture::EnumSpec) -> Wrapture::CppSource::CppSourceSet
-    def self.wrap_scope: (Wrapture::Scope) -> Wrapture::CppSource::CppSourceSet
+module Wrapture
+  # Classes and utilities for working with C++ source code.
+  module CppSource
   end
 end

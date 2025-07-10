@@ -18,12 +18,15 @@
 # limitations under the License.
 #++
 
+require 'wrapture/source_set'
+
 module Wrapture
   module Build
     # A Python project that builds a module by creating a pyproject.toml file as
     # described in PEP 517.
     class PyprojectBuild
       include Build
+      include SourceSet
 
       # Build information for the Python module.
       attr_reader :python_build
@@ -39,6 +42,11 @@ module Wrapture
       # build command.
       def build_commands(python: 'python3')
         ["#{python} -m build"]
+      end
+
+      # The sources for the PyProject build.
+      def build_sources
+        [pyproject]
       end
 
       # A pip install command that will install this project.
@@ -98,7 +106,7 @@ module Wrapture
       # This includes pyproject.toml as well as the sources of the underlying
       # Python module build.
       def sources
-        [pyproject] + @python_build.sources
+        build_sources + @python_build.sources
       end
     end
   end

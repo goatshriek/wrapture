@@ -15,9 +15,9 @@
 # limitations under the License.
 
 module Wrapture
-  module Build
-    class CBuild
-      include Build
+  module CSource
+    class CppSourceSet
+      include SourceSet
 
       @lib_headers: Array[Wrapture::SourceFile]
       @lib_links: Array[String]
@@ -29,13 +29,13 @@ module Wrapture
       attr_reader lib_sources: Array[Wrapture::SourceFile]
       attr_reader name: String
 
-      def self.from_hash: (spec_hash) -> Wrapture::Build::CBuild
+      def self.from_hash: (spec_hash) -> Wrapture::CSource::CppSourceSet
 
       def initialize: (String) -> void
-      def <<: (Wrapture::Build::CBuild) -> (Wrapture::Build::CBuild)
+      def <<: (Wrapture::CSource::CSourceSet) -> (Wrapture::CSource::CSourceSet)
       def add_lib_header: (Wrapture::SourceFile) -> void
       def add_lib_source: (Wrapture::SourceFile) -> void
-      def add_lib_link: (String) -> void
+      def add_link: (String) -> void
       def sources: -> Array[Wrapture::SourceFile]
     end
   end
