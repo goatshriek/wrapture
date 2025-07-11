@@ -24,18 +24,18 @@ require 'wrapture'
 
 class BuildTest < Minitest::Test
   def test_cmake_c_build_from_hash
-    build_hash = fixture_hash('cmake_c_build')
+    build_hash = fixture_hash('cmake_c_sources')
     build = Wrapture::Build.from_hash(build_hash)
 
     assert_instance_of(Wrapture::Build::CmakeBuild, build)
-    assert_instance_of(Wrapture::Build::CBuild, build.build_info)
+    assert_instance_of(Wrapture::CSource::CSourceSet, build.source_set)
   end
 
   def test_cmake_cpp_build_from_hash
-    build_hash = fixture_hash('cmake_cpp_build')
+    build_hash = fixture_hash('cmake_cpp_sources')
     build = Wrapture::Build.from_hash(build_hash)
 
     assert_instance_of(Wrapture::Build::CmakeBuild, build)
-    assert_instance_of(Wrapture::Build::CppBuild, build.build_info)
+    assert_instance_of(Wrapture::CSource::CSourceSet, build.source_set)
   end
 end

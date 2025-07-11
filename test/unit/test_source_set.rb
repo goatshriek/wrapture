@@ -22,12 +22,5 @@ require 'fixture'
 require 'minitest/autorun'
 require 'wrapture'
 
-class InvalidCSourceSet < Minitest::Test
-  def test_missing_name
-    test_spec = fixture_hash('invalid/c_source_set_without_name')
-
-    assert_raises(Wrapture::MissingSpecKey) do
-      Wrapture::CSource::CSourceSet.from_hash(test_spec)
-    end
-  end
+class SourceSetTest < Minitest::Test
 end

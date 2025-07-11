@@ -24,7 +24,7 @@ require 'wrapture'
 
 class CmakeBuildTest < Minitest::Test
   def test_cmake_c_build_sources
-    build_hash = fixture_hash('cmake_c_build')
+    build_hash = fixture_hash('cmake_c_sources')
     build = Wrapture::Build::CmakeBuild.from_hash(build_hash)
     source_files = build.sources
 

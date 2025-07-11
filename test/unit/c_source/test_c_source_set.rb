@@ -25,8 +25,8 @@ require 'wrapture'
 class CSourceSetTest < Minitest::Test
   def test_c_source_set_append
     build_hash = fixture_hash('c_source_set')
-    build = Wrapture::Build::CBuild.from_hash(build_hash)
-    added = Wrapture::Build::CBuild.new('appended')
+    build = Wrapture::CSource::CSourceSet.from_hash(build_hash)
+    added = Wrapture::CSource::CSourceSet.new('appended')
     added.add_lib_link('appended_link')
     src_file = Wrapture::SourceFile.new('appended_source.c')
     added.add_lib_source(src_file)
@@ -39,10 +39,10 @@ class CSourceSetTest < Minitest::Test
     assert_includes(build.lib_headers, header_file)
   end
 
-  def test_c_build_from_hash
-    build_hash = fixture_hash('c_build')
-    build = Wrapture::Build::CBuild.from_hash(build_hash)
+  def test_c_source_set_from_hash
+    build_hash = fixture_hash('c_source_set')
+    build = Wrapture::CSource::CSourceSet.from_hash(build_hash)
 
-    assert_instance_of(Wrapture::Build::CBuild, build)
+    assert_instance_of(Wrapture::CSource::CSourceSet, build)
   end
 end
