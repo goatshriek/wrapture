@@ -32,21 +32,23 @@ module Wrapture
     # and will set missing keys to their default values (for example, an empty
     # list if no includes are given).
     def self.normalize_spec_hash!(spec)
-      spec['params'] ||= []
-      spec['params'].each do |param_spec|
-        param_spec['value'] = param_spec['name'] if param_spec['value'].nil?
+      spec[:params] ||= []
+      spec[:params] = spec[:params].map do |param_spec|
+        if param_spec.is_a?(String)
+          { value: param_spec }
+        else
+          param_spec[:value] = param_spec[:name] unless param_spec.key?(:value)
+          param_spec
+        end
       end
 
-      spec['includes'] = Wrapture.normalize_array(spec['includes'])
-      spec['libraries'] = Wrapture.normalize_array(spec['libraries'])
+      spec[:includes] = Wrapture.normalize_array(spec[:includes])
+      spec[:libraries] = Wrapture.normalize_array(spec[:libraries])
 
-      spec['error-check'] ||= {}
-      spec['error-check']['rules'] ||= []
+      spec[:error_check] ||= {}
+      spec[:error_check][:rules] ||= []
 
-      unless spec.key?('return')
-        spec['return'] = {}
-        spec['return']['type'] = 'void'
-      end
+      spec[:return] = { type: 'void' } unless spec.key?(:return)
 
       spec
     end
@@ -63,11 +65,13 @@ module Wrapture
     # name:: the name of the wrapped function
     # params:: a list of parameters to supply when calling
     #
-    # Each member of the params list must be a hash, with a mandatory key of
-    # 'value' holding the value to be supplied as the parameter. If only a
-    # 'name' key is provided, this will be used as the value. A 'type' may be
-    # supplied as well, and is necessary if an equivalent struct or pointer is
-    # to be supplied as the value so that casting can be performed correctly.
+    # Each member of the params list must be either a string or a hash. A hash
+    # must have a key of either (or both) 'name' and 'value'. If the value is a
+    # string, then it is equivalent to a hash with the value key set to the
+    # string. If only a 'name' key is provided, this will be used as the value.
+    # A 'type' may be supplied as well, and is necessary if an equivalent struct
+    # or pointer is to be supplied as the value so that casting can be performed
+    # correctly.
     #
     # The following keys are optional:
     # includes:: A list of includes needed for this function.
@@ -77,24 +81,24 @@ module Wrapture
     def initialize(spec)
       @spec = self.class.normalize_spec_hash(spec)
 
-      check = @spec['error-check']
+      check = @spec[:error_check]
 
-      @error_rules = check['rules'].map do |rule_spec|
+      @error_rules = check[:rules].map do |rule_spec|
         RuleSpec.new(rule_spec)
       end
 
-      action = check['error-action']
+      action = check[:error_action]
       @error_action = ActionSpec.new(action) unless @error_rules.empty?
     end
 
     # Generates a function call from a provided wrapper. Parameters and
     # types are resolved using this wrapper's context.
     def call_from(wrapper)
-      resolved_params = @spec['params'].map do |param|
+      resolved_params = @spec[:params].map do |param|
         wrapper.resolve_param(param)
       end
 
-      "#{@spec['name']}( #{resolved_params.join(', ')} )"
+      "#{@spec[:name]}( #{resolved_params.join(', ')} )"
     end
 
     # True if the wrapped function has an error check associated with it.
@@ -104,7 +108,7 @@ module Wrapture
 
     # An array of includes required for this function call.
     def includes
-      includes = @spec['includes'].dup
+      includes = @spec[:includes].dup
 
       includes.concat(@error_action.includes) if error_check?
 
@@ -113,24 +117,24 @@ module Wrapture
 
     # The name of the function.
     def name
-      @spec['name']
+      @spec[:name]
     end
 
     # An array of libraries required for this function call.
     def libraries
-      @spec['libraries'].dup
+      @spec[:libraries].dup
     end
 
     # The parameters for this function.
     def params
-      @spec['params'].dup
+      @spec[:params].dup
     end
 
     # A TypeSpec describing the type of the return value.
     #
     # Changed in release 0.4.2 to return a TypeSpec instead of a String.
     def return_val_type
-      TypeSpec.new(@spec['return']['type'])
+      TypeSpec.new(@spec[:return][:type])
     end
 
     # True if calling this wrapped function needs to save/use the return value

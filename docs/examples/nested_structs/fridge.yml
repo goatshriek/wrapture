@@ -1,12 +1,28 @@
+# SPDX-License-Identifier: Apache-2.0
+
+# Copyright 2025 Joel E. Anderson
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 classes:
   - name: "IceMaker"
     namespace: "kitchen"
     libraries: "fridge"
     includes: "fridge.h"
-    equivalent-struct:
+    equivalent_struct:
       name: "ice_maker"
     constructors:
-      - wrapped-function:
+      - wrapped_function:
           name: "new_ice_maker"
           params:
             - name: "size"
@@ -14,29 +30,29 @@ classes:
             - name: "can_crush_ice"
               type: "int"
           return:
-            type: "equivalent-struct-pointer"
+            type: "equivalent_struct_pointer"
   - name: "WaterFilter"
     namespace: "kitchen"
     libraries: "fridge"
     includes: "fridge.h"
-    equivalent-struct:
+    equivalent_struct:
       name: "water_filter"
     constructors:
-      - wrapped-function:
+      - wrapped_function:
           name: "new_water_filter"
           params:
             - name: "purity_level"
               type: "int"
           return:
-            type: "equivalent-struct-pointer"
+            type: "equivalent_struct_pointer"
   - name: "Freezer"
     namespace: "kitchen"
     libraries: "fridge"
     includes: "fridge.h"
-    equivalent-struct:
+    equivalent_struct:
       name: "freezer"
     constructors:
-      - wrapped-function:
+      - wrapped_function:
           name: "new_freezer"
           params:
             - name: "minimum_temp"
@@ -44,55 +60,55 @@ classes:
             - name: "set_temp"
               type: "int"
           return:
-            type: "equivalent-struct-pointer"
+            type: "equivalent_struct_pointer"
   - name: "Fridge"
     namespace: "kitchen"
     libraries: "fridge"
     includes:
       - "fridge.h"
-    equivalent-struct:
+    equivalent_struct:
       name: "fridge"
     constructors:
-      - wrapped-function:
+      - wrapped_function:
           name: "new_fridge"
           params:
             - name: "temperature"
               type: "int"
           return:
-            type: "equivalent-struct-pointer"
+            type: "equivalent_struct_pointer"
     functions:
       - name: "AddIceMaker"
         params:
           - name: "new_ice_maker"
             type: "IceMaker"
-        wrapped-function:
+        wrapped_function:
           name: "add_ice_maker_to_fridge"
           params:
-            - name: "equivalent-struct-pointer"
+            - name: "equivalent_struct_pointer"
             - name: "new_ice_maker"
               type: "struct ice_maker *"
       - name: "AddWaterFilter"
         params:
           - name: "new_filter"
             type: "WaterFilter"
-        wrapped-function:
+        wrapped_function:
           name: "add_water_filter_to_fridge"
           params:
-            - name: "equivalent-struct-pointer"
+            - name: "equivalent_struct_pointer"
             - name: "new_filter"
               type: "struct water_filter *"
       - name: "AddFreezer"
         params:
           - name: "new_freezer"
             type: "Freezer"
-        wrapped-function:
+        wrapped_function:
           name: "add_freezer_to_fridge"
           params:
-            - name: "equivalent-struct-pointer"
+            - name: "equivalent_struct_pointer"
             - name: "new_freezer"
               type: "struct freezer *"
       - name: "Print"
-        wrapped-function:
+        wrapped_function:
           name: "print_fridge"
           params:
-            - name: "equivalent-struct-pointer"
+            - name: "equivalent_struct_pointer"

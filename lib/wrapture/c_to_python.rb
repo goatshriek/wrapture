@@ -407,6 +407,10 @@ module Wrapture
 
     # Generates a source file with the definition of a module for a scope.
     def self.define_module(scope)
+      unless scope.definable?
+        raise UndefinableSpec, "#{scope.name} is not definable"
+      end
+
       src = CSource::CSourceFile.new("#{scope.name}.c")
 
       src.puts('#define PY_SSIZE_T_CLEAN')
@@ -536,9 +540,9 @@ module Wrapture
 
       next_val = 0
       enum_spec.elements.each do |it|
-        f.puts("element_name = PyUnicode_FromString( \"#{it['name']}\" );")
+        f.puts("element_name = PyUnicode_FromString( \"#{it[:name]}\" );")
 
-        val = it['value']
+        val = it[:value]
         val = next_val if val.nil?
         f.puts("element_value = PyLong_FromLong( #{val} );")
 
@@ -880,10 +884,10 @@ module Wrapture
     # True if the provided wrapped param spec can be cast to when used in this
     # function. Expects @spec to be a function spec when called.
     def self.param_uses_equivalent?(func_spec, wrapped_param)
-      param = func_spec.params.find { |p| p.name == wrapped_param['value'] }
+      param = func_spec.params.find { |p| p.name == wrapped_param[:value] }
 
       !param.nil? &&
-        !wrapped_param['type'].nil? &&
+        !wrapped_param[:type].nil? &&
         func_spec.owner.type?(param.type)
     end
 
@@ -932,19 +936,19 @@ module Wrapture
     # Equivalent structs and pointers are resolved, as well as casts between
     # types if they are known within the scope of this function.
     def self.resolve_wrapped_param(func_spec, param_hash)
-      used_param = func_spec.params.find { |p| p.name == param_hash['value'] }
+      used_param = func_spec.params.find { |p| p.name == param_hash[:value] }
 
-      if param_hash['value'] == EQUIVALENT_STRUCT_KEYWORD
+      if param_hash[:value] == EQUIVALENT_STRUCT_KEYWORD
         class_struct(func_spec.owner)
-      elsif param_hash['value'] == EQUIVALENT_POINTER_KEYWORD
+      elsif param_hash[:value] == EQUIVALENT_POINTER_KEYWORD
         class_struct_pointer(func_spec.owner)
-      elsif param_hash['value'] == '...'
+      elsif param_hash[:value] == '...'
         'variadic_args'
       elsif param_uses_equivalent?(func_spec, param_hash)
         param_class = func_spec.owner.type(used_param.type)
-        cast_equivalent(param_class, used_param.name, param_hash['type'])
+        cast_equivalent(param_class, used_param.name, param_hash[:type])
       else
-        param_hash['value']
+        param_hash[:value]
       end
     end
 
@@ -1006,7 +1010,7 @@ module Wrapture
     # +scope+ describes all of the classes and other entities that will be
     # wrapped. These will all be put into a namespace named after the scope.
     def self.wrap_scope(scope)
-      build = PythonBuild.new(scope.name)
+      build = PythonSource::PythonSourceSet.new(scope.name)
 
       build.add_module_source(define_module(scope))
 

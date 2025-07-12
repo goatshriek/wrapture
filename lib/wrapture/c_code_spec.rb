@@ -32,15 +32,15 @@ module Wrapture
     # lists, and will set missing keys to their default values (for example, an
     # empty list if no includes are given).
     def self.normalize_spec_hash!(spec)
-      spec['includes'] = Wrapture.normalize_array(spec['includes'])
-      spec['libraries'] = Wrapture.normalize_array(spec['libraries'])
+      spec[:includes] = Wrapture.normalize_array(spec[:includes])
+      spec[:libraries] = Wrapture.normalize_array(spec[:libraries])
 
-      spec['error-check'] ||= {}
-      spec['error-check']['rules'] ||= []
+      spec[:error_check] ||= {}
+      spec[:error_check][:rules] ||= []
 
-      unless spec.key?('return')
-        spec['return'] = {}
-        spec['return']['type'] = 'void'
+      unless spec.key?(:return)
+        spec[:return] = {}
+        spec[:return][:type] = 'void'
       end
 
       spec
@@ -59,13 +59,13 @@ module Wrapture
     def initialize(spec)
       @spec = self.class.normalize_spec_hash(spec)
 
-      check = @spec['error-check']
+      check = @spec[:error_check]
 
-      @error_rules = check['rules'].map do |rule_spec|
+      @error_rules = check[:rules].map do |rule_spec|
         RuleSpec.new(rule_spec)
       end
 
-      action = check['error-action']
+      action = check[:error_action]
       @error_action = ActionSpec.new(action) unless @error_rules.empty?
     end
 
@@ -92,7 +92,7 @@ module Wrapture
 
     # A list of includes required for this function call.
     def includes
-      includes = @spec['includes'].dup
+      includes = @spec[:includes].dup
 
       includes.concat(@error_action.includes) if error_check?
 
@@ -101,22 +101,22 @@ module Wrapture
 
     # An array of libraries required for this code.
     def libraries
-      @spec['libraries'].dup
+      @spec[:libraries].dup
     end
 
     # A list of the lines of code wrapped.
     def lines
-      @spec['lines']
+      @spec[:lines]
     end
 
     # A TypeSpec describing the type of the return value.
     def return_val_type
-      TypeSpec.new(@spec['return']['type'])
+      TypeSpec.new(@spec[:return][:type])
     end
 
     # True if calling this wrapped code provides a return value variable.
     def use_return?
-      @spec['return']['type'] != 'void'
+      @spec[:return][:type] != 'void'
     end
   end
 end

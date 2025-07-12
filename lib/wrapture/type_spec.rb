@@ -32,8 +32,8 @@ module Wrapture
     # Normalizes the hash specification of a type in +spec+ in place. This will
     # normalize the include list.
     def self.normalize_spec_hash!(spec)
-      spec['includes'] = Wrapture.normalize_array(spec['includes'])
-      spec['name'] = Wrapture.normalize_name(spec, 'name')
+      spec[:includes] = Wrapture.normalize_array(spec[:includes])
+      spec[:name] = Wrapture.normalize_name(spec, :name)
       spec
     end
 
@@ -43,13 +43,13 @@ module Wrapture
     #
     # Type specs must have a 'name' key with either the type itself (for example
     # 'const char *') or a keyword specifying some other type (for example
-    # 'equivalent-struct'). The only exception is for function pointers, which
+    # 'equivalent_struct'). The only exception is for function pointers, which
     # instead use a 'function' key that contains a FunctionSpec specification.
     # This specification does not need to be definable, it only needs to have
     # a parameter list and return type for the signature to be clear.
     def initialize(spec = 'void')
       actual_spec = if spec.is_a?(String)
-                      { 'name' => spec }
+                      { name: spec }
                     else
                       spec
                     end
@@ -82,25 +82,25 @@ module Wrapture
 
     # True if this type is a function.
     def function?
-      @spec.key?('function')
+      @spec.key?(:function)
     end
 
     # A new FunctionSpec instance from this type, or nil if it is not a
     # function.
     def function
-      FunctionSpec.new(@spec['function']) if function?
+      FunctionSpec.new(@spec[:function]) if function?
     end
 
     # A list of includes needed for this type.
     def includes
-      includes = @spec['includes'].dup
+      includes = @spec[:includes].dup
       includes.concat(function.declaration_includes) if function?
       includes.uniq
     end
 
     # The words that make up the function name.
     def name_words
-      @spec['name']
+      @spec[:name]
     end
 
     # True if this type is a pointer.

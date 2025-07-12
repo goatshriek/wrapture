@@ -21,7 +21,7 @@ def run_cpp_example(name, lib, sources, build_dir)
 
   scope = Wrapture::Scope.load_files("#{example_dir}/#{lib}.yml")
   build = Wrapture::CToCpp.wrap_scope(scope)
-  Wrapture::CmakeBuild.new(build).write_sources(build_dir)
+  Wrapture::Build::CmakeBuild.new(build).save(build_dir)
 
   Dir.chdir(build_dir) do
     usage_opts = "-I. -I#{example_dir} -o #{lib}_usage_cpp"
@@ -49,7 +49,7 @@ def run_python_example(name, lib, sources, build_dir)
 
   scope = Wrapture::Scope.load_files("#{example_dir}/#{lib}.yml")
   build = Wrapture::CToPython.wrap_scope(scope)
-  python_build = Wrapture::PyprojectBuild.new(build)
+  python_build = Wrapture::Build::PyprojectBuild.new(build)
 
   Dir.chdir(build_dir) do
     # build the shared library if needed
@@ -60,11 +60,16 @@ def run_python_example(name, lib, sources, build_dir)
     end
 
     # generate, build, and install the python example
-    python_build.write_sources
+    python_build.save
     cflags = "-I#{example_dir} -L#{load_dir}"
-    sh "CFLAGS=\"#{cflags}\" #{python_build.build_command} --wheel"
+    python_build.build_commands.each do |cmd|
+      # TODO: using --wheel directly on each cmd is brittle
+      sh "CFLAGS=\"#{cflags}\" #{cmd} --wheel"
+    end
     sh 'python3 -m venv usage-env'
-    sh python_build.install_command(python: 'usage-env/bin/python3')
+    python_build.install_commands(python: 'usage-env/bin/python3').each do |cmd|
+      sh cmd
+    end
     envs = 'LD_LIBRARY_PATH=.'
     sh "#{envs} usage-env/bin/python3 #{example_dir}/#{lib}_usage.py"
   end

@@ -1,17 +1,33 @@
-version: "0.3.0"
+# SPDX-License-Identifier: Apache-2.0
+
+# Copyright 2025 Joel E. Anderson
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+version: "0.6.0"
 classes:
   - name: "SecurityEvent"
     namespace: "home_automation"
     libraries: "security_system"
-    equivalent-struct:
+    equivalent_struct:
       name: "event"
       includes: "security_system.h"
     constructors:
-      - wrapped-function:
+      - wrapped_function:
           name: "new_default_event"
           return:
-            type: "equivalent-struct-pointer"
-      - wrapped-function:
+            type: "equivalent_struct_pointer"
+      - wrapped_function:
           name: "new_event"
           params:
             - name: "code"
@@ -19,108 +35,108 @@ classes:
             - name: "data"
               type: "void *"
           return:
-            type: "equivalent-struct-pointer"
+            type: "equivalent_struct_pointer"
     destructor:
-      wrapped-function:
+      wrapped_function:
         name: "destroy_event"
         params:
-          - value: "equivalent-struct-pointer"
+          - value: "equivalent_struct_pointer"
     functions:
       - name: "NextEvent"
         static: true
         return:
           type: "SecurityEvent *"
           overloaded: true
-        wrapped-function:
+        wrapped_function:
           name: "get_next_event"
           includes: "security_system.h"
           return:
-            type: "equivalent-struct-pointer"
+            type: "equivalent_struct_pointer"
       - name: "Print"
         virtual: true
-        wrapped-function:
+        wrapped_function:
           name: "print_event"
           includes: "security_system.h"
           params:
-            - value: "equivalent-struct-pointer"
+            - value: "equivalent_struct_pointer"
   - name: "CameraEvent"
     namespace: "home_automation"
     libraries: "security_system"
     parent:
       name: "SecurityEvent"
-    equivalent-struct:
+    equivalent_struct:
       name: "event"
       includes: "security_system.h"
       rules:
-        - member-name: "code"
+        - member_name: "code"
           condition: "equals"
           value: "CAMERA_EVENT"
     constructors:
-      - wrapped-function:
+      - wrapped_function:
           name: "new_camera_event"
           params:
             - name: "description"
               type: "const char *"
           return:
-            type: "equivalent-struct-pointer"
+            type: "equivalent_struct_pointer"
     functions:
       - name: "Print"
-        wrapped-function:
+        wrapped_function:
           name: "print_camera_event"
           includes: "security_system.h"
           params:
-            - value: "equivalent-struct-pointer"
+            - value: "equivalent_struct_pointer"
   - name: "GlassBreakEvent"
     namespace: "home_automation"
     libraries: "security_system"
     parent:
       name: "SecurityEvent"
-    equivalent-struct:
+    equivalent_struct:
       name: "event"
       includes: "security_system.h"
       rules:
-        - member-name: "code"
+        - member_name: "code"
           condition: "equals"
           value: "GLASS_BREAK_EVENT"
     constructors:
-      - wrapped-function:
+      - wrapped_function:
           name: "new_glass_break_event"
           params:
             - name: "level"
               type: "int"
           return:
-            type: "equivalent-struct-pointer"
+            type: "equivalent_struct_pointer"
     functions:
       - name: "Print"
-        wrapped-function:
+        wrapped_function:
           name: "print_glass_break_event"
           includes: "security_system.h"
           params:
-            - value: "equivalent-struct-pointer"
+            - value: "equivalent_struct_pointer"
   - name: "MotionEvent"
     namespace: "home_automation"
     libraries: "security_system"
     parent:
       name: "SecurityEvent"
-    equivalent-struct:
+    equivalent_struct:
       name: "event"
       includes: "security_system.h"
       rules:
-        - member-name: "code"
+        - member_name: "code"
           condition: "equals"
           value: "MOTION_EVENT"
     constructors:
-      - wrapped-function:
+      - wrapped_function:
           name: "new_motion_event"
           params:
             - name: "description"
               type: "const char *"
           return:
-            type: "equivalent-struct-pointer"
+            type: "equivalent_struct_pointer"
     functions:
       - name: "Print"
-        wrapped-function:
+        wrapped_function:
           name: "print_motion_event"
           includes: "security_system.h"
           params:
-            - value: "equivalent-struct-pointer"
+            - value: "equivalent_struct_pointer"

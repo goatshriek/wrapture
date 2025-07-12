@@ -1,48 +1,66 @@
+# SPDX-License-Identifier: Apache-2.0
+
+# Copyright 2025 Joel E. Anderson
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 classes:
   - name: "Item"
     namespace: "library"
     libraries: "mylib"
-    equivalent-struct:
+    equivalent_struct:
       name: "mylib_item"
       includes: "mylib.h"
       members:
         - name: "name"
           type: "const char *"
-          default-value: "NULL"
+          default_value: "NULL"
         - name: "checked_out"
           type: "bool"
-          default-value: false
+          default_value: false
     functions:
       - name: CheckOut
-        wrapped-function:
+        wrapped_function:
           name: "check_out_item"
           params:
-            - name: "equivalent-struct-pointer"
+            - name: "equivalent_struct_pointer"
           includes: "mylib.h"
   - name: "Book"
     namespace: "library"
     libraries: "mylib"
     parent:
       name: "Item"
-    equivalent-struct:
+    equivalent_struct:
       name: "mylib_item"
       includes: "mylib.h"
       members:
         - name: "name"
           type: "const char *"
-          default-value: "NULL"
+          default_value: "NULL"
         - name: "checked_out"
           type: "bool"
-          default-value: false
+          default_value: false
         - name: "page_count"
           type: "int"
-          default-value: 0
+          default_value: 0
     functions:
       - name: GetPageCount
         return:
           type: "int"
-        wrapped-function:
+        wrapped_function:
           name: "get_page_count"
           params:
-            - name: "equivalent-struct-pointer"
+            - name: "equivalent_struct_pointer"
           includes: "mylib.h"
+          return:
+            type: "int"

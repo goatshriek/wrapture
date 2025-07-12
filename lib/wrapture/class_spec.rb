@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2019-2024 Joel E. Anderson
+# Copyright 2019-2025 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -28,18 +28,18 @@ module Wrapture
 
     # Gives the effective type of the given class spec hash.
     def self.effective_type(spec)
-      inferred_pointer_wrapper = spec['constructors'].any? do |func|
-        func['wrapped-function']['return']['type'] == EQUIVALENT_POINTER_KEYWORD
+      inferred_pointer_wrapper = spec[:constructors].any? do |func|
+        func[:wrapped_function][:return][:type] == EQUIVALENT_POINTER_KEYWORD
       end
 
-      if spec.key?('type')
+      if spec.key?(:type)
         valid_types = %w[pointer struct]
-        unless valid_types.include?(spec['type'])
-          type_message = "#{spec['type']} is not a valid class type"
+        unless valid_types.include?(spec[:type])
+          type_message = "#{spec[:type]} is not a valid class type"
           raise InvalidSpecKey.new(type_message, valid_keys: valid_types)
         end
 
-        spec['type']
+        spec[:type]
       elsif inferred_pointer_wrapper
         'pointer'
       else
@@ -69,36 +69,36 @@ module Wrapture
     def self.normalize_spec_hash!(spec, *templates)
       TemplateSpec.replace_all_uses(spec, *templates)
 
-      raise MissingNamespace unless spec.key?('namespace')
-      raise MissingSpecKey, 'name key is required' unless spec.key?('name')
+      raise MissingNamespace unless spec.key?(:namespace)
+      raise MissingSpecKey, 'name key is required' unless spec.key?(:name)
 
-      spec['name'] = Wrapture.normalize_name(spec, 'name')
+      spec[:name] = Wrapture.normalize_name(spec, :name)
 
-      if spec.key?('doc')
-        Comment.validate_doc(spec['doc'])
+      if spec.key?(:doc)
+        Comment.validate_doc(spec[:doc])
       else
-        spec['doc'] = ''
+        spec[:doc] = ''
       end
 
-      spec['constants'] = [] unless spec.key?('constants')
-      spec['constructors'] = [] unless spec.key?('constructors')
-      spec['functions'] = [] unless spec.key?('functions')
+      spec[:constants] = [] unless spec.key?(:constants)
+      spec[:constructors] = [] unless spec.key?(:constructors)
+      spec[:functions] = [] unless spec.key?(:functions)
 
-      spec['version'] = Wrapture.spec_version(spec)
-      spec['includes'] = Wrapture.normalize_array(spec['includes'])
-      spec['libraries'] = Wrapture.normalize_array(spec['libraries'])
-      spec['type'] = ClassSpec.effective_type(spec)
+      spec[:version] = Wrapture.spec_version(spec)
+      spec[:includes] = Wrapture.normalize_array(spec[:includes])
+      spec[:libraries] = Wrapture.normalize_array(spec[:libraries])
+      spec[:type] = ClassSpec.effective_type(spec)
 
-      if spec.key?('parent')
-        includes = Wrapture.normalize_array(spec['parent']['includes'])
-        spec['parent']['includes'] = includes
+      if spec.key?(:parent)
+        includes = Wrapture.normalize_array(spec[:parent][:includes])
+        spec[:parent][:includes] = includes
       end
 
-      spec['exception'] = if spec.key?('exception') && spec['exception']
-                            true
-                          else
-                            false
-                          end
+      spec[:exception] = if spec.key?(:exception) && spec[:exception]
+                           true
+                         else
+                           false
+                         end
 
       spec
     end
@@ -126,7 +126,7 @@ module Wrapture
     # The hash must have the following keys:
     # name:: the name of the class, in CamelCase
     # namespace:: the namespace to put the class into
-    # equivalent-struct:: a hash describing the struct this class wraps
+    # equivalent_struct:: a hash describing the struct this class wraps
     #
     # The following keys are optional:
     # constants:: A list of constant specs that are in this class.
@@ -140,34 +140,34 @@ module Wrapture
     def initialize(spec, scope: Scope.new)
       @spec = ClassSpec.normalize_spec_hash(spec, *scope.templates)
 
-      @struct = if @spec.key?(EQUIVALENT_STRUCT_KEYWORD)
-                  StructSpec.new(@spec[EQUIVALENT_STRUCT_KEYWORD])
+      @struct = if @spec.key?(:equivalent_struct)
+                  StructSpec.new(@spec[:equivalent_struct])
                 end
 
-      @functions = @spec['constructors'].map do |constructor_spec|
+      @functions = @spec[:constructors].map do |constructor_spec|
         full_spec = constructor_spec.dup
-        full_spec['name'] = @spec['name']
-        full_spec['params'] = constructor_spec['wrapped-function']['params']
+        full_spec[:name] = @spec[:name]
+        full_spec[:params] = constructor_spec[:wrapped_function][:params]
 
         FunctionSpec.new(full_spec, self, constructor: true)
       end
 
-      if @spec.key?('destructor')
-        destructor_spec = @spec['destructor'].dup
-        destructor_spec['name'] = @spec['name']
+      if @spec.key?(:destructor)
+        destructor_spec = @spec[:destructor].dup
+        destructor_spec[:name] = @spec[:name]
 
         @functions << FunctionSpec.new(destructor_spec, self, destructor: true)
       end
 
-      @spec['functions'].each do |function_spec|
+      @spec[:functions].each do |function_spec|
         @functions << FunctionSpec.new(function_spec, self)
       end
 
-      @constants = @spec['constants'].map do |constant_spec|
+      @constants = @spec[:constants].map do |constant_spec|
         ConstantSpec.new(constant_spec)
       end
 
-      @doc = Comment.new(@spec['doc'])
+      @doc = Comment.new(@spec[:doc])
 
       scope << self
       @scope = scope
@@ -175,7 +175,7 @@ module Wrapture
 
     # True if the class has a parent.
     def child?
-      @spec.key?('parent')
+      @spec.key?(:parent)
     end
 
     # A list of constructor functions for the class.
@@ -185,7 +185,7 @@ module Wrapture
 
     # A list of includes needed for the declaration of the class.
     def declaration_includes
-      includes = @spec['includes'].dup
+      includes = @spec[:includes].dup
 
       includes.concat(@struct.includes) if @struct
 
@@ -197,14 +197,14 @@ module Wrapture
         includes.concat(const.declaration_includes)
       end
 
-      includes.concat(@spec['parent']['includes']) if child?
+      includes.concat(@spec[:parent][:includes]) if child?
 
       includes.uniq
     end
 
     # A list of includes needed for the definition of the class.
     def definition_includes
-      includes = @spec['includes'].dup
+      includes = @spec[:includes].dup
 
       includes.concat(@struct.includes) if @struct
 
@@ -247,7 +247,7 @@ module Wrapture
 
     # True if this class is an exception.
     def exception?
-      @spec['exception']
+      @spec[:exception]
     end
 
     # True if this class can be used as a factory for children classes that it
@@ -258,7 +258,7 @@ module Wrapture
 
     # An array of libraries needed for everything in this class.
     def libraries
-      @functions.flat_map(&:libraries).concat(@spec['libraries'])
+      @functions.flat_map(&:libraries).concat(@spec[:libraries])
     end
 
     # An array of methods of the class. This is a subset of the list of
@@ -272,12 +272,12 @@ module Wrapture
 
     # The words that make up the function name.
     def name_words
-      @spec['name']
+      @spec[:name]
     end
 
     # The namespace of the class.
     def namespace
-      @spec['namespace']
+      @spec[:namespace]
     end
 
     # True if this class overloads the given one. A class is considered an
@@ -303,7 +303,7 @@ module Wrapture
     # The name of the parent of this class, or nil if there is no parent.
     def parent_name
       # TODO: this needs to use the actual class spec method instead of the hash
-      @spec['parent']['name'] if child?
+      @spec[:parent][:name] if child?
     end
 
     # True if the parent of this class provides an initializer taking a pointer
@@ -325,7 +325,7 @@ module Wrapture
 
     # Determines if this class is a wrapper for a struct pointer or not.
     def pointer_wrapper?
-      @spec['type'] == 'pointer'
+      @spec[:type] == 'pointer'
     end
 
     # The name of the equivalent struct of this class.

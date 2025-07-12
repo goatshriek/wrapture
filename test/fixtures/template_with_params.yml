@@ -1,17 +1,33 @@
+# SPDX-License-Identifier: Apache-2.0
+
+# Copyright 2025 Joel E. Anderson
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 name: "template-with-params"
 value:
-  key-1:
+  key1:
     - "one"
     - "two"
     - "buckle my"
-    - is-param: true
+    - is_param: true
       name: "buckle-thing"
-  key-2:
-    subkey-1: "nothing to see here"
-    subkey-2: "just a simple object"
-  key-3:
-    subkey-1: "one is the loneliest number"
-    subkey-2: "two tickets to paradise"
-    subkey-3:
-      is-param: true
+  key2:
+    subkey1: "nothing to see here"
+    subkey2: "just a simple object"
+  key3:
+    subkey1: "one is the loneliest number"
+    subkey2: "two tickets to paradise"
+    subkey3:
+      is_param: true
       name: "third-thing"

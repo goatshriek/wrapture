@@ -87,7 +87,7 @@ def count_source_file_matches(source_file, regex)
   count
 end
 
-def file_contains_match(filename, regex)
+def file_contains_match?(filename, regex)
   File.open(filename).each do |line|
     return true if line.match(regex)
   end
@@ -130,7 +130,7 @@ def refute_keywords_found(filename)
   end
 end
 
-def source_file_contains_match(source_file, regex)
+def source_file_contains_match?(source_file, regex)
   source_file.contents.each do |line|
     return true if line.match(regex)
   end

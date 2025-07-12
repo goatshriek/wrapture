@@ -1,27 +1,43 @@
+# SPDX-License-Identifier: Apache-2.0
+
+# Copyright 2025 Joel E. Anderson
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 templates:
   - name: "dr-seuss-class"
     value:
       namespace: "wrapture_test"
-      equivalent-struct:
+      equivalent_struct:
         name:
-          is-param: true
+          is_param: true
           name: "equivalent-struct-name"
         includes:
-          is-param: true
+          is_param: true
           name: "include-list"
       functions:
         - name: "to_string"
           return:
             type: "const char *"
-          wrapped-function:
+          wrapped_function:
             name:
-              is-param: true
+              is_param: true
               name: "to-string-function-name"
             params:
-              - value: "equivalent-struct-pointer"
+              - value: "equivalent_struct_pointer"
 classes:
   - name: "OneClass"
-    use-template:
+    use_template:
       name: "dr-seuss-class"
       params:
         - name: "equivalent-struct-name"
@@ -31,7 +47,7 @@ classes:
         - name: "to-string-function-name"
           value: "one_struct_to_string"
   - name: "TwoClass"
-    use-template:
+    use_template:
       name: "dr-seuss-class"
       params:
         - name: "equivalent-struct-name"
@@ -41,7 +57,7 @@ classes:
         - name: "to-string-function-name"
           value: "two_struct_to_string"
   - name: "RedClass"
-    use-template:
+    use_template:
       name: "dr-seuss-class"
       params:
         - name: "equivalent-struct-name"
@@ -51,7 +67,7 @@ classes:
         - name: "to-string-function-name"
           value: "red_struct_to_string"
   - name: "BlueClass"
-    use-template:
+    use_template:
       name: "dr-seuss-class"
       params:
         - name: "equivalent-struct-name"

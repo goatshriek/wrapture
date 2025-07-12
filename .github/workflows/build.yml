@@ -10,7 +10,6 @@ on:
 jobs:
   matrix-builds:
     runs-on: ubuntu-latest
-    continue-on-error: true
     strategy:
       matrix:
         ruby: ['2.7', '3.0', '3.1', '3.2', '3.3', '3.4', 'jruby-9.4.12', 'truffleruby-head']
@@ -52,7 +51,7 @@ jobs:
         run: bundle exec rake examples:cpp
   python:
     runs-on: ubuntu-latest
-    name: python runtime tests
+    name: python integration tests
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
       - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1.229.0
@@ -68,7 +67,7 @@ jobs:
       - name: Install Prereqs
         run: pip3 install build setuptools
       - name: Run Python Tests
-        run: bundle exec rake test:python
+        run: bundle exec rake test:integration:python
       - name: Run Python Examples
         run: bundle exec rake examples:python
   docker:

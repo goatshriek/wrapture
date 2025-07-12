@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2020-2023 Joel E. Anderson
+# Copyright 2020-2025 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -38,9 +38,9 @@ module Wrapture
   # the template is used.
   #
   # Templates can be used at any point in a specification by including a Hash
-  # member named +use-template+ which is itself a Hash containing a +name+
+  # member named +use_template+ which is itself a Hash containing a +name+
   # member and optionally a parameter list (see below). When a spec is created
-  # in a scope that has a template with the given name, the +use-template+
+  # in a scope that has a template with the given name, the +use_template+
   # object will be replaced with the template contents. Other members of the
   # Hash will be left intact.
   #
@@ -56,10 +56,10 @@ module Wrapture
   #
   #   classes:
   #     - name: "ClassA"
-  #       use-template:
+  #       use_template:
   #         name: "standard-class-properties"
   #     - name: "ClassB"
-  #       use-template:
+  #       use_template:
   #         name: "standard-class-properties"
   #
   # Which would result in an effective class specification of this:
@@ -77,20 +77,20 @@ module Wrapture
   # the invoking specification will override the template's member.
   #
   # In templates that don't have any parameters, you can save a small bit of
-  # typing by simply setting the value of the +use-template+ member to the name
+  # typing by simply setting the value of the +use_template+ member to the name
   # of the template directly. So, the previous invocation would become this:
   #
   #  classes:
   #    - name: "ClassA"
-  #      use-template: "standard-class-properties"
+  #      use_template: "standard-class-properties"
   #    - name: "ClassB"
-  #      use-template: "standard-class-properties"
+  #      use_template: "standard-class-properties"
   #
   # == Usage in Arrays
   # In some cases, you may want a template to expand to an array of elements
   # that are added to an existing array. This can be accomplished by invoking
   # the template in its own list element and making sure that the
-  # +use-template+ member is the only member of the hash. This will result in
+  # +use_template+ member is the only member of the hash. This will result in
   # the template result being inserted into the list at the point of the
   # template invocation. Consider this example specification snippet:
   #
@@ -102,11 +102,11 @@ module Wrapture
   #         - "macros.h"
   #   classes:
   #     - name: "StupendousMan"
-  #       equivalent-struct:
+  #       equivalent_struct:
   #         name: "stupendous_man"
   #         includes:
   #           - "man.h"
-  #           - use-template:
+  #           - use_template:
   #               name: "default-includes"
   #           - "stupendous.h"
   #
@@ -127,7 +127,7 @@ module Wrapture
   #     - "element-1"
   #     - "element-2"
   #     -
-  #       - use-template:
+  #       - use_template:
   #           name: "list-template"
   #
   # == Usage in other Templates
@@ -160,32 +160,32 @@ module Wrapture
   #   templates:
   #     - name: "simple-function"
   #       value:
-  #         wrapped-function:
+  #         wrapped_function:
   #           name:
   #             is-param: true
-  #             name: "wrapped-function"
+  #             name: "wrapped_function"
   #           params:
-  #             - value: "equivalent-struct-pointer"
+  #             - value: "equivalent_struct_pointer"
   #   classes:
   #     - name: "StupendousMan"
   #       functions:
   #         - name: "crawl"
-  #           use-template:
+  #           use_template:
   #             name: "simple-function"
   #             params:
-  #               name: "wrapped-function"
+  #               name: "wrapped_function"
   #               value: "stupendous_man_crawl"
   #         - name: "walk"
-  #           use-template:
+  #           use_template:
   #             name: "simple-function"
   #             params:
-  #               name: "wrapped-function"
+  #               name: "wrapped_function"
   #               value: "stupendous_man_walk"
   #         - name: "run"
-  #           use-template:
+  #           use_template:
   #             name: "simple-function"
   #             params:
-  #               name: "wrapped-function"
+  #               name: "wrapped_function"
   #               value: "stupendous_man_run"
   #
   # The above would result in a class specification of this:
@@ -193,20 +193,20 @@ module Wrapture
   #  name: "StupendousMan"
   #  functions:
   #    - name: "crawl"
-  #      wrapped-function:
+  #      wrapped_function:
   #            name: "stupendous_man_crawl"
   #            params:
-  #              - value: "equivalent-struct-pointer"
+  #              - value: "equivalent_struct_pointer"
   #    - name: "walk"
-  #      wrapped-function:
+  #      wrapped_function:
   #            name: "stupendous_man_walk"
   #            params:
-  #              - value: "equivalent-struct-pointer"
+  #              - value: "equivalent_struct_pointer"
   #    - name: "run"
-  #      wrapped-function:
+  #      wrapped_function:
   #            name: "stupendous_man_run"
   #            params:
-  #              - value: "equivalent-struct-pointer"
+  #              - value: "equivalent_struct_pointer"
   #
   # == Parameter Replacement
   # The rules for parameter replacement are not as complex as for template
@@ -241,9 +241,9 @@ module Wrapture
     # True if the provided spec is a template parameter with the given name.
     def self.param?(spec, param_name)
       spec.is_a?(Hash) &&
-        spec.key?('is-param') &&
-        spec['is-param'] &&
-        spec['name'] == param_name
+        spec.key?(:is_param) &&
+        spec[:is_param] &&
+        spec[:name] == param_name
     end
 
     # Creates a new spec based on the given one with all instances of a
@@ -304,7 +304,7 @@ module Wrapture
 
     # True if the given spec is a reference to this template that will be
     # completely replaced by the template. A direct use can be recognized as
-    # a hash with only a 'use-template' key and no others.
+    # a hash with only a 'use_template' key and no others.
     def direct_use?(spec)
       use?(spec) && spec.length == 1
     end
@@ -312,12 +312,12 @@ module Wrapture
     # Returns a spec hash of this template with the provided parameters
     # substituted.
     def instantiate(params = nil)
-      result_spec = Marshal.load(Marshal.dump(@spec['value']))
+      result_spec = Marshal.load(Marshal.dump(@spec[:value]))
 
       return result_spec if params.nil?
 
       params.each do |param|
-        TemplateSpec.replace_param!(result_spec, param['name'], param['value'])
+        TemplateSpec.replace_param!(result_spec, param[:name], param[:value])
       end
 
       result_spec
@@ -325,7 +325,7 @@ module Wrapture
 
     # The name of the template.
     def name
-      @spec['name']
+      @spec[:name]
     end
 
     # Replaces all references to this template with an instantiation of it in
@@ -347,22 +347,22 @@ module Wrapture
 
     # True if the given spec is a reference to this template.
     def use?(spec)
-      return false unless spec.is_a?(Hash) && spec.key?(TEMPLATE_USE_KEYWORD)
+      return false unless spec.is_a?(Hash) && spec.key?(:use_template)
 
-      invocation = spec[TEMPLATE_USE_KEYWORD]
+      invocation = spec[:use_template]
       case invocation
       when String
         invocation == name
       when Hash
-        unless invocation.key?('name')
-          error_message = "invocations of #{TEMPLATE_USE_KEYWORD} must have " \
+        unless invocation.key?(:name)
+          error_message = 'invocations of use_template must have ' \
                           'a name member'
           raise InvalidTemplateUsage, error_message
         end
 
-        invocation['name'] == name
+        invocation[:name] == name
       else
-        error_message = "#{TEMPLATE_USE_KEYWORD} must either be a String or " \
+        error_message = 'use_template must either be a String or ' \
                         'a Hash'
         raise InvalidTemplateUsage, error_message
       end
@@ -372,64 +372,73 @@ module Wrapture
 
     # Replaces a single use of the template in a Hash object.
     def merge_use_with_hash(use)
-      result = instantiate(use['use-template']['params'])
+      params = if use[:use_template].is_a?(Hash)
+                 use[:use_template].fetch(:params, nil)
+               end
+      result = instantiate(params)
 
       error_message = "template #{name} was invoked in a Hash with other " \
                       'keys, but does not resolve to a hash itself'
       raise InvalidTemplateUsage, error_message unless result.is_a?(Hash)
 
       use.merge!(result) { |_, oldval, _| oldval }
-      use.delete(TEMPLATE_USE_KEYWORD)
+      use.delete(:use_template)
     end
 
     # Replaces all references to this template with an instantiation of it in
     # the given spec, assuming it is a hash. Returns true if any changes were
     # made, false otherwise.
     def replace_uses_in_hash(spec)
-      changes = []
+      changed = false
 
       if use?(spec)
         merge_use_with_hash(spec) if use?(spec)
-        changes << true
+        changed = true
       end
 
       spec.each_pair do |key, value|
         if direct_use?(value)
-          spec[key] = instantiate(value[TEMPLATE_USE_KEYWORD]['params'])
-          changes << true
+          params = if spec[:use_template].is_a?(Hash)
+                     spec[:use_template].fetch(:params, nil)
+                   end
+          spec[key] = instantiate(params)
+          changed = true
         else
-          changes << replace_uses(value)
+          changed ||= replace_uses(value)
         end
       end
 
-      changes.any?
+      changed
     end
 
     # Replaces all references to this template with an instantiation of it in
     # the given spec, assuming it is an array. Returns true if any changes were
     # made, false otherwise.
     def replace_uses_in_array(spec)
-      changes = []
+      changed = false
 
       spec.dup.each_index do |i|
         if direct_use?(spec[i])
-          result = instantiate(spec[i][TEMPLATE_USE_KEYWORD]['params'])
+          params = if spec[i][:use_template].is_a?(Hash)
+                     spec[i][:use_template].fetch(:params, nil)
+                   end
+          result = instantiate(params)
           spec.delete_at(i)
           if result.is_a?(Array)
             spec.insert(i, *result)
           else
             spec.insert(i, result)
           end
-          changes << true
+          changed = true
         elsif use?(spec[i])
           merge_use_with_hash(spec[i])
-          changes << true
+          changed = true
         else
-          changes << replace_uses(spec[i])
+          changed ||= replace_uses(spec[i])
         end
       end
 
-      changes.any?
+      changed
     end
   end
 end

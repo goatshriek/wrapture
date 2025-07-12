@@ -1,7 +1,23 @@
+# SPDX-License-Identifier: Apache-2.0
+
+# Copyright 2025 Joel E. Anderson
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 classes:
   - name: "Gym"
     namespace: "wrapture_test"
-    equivalent-struct:
+    equivalent_struct:
       name: "gym"
     functions:
       - name: "AddPool"
@@ -10,11 +26,11 @@ classes:
             type:
               name: "Pool"
               includes: "Pool.hpp"
-        wrapped-function:
+        wrapped_function:
           name: "add_pool_to_gym"
           params:
             - name: "gym"
-              type: "equivalent-struct-pointer"
+              type: "equivalent_struct_pointer"
             - name: "new_pool"
               type:
                 name: "struct gym_pool *"
@@ -25,11 +41,11 @@ classes:
             type:
               name: "Pool"
               includes: "Pool.hpp"
-        wrapped-function:
+        wrapped_function:
           name: "copy_pool_to_gym"
           params:
             - name: "gym"
-              type: "equivalent-struct-pointer"
+              type: "equivalent_struct_pointer"
             - name: "original_pool"
               type:
                 name: "struct gym_pool"
@@ -40,11 +56,11 @@ classes:
             type:
               name: "Track"
               includes: "Track.hpp"
-        wrapped-function:
+        wrapped_function:
           name: "add_track_to_gym"
           params:
             - name: "gym"
-              type: "equivalent-struct-pointer"
+              type: "equivalent_struct_pointer"
             - name: "new_track"
               type:
                 name: "struct gym_track *"
@@ -55,21 +71,21 @@ classes:
             type:
               name: "Track"
               includes: "Track.hpp"
-        wrapped-function:
+        wrapped_function:
           name: "copy_track_to_gym"
           params:
             - name: "gym"
-              type: "equivalent-struct-pointer"
+              type: "equivalent_struct_pointer"
             - name: "original_track"
               type:
                 name: "struct gym_track"
                 includes: "gym.h"
   - name: "Pool"
     namespace: "wrapture_test"
-    equivalent-struct:
+    equivalent_struct:
       name: "gym_pool"
     constructors:
-      - wrapped-function:
+      - wrapped_function:
           name: "new_pool"
           params:
             - name: "name"
@@ -78,13 +94,13 @@ classes:
             type: "equivalent-struct"
   - name: "Track"
     namespace: "wrapture_test"
-    equivalent-struct:
+    equivalent_struct:
       name: "gym_track"
     constructors:
-      - wrapped-function:
+      - wrapped_function:
           name: "new_track"
           params:
             - name: "length"
               type: "int"
           return:
-            type: "equivalent-struct-pointer"
+            type: "equivalent_struct_pointer"

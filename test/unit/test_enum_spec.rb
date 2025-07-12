@@ -1,0 +1,157 @@
+# SPDX-License-Identifier: Apache-2.0
+
+# frozen_string_literal: true
+
+# Copyright 2020-2025 Joel E. Anderson
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+require 'helper'
+
+require 'fixture'
+require 'minitest/autorun'
+require 'wrapture'
+
+class EnumSpecTest < Minitest::Test
+  def test_basic_enum
+    test_spec = fixture_hash('basic_enum')
+    spec = Wrapture::EnumSpec.new(test_spec)
+    build = Wrapture::CToCpp.wrap_enum(spec)
+
+    validate_cpp_build(spec, build)
+
+    assert_equal(test_spec[:name], spec.name)
+    assert_equal(1, build.sources.count,
+                 'only one file should have been generated')
+
+    validate_source_file_matches_enum_spec(build.sources.first, test_spec)
+
+    includes = get_source_file_include_list(build.sources.first)
+
+    assert_includes(includes, 'overall_1.h')
+    assert_includes(includes, 'overall_2.h')
+    assert_includes(includes, 'val_1.h')
+  end
+
+  def test_documentation
+    test_spec = fixture_hash('documented_enum')
+    spec = Wrapture::EnumSpec.new(test_spec)
+    build = Wrapture::CToCpp.wrap_enum(spec)
+
+    source = build.sources.first
+
+    assert(source_file_contains_match?(source, test_spec[:doc]),
+           'the doc for the enum was not in the definition')
+
+    test_spec[:elements].each do |elem|
+      assert(source_file_contains_match?(source, elem[:doc]),
+             "the doc for #{elem[:name]} was not in the definition")
+    end
+  end
+
+  def test_elements_not_array
+    test_spec = fixture_hash('invalid/enum_with_non_array_elements')
+
+    error = assert_raises(Wrapture::InvalidSpecKey) do
+      Wrapture::EnumSpec.new(test_spec)
+    end
+
+    %w[elements array].each { |word| assert_includes(error.message, word) }
+  end
+
+  def test_enum_with_namespace
+    test_spec = fixture_hash('enum_with_namespace')
+    spec = Wrapture::EnumSpec.new(test_spec)
+    build = Wrapture::CToCpp.wrap_enum(spec)
+
+    assert_equal(test_spec[:name], spec.name)
+    assert_equal(1, build.sources.count,
+                 'only one file should have been generated')
+
+    validate_source_file_matches_enum_spec(build.sources.first, test_spec)
+  end
+
+  def test_no_elements
+    test_spec = fixture_hash('invalid/enum_without_elements')
+
+    error = assert_raises(Wrapture::MissingSpecKey) do
+      Wrapture::EnumSpec.new(test_spec)
+    end
+
+    %w[elements required].each { |word| assert_includes(error.message, word) }
+  end
+
+  def test_no_name
+    test_spec = fixture_hash('invalid/enum_without_name')
+
+    error = assert_raises(Wrapture::MissingSpecKey) do
+      Wrapture::EnumSpec.new(test_spec)
+    end
+
+    %w[name required].each { |word| assert_includes(error.message, word) }
+  end
+
+  def validate_file_matches_spec(filename, spec_hash)
+    enum_name = spec_hash[:name]
+
+    expected_filename = "#{enum_name}.hpp"
+
+    assert_equal(expected_filename, filename)
+
+    assert(FileTest.exist?(filename),
+           "enum file '#{filename}' was not created")
+
+    assert(file_contains_match(filename, '#ifndef'),
+           'header guard is missing')
+
+    if spec_hash.key?(:namespace)
+      namespace = spec_hash[:namespace]
+
+      assert(file_contains_match(filename, namespace),
+             "the enum did not reference the namespace '#{namespace}'")
+    end
+
+    assert(file_contains_match(filename, enum_name),
+           "the enumeration name ('#{enum_name}') was not found in the file")
+
+    spec_hash['elements'].each do |element|
+      assert(file_contains_match(filename, element[:name]),
+             "enumeration did not have element '#{element[:name]}'")
+    end
+  end
+
+  def validate_source_file_matches_enum_spec(source_file, spec_hash)
+    enum_name = spec_hash[:name]
+    expected_filename = "#{enum_name}.hpp"
+
+    assert(source_file.path.basename.fnmatch?(expected_filename))
+
+    assert(source_file_contains_match?(source_file, '#ifndef'),
+           'header guard is missing')
+
+    if spec_hash.key?(:namespace)
+      namespace = spec_hash[:namespace]
+
+      assert(source_file_contains_match?(source_file, namespace),
+             "the enum did not reference the namespace '#{namespace}'")
+    end
+
+    assert(source_file_contains_match?(source_file, enum_name),
+           "the enumeration name ('#{enum_name}') was not found in the file")
+
+    spec_hash[:elements].each do |element|
+      assert(source_file_contains_match?(source_file, element[:name]),
+             "enumeration did not have element '#{element[:name]}'")
+    end
+  end
+end

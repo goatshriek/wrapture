@@ -16,8 +16,7 @@
 
 module Wrapture
   module Build
-    def []: (String | Pathname) -> Wrapture::SourceFile
-    def include?: (String | Pathname) -> bool
-    def write_sources: (?Pathname) -> void
+    def self.from_hash: (spec_hash) -> (Wrapture::Build::CmakeBuild | Wrapture::Build::PyprojectBuild)
+    def save_build_sources: (?(String | Pathname)) -> Enumerable[Pathname]
   end
 end

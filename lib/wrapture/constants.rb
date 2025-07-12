@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2019-2020 Joel E. Anderson
+# Copyright 2019-2025 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,22 +20,18 @@
 
 module Wrapture
   # A string denoting an equivalent struct type or value.
-  EQUIVALENT_STRUCT_KEYWORD = 'equivalent-struct'
+  EQUIVALENT_STRUCT_KEYWORD = 'equivalent_struct'
 
   # A string denoting a pointer to an equivalent struct type or value.
-  EQUIVALENT_POINTER_KEYWORD = 'equivalent-struct-pointer'
+  EQUIVALENT_POINTER_KEYWORD = 'equivalent_struct_pointer'
 
   # A string denoting the return value of a wrapped function call.
-  RETURN_VALUE_KEYWORD = 'return-value'
+  RETURN_VALUE_KEYWORD = 'return_value'
 
   # A string denoting a reference to the object a method is called on.
-  SELF_REFERENCE_KEYWORD = 'self-reference'
-
-  # A string denoting a reference to a template.
-  TEMPLATE_USE_KEYWORD = 'use-template'
+  SELF_REFERENCE_KEYWORD = 'self_reference'
 
   # A list of all keywords.
   KEYWORDS = [EQUIVALENT_STRUCT_KEYWORD, EQUIVALENT_POINTER_KEYWORD,
-              SELF_REFERENCE_KEYWORD, RETURN_VALUE_KEYWORD,
-              TEMPLATE_USE_KEYWORD].freeze
+              SELF_REFERENCE_KEYWORD, RETURN_VALUE_KEYWORD].freeze
 end
