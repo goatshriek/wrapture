@@ -17,3 +17,9 @@
 # limitations under the License.
 
 require 'wrapture/python_source/python_source_set'
+
+module Wrapture
+  # Classes and utilities for working with Python source code.
+  module PythonSource
+  end
+end
