@@ -26,7 +26,7 @@ class PythonFixtureUsageIntegrationTest < Minitest::Test
   def test_cmake_c_lib_usage
     build_dir = fixture_build_dir('cmake_c_library')
     wrapped_build = fixture_build('cmake_c_library')
-    wrapped_build.save_build_system(build_dir)
+    wrapped_build.save_build_sources(build_dir)
     wrapped_build.build_commands.each do |cmd|
       system(cmd, chdir: build_dir, exception: true)
     end

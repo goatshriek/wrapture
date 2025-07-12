@@ -21,7 +21,6 @@
 require 'pathname'
 require 'wrapture/build/cmake_build'
 require 'wrapture/build/pyproject_build'
-require 'wrapture/build/python_build'
 
 module Wrapture
   # A build system for compiling and packaging source code.

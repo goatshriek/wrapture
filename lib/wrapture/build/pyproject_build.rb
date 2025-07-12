@@ -29,11 +29,11 @@ module Wrapture
       include SourceSet
 
       # Build information for the Python module.
-      attr_reader :python_build
+      attr_reader :source_set
 
       # Create a pyproject build for a Python module.
-      def initialize(python_build)
-        @python_build = python_build
+      def initialize(source_set)
+        @source_set = source_set
       end
 
       # A command that will build this project.
@@ -106,7 +106,7 @@ module Wrapture
       # This includes pyproject.toml as well as the sources of the underlying
       # Python module build.
       def sources
-        build_sources + @python_build.sources
+        build_sources + @source_set.sources
       end
     end
   end

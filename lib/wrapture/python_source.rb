@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
+# frozen_string_literal: true
+
 # Copyright 2025 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,21 +16,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-module Wrapture
-  module Build
-    class PyprojectBuild
-      include Build
-      include SourceSet
-
-      @source_set: Wrapture::PythonSource::PythonSourceSet
-
-      attr_reader source_set: Wrapture::PythonSource::PythonSourceSet
-
-      def initialize: (Wrapture::PythonSource::PythonSourceSet) -> void
-      def build_commands: (?python: String) -> Array[String]
-      def install_commands: (?python: String, ?target: String) -> Array[String]
-      def pyproject: -> Wrapture::SourceFile
-      def sources: -> Array[Wrapture::SourceFile]
-    end
-  end
-end
+require 'wrapture/python_source/python_source_set'

@@ -15,7 +15,7 @@
 # limitations under the License.
 
 module Wrapture
-  module CSource
+  module CppSource
     class CppSourceSet
       include SourceSet
 
@@ -29,10 +29,10 @@ module Wrapture
       attr_reader lib_sources: Array[Wrapture::SourceFile]
       attr_reader name: String
 
-      def self.from_hash: (spec_hash) -> Wrapture::CSource::CppSourceSet
+      def self.from_hash: (spec_hash) -> Wrapture::CppSource::CppSourceSet
 
       def initialize: (String) -> void
-      def <<: (Wrapture::CSource::CSourceSet) -> (Wrapture::CSource::CSourceSet)
+      def <<: (Wrapture::CppSource::CppSourceSet) -> (Wrapture::CppSource::CppSourceSet)
       def add_lib_header: (Wrapture::SourceFile) -> void
       def add_lib_source: (Wrapture::SourceFile) -> void
       def add_link: (String) -> void

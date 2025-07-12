@@ -21,7 +21,7 @@ require 'yaml'
 # The build spec for the fixture corresponding to +name+.
 def fixture_build(name)
   build = Wrapture::Build.from_hash(fixture_build_hash(name))
-  build.build_info_dir = File.join(File.expand_path('fixtures', __dir__), name)
+  build.source_dir = File.join(File.expand_path('fixtures', __dir__), name)
 
   build
 end

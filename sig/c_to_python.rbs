@@ -65,7 +65,7 @@ module Wrapture
     def self.type_object_name: (Wrapture::Named class_spec) -> String
     def self.type_object_pointer: (Wrapture::ClassSpec class_spec) -> (String | nil)
     def self.type_struct_name: (Wrapture::Named class_spec) -> String
-    def self.wrap_scope: (Wrapture::Scope) -> Wrapture::Build::PythonBuild
+    def self.wrap_scope: (Wrapture::Scope) -> Wrapture::PythonSource::PythonSourceSet
     def self.wrapped_function_call: (Wrapture::FunctionSpec) -> String
     def self.wrapper_param_locals: (Wrapture::FunctionSpec) -> Enumerable[Wrapture::CSource::CDeclaration]
   end

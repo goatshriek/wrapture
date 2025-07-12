@@ -19,14 +19,14 @@
 #++
 
 module Wrapture
-  module Build
+  module PythonSource
     # A generated Python project along with the information required to build
     # it.
     #
     # Python projects are generated as single modules, defined by the scope
     # containing all of the specs for it.
-    class PythonBuild
-      include Build
+    class PythonSourceSet
+      include SourceSet
 
       # The libraries this project's module links with.
       attr_reader :module_links

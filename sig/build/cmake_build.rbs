@@ -18,14 +18,15 @@ module Wrapture
   module Build
     class CmakeBuild
       include Build
+      include SourceSet
 
-      @build_info: (Wrapture::Build::CppBuild | Wrapture::Build::CBuild)
+      @source_set: (Wrapture::CSource::CSourceSet | Wrapture::CppSource::CppSourceSet)
 
-      attr_reader build_info: (Wrapture::Build::CppBuild | Wrapture::Build::CBuild)
+      attr_reader source_set: (Wrapture::CSource::CSourceSet | Wrapture::CppSource::CppSourceSet)
 
       def self.from_hash: (spec_hash) -> Wrapture::Build::CmakeBuild
 
-      def initialize: (Wrapture::Build::CppBuild | Wrapture::Build::CBuild) -> void
+      def initialize: (Wrapture::CSource::CSourceSet | Wrapture::CppSource::CppSourceSet) -> void
       def build_commands: -> Array[String]
       def build_system_sources: -> Array[Wrapture::SourceFile]
       def cmake_lists: -> Wrapture::SourceFile
