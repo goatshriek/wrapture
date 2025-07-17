@@ -16,11 +16,15 @@
 
 module Wrapture
   module Wrapper
-    def from_language: Symbol
-    def to_language: Symbol
-    def wrap: (Wrapture::ClassSpec | Wrapture::EnumSpec | Wrapture::Scope) -> Wrapture::Build
-  end
+    module CToCpp
+      extend Wrapper
 
-  WRAPPERS: Array[Wrapture::Wrapper]
-  def self.paths: (?from: (Symbol | Array[Symbol]), ?to: (Symbol | Array[Symbol]), ?modules: Array[Wrapture::Wrapper]) -> Array[Wrapture::Wrapper]
+      def self.declare_class: (Wrapture::ClassSpec) -> Wrapture::SourceFile
+      def self.define_class: (Wrapture::ClassSpec) -> Wrapture::SourceFile
+      def self.define_enum: (Wrapture::ClassSpec) -> Wrapture::SourceFile
+      def self.wrap_class: (Wrapture::ClassSpec) -> Wrapture::CppSource::CppSourceSet
+      def self.wrap_enum: (Wrapture::EnumSpec) -> Wrapture::CppSource::CppSourceSet
+      def self.wrap_scope: (Wrapture::Scope) -> Wrapture::CppSource::CppSourceSet
+    end
+  end
 end

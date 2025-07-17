@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
+# frozen_string_literal: true
+
 # Copyright 2025 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,13 +16,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-module Wrapture
-  module Wrapper
-    def from_language: Symbol
-    def to_language: Symbol
-    def wrap: (Wrapture::ClassSpec | Wrapture::EnumSpec | Wrapture::Scope) -> Wrapture::Build
+require 'helper'
+
+require 'minitest/autorun'
+require 'wrapture'
+
+class CToPythonTest < Minitest::Test
+  def test_from_language
+    assert_equal(:c, Wrapture::Wrapper::CToPython.from_language)
   end
 
-  WRAPPERS: Array[Wrapture::Wrapper]
-  def self.paths: (?from: (Symbol | Array[Symbol]), ?to: (Symbol | Array[Symbol]), ?modules: Array[Wrapture::Wrapper]) -> Array[Wrapture::Wrapper]
+  def test_to_language
+    assert_equal(:python, Wrapture::Wrapper::CToPython.to_language)
+  end
 end

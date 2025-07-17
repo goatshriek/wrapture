@@ -39,7 +39,7 @@ class ScopeTest < Minitest::Test
     assert_equal(test_spec[:classes].count, scope.classes.count)
     assert_equal(0, scope.enums.count)
 
-    build = Wrapture::CToCpp.wrap_scope(scope)
+    build = Wrapture::Wrapper::CToCpp.wrap_scope(scope)
 
     assert_equal(scope.classes.count, build.sources.count / 2)
     assert_equal('wrapture_test', scope.name)
@@ -52,7 +52,7 @@ class ScopeTest < Minitest::Test
     assert_equal(test_spec[:classes].count, scope.classes.count)
     assert_equal(0, scope.enums.count)
 
-    build = Wrapture::CToCpp.wrap_scope(scope)
+    build = Wrapture::Wrapper::CToCpp.wrap_scope(scope)
 
     assert_equal(scope.classes.count, build.sources.count / 2)
   end
@@ -60,11 +60,11 @@ class ScopeTest < Minitest::Test
   def test_templatized_classes
     spec_with_template = fixture_hash('scope_with_template')
     scope = Wrapture::Scope.new(spec_with_template)
-    with_template_build = Wrapture::CToCpp.wrap_scope(scope)
+    with_template_build = Wrapture::Wrapper::CToCpp.wrap_scope(scope)
 
     spec_without_template = fixture_hash('scope_without_template')
     scope = Wrapture::Scope.new(spec_without_template)
-    no_template_build = Wrapture::CToCpp.wrap_scope(scope)
+    no_template_build = Wrapture::Wrapper::CToCpp.wrap_scope(scope)
 
     with_template_build.sources.each do |with_src|
       assert_includes(no_template_build.sources, with_src,
@@ -75,7 +75,7 @@ class ScopeTest < Minitest::Test
   def test_scope_with_enum
     test_spec = fixture_hash('scope_with_enum')
     scope = Wrapture::Scope.new(test_spec)
-    build = Wrapture::CToCpp.wrap_scope(scope)
+    build = Wrapture::Wrapper::CToCpp.wrap_scope(scope)
 
     validate_cpp_build(scope, build)
     enum_name = test_spec[:enums][0][:name]
@@ -103,7 +103,7 @@ class ScopeTest < Minitest::Test
     assert_equal(class_specs.count, scope.classes.count)
     assert_equal(enum_specs.count, scope.enums.count)
 
-    build = Wrapture::CToCpp.wrap_scope(scope)
+    build = Wrapture::Wrapper::CToCpp.wrap_scope(scope)
 
     validate_cpp_build(scope, build)
 
@@ -122,7 +122,7 @@ class ScopeTest < Minitest::Test
   def test_versioned_scope
     test_spec = fixture_hash('versioned_scope')
     scope = Wrapture::Scope.new(test_spec)
-    build = Wrapture::CToCpp.wrap_scope(scope)
+    build = Wrapture::Wrapper::CToCpp.wrap_scope(scope)
 
     validate_cpp_build(scope, build)
 
