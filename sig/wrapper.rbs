@@ -16,8 +16,8 @@
 
 module Wrapture
   module Wrapper
-    def from_language: Symbol
-    def to_language: Symbol
+    def from_language: () -> Symbol
+    def to_language: () -> Symbol
     def wrap: (Wrapture::ClassSpec | Wrapture::EnumSpec | Wrapture::Scope) -> Wrapture::Build
   end
 
