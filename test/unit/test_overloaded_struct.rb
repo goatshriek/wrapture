@@ -29,7 +29,7 @@ class OverloadedStructTest < Minitest::Test
 
     assert_equal(test_spec[:classes].count, scope.classes.count)
 
-    build = Wrapture::CToCpp.wrap_scope(scope)
+    build = Wrapture::Wrapper::CToCpp.wrap_scope(scope)
 
     validate_cpp_build(scope, build)
 

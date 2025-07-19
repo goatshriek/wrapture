@@ -2,7 +2,6 @@
 
 # frozen_string_literal: true
 
-#--
 # Copyright 2025 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,12 +15,18 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#++
 
-require 'wrapture/cpp_source/cpp_source_set'
+require 'helper'
 
-module Wrapture
-  # Classes and utilities for working with C++ source code.
-  module CppSource
+require 'minitest/autorun'
+require 'wrapture'
+
+class CToPythonTest < Minitest::Test
+  def test_from_language
+    assert_equal(:c, Wrapture::Wrapper::CToPython.from_language)
+  end
+
+  def test_to_language
+    assert_equal(:python, Wrapture::Wrapper::CToPython.to_language)
   end
 end

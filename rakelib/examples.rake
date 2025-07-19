@@ -20,7 +20,7 @@ def run_cpp_example(name, lib, sources, build_dir)
   example_dir = File.absolute_path("docs/examples/#{name}")
 
   scope = Wrapture::Scope.load_files("#{example_dir}/#{lib}.yml")
-  build = Wrapture::CToCpp.wrap_scope(scope)
+  build = Wrapture::Wrapper::CToCpp.wrap_scope(scope)
   Wrapture::Build::CmakeBuild.new(build).save(build_dir)
 
   Dir.chdir(build_dir) do
@@ -48,7 +48,7 @@ def run_python_example(name, lib, sources, build_dir)
   load_dir = File.absolute_path(build_dir)
 
   scope = Wrapture::Scope.load_files("#{example_dir}/#{lib}.yml")
-  build = Wrapture::CToPython.wrap_scope(scope)
+  build = Wrapture::Wrapper::CToPython.wrap_scope(scope)
   python_build = Wrapture::Build::PyprojectBuild.new(build)
 
   Dir.chdir(build_dir) do

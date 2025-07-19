@@ -26,7 +26,7 @@ class FunctionSpecTest < Minitest::Test
   def test_class_with_virtual_function
     test_spec = fixture_hash('class_with_virtual_function')
     spec = Wrapture::ClassSpec.new(test_spec)
-    build = Wrapture::CToCpp.wrap_class(spec)
+    build = Wrapture::Wrapper::CToCpp.wrap_class(spec)
 
     validate_cpp_build(spec, build)
 

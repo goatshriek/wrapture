@@ -26,7 +26,7 @@ class EnumSpecTest < Minitest::Test
   def test_basic_enum
     test_spec = fixture_hash('basic_enum')
     spec = Wrapture::EnumSpec.new(test_spec)
-    build = Wrapture::CToCpp.wrap_enum(spec)
+    build = Wrapture::Wrapper::CToCpp.wrap_enum(spec)
 
     validate_cpp_build(spec, build)
 
@@ -46,7 +46,7 @@ class EnumSpecTest < Minitest::Test
   def test_documentation
     test_spec = fixture_hash('documented_enum')
     spec = Wrapture::EnumSpec.new(test_spec)
-    build = Wrapture::CToCpp.wrap_enum(spec)
+    build = Wrapture::Wrapper::CToCpp.wrap_enum(spec)
 
     source = build.sources.first
 
@@ -72,7 +72,7 @@ class EnumSpecTest < Minitest::Test
   def test_enum_with_namespace
     test_spec = fixture_hash('enum_with_namespace')
     spec = Wrapture::EnumSpec.new(test_spec)
-    build = Wrapture::CToCpp.wrap_enum(spec)
+    build = Wrapture::Wrapper::CToCpp.wrap_enum(spec)
 
     assert_equal(test_spec[:name], spec.name)
     assert_equal(1, build.sources.count,

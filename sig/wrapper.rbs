@@ -16,6 +16,11 @@
 
 module Wrapture
   module Wrapper
+    def from_language: () -> Symbol
+    def to_language: () -> Symbol
     def wrap: (Wrapture::ClassSpec | Wrapture::EnumSpec | Wrapture::Scope) -> Wrapture::Build
   end
+
+  WRAPPERS: Array[Wrapture::Wrapper]
+  def self.paths: (?from: (Symbol | Array[Symbol]), ?to: (Symbol | Array[Symbol]), ?modules: Array[Wrapture::Wrapper]) -> Array[Wrapture::Wrapper]
 end

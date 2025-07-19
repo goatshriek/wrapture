@@ -26,7 +26,7 @@ class ClassSpecTest < Minitest::Test
   def test_explicit_class
     test_spec = fixture_hash('explicit_pointer_class')
     spec = Wrapture::ClassSpec.new(test_spec)
-    build = Wrapture::CToCpp.wrap_class(spec)
+    build = Wrapture::Wrapper::CToCpp.wrap_class(spec)
 
     validate_cpp_build(spec, build)
 
@@ -40,7 +40,7 @@ class ClassSpecTest < Minitest::Test
   def test_overriding_constructor
     test_spec = fixture_hash('constructor_class')
     spec = Wrapture::ClassSpec.new(test_spec)
-    build = Wrapture::CToCpp.wrap_class(spec)
+    build = Wrapture::Wrapper::CToCpp.wrap_class(spec)
 
     validate_cpp_build(spec, build)
 
@@ -53,7 +53,7 @@ class ClassSpecTest < Minitest::Test
   def test_pointer_class
     test_spec = fixture_hash('pointer_class')
     spec = Wrapture::ClassSpec.new(test_spec)
-    build = Wrapture::CToCpp.wrap_class(spec)
+    build = Wrapture::Wrapper::CToCpp.wrap_class(spec)
 
     validate_cpp_build(spec, build)
 
@@ -66,7 +66,7 @@ class ClassSpecTest < Minitest::Test
   def test_pointer_class_and_child
     test_spec = fixture_hash('pointer_class_and_child')
     spec = Wrapture::Scope.new(test_spec)
-    build = Wrapture::CToCpp.wrap_scope(spec)
+    build = Wrapture::Wrapper::CToCpp.wrap_scope(spec)
 
     validate_cpp_build(spec, build)
 
@@ -84,7 +84,7 @@ class ClassSpecTest < Minitest::Test
   def test_pointer_class_and_child_with_different_struct
     test_spec = fixture_hash('pointer_class_and_child_with_different_struct')
     spec = Wrapture::Scope.new(test_spec)
-    build = Wrapture::CToCpp.wrap_scope(spec)
+    build = Wrapture::Wrapper::CToCpp.wrap_scope(spec)
 
     validate_cpp_build(spec, build)
 
@@ -103,7 +103,7 @@ class ClassSpecTest < Minitest::Test
     spec_name = 'pointer_class_with_equivalent_pointer_constructor'
     test_spec = fixture_hash(spec_name)
     spec = Wrapture::ClassSpec.new(test_spec)
-    build = Wrapture::CToCpp.wrap_class(spec)
+    build = Wrapture::Wrapper::CToCpp.wrap_class(spec)
 
     validate_cpp_build(spec, build)
 
@@ -117,7 +117,7 @@ class ClassSpecTest < Minitest::Test
   def test_pointer_class_with_explicit_pointer_constructor
     test_spec = fixture_hash('pointer_class_with_explicit_pointer_constructor')
     spec = Wrapture::ClassSpec.new(test_spec)
-    build = Wrapture::CToCpp.wrap_class(spec)
+    build = Wrapture::Wrapper::CToCpp.wrap_class(spec)
 
     validate_cpp_build(spec, build)
 

@@ -26,7 +26,7 @@ class NestedStructsTest < Minitest::Test
   def test_nested_structs
     test_spec = fixture_hash('nested_structs')
     scope = Wrapture::Scope.new(test_spec)
-    build = Wrapture::CToCpp.wrap_scope(scope)
+    build = Wrapture::Wrapper::CToCpp.wrap_scope(scope)
 
     validate_cpp_build(scope, build)
 
