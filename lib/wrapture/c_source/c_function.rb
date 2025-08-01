@@ -24,11 +24,44 @@ module Wrapture
     class CFunction
       include CBlock
 
+      # Creates a new C function from a hash.
+      def self.from_hash(spec)
+        unless spec.key?(:name)
+          raise MissingSpecKey, 'a name is required for c functions'
+        end
+
+        func = CFunction.new(spec[:name])
+
+        if spec.key?(:includes)
+          func.includes = Wrapture.normalize_array(spec[:includes])
+        end
+
+        func
+      end
+
+      # A new function has no parameters, void return, and an empty body.
+      #
+      # An enumerable of CDeclaration objects can be provided in +params+, which
+      # will be used as the function parameters.
+      def initialize(name, params: [], return_type: CType.new('void'),
+                     attributes: [])
+        @attributes = attributes
+        @includes = []
+        @name = name
+        @params = params
+        @return_type = return_type
+        @tree = []
+        @fail_labels = []
+      end
+
       # The attributes of the function.
       attr_reader :attributes
 
       # The list of failure labels of the function.
       attr_reader :fail_labels
+
+      # The includes needed to use this function.
+      attr_accessor :includes
 
       # The name of the function.
       attr_reader :name
@@ -41,20 +74,6 @@ module Wrapture
 
       # The tree of the function body.
       attr_reader :tree
-
-      # A new function has no parameters, void return, and an empty body.
-      #
-      # An enumerable of CDeclaration objects can be provided in +params+, which
-      # will be used as the function parameters.
-      def initialize(name, params: [], return_type: CType.new('void'),
-                     attributes: [])
-        @attributes = attributes
-        @name = name
-        @params = params
-        @return_type = return_type
-        @tree = []
-        @fail_labels = []
-      end
 
       # Add a failure label to the function, along with code that is executed
       # when this label is used. New labels are added before existing ones, so

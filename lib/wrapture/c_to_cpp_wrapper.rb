@@ -225,17 +225,22 @@ module Wrapture
       functions = @spec.functions.dup
 
       if autogen_pointer_constructor?
-        spec_hash = pointer_constructor_hash
-        functions << FunctionSpec.new(spec_hash, @spec, constructor: true)
+        func_spec = FunctionSpec.from_hash(pointer_constructor_hash)
+        func_spec.constructor = true
+        func_spec.owner = @spec
+        functions << func_spec
       end
 
       if @spec.struct&.members?
-        spec_hash = member_constructor_hash
-        functions << FunctionSpec.new(spec_hash, @spec, constructor: true)
+        func_spec = FunctionSpec.from_hash(member_constructor_hash)
+        func_spec.owner = @spec
+        functions << func_spec
       end
 
       if @spec.factory?
-        functions << FunctionSpec.new(factory_constructor_hash, @spec)
+        func_spec = FunctionSpec.from_hash(factory_constructor_hash)
+        func_spec.owner = @spec
+        functions << func_spec
       end
 
       functions
@@ -660,7 +665,8 @@ module Wrapture
 
       { name: @spec.name,
         params: @spec.struct.members,
-        wrapped_code: { lines: assignments } }
+        wrapped_code: { lines: assignments },
+        constructor: true }
     end
 
     # A spec hash for a pointer constructor for this class.

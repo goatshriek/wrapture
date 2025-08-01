@@ -1033,15 +1033,15 @@ module Wrapture
       # +scope+ describes all of the classes and other entities that will be
       # wrapped. These will all be put into a namespace named after the scope.
       def self.wrap_scope(scope)
-        build = PythonSource::PythonSourceSet.new(scope.name)
+        set = PythonSource::PythonSourceSet.new(scope.name)
 
-        build.add_module_source(define_module(scope))
+        set.add_module_source(define_module(scope))
 
         scope.libraries.each do |lib|
-          build.add_link(lib)
+          set.add_link(lib)
         end
 
-        build
+        set
       end
 
       # The expression containing the call to the underlying wrapped function.

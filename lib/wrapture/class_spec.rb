@@ -148,19 +148,28 @@ module Wrapture
         full_spec = constructor_spec.dup
         full_spec[:name] = @spec[:name]
         full_spec[:params] = constructor_spec[:wrapped_function][:params]
+        full_spec[:constructor] = true
 
-        FunctionSpec.new(full_spec, self, constructor: true)
+        func_spec = FunctionSpec.from_hash(full_spec)
+        func_spec.owner = self
+
+        func_spec
       end
 
       if @spec.key?(:destructor)
         destructor_spec = @spec[:destructor].dup
         destructor_spec[:name] = @spec[:name]
+        destructor_spec[:destructor] = true
 
-        @functions << FunctionSpec.new(destructor_spec, self, destructor: true)
+        func_spec = FunctionSpec.from_hash(destructor_spec)
+        func_spec.owner = self
+        @functions << func_spec
       end
 
       @spec[:functions].each do |function_spec|
-        @functions << FunctionSpec.new(function_spec, self)
+        func_spec = FunctionSpec.from_hash(function_spec)
+        func_spec.owner = self
+        @functions << func_spec
       end
 
       @constants = @spec[:constants].map do |constant_spec|
@@ -190,7 +199,7 @@ module Wrapture
       includes.concat(@struct.includes) if @struct
 
       @functions.each do |func|
-        includes.concat(func.declaration_includes)
+        includes.concat(func.wrapped[:c].includes)
       end
 
       @constants.each do |const|

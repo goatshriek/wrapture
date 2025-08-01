@@ -88,7 +88,7 @@ module Wrapture
     # A new FunctionSpec instance from this type, or nil if it is not a
     # function.
     def function
-      FunctionSpec.new(@spec[:function]) if function?
+      FunctionSpec.from_hash(@spec[:function]) if function?
     end
 
     # A list of includes needed for this type.

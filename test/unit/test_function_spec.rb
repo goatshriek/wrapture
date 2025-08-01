@@ -36,7 +36,7 @@ class FunctionSpecTest < Minitest::Test
   def test_documentation
     test_spec = fixture_hash('documented_function')
 
-    spec = Wrapture::FunctionSpec.new(test_spec)
+    spec = Wrapture::FunctionSpec.from_hash(test_spec)
 
     comment = String.new
     Wrapture::CToCppWrapper.declare_spec(spec) do |line|
@@ -67,7 +67,7 @@ class FunctionSpecTest < Minitest::Test
 
   def test_exception_without_return_val
     test_spec = fixture_hash('exception_check_without_return_val')
-    spec = Wrapture::FunctionSpec.new(test_spec)
+    spec = Wrapture::FunctionSpec.from_hash(test_spec)
     lines = Wrapture::CToCppWrapper.define_spec(spec, &block_collector)
 
     assert(lines.any? { |line| line.end_with?('int return_val;') })

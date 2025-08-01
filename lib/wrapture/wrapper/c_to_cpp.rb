@@ -62,16 +62,16 @@ module Wrapture
 
       # Generates a build for a C++ library wrapping a class.
       def self.wrap_class(class_spec)
-        build = CppSource::CppSourceSet.new(class_spec.name)
+        set = CppSource::CppSourceSet.new(class_spec.name)
 
-        build.add_lib_header(declare_class(class_spec))
-        build.add_lib_source(define_class(class_spec))
+        set.add_lib_header(declare_class(class_spec))
+        set.add_lib_source(define_class(class_spec))
 
         class_spec.libraries.each do |lib|
-          build.add_lib_link(lib)
+          set.add_lib_link(lib)
         end
 
-        build
+        set
       end
 
       # Generates a build for a C++ library wrapping the provided enum.
