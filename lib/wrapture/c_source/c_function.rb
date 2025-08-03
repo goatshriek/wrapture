@@ -48,6 +48,8 @@ module Wrapture
           end
         end
 
+        func.libraries.concat(spec[:libraries]) if spec.key?(:libraries)
+
         func
       end
 
@@ -66,6 +68,7 @@ module Wrapture
         @fail_labels = []
         @error_action = nil
         @error_rules = []
+        @libraries = []
       end
 
       # The attributes of the function.
@@ -82,6 +85,9 @@ module Wrapture
 
       # The includes needed to use this function.
       attr_accessor :includes
+
+      # An array of libraries required for this function call.
+      attr_accessor :libraries
 
       # The name of the function.
       attr_reader :name

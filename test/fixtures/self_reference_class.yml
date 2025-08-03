@@ -27,8 +27,9 @@ functions:
         type: "const char *"
     return:
       type: "self_reference"
-    wrapped_function:
-      name: "underlying_basic_function"
-      params:
-        - name: "equivalent_struct_pointer"
-        - name: "app_name"
+    wrapped:
+      c:
+        name: "underlying_basic_function"
+        params:
+          - name: "equivalent_struct_pointer"
+          - name: "app_name"

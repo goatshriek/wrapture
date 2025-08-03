@@ -147,7 +147,7 @@ module Wrapture
       @functions = @spec[:constructors].map do |constructor_spec|
         full_spec = constructor_spec.dup
         full_spec[:name] = @spec[:name]
-        full_spec[:params] = constructor_spec[:wrapped_function][:params]
+        full_spec[:params] = constructor_spec[:wrapped][:c][:params]
         full_spec[:constructor] = true
 
         func_spec = FunctionSpec.from_hash(full_spec)

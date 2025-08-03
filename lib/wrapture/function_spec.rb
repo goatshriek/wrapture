@@ -46,13 +46,17 @@ module Wrapture
 
       func_spec = new(name)
       func_spec.doc = Comment.new(spec[:doc]) if spec.key?(:doc)
-      func_spec.params = ParamSpec.normalize_param_list(spec[:params])
       func_spec.constructor = Wrapture.normalize_boolean(spec, :constructor)
       func_spec.destructor = Wrapture.normalize_boolean(spec, :destructor)
       func_spec.static = Wrapture.normalize_boolean(spec, :static)
       func_spec.virtual = Wrapture.normalize_boolean(spec, :virtual)
 
       func_spec.initializers = spec[:initializers] if spec.key?(:initializers)
+
+      if spec.key?(:params)
+        param_specs = ParamSpec.normalize_param_list(spec[:params])
+        func_spec.params.concat(ParamSpec.new_list(param_specs))
+      end
 
       if spec.key?(:return)
         func_spec.return_overloaded = Wrapture.normalize_boolean(spec[:return],
@@ -217,7 +221,7 @@ module Wrapture
     attr_accessor :return_doc
 
     # True if the return is overloaded for this function.
-    attr_accessor :return_overloaded
+    attr_writer :return_overloaded
 
     # A TypeSpec describing the return type of this function.
     attr_accessor :return_type
@@ -266,7 +270,7 @@ module Wrapture
     # "wrappable?" and added to ClassSpec and/or Scope.
     def definable?(lang: nil)
       if lang.nil?
-        @wrapped.length.positive?
+        !@wrapped.empty?
       else
         @wrapped.key?(lang)
       end
@@ -372,6 +376,11 @@ module Wrapture
       else
         resolved_return.return_expression(self, func_name: func_name)
       end
+    end
+
+    # True if the return type of this function is overloaded.
+    def return_overloaded?
+      @return_overloaded
     end
 
     # True if the function is static.

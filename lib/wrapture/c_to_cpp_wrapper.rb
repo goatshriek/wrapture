@@ -624,7 +624,7 @@ module Wrapture
       func_spec.return_type.name != 'void' &&
         !func_spec.constructor? &&
         !func_spec.destructor? &&
-        !func_spec.wrapped.error_check? &&
+        !func_spec.wrapped[:c].error_check? &&
         (func_spec.return_type.name == SELF_REFERENCE_KEYWORD ||
         func_spec.return_overloaded? ||
         func_spec.return_type == func_spec.wrapped.return_val_type)
@@ -705,7 +705,7 @@ module Wrapture
     def return_cast(value)
       if @spec.return_overloaded?
         "new#{@spec.return_type.name.chomp('*').strip} ( #{value} )"
-      elsif @spec.return_type == @spec.wrapped.return_val_type
+      elsif @spec.return_type == @spec.wrapped[:c].return_type
         value
       else
         return_type = @spec.resolved_return
