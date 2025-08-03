@@ -1046,15 +1046,15 @@ module Wrapture
 
       # The expression containing the call to the underlying wrapped function.
       def self.wrapped_function_call(func_spec)
-        resolved_params = func_spec.wrapped.params.map do |param|
+        resolved_params = func_spec.wrapped[:c].params.map do |param|
           resolve_wrapped_param(func_spec, param)
         end
 
-        call = "#{func_spec.wrapped.name}( #{resolved_params.join(', ')} )"
+        call = "#{func_spec.wrapped[:c].name}( #{resolved_params.join(', ')} )"
 
         if func_spec.constructor?
           "#{class_struct_pointer(func_spec.owner)} = #{call}"
-        elsif func_spec.wrapped.error_check? || !func_spec.void_return?
+        elsif func_spec.wrapped[:c].error_check? || !func_spec.void_return?
           "return_val = #{call}"
         else
           call

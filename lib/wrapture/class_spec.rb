@@ -199,6 +199,8 @@ module Wrapture
       includes.concat(@struct.includes) if @struct
 
       @functions.each do |func|
+        raise UndefinableSpec, 'not wrappable in c' unless func.wrapped.key?(:c)
+
         includes.concat(func.wrapped[:c].includes)
       end
 

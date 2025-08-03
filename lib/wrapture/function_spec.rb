@@ -250,21 +250,32 @@ module Wrapture
 
     # A list of includes needed for the declaration of the function.
     def declaration_includes
-      includes = @spec[:return][:includes].dup
+      includes = @return_type.includes
       @params.each { |param| includes.concat(param.includes) }
       includes.concat(@return_type.includes)
       includes.uniq
     end
 
     # True if this function can be defined, false if not.
-    def definable?
-      !@wrapped.nil?
+    #
+    # If +lang+ is given, then the result is true only if this function is
+    # definable for the given language. If not, the result is true if the
+    # function is definable for any language.
+    #
+    # In the long term, this should probably be renamed to something like
+    # "wrappable?" and added to ClassSpec and/or Scope.
+    def definable?(lang: nil)
+      if lang.nil?
+        @wrapped.length.positive?
+      else
+        @wrapped.key?(lang)
+      end
     end
 
     # A list of includes needed for the definition of the function.
     def definition_includes
-      includes = @wrapped.includes
-      includes.concat(@spec[:return][:includes])
+      includes = @wrapped[:c].includes
+      includes.concat(@return_type.includes)
       @params.each { |param| includes.concat(param.includes) }
       includes.concat(@return_type.includes)
       includes << 'stdarg.h' if variadic?
@@ -292,10 +303,10 @@ module Wrapture
 
     # An array of libraries required for this function call.
     def libraries
-      if @wrapped.nil?
+      if @wrapped.empty?
         []
       else
-        @wrapped.libraries
+        @wrapped[:c].libraries
       end
     end
 

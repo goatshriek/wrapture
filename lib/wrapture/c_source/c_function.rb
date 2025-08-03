@@ -36,6 +36,18 @@ module Wrapture
           func.includes = Wrapture.normalize_array(spec[:includes])
         end
 
+        if spec.key?(:error_check)
+          check = @spec[:error_check]
+
+          func.error_rules = check[:rules].map do |rule_spec|
+            RuleSpec.new(rule_spec)
+          end
+
+          unless func.error_rules.empty?
+            func.error_action = ActionSpec.new(check[:error_action])
+          end
+        end
+
         func
       end
 
@@ -52,10 +64,18 @@ module Wrapture
         @return_type = return_type
         @tree = []
         @fail_labels = []
+        @error_action = nil
+        @error_rules = []
       end
 
       # The attributes of the function.
       attr_reader :attributes
+
+      # The action taken when an error is encountered.
+      attr_accessor :error_action
+
+      # Th rules to detect when an error has occurred.
+      attr_accessor :error_rules
 
       # The list of failure labels of the function.
       attr_reader :fail_labels
@@ -92,6 +112,11 @@ module Wrapture
       # A declaration of this function.
       def declaration
         Wrapture::CSource::CDeclaration.new(self, @name)
+      end
+
+      # True if the wrapped function has an error check associated with it.
+      def error_check?
+        !@error_rules.empty?
       end
     end
   end

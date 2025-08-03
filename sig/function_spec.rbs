@@ -21,7 +21,7 @@ module Wrapture
     def initialize: (spec_hash spec, ?(Wrapture::ClassSpec | Wrapture::Scope) owner, ?constructor: bool, ?destructor: bool) -> void
     def constructor?: -> bool
     def declaration_includes: -> Array[String]
-    def definable?: -> bool
+    def definable?: (?lang: Symbol) -> bool
     def definition_includes: -> Array[String]
     def destructor?: -> bool
     def doc: -> Wrapture::Comment

@@ -433,15 +433,11 @@ module Wrapture
         yield ''
       end
 
-      if @spec.wrapped.is_a?(CFunctionSpec)
-        yield "  #{wrapped_call_expression};"
-      else
-        @spec.wrapped.lines.each { |line| yield "  #{line}" }
-      end
+      yield "  #{wrapped_call_expression};"
 
-      if @spec.wrapped.error_check?
+      if @spec.wrapped[:c].error_check?
         yield ''
-        error_check(@spec.wrapped, return_val: return_variable) do |line|
+        error_check(@spec.wrapped[:c], return_val: return_variable) do |line|
           yield "  #{line}"
         end
       end
@@ -464,9 +460,9 @@ module Wrapture
       end
 
       @spec.functions.each do |func_spec|
-        next unless func_spec.wrapped.error_check?
+        next unless func_spec.wrapped[:c].error_check?
 
-        error_type = func_spec.wrapped.error_action.type
+        error_type = func_spec.wrapped[:c].error_action.type
         includes.append("#{error_type.name}.hpp") if scope.type?(error_type)
       end
 
@@ -552,7 +548,7 @@ module Wrapture
     def function_captures_return?(func_spec)
       !func_spec.wrapped.is_a?(CCodeSpec) &&
         !func_spec.constructor? &&
-        (func_spec.wrapped.use_return? ||
+        (func_spec.wrapped[:c].error_rules.any?(&:use_return?) ||
          function_returns_return_val?(func_spec))
     end
 
@@ -801,7 +797,13 @@ module Wrapture
 
     # The expression containing the call to the underlying wrapped function.
     def wrapped_call_expression
-      call = @spec.wrapped.call_from(self)
+      wrapped = @spec.wrapped[:c]
+      resolved_params = wrapped.params.map do |param|
+        # TODO: clearly not the desired end location of parameter resolution
+        Wrapture::Wrapper::CToPython.resolve_wrapped_param(func_spec, param)
+      end
+
+      call = "#{wrapped.name}( #{resolved_params.join(', ')} )"
 
       if @spec.constructor?
         "this->equivalent = #{call}"
