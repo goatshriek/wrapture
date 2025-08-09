@@ -224,12 +224,11 @@ module Wrapture
     def class_functions
       functions = @spec.functions.dup
 
-      if autogen_pointer_constructor?
-        func_spec = FunctionSpec.from_hash(pointer_constructor_hash)
-        func_spec.constructor = true
-        func_spec.owner = @spec
-        functions << func_spec
-      end
+      # if autogen_pointer_constructor?
+      #   func_spec = FunctionSpec.from_hash(pointer_constructor_hash)
+      #   func_spec.owner = @spec
+      #   functions << func_spec
+      # end
 
       if @spec.struct&.members?
         func_spec = FunctionSpec.from_hash(member_constructor_hash)
@@ -299,6 +298,12 @@ module Wrapture
         yield ''
       end
 
+      if autogen_pointer_constructor?
+        func_spec = FunctionSpec.from_hash(pointer_constructor_hash)
+        func_spec.owner = @spec
+        self.class.declare_spec(func_spec) { |line| yield "    #{line}" }
+      end
+
       class_functions.each do |function|
         self.class.declare_spec(function) { |line| yield "    #{line}" }
       end
@@ -353,6 +358,16 @@ module Wrapture
       yield unless @spec.constants.empty?
       @spec.constants.each do |const|
         yield "  #{define_constant(const, @spec.name)};"
+      end
+
+      if autogen_pointer_constructor?
+        # TODO: pick up here and see if this worked
+        func_spec = FunctionSpec.from_hash(pointer_constructor_hash)
+        func_spec.owner = @spec
+        signature = function_definition_signature(func_spec)
+        yield "#{signature} #{initializer_suffix(func_spec)}{"
+        pointer_constructor(@spec).tree.each { |line| yield "  #{line}" }
+        yield '}'
       end
 
       class_functions.each do |function|
@@ -418,12 +433,13 @@ module Wrapture
     # block.
     def define_function
       unless @spec.definable?
-        raise UndefinableSpec, 'no wrapped function or code was specified'
+        raise UndefinableSpec,
+              "no wrapped function or code was specified for #{@spec.name}"
       end
 
       signature = function_definition_signature(@spec)
 
-      yield "#{signature} #{initializer_suffix}{"
+      yield "#{signature} #{initializer_suffix(@spec)}{"
 
       function_locals(@spec) { |declaration| yield "  #{declaration}" }
       yield ''
@@ -523,24 +539,24 @@ module Wrapture
     # A factory constructor creates an instance of a class based on a struct
     # that is overloaded.
     def factory_constructor_hash
-      factory_lines = []
-      line_prefix = ''
-      @spec.scope.overloads(@spec).each do |overload|
-        check = overload.struct.rules_check('equivalent')
-        factory_lines << "#{line_prefix}if( #{check} ) {"
-        factory_lines << "  return new #{overload.name}( equivalent );"
-        line_prefix = '} else '
-      end
+      # factory_lines = []
+      # line_prefix = ''
+      # @spec.scope.overloads(@spec).each do |overload|
+      #   check = overload.struct.rules_check('equivalent')
+      #   factory_lines << "#{line_prefix}if( #{check} ) {"
+      #   factory_lines << "  return new #{overload.name}( equivalent );"
+      #   line_prefix = '} else '
+      # end
 
-      factory_lines << "#{line_prefix}{"
-      factory_lines << "  return new #{@spec.name}( equivalent );"
-      factory_lines << '}'
+      # factory_lines << "#{line_prefix}{"
+      # factory_lines << "  return new #{@spec.name}( equivalent );"
+      # factory_lines << '}'
 
       { name: ['new'] + @spec.name_words,
         static: true,
         params: [{ name: 'equivalent',
                    type: EQUIVALENT_POINTER_KEYWORD }],
-        wrapped_code: { lines: factory_lines },
+        # wrapped_code: { lines: factory_lines },
         return: { type: "#{@spec.name} *" } }
     end
 
@@ -638,12 +654,12 @@ module Wrapture
     end
 
     # The suffix to add to a function definition for initializers, if any exist.
-    def initializer_suffix
-      return '' if @spec.initializers.empty?
+    def initializer_suffix(func_spec)
+      return '' if func_spec.initializers.empty?
 
-      if @spec.initializers.first[:delegate]
-        params = @spec.initializers.first[:values].join(', ')
-        return ": #{@spec.owner.name}( #{params} ) "
+      if func_spec.initializers.first[:delegate]
+        params = func_spec.initializers.first[:values].join(', ')
+        return ": #{func_spec.owner.name}( #{params} ) "
       end
 
       expressions = @spec.initializers.map do |initializer|
@@ -655,31 +671,42 @@ module Wrapture
 
     # A spec hash for a member constructor for this class.
     def member_constructor_hash
-      assignments = @spec.struct.members.map do |member|
-        "#{equivalent_member_field(member[:name])} = #{member[:name]};"
-      end
+      # assignments = @spec.struct.members.map do |member|
+      #   "#{equivalent_member_field(member[:name])} = #{member[:name]};"
+      # end
 
       { name: @spec.name,
         params: @spec.struct.members,
-        wrapped_code: { lines: assignments },
         constructor: true }
+    end
+
+    # The function for constructing a new instance of the given class from a
+    # pointer to the equivalent struct.
+    def pointer_constructor(class_spec)
+      # TODO: this needs to be refactored to a CppFunction
+      func = CSource::CFunction.new(class_spec.name)
+
+      type = Wrapture::CSource::CStruct.from_spec(class_spec.struct)
+      func.params << CSource::CDeclaration.new(type, 'equivalent')
+
+      if class_spec.pointer_wrapper?
+        func.puts('this->equivalent = equivalent;')
+      else
+        class_spec.struct.members.map do |member|
+          lvalue = equivalent_member_field(member[:name])
+          func.puts("#{lvalue} = equivalent->#{member[:name]};")
+        end
+      end
+
+      func
     end
 
     # A spec hash for a pointer constructor for this class.
     def pointer_constructor_hash
-      assignments = if @spec.pointer_wrapper?
-                      ['this->equivalent = equivalent;']
-                    else
-                      @spec.struct.members.map do |member|
-                        lvalue = equivalent_member_field(member[:name])
-                        "#{lvalue} = equivalent->#{member[:name]};"
-                      end
-                    end
-
       spec_hash = { name: @spec.name,
                     params: [{ name: 'equivalent',
                                type: EQUIVALENT_POINTER_KEYWORD }],
-                    wrapped_code: { lines: assignments } }
+                    constructor: true }
       if @spec.parent_provides_initializer?
         spec_hash[:initializers] = [{ name: @spec.parent_name,
                                       values: ['equivalent'] }]
