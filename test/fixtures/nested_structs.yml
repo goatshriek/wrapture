@@ -26,81 +26,87 @@ classes:
             type:
               name: "Pool"
               includes: "Pool.hpp"
-        wrapped_function:
-          name: "add_pool_to_gym"
-          params:
-            - name: "gym"
-              type: "equivalent_struct_pointer"
-            - name: "new_pool"
-              type:
-                name: "struct gym_pool *"
-                includes: "gym.h"
+        wrapped:
+          c:
+            name: "add_pool_to_gym"
+            params:
+              - name: "gym"
+                type: "equivalent_struct_pointer"
+              - name: "new_pool"
+                type:
+                  name: "struct gym_pool *"
+                  includes: "gym.h"
       - name: "AddPoolCopy"
         params:
           - name: "original_pool"
             type:
               name: "Pool"
               includes: "Pool.hpp"
-        wrapped_function:
-          name: "copy_pool_to_gym"
-          params:
-            - name: "gym"
-              type: "equivalent_struct_pointer"
-            - name: "original_pool"
-              type:
-                name: "struct gym_pool"
-                includes: "gym.h"
+        wrapped:
+          c:
+            name: "copy_pool_to_gym"
+            params:
+              - name: "gym"
+                type: "equivalent_struct_pointer"
+              - name: "original_pool"
+                type:
+                  name: "struct gym_pool"
+                  includes: "gym.h"
       - name: "AddTrack"
         params:
           - name: "new_track"
             type:
               name: "Track"
               includes: "Track.hpp"
-        wrapped_function:
-          name: "add_track_to_gym"
-          params:
-            - name: "gym"
-              type: "equivalent_struct_pointer"
-            - name: "new_track"
-              type:
-                name: "struct gym_track *"
-                includes: "gym.h"
+        wrapped:
+          c:
+            name: "add_track_to_gym"
+            params:
+              - name: "gym"
+                type: "equivalent_struct_pointer"
+              - name: "new_track"
+                type:
+                  name: "struct gym_track *"
+                  includes: "gym.h"
       - name: "AddTrackCopy"
         params:
           - name: "original_track"
             type:
               name: "Track"
               includes: "Track.hpp"
-        wrapped_function:
-          name: "copy_track_to_gym"
-          params:
-            - name: "gym"
-              type: "equivalent_struct_pointer"
-            - name: "original_track"
-              type:
-                name: "struct gym_track"
-                includes: "gym.h"
+        wrapped:
+          c:
+            name: "copy_track_to_gym"
+            params:
+              - name: "gym"
+                type: "equivalent_struct_pointer"
+              - name: "original_track"
+                type:
+                  name: "struct gym_track"
+                  includes: "gym.h"
   - name: "Pool"
     namespace: "wrapture_test"
     equivalent_struct:
       name: "gym_pool"
     constructors:
-      - wrapped_function:
-          name: "new_pool"
-          params:
-            - name: "name"
-              type: "const char *"
-          return:
-            type: "equivalent-struct"
+      - wrapped:
+            c:
+            name: "new_pool"
+            params:
+              - name: "name"
+                type: "const char *"
+            return:
+              type: "equivalent-struct"
   - name: "Track"
     namespace: "wrapture_test"
     equivalent_struct:
       name: "gym_track"
     constructors:
-      - wrapped_function:
-          name: "new_track"
-          params:
-            - name: "length"
-              type: "int"
-          return:
-            type: "equivalent_struct_pointer"
+      - wrapped:
+          c:
+            name: "new_track"
+            params:
+              - name: "length"
+                type: "int"
+            return:
+              type: "equivalent_struct_pointer"

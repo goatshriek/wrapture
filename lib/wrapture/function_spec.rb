@@ -352,6 +352,7 @@ module Wrapture
     # placeholders like +equivalent_struct+, which will be resolved to their
     # effective type.
     def resolve_type(type_spec)
+      # TODO: pick up here, since CTypes are being passed in by the C++ wrapper
       if type_spec.equivalent_struct?
         TypeSpec.new("struct #{@owner.struct_name}")
       elsif type_spec.equivalent_pointer?

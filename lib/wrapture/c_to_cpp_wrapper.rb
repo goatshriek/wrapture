@@ -361,7 +361,6 @@ module Wrapture
       end
 
       if autogen_pointer_constructor?
-        # TODO: pick up here and see if this worked
         func_spec = FunctionSpec.from_hash(pointer_constructor_hash)
         func_spec.owner = @spec
         signature = function_definition_signature(func_spec)
@@ -629,7 +628,7 @@ module Wrapture
       yield 'va_list variadic_args;' if spec.variadic?
 
       if function_captures_return?(spec)
-        wrapped_type = spec.resolve_type(spec.wrapped.return_val_type)
+        wrapped_type = spec.resolve_type(spec.wrapped[:c].return_type)
         yield "#{type_variable(wrapped_type, 'return_val')};"
       end
     end
@@ -643,7 +642,7 @@ module Wrapture
         !func_spec.wrapped[:c].error_check? &&
         (func_spec.return_type.name == SELF_REFERENCE_KEYWORD ||
         func_spec.return_overloaded? ||
-        func_spec.return_type == func_spec.wrapped.return_val_type)
+        func_spec.return_type == func_spec.wrapped[:c].return_type)
     end
 
     # True if the function returns the return_val variable.

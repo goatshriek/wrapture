@@ -77,7 +77,7 @@ class FunctionSpecTest < Minitest::Test
   def test_function_pointer_argument
     test_spec = fixture_hash('function_pointer_argument')
 
-    spec = Wrapture::FunctionSpec.new(test_spec)
+    spec = Wrapture::FunctionSpec.from_hash(test_spec)
 
     all_spec_includes(test_spec).each do |inc|
       assert_includes(spec.declaration_includes, inc)
@@ -85,8 +85,9 @@ class FunctionSpecTest < Minitest::Test
     end
 
     arg_type = 'const char *( *my_func_ptr )( int, int, void * )'
-
     lines = Wrapture::CToCppWrapper.declare_spec(spec, &block_collector)
+
+    lines.each { |line| puts line }
 
     assert(lines.any? { |line| line.include?(arg_type) })
 
@@ -133,9 +134,9 @@ class FunctionSpecTest < Minitest::Test
   def test_matching_return_types
     test_spec = fixture_hash('no_cast_function')
 
-    spec = Wrapture::FunctionSpec.new(test_spec)
+    spec = Wrapture::FunctionSpec.from_hash(test_spec)
 
-    call = test_spec[:wrapped_function][:name]
+    call = test_spec[:wrapped][:c][:name]
     Wrapture::CToCppWrapper.define_spec(spec) do |line|
       code = line.strip
       assert(code.start_with?("return #{call}")) if code.start_with?('return ')
