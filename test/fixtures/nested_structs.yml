@@ -91,12 +91,12 @@ classes:
     constructors:
       - wrapped:
             c:
-            name: "new_pool"
-            params:
-              - name: "name"
-                type: "const char *"
-            return:
-              type: "equivalent-struct"
+              name: "new_pool"
+              params:
+                - name: "name"
+                  type: "const char *"
+              return:
+                type: "equivalent_struct_pointer"
   - name: "Track"
     namespace: "wrapture_test"
     equivalent_struct:

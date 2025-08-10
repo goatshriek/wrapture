@@ -27,6 +27,7 @@ module Wrapture
     include Named
 
     # Gives the effective type of the given class spec hash.
+    # TODO: this should be refactored to use an object instead of a hash
     def self.effective_type(spec)
       inferred_pointer_wrapper = spec[:constructors].any? do |func|
         func[:wrapped][:c][:return][:type] == EQUIVALENT_POINTER_KEYWORD
@@ -193,6 +194,8 @@ module Wrapture
     end
 
     # A list of includes needed for the declaration of the class.
+    # TODO: includes should not be implemented in the class spec itself, only C
+    # wrappers
     def declaration_includes
       includes = @spec[:includes].dup
 
@@ -201,6 +204,7 @@ module Wrapture
       @functions.each do |func|
         raise UndefinableSpec, 'not wrappable in c' unless func.wrapped.key?(:c)
 
+        includes.concat(func.definition_includes)
         includes.concat(func.wrapped[:c].includes)
       end
 

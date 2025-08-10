@@ -433,7 +433,7 @@ module Wrapture
     def define_function
       unless @spec.definable?
         raise UndefinableSpec,
-              "no wrapped function or code was specified for #{@spec.name}"
+              "no wrapped function was specified for #{@spec.name}"
       end
 
       signature = function_definition_signature(@spec)
@@ -533,6 +533,21 @@ module Wrapture
       yield '}'
     end
 
+    # The function for constructing a new instance of a class from the given
+    # struct based its overload rules.
+    def factory_constructor(class_spec)
+      # TODO: this needs to be refactored to a CppFunction
+      func = CSource::CFunction.new("new#{class_spec.name}")
+
+      func.static = true
+      type = CSource::CPointer.new(CSource::CStruct.from_spec(class_spec.struct))
+      func.params << CSource::CDeclaration.new(type, 'equivalent')
+
+      # TODO: pick up here adding the lines and return type to the function
+
+      func
+    end
+
     # A spec hash for a factory constructor for this class.
     #
     # A factory constructor creates an instance of a class based on a struct
@@ -628,7 +643,7 @@ module Wrapture
       yield 'va_list variadic_args;' if spec.variadic?
 
       if function_captures_return?(spec)
-        wrapped_type = spec.resolve_type(spec.wrapped[:c].return_type)
+        wrapped_type = spec.resolve_type(spec.return_type)
         yield "#{type_variable(wrapped_type, 'return_val')};"
       end
     end
@@ -685,7 +700,7 @@ module Wrapture
       # TODO: this needs to be refactored to a CppFunction
       func = CSource::CFunction.new(class_spec.name)
 
-      type = Wrapture::CSource::CStruct.from_spec(class_spec.struct)
+      type = CSource::CPointer.new(CSource::CStruct.from_spec(class_spec.struct))
       func.params << CSource::CDeclaration.new(type, 'equivalent')
 
       if class_spec.pointer_wrapper?

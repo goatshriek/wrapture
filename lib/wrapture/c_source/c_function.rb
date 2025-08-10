@@ -36,6 +36,10 @@ module Wrapture
           func.includes = Wrapture.normalize_array(spec[:includes])
         end
 
+        if spec.key?(:return) && spec[:return].key?(:type)
+          func.return_type = CType.new(spec[:return][:type])
+        end
+
         if spec.key?(:error_check)
           check = @spec[:error_check]
 
@@ -96,7 +100,7 @@ module Wrapture
       attr_reader :params
 
       # The return type of the function.
-      attr_reader :return_type
+      attr_accessor :return_type
 
       # The tree of the function body.
       attr_reader :tree
