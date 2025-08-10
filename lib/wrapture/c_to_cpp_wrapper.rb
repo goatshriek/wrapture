@@ -304,6 +304,9 @@ module Wrapture
         self.class.declare_spec(func_spec) { |line| yield "    #{line}" }
       end
 
+      # TODO: pick up here adding the declaration and definition of the factory
+      # constructor
+
       class_functions.each do |function|
         self.class.declare_spec(function) { |line| yield "    #{line}" }
       end
@@ -542,8 +545,19 @@ module Wrapture
       func.static = true
       type = CSource::CPointer.new(CSource::CStruct.from_spec(class_spec.struct))
       func.params << CSource::CDeclaration.new(type, 'equivalent')
+      func.return_type = CSource::CPointer.new(class_spec.name)
 
-      # TODO: pick up here adding the lines and return type to the function
+      line_prefix = ''
+      class_spec.scope.overloads(class_spec).each do |overload|
+        check = overload.struct.rules_check('equivalent')
+        func.puts("#{line_prefix}if( #{check} ) {")
+        func.puts("  return new #{overload.name}( equivalent );")
+        line_prefix = '} else '
+      end
+
+      func.puts("#{line_prefix}{")
+      func.puts("  return new #{@spec.name}( equivalent );")
+      func.puts('}')
 
       func
     end
