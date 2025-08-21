@@ -15,16 +15,17 @@
 # limitations under the License.
 
 name: "IMightFail"
-wrapped_function:
-  name: "might_fail"
-  return:
-    type: "int"
-  error_check:
-    rules:
-      - left_expression: "return_value"
-        condition: "not_equals"
-        right_expression: "0"
-    error_action:
-      name: "throw_exception"
-      type: "CodeException"
-      value: "return_value"
+wrapped:
+  c:
+    name: "might_fail"
+    return:
+      type: "int"
+    error_check:
+      rules:
+        - left_expression: "return_value"
+          condition: "not_equals"
+          right_expression: "0"
+      error_action:
+        name: "throw_exception"
+        type: "CodeException"
+        value: "return_value"

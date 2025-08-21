@@ -26,7 +26,7 @@ class FunctionSpecTest < Minitest::Test
   def test_basic_new
     test_spec = fixture_hash('basic_function')
 
-    spec = Wrapture::FunctionSpec.new(test_spec)
+    spec = Wrapture::FunctionSpec.from_hash(test_spec)
     code = Wrapture::CToCppWrapper.define_spec(spec, &block_collector)
     code = code.map(&:lstrip)
 
@@ -53,7 +53,7 @@ class FunctionSpecTest < Minitest::Test
 
   def test_exception_throwing_function
     test_spec = fixture_hash('exception_throwing_function')
-    spec = Wrapture::FunctionSpec.new(test_spec)
+    spec = Wrapture::FunctionSpec.from_hash(test_spec)
 
     throw_code = 'throw CodeException( return_val )'
     Wrapture::CToCppWrapper.define_spec(spec) do |line|

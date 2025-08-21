@@ -61,7 +61,11 @@ module Wrapture
       if spec.key?(:return)
         func_spec.return_overloaded = Wrapture.normalize_boolean(spec[:return],
                                                                  :overloaded)
-        func_spec.return_type = TypeSpec.new(spec[:return][:type])
+        func_spec.return_type = if spec[:return].key?(:type)
+                                  TypeSpec.new(spec[:return][:type])
+                                else
+                                  TypeSpec.new('void')
+                                end
         if spec[:return].key?(:doc)
           Comment.validate_doc(spec[:return][:doc])
           func_spec.return_doc = Comment.new(spec[:return][:doc])
@@ -293,7 +297,7 @@ module Wrapture
 
     # A Comment holding the function documentation.
     def doc
-      comment = String.new
+      comment = Comment.new
       comment << @doc unless @doc.nil?
 
       @params
@@ -302,7 +306,7 @@ module Wrapture
 
       comment << "\n\n@return " << @return_doc.text unless @return_doc.nil?
 
-      Comment.new(comment)
+      comment
     end
 
     # An array of libraries required for this function call.

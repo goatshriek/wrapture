@@ -41,7 +41,7 @@ module Wrapture
         end
 
         if spec.key?(:error_check)
-          check = @spec[:error_check]
+          check = spec[:error_check]
 
           func.error_rules = check[:rules].map do |rule_spec|
             RuleSpec.new(rule_spec)

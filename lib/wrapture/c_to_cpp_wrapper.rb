@@ -689,7 +689,7 @@ module Wrapture
         return ": #{func_spec.owner.name}( #{params} ) "
       end
 
-      expressions = @spec.initializers.map do |initializer|
+      expressions = func_spec.initializers.map do |initializer|
         "#{initializer[:name]}( #{initializer[:values].join(', ')} )"
       end
 

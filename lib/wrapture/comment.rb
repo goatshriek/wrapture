@@ -34,8 +34,8 @@ module Wrapture
 
     # Creates a comment from a string. If the provided string is nil, then an
     # empty string is used.
-    def initialize(comment = '')
-      @text = comment.nil? ? '' : comment
+    def initialize(comment = nil)
+      @text = comment.nil? ? String.new : comment
     end
 
     # Adds more to the existing comment.
