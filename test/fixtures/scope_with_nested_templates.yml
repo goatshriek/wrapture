@@ -23,10 +23,11 @@ templates:
     value:
       name: "to_string"
       use_template: "common-return"
-      wrapped_function:
-        name: "generic_to_string"
-        params:
-          - value: "equivalent_struct_pointer"
+      wrapped:
+        c:
+          name: "generic_to_string"
+          params:
+            - value: "equivalent_struct_pointer"
 classes:
   - name: "OneClass"
     namespace: "wrapture_test"

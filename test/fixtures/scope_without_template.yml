@@ -24,10 +24,11 @@ classes:
       - name: "to_string"
         return:
           type: "const char *"
-        wrapped_function:
-          name: "one_struct_to_string"
-          params:
-            - value: "equivalent_struct_pointer"
+        wrapped:
+          c:
+            name: "one_struct_to_string"
+            params:
+              - value: "equivalent_struct_pointer"
   - name: "TwoClass"
     namespace: "wrapture_test"
     equivalent_struct:
@@ -37,10 +38,11 @@ classes:
       - name: "to_string"
         return:
           type: "const char *"
-        wrapped_function:
-          name: "two_struct_to_string"
-          params:
-            - value: "equivalent_struct_pointer"
+        wrapped:
+          c:
+            name: "two_struct_to_string"
+            params:
+              - value: "equivalent_struct_pointer"
   - name: "RedClass"
     namespace: "wrapture_test"
     equivalent_struct:
@@ -50,10 +52,11 @@ classes:
       - name: "to_string"
         return:
           type: "const char *"
-        wrapped_function:
-          name: "red_struct_to_string"
-          params:
-            - value: "equivalent_struct_pointer"
+        wrapped:
+          c:
+            name: "red_struct_to_string"
+            params:
+              - value: "equivalent_struct_pointer"
   - name: "BlueClass"
     namespace: "wrapture_test"
     equivalent_struct:
@@ -63,7 +66,8 @@ classes:
       - name: "to_string"
         return:
           type: "const char *"
-        wrapped_function:
-          name: "blue_struct_to_string"
-          params:
-            - value: "equivalent_struct_pointer"
+        wrapped:
+          c:
+            name: "blue_struct_to_string"
+            params:
+              - value: "equivalent_struct_pointer"

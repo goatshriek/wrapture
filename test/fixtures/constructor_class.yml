@@ -24,46 +24,53 @@ equivalent_struct:
   includes:
     - "constructed.h"
 constructors:
-  - wrapped_function:
-      name: "build_a_struct"
+  - wrapped:
+      c:
+        name: "build_a_struct"
+        params:
+          - name: "new_name"
+            type: "const char *"
+        return:
+          type: "equivalent-struct-pointer"
+        includes: "constructed.h"
+  - wrapped:
+      c:
+        name: "copy_struct"
+        params:
+          - name: "original_struct"
+            type: "equivalent-struct"
+        return:
+          type: "equivalent-struct-pointer"
+        includes:
+          - "constructed.h"
+  - wrapped:
+      c:
+        name: "copy_struct_pointer"
+        params:
+          - name: "original_struct_pointer"
+            type: "equivalent-struct-pointer"
+        return:
+          type: "equivalent-struct-pointer"
+destructor:
+  wrapped:
+    c:
+      name: "destroy_a_struct"
       params:
-        - name: "new_name"
-          type: "const char *"
-      return:
-        type: "equivalent-struct-pointer"
-      includes: "constructed.h"
-  - wrapped_function:
-      name: "copy_struct"
-      params:
-        - name: "original_struct"
-          type: "equivalent-struct"
-      return:
-        type: "equivalent-struct-pointer"
+        - name: "equivalent-struct-pointer"
       includes:
         - "constructed.h"
-  - wrapped_function:
-      name: "copy_struct_pointer"
-      params:
-        - name: "original_struct_pointer"
-          type: "equivalent-struct-pointer"
-      return:
-        type: "equivalent-struct-pointer"
-destructor:
-  wrapped_function:
-    name: "destroy_a_struct"
-    params:
-      - name: "equivalent-struct-pointer"
-    includes:
-      - "constructed.h"
 functions:
   - name: "CompareToStruct"
     params:
       - name: "compare_to"
         type: "equivalent-struct"
-    wrapped_function:
-      name: "compare_structs"
-      params:
-        - name: "equivalent-struct"
-        - name: "compare_to"
     return:
       type: "int"
+    wrapped:
+      c:
+        name: "compare_structs"
+        params:
+          - name: "equivalent-struct"
+          - name: "compare_to"
+        return:
+          type: "int"

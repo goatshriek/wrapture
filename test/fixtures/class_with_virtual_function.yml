@@ -22,7 +22,8 @@ equivalent_struct:
 functions:
   - name: "VirtualFunction"
     virtual: true
-    wrapped_function:
-      name: "vanilla_flavor"
-      params:
-        - value: "equivalent_struct_pointer"
+    wrapped:
+      c:
+        name: "vanilla_flavor"
+        params:
+          - value: "equivalent_struct_pointer"
