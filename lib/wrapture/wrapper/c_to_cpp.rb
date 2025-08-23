@@ -60,6 +60,38 @@ module Wrapture
         src
       end
 
+      # True if the provided wrapped param spec can be cast to when used in this
+      # function.
+      def self.param_uses_equivalent?(func_spec, wrapped_param)
+        param = func_spec.params.find { |p| p.name == wrapped_param.value }
+
+        !param.nil? &&
+          !wrapped_param.c_type.nil? &&
+          func_spec.owner.type?(param.type)
+      end
+
+      # Gives an expression for using a given parameter.
+      # Equivalent structs and pointers are resolved, as well as casts between
+      # types if they are known within the scope of this function.
+      def self.resolve_wrapped_param(func_spec, param)
+        used_param = func_spec.params.find { |p| p.name == param.value }
+
+        # TODO: obviously we don't want to rely on CToPython in the end state
+        if param.value == EQUIVALENT_STRUCT_KEYWORD
+          CToPython.class_struct(func_spec.owner)
+        elsif param.value == EQUIVALENT_POINTER_KEYWORD
+          CToPython.class_struct_pointer(func_spec.owner)
+        elsif param.value == '...'
+          'variadic_args'
+        elsif param_uses_equivalent?(func_spec, param)
+          param_class = func_spec.owner.type(used_param.type)
+          to = param.c_type.to_s
+          CToPython.cast_equivalent(param_class, used_param.name, to)
+        else
+          param.value
+        end
+      end
+
       # Generates a build for a C++ library wrapping a class.
       def self.wrap_class(class_spec)
         set = CppSource::CppSourceSet.new(class_spec.name)

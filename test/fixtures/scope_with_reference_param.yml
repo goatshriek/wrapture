@@ -33,9 +33,10 @@ classes:
             type: "Bullet&"
         return:
           type: "self-reference"
-        wrapped_function:
-          name: "load_rifle_with_bullet"
-          params:
-            - value: "equivalent_struct_pointer"
-            - type: "struct bullet_struct *"
-              value: "bullet"
+        wrapped:
+          c:
+            name: "load_rifle_with_bullet"
+            params:
+              - value: "equivalent_struct_pointer"
+              - type: "struct bullet_struct *"
+                value: "bullet"

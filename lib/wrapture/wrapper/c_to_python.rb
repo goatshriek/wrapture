@@ -136,7 +136,6 @@ module Wrapture
       # class with the given name to the given type.
       def self.cast_equivalent(class_spec, var_name, to)
         struct = "struct #{class_spec.struct.name}"
-
         if [EQUIVALENT_STRUCT_KEYWORD, struct].include?(to)
           "#{'*' if class_spec.pointer_wrapper?}#{var_name}->equivalent"
         elsif [EQUIVALENT_POINTER_KEYWORD, "#{struct} *"].include?(to)
@@ -902,7 +901,7 @@ module Wrapture
       end
 
       # True if the provided wrapped param spec can be cast to when used in this
-      # function. Expects @spec to be a function spec when called.
+      # function.
       def self.param_uses_equivalent?(func_spec, wrapped_param)
         param = func_spec.params.find { |p| p.name == wrapped_param[:value] }
 

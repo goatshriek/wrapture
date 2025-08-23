@@ -863,8 +863,7 @@ module Wrapture
     def wrapped_call_expression
       wrapped = @spec.wrapped[:c]
       resolved_params = wrapped.params.map do |param|
-        # TODO: clearly not the desired end location of parameter resolution
-        Wrapture::Wrapper::CToPython.resolve_wrapped_param(func_spec, param)
+        Wrapture::Wrapper::CToCpp.resolve_wrapped_param(@spec, param)
       end
 
       call = "#{wrapped.name}( #{resolved_params.join(', ')} )"

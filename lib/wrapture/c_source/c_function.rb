@@ -32,6 +32,14 @@ module Wrapture
 
         func = CFunction.new(spec[:name])
 
+        if spec.key?(:params)
+          spec[:params].each do |param|
+            name = (param[:name] if param.key?(:name))
+            value = (param[:value] if param.key?(:value))
+            func.params << CDeclaration.new(param[:type], name, value: value)
+          end
+        end
+
         if spec.key?(:includes)
           func.includes = Wrapture.normalize_array(spec[:includes])
         end
