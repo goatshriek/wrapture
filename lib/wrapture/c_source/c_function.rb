@@ -60,7 +60,14 @@ module Wrapture
           end
         end
 
-        func.libraries.concat(spec[:libraries]) if spec.key?(:libraries)
+        if spec.key?(:libraries)
+          case spec[:libraries]
+          when String
+            func.libraries << spec[:libraries]
+          else
+            func.libraries.concat(spec[:libraries]) if spec.key?(:libraries)
+          end
+        end
 
         func
       end

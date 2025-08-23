@@ -354,7 +354,8 @@ module Wrapture
           blk.declare('int', 'parse_result')
         end
 
-        if !func_spec.void_return? || func_spec.wrapped.use_return?
+        # if !func_spec.void_return? || func_spec.wrapped.use_return?
+        if !func_spec.void_return? || func_spec.wrapped[:c].error_rules.any?(&:use_return?)
           effective_return = func_spec.wrapped.return_val_type
           if effective_return.name == 'void'
             effective_return = func_spec.return_type
@@ -903,10 +904,10 @@ module Wrapture
       # True if the provided wrapped param spec can be cast to when used in this
       # function.
       def self.param_uses_equivalent?(func_spec, wrapped_param)
-        param = func_spec.params.find { |p| p.name == wrapped_param[:value] }
+        param = func_spec.params.find { |p| p.name == wrapped_param.value }
 
         !param.nil? &&
-          !wrapped_param[:type].nil? &&
+          !wrapped_param.c_type.nil? &&
           func_spec.owner.type?(param.type)
       end
 
@@ -956,20 +957,20 @@ module Wrapture
       # Gives an expression for using a given parameter.
       # Equivalent structs and pointers are resolved, as well as casts between
       # types if they are known within the scope of this function.
-      def self.resolve_wrapped_param(func_spec, param_hash)
-        used_param = func_spec.params.find { |p| p.name == param_hash[:value] }
+      def self.resolve_wrapped_param(func_spec, param)
+        used_param = func_spec.params.find { |p| p.name == param.value }
 
-        if param_hash[:value] == EQUIVALENT_STRUCT_KEYWORD
+        if param.value == EQUIVALENT_STRUCT_KEYWORD
           class_struct(func_spec.owner)
-        elsif param_hash[:value] == EQUIVALENT_POINTER_KEYWORD
+        elsif param.value == EQUIVALENT_POINTER_KEYWORD
           class_struct_pointer(func_spec.owner)
-        elsif param_hash[:value] == '...'
+        elsif param.value == '...'
           'variadic_args'
-        elsif param_uses_equivalent?(func_spec, param_hash)
+        elsif param_uses_equivalent?(func_spec, param)
           param_class = func_spec.owner.type(used_param.type)
-          cast_equivalent(param_class, used_param.name, param_hash[:type])
+          cast_equivalent(param_class, used_param.name, param.c_type)
         else
-          param_hash[:value]
+          param.value
         end
       end
 
