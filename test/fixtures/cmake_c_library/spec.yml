@@ -25,9 +25,10 @@ classes:
             type: "int"
           - name: "n2"
             type: "int"
-        wrapped_function:
-          name: cmakeclib_add
-          params:
-            - name: n1
-            - name: n2
-          libraries: cmakeclib
+        wrapped:
+          c:
+            name: cmakeclib_add
+            params:
+              - name: n1
+              - name: n2
+            libraries: cmakeclib

@@ -19,24 +19,26 @@ namespace: "wrapture_test"
 equivalent_struct:
   name: "irrelevant"
 constructors:
-  - wrapped_function:
-      name: "wrapped_constructor"
-      params:
-        - name: "name"
-          type: "const char *"
-      return:
-        type: "equivalent_struct_pointer"
-      error_check:
-        rules:
-          - left_expression: "return_value"
-            condition: "equals"
-            right_expression: "NULL"
-        error_action:
-          name: "throw_exception"
-          type: "throwMyException"
-          value: "name"
+  - wrapped:
+      c:
+        name: "wrapped_constructor"
+        params:
+          - name: "name"
+            type: "const char *"
+        return:
+          type: "equivalent_struct_pointer"
+        error_check:
+          rules:
+            - left_expression: "return_value"
+              condition: "equals"
+              right_expression: "NULL"
+          error_action:
+            name: "throw_exception"
+            type: "throwMyException"
+            value: "name"
 destructor:
-  wrapped_function:
-    name: "wrapped_destructor"
-    params:
-      - value: "equivalent_struct_pointer"
+  wrapped:
+    c:
+      name: "wrapped_destructor"
+      params:
+        - value: "equivalent_struct_pointer"

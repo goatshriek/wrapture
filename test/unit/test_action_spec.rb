@@ -26,9 +26,9 @@ class ActionSpecTest < Minitest::Test
   def test_basic
     test_spec = fixture_hash('basic_action')
     spec = Wrapture::ActionSpec.new(test_spec)
-    common_includes = spec.includes & test_spec[:wrapped_function][:includes]
+    common_includes = spec.includes & test_spec[:wrapped][:c][:includes]
 
-    assert_equal(common_includes, test_spec[:wrapped_function][:includes])
+    assert_equal(common_includes, test_spec[:wrapped][:c][:includes])
   end
 
   def test_exception_without_params

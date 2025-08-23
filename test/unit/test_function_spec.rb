@@ -87,8 +87,6 @@ class FunctionSpecTest < Minitest::Test
     arg_type = 'const char *( *my_func_ptr )( int, int, void * )'
     lines = Wrapture::CToCppWrapper.declare_spec(spec, &block_collector)
 
-    lines.each { |line| puts line }
-
     assert(lines.any? { |line| line.include?(arg_type) })
 
     lines = Wrapture::CToCppWrapper.define_spec(spec, &block_collector)
@@ -98,8 +96,7 @@ class FunctionSpecTest < Minitest::Test
 
   def test_function_pointer_return
     test_spec = fixture_hash('function_pointer_return')
-
-    spec = Wrapture::FunctionSpec.new(test_spec)
+    spec = Wrapture::FunctionSpec.from_hash(test_spec)
 
     all_spec_includes(test_spec).each do |inc|
       assert_includes(spec.declaration_includes, inc)
@@ -127,7 +124,7 @@ class FunctionSpecTest < Minitest::Test
     test_spec = fixture_hash('future_version_function')
 
     assert_raises(Wrapture::UnsupportedSpecVersion) do
-      Wrapture::FunctionSpec.new(test_spec)
+      Wrapture::FunctionSpec.from_hash(test_spec)
     end
   end
 
@@ -145,8 +142,7 @@ class FunctionSpecTest < Minitest::Test
 
   def test_nested_function_pointer_argument
     test_spec = fixture_hash('nested_function_pointer_argument')
-
-    spec = Wrapture::FunctionSpec.new(test_spec)
+    spec = Wrapture::FunctionSpec.from_hash(test_spec)
 
     expected_declaration = 'void NestedFunctionPointerArgument( const char ' \
                            '*( *my_func_ptr )( int, int ( * )( struct ' \
@@ -159,8 +155,7 @@ class FunctionSpecTest < Minitest::Test
 
   def test_nested_function_pointer_return
     test_spec = fixture_hash('nested_function_pointer_return')
-
-    spec = Wrapture::FunctionSpec.new(test_spec)
+    spec = Wrapture::FunctionSpec.from_hash(test_spec)
 
     all_spec_includes(test_spec).each do |inc|
       assert_includes(spec.declaration_includes, inc)
@@ -178,8 +173,7 @@ class FunctionSpecTest < Minitest::Test
 
   def test_only_documented_params
     test_spec = fixture_hash('documented_params')
-
-    spec = Wrapture::FunctionSpec.new(test_spec)
+    spec = Wrapture::FunctionSpec.from_hash(test_spec)
 
     comment = String.new
     Wrapture::CToCppWrapper.declare_spec(spec) do |line|
@@ -197,7 +191,7 @@ class FunctionSpecTest < Minitest::Test
     test_spec = fixture_hash('invalid/only_variadic_param')
 
     error = assert_raises(Wrapture::InvalidSpecKey) do
-      Wrapture::FunctionSpec.new(test_spec)
+      Wrapture::FunctionSpec.from_hash(test_spec)
     end
 
     assert_includes(error.message, 'only param')
@@ -205,8 +199,7 @@ class FunctionSpecTest < Minitest::Test
 
   def test_undefinable
     test_spec = fixture_hash('undefinable_function')
-
-    spec = Wrapture::FunctionSpec.new(test_spec)
+    spec = Wrapture::FunctionSpec.from_hash(test_spec)
 
     refute_predicate(spec, :definable?)
 
@@ -219,7 +212,7 @@ class FunctionSpecTest < Minitest::Test
     test_specs = fixture_hash('variadic_functions')
 
     test_specs.each do |test_spec|
-      spec = Wrapture::FunctionSpec.new(test_spec)
+      spec = Wrapture::FunctionSpec.from_hash(test_spec)
 
       Wrapture::CToCppWrapper.declare_spec(spec) do |line|
         assert_includes(line, '...')
@@ -239,7 +232,6 @@ class FunctionSpecTest < Minitest::Test
 
   def test_versioned_function
     test_spec = fixture_hash('versioned_function')
-
-    Wrapture::FunctionSpec.new(test_spec)
+    Wrapture::FunctionSpec.from_hash(test_spec)
   end
 end

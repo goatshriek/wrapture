@@ -24,6 +24,24 @@ module Wrapture
     module CToCpp
       extend Wrapper
 
+      # Returns a cast of the equivalent member of an instance of the given
+      # class with the given name from one type to another.
+      def self.cast_equivalent(class_spec, var_name, from, to)
+        member_access = from.pointer? ? '->' : '.'
+        struct = "struct #{class_spec.struct.name}"
+        if [EQUIVALENT_STRUCT_KEYWORD, struct].include?(to)
+          "#{if class_spec.pointer_wrapper?
+               '*'
+             end}#{var_name}#{member_access}equivalent"
+        elsif [EQUIVALENT_POINTER_KEYWORD, "#{struct} *"].include?(to)
+          "#{unless class_spec.pointer_wrapper?
+               '&'
+             end}#{var_name}#{member_access}equivalent"
+        else
+          raise "uncaught cast case: to '#{to}'"
+        end
+      end
+
       # Generate a source file with the declaration of a class.
       def self.declare_class(class_spec)
         src = SourceFile.new("#{class_spec.name}.hpp")
@@ -85,8 +103,9 @@ module Wrapture
           'variadic_args'
         elsif param_uses_equivalent?(func_spec, param)
           param_class = func_spec.owner.type(used_param.type)
+          from = used_param.type
           to = param.c_type.to_s
-          CToPython.cast_equivalent(param_class, used_param.name, to)
+          cast_equivalent(param_class, used_param.name, from, to)
         else
           param.value
         end

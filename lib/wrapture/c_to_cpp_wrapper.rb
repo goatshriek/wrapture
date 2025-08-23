@@ -566,24 +566,10 @@ module Wrapture
     # A factory constructor creates an instance of a class based on a struct
     # that is overloaded.
     def factory_constructor_hash
-      # factory_lines = []
-      # line_prefix = ''
-      # @spec.scope.overloads(@spec).each do |overload|
-      #   check = overload.struct.rules_check('equivalent')
-      #   factory_lines << "#{line_prefix}if( #{check} ) {"
-      #   factory_lines << "  return new #{overload.name}( equivalent );"
-      #   line_prefix = '} else '
-      # end
-
-      # factory_lines << "#{line_prefix}{"
-      # factory_lines << "  return new #{@spec.name}( equivalent );"
-      # factory_lines << '}'
-
       { name: ['new'] + @spec.name_words,
         static: true,
         params: [{ name: 'equivalent',
                    type: EQUIVALENT_POINTER_KEYWORD }],
-        # wrapped_code: { lines: factory_lines },
         return: { type: "#{@spec.name} *" } }
     end
 

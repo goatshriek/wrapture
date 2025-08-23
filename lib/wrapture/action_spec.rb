@@ -27,7 +27,7 @@ module Wrapture
       normalized = spec.dup
 
       required_keys = %i[name type]
-      optional_keys = %i[value wrapped_function]
+      optional_keys = %i[value wrapped]
 
       extra_keys = spec.keys - required_keys - optional_keys
       unless extra_keys.empty?
@@ -46,9 +46,9 @@ module Wrapture
         raise(KeyConflict, extra_msg)
       end
 
-      if spec.include?(:wrapped_function)
-        wrap = CFunctionSpec.normalize_spec_hash(spec[:wrapped_function])
-        normalized[:wrapped_function] = wrap
+      if spec.key?(:wrapped) && spec[:wrapped].key?(:c)
+        wrap = CFunctionSpec.normalize_spec_hash(spec[:wrapped][:c])
+        normalized[:wrapped][:c] = wrap
       end
 
       normalized
@@ -73,8 +73,8 @@ module Wrapture
 
     # A list of includes needed for the action.
     def includes
-      if @spec.include?(:wrapped_function)
-        @spec[:wrapped_function][:includes].dup
+      if @spec.key?(:wrapped) && @spec[:wrapped].key?(:c)
+        @spec[:wrapped][:c][:includes].dup
       else
         []
       end

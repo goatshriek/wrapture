@@ -19,29 +19,32 @@
     - name: "app_name"
       type: "const char *"
     - name: "..."
-  wrapped_function:
-    name: "underlying_function"
-    params:
-      - value: "app_name"
-      - value: "..."
+  wrapped:
+    c:
+      name: "underlying_function"
+      params:
+        - value: "app_name"
+        - value: "..."
 - name: "VariadicFunctionMultipleEllipses"
   params:
     - name: "app_name"
       type: "const char *"
     - name: "..."
     - name: "..."
-  wrapped_function:
-    name: "underlying_function"
-    params:
-      - value: "app_name"
-      - value: "..."
+  wrapped:
+    c:
+      name: "underlying_function"
+      params:
+        - value: "app_name"
+        - value: "..."
 - name: "VariadicFunctionNotLast"
   params:
     - name: "..."
     - name: "app_name"
       type: "const char *"
-  wrapped_function:
-    name: "underlying_function"
-    params:
-      - value: "app_name"
-      - value: "..."
+  wrapped:
+    c:
+      name: "underlying_function"
+      params:
+        - value: "app_name"
+        - value: "..."
