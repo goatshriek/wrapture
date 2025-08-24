@@ -46,11 +46,6 @@ module Wrapture
         raise(KeyConflict, extra_msg)
       end
 
-      if spec.key?(:wrapped) && spec[:wrapped].key?(:c)
-        wrap = CFunctionSpec.normalize_spec_hash(spec[:wrapped][:c])
-        normalized[:wrapped][:c] = wrap
-      end
-
       normalized
     end
 
