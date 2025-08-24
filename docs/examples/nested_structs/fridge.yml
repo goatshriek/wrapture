@@ -22,15 +22,16 @@ classes:
     equivalent_struct:
       name: "ice_maker"
     constructors:
-      - wrapped_function:
-          name: "new_ice_maker"
-          params:
-            - name: "size"
-              type: "int"
-            - name: "can_crush_ice"
-              type: "int"
-          return:
-            type: "equivalent_struct_pointer"
+      - wrapped:
+          c:
+            name: "new_ice_maker"
+            params:
+              - name: "size"
+                type: "int"
+              - name: "can_crush_ice"
+                type: "int"
+            return:
+              type: "equivalent_struct_pointer"
   - name: "WaterFilter"
     namespace: "kitchen"
     libraries: "fridge"
@@ -38,13 +39,14 @@ classes:
     equivalent_struct:
       name: "water_filter"
     constructors:
-      - wrapped_function:
-          name: "new_water_filter"
-          params:
-            - name: "purity_level"
-              type: "int"
-          return:
-            type: "equivalent_struct_pointer"
+      - wrapped:
+          c:
+            name: "new_water_filter"
+            params:
+              - name: "purity_level"
+                type: "int"
+            return:
+              type: "equivalent_struct_pointer"
   - name: "Freezer"
     namespace: "kitchen"
     libraries: "fridge"
@@ -52,15 +54,16 @@ classes:
     equivalent_struct:
       name: "freezer"
     constructors:
-      - wrapped_function:
-          name: "new_freezer"
-          params:
-            - name: "minimum_temp"
-              type: "int"
-            - name: "set_temp"
-              type: "int"
-          return:
-            type: "equivalent_struct_pointer"
+      - wrapped:
+          c:
+            name: "new_freezer"
+            params:
+              - name: "minimum_temp"
+                type: "int"
+              - name: "set_temp"
+                type: "int"
+            return:
+              type: "equivalent_struct_pointer"
   - name: "Fridge"
     namespace: "kitchen"
     libraries: "fridge"
@@ -69,46 +72,51 @@ classes:
     equivalent_struct:
       name: "fridge"
     constructors:
-      - wrapped_function:
-          name: "new_fridge"
-          params:
-            - name: "temperature"
-              type: "int"
-          return:
-            type: "equivalent_struct_pointer"
+      - wrapped:
+          c:
+            name: "new_fridge"
+            params:
+              - name: "temperature"
+                type: "int"
+            return:
+              type: "equivalent_struct_pointer"
     functions:
       - name: "AddIceMaker"
         params:
           - name: "new_ice_maker"
             type: "IceMaker"
-        wrapped_function:
-          name: "add_ice_maker_to_fridge"
-          params:
-            - name: "equivalent_struct_pointer"
-            - name: "new_ice_maker"
-              type: "struct ice_maker *"
+        wrapped:
+          c:
+            name: "add_ice_maker_to_fridge"
+            params:
+              - name: "equivalent_struct_pointer"
+              - name: "new_ice_maker"
+                type: "struct ice_maker *"
       - name: "AddWaterFilter"
         params:
           - name: "new_filter"
             type: "WaterFilter"
-        wrapped_function:
-          name: "add_water_filter_to_fridge"
-          params:
-            - name: "equivalent_struct_pointer"
-            - name: "new_filter"
-              type: "struct water_filter *"
+        wrapped:
+          c:
+            name: "add_water_filter_to_fridge"
+            params:
+              - name: "equivalent_struct_pointer"
+              - name: "new_filter"
+                type: "struct water_filter *"
       - name: "AddFreezer"
         params:
           - name: "new_freezer"
             type: "Freezer"
-        wrapped_function:
-          name: "add_freezer_to_fridge"
-          params:
-            - name: "equivalent_struct_pointer"
-            - name: "new_freezer"
-              type: "struct freezer *"
+        wrapped:
+          c:
+            name: "add_freezer_to_fridge"
+            params:
+              - name: "equivalent_struct_pointer"
+              - name: "new_freezer"
+                type: "struct freezer *"
       - name: "Print"
-        wrapped_function:
-          name: "print_fridge"
-          params:
-            - name: "equivalent_struct_pointer"
+        wrapped:
+          c:
+            name: "print_fridge"
+            params:
+              - name: "equivalent_struct_pointer"

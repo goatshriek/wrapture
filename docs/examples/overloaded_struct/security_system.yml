@@ -23,42 +23,47 @@ classes:
       name: "event"
       includes: "security_system.h"
     constructors:
-      - wrapped_function:
-          name: "new_default_event"
-          return:
-            type: "equivalent_struct_pointer"
-      - wrapped_function:
-          name: "new_event"
-          params:
-            - name: "code"
-              type: "int"
-            - name: "data"
-              type: "void *"
-          return:
-            type: "equivalent_struct_pointer"
+      - wrapped:
+          c:
+            name: "new_default_event"
+            return:
+              type: "equivalent_struct_pointer"
+      - wrapped:
+          c:
+            name: "new_event"
+            params:
+              - name: "code"
+                type: "int"
+              - name: "data"
+                type: "void *"
+            return:
+              type: "equivalent_struct_pointer"
     destructor:
-      wrapped_function:
-        name: "destroy_event"
-        params:
-          - value: "equivalent_struct_pointer"
+      wrapped:
+        c:
+          name: "destroy_event"
+          params:
+            - value: "equivalent_struct_pointer"
     functions:
       - name: "NextEvent"
         static: true
         return:
           type: "SecurityEvent *"
           overloaded: true
-        wrapped_function:
-          name: "get_next_event"
-          includes: "security_system.h"
-          return:
-            type: "equivalent_struct_pointer"
+        wrapped:
+          c:
+            name: "get_next_event"
+            includes: "security_system.h"
+            return:
+              type: "equivalent_struct_pointer"
       - name: "Print"
         virtual: true
-        wrapped_function:
-          name: "print_event"
-          includes: "security_system.h"
-          params:
-            - value: "equivalent_struct_pointer"
+        wrapped:
+          c:
+            name: "print_event"
+            includes: "security_system.h"
+            params:
+              - value: "equivalent_struct_pointer"
   - name: "CameraEvent"
     namespace: "home_automation"
     libraries: "security_system"
@@ -72,20 +77,22 @@ classes:
           condition: "equals"
           value: "CAMERA_EVENT"
     constructors:
-      - wrapped_function:
-          name: "new_camera_event"
-          params:
-            - name: "description"
-              type: "const char *"
-          return:
-            type: "equivalent_struct_pointer"
+      - wrapped:
+          c:
+            name: "new_camera_event"
+            params:
+              - name: "description"
+                type: "const char *"
+            return:
+              type: "equivalent_struct_pointer"
     functions:
       - name: "Print"
-        wrapped_function:
-          name: "print_camera_event"
-          includes: "security_system.h"
-          params:
-            - value: "equivalent_struct_pointer"
+        wrapped:
+          c:
+            name: "print_camera_event"
+            includes: "security_system.h"
+            params:
+              - value: "equivalent_struct_pointer"
   - name: "GlassBreakEvent"
     namespace: "home_automation"
     libraries: "security_system"
@@ -99,20 +106,22 @@ classes:
           condition: "equals"
           value: "GLASS_BREAK_EVENT"
     constructors:
-      - wrapped_function:
-          name: "new_glass_break_event"
-          params:
-            - name: "level"
-              type: "int"
-          return:
-            type: "equivalent_struct_pointer"
+      - wrapped:
+          c:
+            name: "new_glass_break_event"
+            params:
+              - name: "level"
+                type: "int"
+            return:
+              type: "equivalent_struct_pointer"
     functions:
       - name: "Print"
-        wrapped_function:
-          name: "print_glass_break_event"
-          includes: "security_system.h"
-          params:
-            - value: "equivalent_struct_pointer"
+        wrapped:
+          c:
+            name: "print_glass_break_event"
+            includes: "security_system.h"
+            params:
+              - value: "equivalent_struct_pointer"
   - name: "MotionEvent"
     namespace: "home_automation"
     libraries: "security_system"
@@ -126,17 +135,19 @@ classes:
           condition: "equals"
           value: "MOTION_EVENT"
     constructors:
-      - wrapped_function:
-          name: "new_motion_event"
-          params:
-            - name: "description"
-              type: "const char *"
-          return:
-            type: "equivalent_struct_pointer"
+      - wrapped:
+          c:
+            name: "new_motion_event"
+            params:
+              - name: "description"
+                type: "const char *"
+            return:
+              type: "equivalent_struct_pointer"
     functions:
       - name: "Print"
-        wrapped_function:
-          name: "print_motion_event"
-          includes: "security_system.h"
-          params:
-            - value: "equivalent_struct_pointer"
+        wrapped:
+          c:
+            name: "print_motion_event"
+            includes: "security_system.h"
+            params:
+              - value: "equivalent_struct_pointer"

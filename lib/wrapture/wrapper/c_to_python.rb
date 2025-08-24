@@ -356,8 +356,8 @@ module Wrapture
 
         # if !func_spec.void_return? || func_spec.wrapped.use_return?
         if !func_spec.void_return? || func_spec.wrapped[:c].error_rules.any?(&:use_return?)
-          effective_return = func_spec.wrapped.return_val_type
-          if effective_return.name == 'void'
+          effective_return = func_spec.wrapped[:c].return_type
+          if effective_return.to_s == 'void'
             effective_return = func_spec.return_type
           end
           effective_return = func_spec.resolve_type(effective_return)

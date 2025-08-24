@@ -30,6 +30,7 @@ module Wrapture
     # TODO: this should be refactored to use an object instead of a hash
     def self.effective_type(spec)
       inferred_pointer_wrapper = spec[:constructors].any? do |func|
+        # TODO: this should not have c-specific code
         func[:wrapped][:c][:return][:type] == EQUIVALENT_POINTER_KEYWORD
       end
 

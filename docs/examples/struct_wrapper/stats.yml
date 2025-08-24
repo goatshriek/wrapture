@@ -36,8 +36,9 @@ classes:
           default_value: 0
     functions:
       - name: "Print"
-        wrapped_function:
-          name: "print_player_stats"
-          params:
-            - name: "equivalent_struct_pointer"
-          includes: "stats.h"
+        wrapped:
+          c:
+            name: "print_player_stats"
+            params:
+              - name: "equivalent_struct_pointer"
+            includes: "stats.h"

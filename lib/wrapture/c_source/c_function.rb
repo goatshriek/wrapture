@@ -34,9 +34,19 @@ module Wrapture
 
         if spec.key?(:params)
           spec[:params].each do |param|
+            type = case param[:type]
+                   when String
+                     CType.new(param[:type])
+                   when Hash
+                     CType.new(param[:type][:name])
+                   end
             name = (param[:name] if param.key?(:name))
-            value = (param[:value] if param.key?(:value))
-            func.params << CDeclaration.new(param[:type], name, value: value)
+            value = if param.key?(:value)
+                      param[:value]
+                    else
+                      name
+                    end
+            func.params << CDeclaration.new(type, name, value: value)
           end
         end
 

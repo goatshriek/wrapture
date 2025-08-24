@@ -51,8 +51,9 @@ classes:
         params:
           - name: "command"
             type: "int"
-        wrapped_function:
-          name: "send_command"
-          params:
-            - name: "equivalent_struct_pointer"
-            - name: "command"
+        wrapped:
+          c:
+            name: "send_command"
+            params:
+              - name: "equivalent_struct_pointer"
+              - name: "command"

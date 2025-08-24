@@ -25,72 +25,79 @@ classes:
       name: "stove"
     constructors:
       - doc: "Creates a new stove."
-        wrapped_function:
-          name: "new_stove"
-          params:
-            - name: "burner_count"
-              type: "int"
-          return:
-            type: "equivalent_struct_pointer"
+        wrapped:
+          c:
+            name: "new_stove"
+            params:
+              - name: "burner_count"
+                type: "int"
+            return:
+              type: "equivalent_struct_pointer"
     destructor:
-      wrapped_function:
-        name: "destroy_stove"
-        params:
-          - name: "equivalent_struct_pointer"
+      wrapped:
+        c:
+          name: "destroy_stove"
+          params:
+            - name: "equivalent_struct_pointer"
     functions:
       - name: "GetBurnerCount"
         doc: "Returns the number of burners on this stove."
         return:
           type: "int"
-        wrapped_function:
-          name: "get_burner_count"
-          params:
-            - name: "equivalent_struct_pointer"
-          return:
-            type: "int"
+        wrapped:
+          c:
+            name: "get_burner_count"
+            params:
+              - name: "equivalent_struct_pointer"
+            return:
+              type: "int"
       - name: "GetOvenTemp"
         return:
           type: "int"
-        wrapped_function:
-          name: "get_oven_temp"
-          params:
-            - name: "equivalent_struct_pointer"
-          return:
-            type: "int"
+        wrapped:
+          c:
+            name: "get_oven_temp"
+            params:
+              - name: "equivalent_struct_pointer"
+            return:
+              type: "int"
       - name: "SetOvenTemp"
         params:
           - name: "new_temp"
             type: "int"
-        wrapped_function:
-          name: "set_oven_temp"
-          params:
-            - name: "equivalent_struct_pointer"
-            - name: "new_temp"
+        wrapped:
+          c:
+            name: "set_oven_temp"
+            params:
+              - name: "equivalent_struct_pointer"
+              - name: "new_temp"
       - name: "GetBurnerLevel"
         params:
           - name: "burner_index"
             type: "int"
         return:
           type: "int"
-        wrapped_function:
-          name: "get_burner_level"
-          params:
-            - name: "equivalent_struct_pointer"
-            - name: "burner_index"
-          return:
-            type: "int"
+        wrapped:
+          c:
+            name: "get_burner_level"
+            params:
+              - name: "equivalent_struct_pointer"
+              - name: "burner_index"
+            return:
+              type: "int"
       - name: "SetBurnerLevel"
         params:
           - name: "burner_index"
             type: "int"
           - name: "new_level"
             type: "int"
-        wrapped_function:
-          name: "set_burner_level"
-          params:
-            - name: "equivalent_struct_pointer"
-            - name: "burner_index"
-            - name: "new_level"
+        wrapped:
+          c:
+            name: "set_burner_level"
+            params:
+              - name: "equivalent_struct_pointer"
+              - name: "burner_index"
+              - name: "new_level"
       - name: "IsModelSupported"
         static: true
         return:
@@ -98,9 +105,10 @@ classes:
         params:
           - name: "model"
             type: "int"
-        wrapped_function:
-          name: "is_model_supported"
-          params:
-            - name: "model"
-          return:
-            type: "bool"
+        wrapped:
+          c:
+            name: "is_model_supported"
+            params:
+              - name: "model"
+            return:
+              type: "bool"

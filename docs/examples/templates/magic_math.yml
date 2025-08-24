@@ -24,15 +24,16 @@ templates:
           type: "int"
       return:
         type: "bool"
-      wrapped_function:
-        name:
-          is_param: true
-          name: "wrapped-name"
-        params:
-          - value: "num"
-        includes: "magic_math.h"
-        return:
-          type: "bool"
+      wrapped:
+        c:
+          name:
+            is_param: true
+            name: "wrapped-name"
+          params:
+            - value: "num"
+          includes: "magic_math.h"
+          return:
+            type: "bool"
 classes:
   - name: "MagicMath"
     namespace: "magic_stuff"

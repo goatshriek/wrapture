@@ -38,7 +38,29 @@ module Wrapture
                '&'
              end}#{var_name}#{member_access}equivalent"
         else
-          raise "uncaught cast case: to '#{to}'"
+          raise "uncaught cast case: struct: '#{struct}', to '#{to}'"
+        end
+      end
+
+      # Gives a code snippet that accesses the equivalent struct from
+      # within the class using the given variable name.
+      def self.class_struct(class_spec, var_name: 'this')
+        name = "#{var_name}->equivalent"
+        if class_spec.pointer_wrapper?
+          "*(#{name})"
+        else
+          name
+        end
+      end
+
+      # Gives a code snippet that accesses the equivalent struct pointer from
+      # within the class using the given variable name.
+      def self.class_struct_pointer(class_spec, var_name: 'this')
+        name = "#{var_name}->equivalent"
+        if class_spec.pointer_wrapper?
+          name
+        else
+          "&(#{name})"
         end
       end
 
@@ -94,11 +116,10 @@ module Wrapture
       def self.resolve_wrapped_param(func_spec, param)
         used_param = func_spec.params.find { |p| p.name == param.value }
 
-        # TODO: obviously we don't want to rely on CToPython in the end state
         if param.value == EQUIVALENT_STRUCT_KEYWORD
-          CToPython.class_struct(func_spec.owner)
+          class_struct(func_spec.owner)
         elsif param.value == EQUIVALENT_POINTER_KEYWORD
-          CToPython.class_struct_pointer(func_spec.owner)
+          class_struct_pointer(func_spec.owner)
         elsif param.value == '...'
           'variadic_args'
         elsif param_uses_equivalent?(func_spec, param)

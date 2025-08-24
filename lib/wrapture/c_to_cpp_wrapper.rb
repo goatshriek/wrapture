@@ -369,6 +369,7 @@ module Wrapture
         signature = function_definition_signature(func_spec)
         yield "#{signature} #{initializer_suffix(func_spec)}{"
         member_constructor(@spec).tree.each { |line| yield "  #{line}" }
+        yield '}'
       end
 
       @spec.functions.each do |function|
@@ -642,7 +643,8 @@ module Wrapture
       yield 'va_list variadic_args;' if spec.variadic?
 
       if function_captures_return?(spec)
-        wrapped_type = spec.resolve_type(spec.return_type)
+        return_type = TypeSpec.new(spec.wrapped[:c].return_type.to_s)
+        wrapped_type = spec.resolve_type(return_type)
         yield "#{type_variable(wrapped_type, 'return_val')};"
       end
     end
