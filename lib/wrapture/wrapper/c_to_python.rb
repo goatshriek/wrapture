@@ -357,7 +357,7 @@ module Wrapture
         error_return = func_spec.wrapped[:c].error_rules.any?(&:use_return?)
         if !func_spec.void_return? || error_return
           return_type = TypeSpec.new(func_spec.wrapped[:c].return_type.to_s)
-          return_type = func_spec.return_type if effective_return.name == 'void'
+          return_type = func_spec.return_type if return_type.name == 'void'
           return_type = func_spec.resolve_type(return_type)
 
           return_type = 'long' if return_type.name == 'bool'
