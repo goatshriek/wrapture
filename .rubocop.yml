@@ -36,6 +36,11 @@ Minitest/AssertWithExpectedArgument:
 Minitest/MultipleAssertions:
   Max: 10
 
+# using this name for blocks is the migration strategy until
+# all Ruby versions we support support it
+Style/ItAssignment:
+  Enabled: false
+
 Style/Documentation:
   Enabled: false
 

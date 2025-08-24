@@ -354,17 +354,15 @@ module Wrapture
           blk.declare('int', 'parse_result')
         end
 
-        # if !func_spec.void_return? || func_spec.wrapped.use_return?
-        if !func_spec.void_return? || func_spec.wrapped[:c].error_rules.any?(&:use_return?)
-          effective_return = func_spec.wrapped[:c].return_type
-          if effective_return.to_s == 'void'
-            effective_return = func_spec.return_type
-          end
-          effective_return = func_spec.resolve_type(effective_return)
+        error_return = func_spec.wrapped[:c].error_rules.any?(&:use_return?)
+        if !func_spec.void_return? || error_return
+          return_type = TypeSpec.new(func_spec.wrapped[:c].return_type.to_s)
+          return_type = func_spec.return_type if effective_return.name == 'void'
+          return_type = func_spec.resolve_type(return_type)
 
-          effective_return = 'long' if effective_return.name == 'bool'
+          return_type = 'long' if return_type.name == 'bool'
 
-          blk.declare(effective_return, 'return_val')
+          blk.declare(return_type, 'return_val')
         end
 
         unless func_spec.overloaded?
@@ -968,7 +966,7 @@ module Wrapture
           'variadic_args'
         elsif param_uses_equivalent?(func_spec, param)
           param_class = func_spec.owner.type(used_param.type)
-          cast_equivalent(param_class, used_param.name, param.c_type)
+          cast_equivalent(param_class, used_param.name, param.c_type.to_s)
         else
           param.value
         end
