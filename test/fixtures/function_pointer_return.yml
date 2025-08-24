@@ -30,7 +30,8 @@ return:
             includes: "special_inc_1.h"
       return:
         type: "const char *"
-wrapped_function:
-  name: "underlying_function"
-  params:
-    - value: "my_string"
+wrapped:
+  c:
+    name: "underlying_function"
+    params:
+      - value: "my_string"

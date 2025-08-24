@@ -18,10 +18,11 @@ templates:
   - name: "common-function"
     value:
       name: "func_name"
-      wrapped_function:
-        name: "low_level_func"
-        params:
-          - value: "equivalent-struct-pointer"
+      wrapped:
+        c:
+          name: "low_level_func"
+          params:
+            - value: "equivalent-struct-pointer"
 classes:
   - name: ""
     namespace: "wrapture_test"

@@ -16,7 +16,8 @@
 
 name: "VirtualFunction"
 virtual: "yes, please"
-wrapped_function:
-  name: "underlying_function"
-  params:
-    - value: "equivalent_struct_pointer"
+wrapped:
+  c:
+    name: "underlying_function"
+    params:
+      - value: "equivalent_struct_pointer"

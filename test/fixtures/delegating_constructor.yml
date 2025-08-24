@@ -21,18 +21,20 @@ equivalent_struct:
   name: "basic_struct"
   includes: "folder/include_file_1.h"
 constructors:
-  - wrapped_function:
-      name: "default_constructor"
-      return:
-        type: "equivalent_struct_pointer"
-    initializers:
+  - initializers:
       - delegate: true
         values:
           - 3
-  - wrapped_function:
-      name: "underlying_constructor"
-      params:
-        - name: "id"
-          type: "int"
-      return:
-        type: "equivalent_struct_pointer"
+    wrapped:
+      c:
+        name: "default_constructor"
+        return:
+          type: "equivalent_struct_pointer"
+  - wrapped:
+      c:
+        name: "underlying_constructor"
+        params:
+          - name: "id"
+            type: "int"
+        return:
+          type: "equivalent_struct_pointer"

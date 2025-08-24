@@ -17,16 +17,17 @@
 name: "ErrorCheckWithoutReturnVal"
 return:
   type: "int"
-wrapped_function:
-  name: "underlying_function"
-  error_check:
-    rules:
-      - left_expression: "it_failed()"
-        condition: "not_equals"
-        right_expression: "false"
-    error_action:
-      name: "throw_exception"
-      type: "CodeException"
-      value: "failure_code()"
-  return:
-    type: "int"
+wrapped:
+  c:
+    name: "underlying_function"
+    error_check:
+      rules:
+        - left_expression: "it_failed()"
+          condition: "not_equals"
+          right_expression: "false"
+      error_action:
+        name: "throw_exception"
+        type: "CodeException"
+        value: "failure_code()"
+    return:
+      type: "int"

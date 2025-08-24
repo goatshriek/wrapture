@@ -32,7 +32,11 @@ module Wrapture
     # Normalizes the hash specification of a type in +spec+ in place. This will
     # normalize the include list.
     def self.normalize_spec_hash!(spec)
-      spec[:includes] = Wrapture.normalize_array(spec[:includes])
+      spec[:includes] = if spec.key?(:includes)
+                          Wrapture.normalize_array(spec[:includes])
+                        else
+                          []
+                        end
       spec[:name] = Wrapture.normalize_name(spec, :name)
       spec
     end
@@ -88,7 +92,7 @@ module Wrapture
     # A new FunctionSpec instance from this type, or nil if it is not a
     # function.
     def function
-      FunctionSpec.new(@spec[:function]) if function?
+      FunctionSpec.from_hash(@spec[:function]) if function?
     end
 
     # A list of includes needed for this type.

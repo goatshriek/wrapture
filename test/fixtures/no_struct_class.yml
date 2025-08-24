@@ -19,5 +19,6 @@ namespace: "wrapture_test"
 functions:
   - name: "StaticFunction"
     static: true
-    wrapped_function:
-      name: "underlying_function"
+    wrapped:
+      c:
+        name: "underlying_function"

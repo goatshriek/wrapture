@@ -28,10 +28,11 @@ classes:
         return:
           type: "Parent *"
           overloaded: true
-        wrapped_function:
-          name: "overloaded_type"
-          return:
-            type: "equivalent_struct_pointer"
+        wrapped:
+          c:
+            name: "overloaded_type"
+            return:
+              type: "equivalent_struct_pointer"
   - name: "ChildOne"
     namespace: "wrapture_test"
     equivalent_struct:

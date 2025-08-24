@@ -38,8 +38,7 @@ class FunctionSpecTest < Minitest::Test
 
   def test_virtual_function
     test_spec = fixture_hash('virtual_function')
-
-    func_spec = Wrapture::FunctionSpec.new(test_spec)
+    func_spec = Wrapture::FunctionSpec.from_hash(test_spec)
 
     assert_predicate(func_spec, :virtual?)
   end

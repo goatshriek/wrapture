@@ -32,7 +32,8 @@ classes:
       - name: "do_stuff"
         return:
           type: "self_reference"
-        wrapped_function:
-          name: "do_stuff_with_basic_struct"
-          params:
-            - value: "equivalent-struct-pointer"
+        wrapped:
+          c:
+            name: "do_stuff_with_basic_struct"
+            params:
+              - value: "equivalent-struct-pointer"

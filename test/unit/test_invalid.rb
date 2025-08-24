@@ -35,7 +35,7 @@ class InvalidTest < Minitest::Test
     test_spec = fixture_hash('invalid/invalid_virtual_key')
 
     assert_raises(Wrapture::InvalidSpecKey) do
-      Wrapture::FunctionSpec.new(test_spec)
+      Wrapture::FunctionSpec.from_hash(test_spec)
     end
   end
 

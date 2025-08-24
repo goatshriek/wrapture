@@ -19,10 +19,16 @@
 #++
 
 module Wrapture
-  # Source sets contain source files.
+  # Source sets contain source files, as well as their relationships and other
+  # metadata needed to use them to create a project.
   #
   # Classes can use this module by implementing +sources+ as an enumerable of
   # source files they contain.
+  #
+  # A source set must also have a spec associated with it, accessible as +spec+,
+  # which describes the implementation that the source files produce. This
+  # allows source sets to be used as input to wrappers, which in turn allows
+  # wrappers to be chained together.
   module SourceSet
     # Get the source file associated with a key.
     #

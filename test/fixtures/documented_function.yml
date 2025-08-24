@@ -28,10 +28,11 @@ params:
     doc: "the name of an application. ParamDocIdentifier"
 return:
   doc: "returns a value. ReturnDocIdentifier"
-wrapped_function:
-  name: "underlying_basic_function"
-  includes:
-    - "folder/include_file_2.h"
-    - "folder/include_file_3.h"
-  params:
-    - name: "app_name"
+wrapped:
+  c:
+    name: "underlying_basic_function"
+    includes:
+      - "folder/include_file_2.h"
+      - "folder/include_file_3.h"
+    params:
+      - name: "app_name"

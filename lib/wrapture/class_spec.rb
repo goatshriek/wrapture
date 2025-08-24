@@ -27,9 +27,11 @@ module Wrapture
     include Named
 
     # Gives the effective type of the given class spec hash.
+    # TODO: this should be refactored to use an object instead of a hash
     def self.effective_type(spec)
       inferred_pointer_wrapper = spec[:constructors].any? do |func|
-        func[:wrapped_function][:return][:type] == EQUIVALENT_POINTER_KEYWORD
+        # TODO: this should not have c-specific code
+        func[:wrapped][:c][:return][:type] == EQUIVALENT_POINTER_KEYWORD
       end
 
       if spec.key?(:type)
@@ -147,20 +149,29 @@ module Wrapture
       @functions = @spec[:constructors].map do |constructor_spec|
         full_spec = constructor_spec.dup
         full_spec[:name] = @spec[:name]
-        full_spec[:params] = constructor_spec[:wrapped_function][:params]
+        full_spec[:params] = constructor_spec[:wrapped][:c][:params]
+        full_spec[:constructor] = true
 
-        FunctionSpec.new(full_spec, self, constructor: true)
+        func_spec = FunctionSpec.from_hash(full_spec)
+        func_spec.owner = self
+
+        func_spec
       end
 
       if @spec.key?(:destructor)
         destructor_spec = @spec[:destructor].dup
         destructor_spec[:name] = @spec[:name]
+        destructor_spec[:destructor] = true
 
-        @functions << FunctionSpec.new(destructor_spec, self, destructor: true)
+        func_spec = FunctionSpec.from_hash(destructor_spec)
+        func_spec.owner = self
+        @functions << func_spec
       end
 
       @spec[:functions].each do |function_spec|
-        @functions << FunctionSpec.new(function_spec, self)
+        func_spec = FunctionSpec.from_hash(function_spec)
+        func_spec.owner = self
+        @functions << func_spec
       end
 
       @constants = @spec[:constants].map do |constant_spec|
@@ -184,13 +195,18 @@ module Wrapture
     end
 
     # A list of includes needed for the declaration of the class.
+    # TODO: includes should not be implemented in the class spec itself, only C
+    # wrappers
     def declaration_includes
       includes = @spec[:includes].dup
 
       includes.concat(@struct.includes) if @struct
 
       @functions.each do |func|
-        includes.concat(func.declaration_includes)
+        raise UndefinableSpec, 'not wrappable in c' unless func.wrapped.key?(:c)
+
+        includes.concat(func.definition_includes)
+        includes.concat(func.wrapped[:c].includes)
       end
 
       @constants.each do |const|

@@ -19,15 +19,17 @@ namespace: "wrapture_test"
 equivalent_struct:
   name: "wrapped_struct"
 constructors:
-  - wrapped_function:
-      name: "new_thing"
-      params:
-        - name: "original_thing"
+  - wrapped:
+      c:
+        name: "new_thing"
+        params:
+          - name: "original_thing"
+            type: "equivalent_struct_pointer"
+        return:
           type: "equivalent_struct_pointer"
-      return:
-        type: "equivalent_struct_pointer"
 destructor:
-  wrapped_function:
-    name: "destroy_a_struct"
-    params:
-      - name: "equivalent_struct_pointer"
+  wrapped:
+    c:
+      name: "destroy_a_struct"
+      params:
+        - name: "equivalent_struct_pointer"

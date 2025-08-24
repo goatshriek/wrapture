@@ -74,6 +74,18 @@ module Wrapture
     end
   end
 
+  # Normalize name words, without performing any conversion on the name itself.
+  def self.normalize_name_words(words)
+    case words
+    when String
+      [words]
+    else
+      # use map to avoid to_a returning the argument instead of
+      # creating a new Array
+      words.map.to_a
+    end
+  end
+
   # Returns the spec version for the provided spec. If the version is not
   # provided in the spec, the newest version that the spec is compliant with
   # will be returned instead.

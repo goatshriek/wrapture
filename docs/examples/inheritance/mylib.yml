@@ -30,11 +30,12 @@ classes:
           default_value: false
     functions:
       - name: CheckOut
-        wrapped_function:
-          name: "check_out_item"
-          params:
-            - name: "equivalent_struct_pointer"
-          includes: "mylib.h"
+        wrapped:
+          c:
+            name: "check_out_item"
+            params:
+              - name: "equivalent_struct_pointer"
+            includes: "mylib.h"
   - name: "Book"
     namespace: "library"
     libraries: "mylib"
@@ -57,10 +58,11 @@ classes:
       - name: GetPageCount
         return:
           type: "int"
-        wrapped_function:
-          name: "get_page_count"
-          params:
-            - name: "equivalent_struct_pointer"
-          includes: "mylib.h"
-          return:
-            type: "int"
+        wrapped:
+          c:
+            name: "get_page_count"
+            params:
+              - name: "equivalent_struct_pointer"
+            includes: "mylib.h"
+            return:
+              type: "int"

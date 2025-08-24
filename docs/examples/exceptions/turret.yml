@@ -25,15 +25,17 @@ classes:
       name: "turret"
       includes: "turret.h"
     constructors:
-      - wrapped_function:
-          name: "new_turret"
-          return:
-            type: "equivalent_struct_pointer"
+      - wrapped:
+          c:
+            name: "new_turret"
+            return:
+              type: "equivalent_struct_pointer"
     destructor:
-      wrapped_function:
-        name: "destroy_turret"
-        params:
-          - value: "equivalent_struct_pointer"
+      wrapped:
+        c:
+          name: "destroy_turret"
+          params:
+            - value: "equivalent_struct_pointer"
     functions:
       - name: "Aim"
         params:
@@ -43,54 +45,58 @@ classes:
             type: "int"
           - name: "z"
             type: "int"
-        wrapped_function:
-          name: "aim"
-          params:
-            - value: "equivalent_struct_pointer"
-            - value: "x"
-            - value: "y"
-            - value: "z"
-          return:
-            type: "struct turret_error *"
-          error_check:
-            rules:
-              - left_expression: "return_value"
-                condition: "not_equals"
-                right_expression: "success()"
-            error_action:
-              name: "throw_exception"
-              type: "TargetingException"
-              value: "return_value"
+        wrapped:
+          c:
+            name: "aim"
+            params:
+              - value: "equivalent_struct_pointer"
+              - value: "x"
+              - value: "y"
+              - value: "z"
+            return:
+              type: "struct turret_error *"
+            error_check:
+              rules:
+                - left_expression: "return_value"
+                  condition: "not_equals"
+                  right_expression: "success()"
+              error_action:
+                name: "throw_exception"
+                type: "TargetingException"
+                value: "return_value"
       - name: "AmmoCount"
         return:
           type: "int"
-        wrapped_function:
-          name: "ammo_count"
-          params:
-            - value: "equivalent_struct_pointer"
-          return:
-            type: "int"
+        wrapped:
+          c:
+            name: "ammo_count"
+            params:
+              - value: "equivalent_struct_pointer"
+            return:
+              type: "int"
       - name: "Fire"
-        wrapped_function:
-          name: "fire"
-          params:
-            - value: "equivalent_struct_pointer"
-          return:
-            type: "struct turret_error *"
-          error_check:
-            rules:
-              - left_expression: "return_value"
-                condition: "not_equals"
-                right_expression: "success()"
-            error_action:
-              name: "throw_exception"
-              type: "TurretException"
-              value: "return_value"
+        wrapped:
+          c:
+            name: "fire"
+            params:
+              - value: "equivalent_struct_pointer"
+            return:
+              type: "struct turret_error *"
+            error_check:
+              rules:
+                - left_expression: "return_value"
+                  condition: "not_equals"
+                  right_expression: "success()"
+              error_action:
+                name: "throw_exception"
+                type: "TurretException"
+                value: "return_value"
       - name: "Reload"
-        wrapped_function:
-          name: "reload"
-          params:
-            - value: "equivalent_struct_pointer"
+        wrapped:
+          c:
+            name: "reload"
+            params:
+              - value: "equivalent_struct_pointer"
   - name: "TurretException"
     namespace: "defense_turret"
     parent:
@@ -101,22 +107,24 @@ classes:
       name: "turret_error"
       includes: "turret_error.h"
     constructors:
-      - wrapped_function:
-          name: "null_error"
-          return:
-            type: "equivalent_struct_pointer"
+      - wrapped:
+          c:
+            name: "null_error"
+            return:
+              type: "equivalent_struct_pointer"
     functions:
       - name: "message"
         virtual: true
         return:
           type: "const char *"
-        wrapped_function:
-          name: "get_error_message"
-          includes: "turret_error.h"
-          params:
-            - value: "equivalent_struct_pointer"
-          return:
-            type: "const char *"
+        wrapped:
+          c:
+            name: "get_error_message"
+            includes: "turret_error.h"
+            params:
+              - value: "equivalent_struct_pointer"
+            return:
+              type: "const char *"
   - name: "JammedException"
     namespace: "defense_turret"
     type: "pointer"
@@ -134,13 +142,14 @@ classes:
       - name: "message"
         return:
           type: "const char *"
-        wrapped_function:
-          name: "get_error_message"
-          includes: "turret_error.h"
-          return:
-            type: "const char *"
-          params:
-            - value: "equivalent_struct_pointer"
+        wrapped:
+          c:
+            name: "get_error_message"
+            includes: "turret_error.h"
+            return:
+              type: "const char *"
+            params:
+              - value: "equivalent_struct_pointer"
   - name: "OutOfAmmoException"
     namespace: "defense_turret"
     type: "pointer"
@@ -158,13 +167,14 @@ classes:
       - name: "message"
         return:
           type: "const char *"
-        wrapped_function:
-          name: "get_error_message"
-          includes: "turret_error.h"
-          return:
-            type: "const char *"
-          params:
-            - value: "equivalent_struct_pointer"
+        wrapped:
+          c:
+            name: "get_error_message"
+            includes: "turret_error.h"
+            return:
+              type: "const char *"
+            params:
+              - value: "equivalent_struct_pointer"
   - name: "TargetingException"
     namespace: "defense_turret"
     type: "pointer"
@@ -182,10 +192,11 @@ classes:
       - name: "message"
         return:
           type: "const char *"
-        wrapped_function:
-          name: "get_error_message"
-          includes: "turret_error.h"
-          params:
-            - value: "equivalent_struct_pointer"
-          return:
-            type: "const char *"
+        wrapped:
+          c:
+            name: "get_error_message"
+            includes: "turret_error.h"
+            params:
+              - value: "equivalent_struct_pointer"
+            return:
+              type: "const char *"

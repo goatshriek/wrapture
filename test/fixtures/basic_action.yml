@@ -16,11 +16,12 @@
 
 name: "throw_exception"
 type: "NewCustomException"
-wrapped_function:
-  name: "stop_drop_and_freak_out"
-  includes:
-    - "inc1.h"
-    - "inc2.h"
-  params:
-    - "return-value"
-    - value: 3
+wrapped:
+  c:
+    name: "stop_drop_and_freak_out"
+    includes:
+      - "inc1.h"
+      - "inc2.h"
+    params:
+      - "return-value"
+      - value: 3

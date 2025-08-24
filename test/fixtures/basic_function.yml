@@ -18,10 +18,11 @@ name: "BasicFunction1"
 params:
   - name: "app_name"
     type: "const char *"
-wrapped_function:
-  name: "underlying_basic_function"
-  includes:
-    - "folder/include_file_1.h"
-    - "folder/include_file_2.h"
-  params:
-    - name: "app_name"
+wrapped:
+  c:
+    name: "underlying_basic_function"
+    includes:
+      - "folder/include_file_1.h"
+      - "folder/include_file_2.h"
+    params:
+      - name: "app_name"

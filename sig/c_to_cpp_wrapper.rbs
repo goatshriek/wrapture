@@ -53,7 +53,7 @@ module Wrapture
     def enum_element_doc: (spec_hash element) { (String) -> void } -> void
     def equivalent_member_declaration: -> String
     def equivalent_member_field: -> String
-    def error_check: (Wrapture::CFunctionSpec, ?return_val: String)  { (String) -> void } -> void
+    def error_check: (untyped, ?return_val: String)  { (String) -> void } -> void
     def factory_constructor_hash: -> String
     def function_captures_return?: (Wrapture::FunctionSpec) -> bool
     def function_declaration_param_list: (Wrapture::FunctionSpec) -> String

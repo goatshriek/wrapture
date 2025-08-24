@@ -20,16 +20,18 @@ equivalent_struct:
   name: "wrapped_struct"
   includes: "wrapme.h"
 constructors:
-  - wrapped_function:
-      name: "new_thing"
-      params:
-        - name: "new_name"
-          type: "const char *"
-      return:
-        type: "equivalent_struct_pointer"
+  - wrapped:
+      c:
+        name: "new_thing"
+        params:
+          - name: "new_name"
+            type: "const char *"
+        return:
+          type: "equivalent_struct_pointer"
 destructor:
-  wrapped_function:
-    name: "destroy_a_struct"
-    params:
-      - name: "equivalent_struct_pointer"
-    includes: "wrapme.h"
+  wrapped:
+    c:
+      name: "destroy_a_struct"
+      params:
+        - name: "equivalent_struct_pointer"
+      includes: "wrapme.h"

@@ -129,7 +129,7 @@ class ClassSpecTest < Minitest::Test
     assert(source_file_contains_match?(source, destructor_regex),
            'the destructor definition was not found')
 
-    wrapped_function = test_spec[:constructors][0][:wrapped_function]
+    wrapped_function = test_spec[:constructors][0][:wrapped][:c]
 
     assert(source_file_contains_match?(source, /= #{wrapped_function[:name]}/),
            'source file does not include the wrapped function')

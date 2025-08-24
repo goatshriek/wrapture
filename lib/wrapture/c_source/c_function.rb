@@ -24,23 +24,63 @@ module Wrapture
     class CFunction
       include CBlock
 
-      # The attributes of the function.
-      attr_reader :attributes
+      # Creates a new C function from a hash.
+      def self.from_hash(spec)
+        unless spec.key?(:name)
+          raise MissingSpecKey, 'a name is required for c functions'
+        end
 
-      # The list of failure labels of the function.
-      attr_reader :fail_labels
+        func = CFunction.new(spec[:name])
 
-      # The name of the function.
-      attr_reader :name
+        if spec.key?(:params)
+          spec[:params].each do |param|
+            type = case param[:type]
+                   when String
+                     CType.new(param[:type])
+                   when Hash
+                     CType.new(param[:type][:name])
+                   end
+            name = (param[:name] if param.key?(:name))
+            value = if param.key?(:value)
+                      param[:value]
+                    else
+                      name
+                    end
+            func.params << CDeclaration.new(type, name, value: value)
+          end
+        end
 
-      # The parameters of the function.
-      attr_reader :params
+        if spec.key?(:includes)
+          func.includes = Wrapture.normalize_array(spec[:includes])
+        end
 
-      # The return type of the function.
-      attr_reader :return_type
+        if spec.key?(:return) && spec[:return].key?(:type)
+          func.return_type = CType.new(spec[:return][:type])
+        end
 
-      # The tree of the function body.
-      attr_reader :tree
+        if spec.key?(:error_check)
+          check = spec[:error_check]
+
+          func.error_rules = check[:rules].map do |rule_spec|
+            RuleSpec.new(rule_spec)
+          end
+
+          unless func.error_rules.empty?
+            func.error_action = ActionSpec.new(check[:error_action])
+          end
+        end
+
+        if spec.key?(:libraries)
+          case spec[:libraries]
+          when String
+            func.libraries << spec[:libraries]
+          else
+            func.libraries.concat(spec[:libraries]) if spec.key?(:libraries)
+          end
+        end
+
+        func
+      end
 
       # A new function has no parameters, void return, and an empty body.
       #
@@ -49,12 +89,46 @@ module Wrapture
       def initialize(name, params: [], return_type: CType.new('void'),
                      attributes: [])
         @attributes = attributes
+        @includes = []
         @name = name
         @params = params
         @return_type = return_type
         @tree = []
         @fail_labels = []
+        @error_action = nil
+        @error_rules = []
+        @libraries = []
       end
+
+      # The attributes of the function.
+      attr_reader :attributes
+
+      # The action taken when an error is encountered.
+      attr_accessor :error_action
+
+      # Th rules to detect when an error has occurred.
+      attr_accessor :error_rules
+
+      # The list of failure labels of the function.
+      attr_reader :fail_labels
+
+      # The includes needed to use this function.
+      attr_accessor :includes
+
+      # An array of libraries required for this function call.
+      attr_accessor :libraries
+
+      # The name of the function.
+      attr_reader :name
+
+      # The parameters of the function.
+      attr_reader :params
+
+      # The return type of the function.
+      attr_accessor :return_type
+
+      # The tree of the function body.
+      attr_reader :tree
 
       # Add a failure label to the function, along with code that is executed
       # when this label is used. New labels are added before existing ones, so
@@ -73,6 +147,11 @@ module Wrapture
       # A declaration of this function.
       def declaration
         Wrapture::CSource::CDeclaration.new(self, @name)
+      end
+
+      # True if the wrapped function has an error check associated with it.
+      def error_check?
+        !@error_rules.empty?
       end
     end
   end

@@ -29,12 +29,13 @@ templates:
         - name: "to_string"
           return:
             type: "const char *"
-          wrapped_function:
-            name:
-              is_param: true
-              name: "to-string-function-name"
-            params:
-              - value: "equivalent_struct_pointer"
+          wrapped:
+            c:
+              name:
+                is_param: true
+                name: "to-string-function-name"
+              params:
+                - value: "equivalent_struct_pointer"
 classes:
   - name: "OneClass"
     use_template:

@@ -24,7 +24,8 @@ functions:
     params:
       - name: "my_param"
         type: "int"
-    wrapped_function:
-      name: "underlying_basic_function"
-      params:
-        - name: "equivalent_struct"
+    wrapped:
+      c:
+        name: "underlying_basic_function"
+        params:
+          - name: "equivalent_struct"

@@ -25,7 +25,8 @@ params:
           - type: "void *"
         return:
           type: "const char *"
-wrapped_function:
-  name: "underlying_function"
-  params:
-    - value: "my_func_ptr"
+wrapped:
+  c:
+    name: "underlying_function"
+    params:
+      - value: "my_func_ptr"

@@ -34,12 +34,13 @@ classes:
             includes: "Bullet.hpp"
         return:
           type: "self_reference"
-        wrapped_function:
-          name: "load_rifle_with_bullet"
-          params:
-            - value: "equivalent_struct_pointer"
-            - type: "struct bullet_struct *"
-              value: "bullet"
+        wrapped:
+          c:
+            name: "load_rifle_with_bullet"
+            params:
+              - value: "equivalent_struct_pointer"
+              - type: "struct bullet_struct *"
+                value: "bullet"
       - name: "fire"
         params:
           - name: "bullet"
@@ -47,9 +48,10 @@ classes:
             includes: "Bullet.hpp"
         return:
           type: "self_reference"
-        wrapped_function:
-          name: "fire_bullet_from_rifle"
-          params:
-            - value: "equivalent_struct_pointer"
-            - type: "struct bullet_struct"
-              value: "bullet"
+        wrapped:
+          c:
+            name: "fire_bullet_from_rifle"
+            params:
+              - value: "equivalent_struct_pointer"
+              - type: "struct bullet_struct"
+                value: "bullet"

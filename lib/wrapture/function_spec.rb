@@ -26,6 +26,59 @@ module Wrapture
   class FunctionSpec
     include Named
 
+    # Creates a new FunctionSpec from a hash +spec+.
+    def self.from_hash(spec)
+      if spec&.key?(:version) && !Wrapture.supports_version?(spec[:version])
+        raise UnsupportedSpecVersion
+      end
+
+      if spec.key?(:initializers) && spec[:initializers].any? do |i|
+        !i.key?(:name) && !i[:delegate]
+      end
+        msg = 'initializers must either have a name or be delegating ' \
+              'constructors (have delegate set to true)'
+        raise MissingSpecKey, msg
+      end
+
+      Comment.validate_doc(spec[:doc]) if spec.key?(:doc)
+
+      name = Wrapture.normalize_name(spec, :name)
+
+      func_spec = new(name)
+      func_spec.doc = Comment.new(spec[:doc]) if spec.key?(:doc)
+      func_spec.constructor = Wrapture.normalize_boolean(spec, :constructor)
+      func_spec.destructor = Wrapture.normalize_boolean(spec, :destructor)
+      func_spec.static = Wrapture.normalize_boolean(spec, :static)
+      func_spec.virtual = Wrapture.normalize_boolean(spec, :virtual)
+
+      func_spec.initializers = spec[:initializers] if spec.key?(:initializers)
+
+      if spec.key?(:params)
+        param_specs = ParamSpec.normalize_param_list(spec[:params])
+        func_spec.params.concat(ParamSpec.new_list(param_specs))
+      end
+
+      if spec.key?(:return)
+        func_spec.return_overloaded = Wrapture.normalize_boolean(spec[:return],
+                                                                 :overloaded)
+        func_spec.return_type = if spec[:return].key?(:type)
+                                  TypeSpec.new(spec[:return][:type])
+                                else
+                                  TypeSpec.new('void')
+                                end
+        if spec[:return].key?(:doc)
+          Comment.validate_doc(spec[:return][:doc])
+          func_spec.return_doc = Comment.new(spec[:return][:doc])
+        end
+      end
+
+      if spec.key?(:wrapped) && spec[:wrapped].key?(:c)
+        func_spec.wrapped[:c] = CSource::CFunction.from_hash(spec[:wrapped][:c])
+      end
+
+      func_spec
+    end
+
     # Returns a copy of the return type specification +spec+.
     def self.normalize_return_hash(spec)
       if spec.nil?
@@ -39,14 +92,6 @@ module Wrapture
         Wrapture.normalize_boolean!(spec, :overloaded)
         normalized
       end
-    end
-
-    # Normalizes a hash specification of a function. Normalization will check
-    # for things like invalid keys, duplicate entries in include lists, and will
-    # set missing keys to their default values (for example, an empty list if no
-    # includes are given).
-    def self.normalize_spec_hash(spec)
-      normalize_spec_hash!(Marshal.load(Marshal.dump(spec)))
     end
 
     # Normalizes the hash specification of a function in +spec+ in place.
@@ -138,33 +183,73 @@ module Wrapture
     # 'name' key may be omitted if the function is a constructor and a key named
     # 'delegate' is present and set to true. This will use the name of the class
     # the constructor belongs to as the name.
-    def initialize(spec, owner = Scope.new, constructor: false,
-                   destructor: false)
-      @owner = owner
-      @spec = FunctionSpec.normalize_spec_hash(spec)
-      @wrapped = if @spec.key?(:wrapped_function)
-                   CFunctionSpec.new(@spec[:wrapped_function])
-                 elsif @spec.key?(:wrapped_code)
-                   CCodeSpec.new(@spec[:wrapped_code])
-                 end
-      @params = ParamSpec.new_list(@spec[:params])
-      @return_type = TypeSpec.new(@spec[:return][:type])
-      @constructor = constructor
-      @destructor = destructor
+    def initialize(name_words)
+      @name_words = Wrapture.normalize_name_words(name_words)
+      @doc = nil
+      @owner = Scope.new
+      @wrapped = {}
+      @params = []
+      @return_doc = nil
+      @return_overloaded = false
+      @return_type = TypeSpec.new('void')
+      @constructor = false
+      @destructor = false
+      @static = false
+      @virtual = false
+      @initializers = []
     end
+
+    # Set whether this function is a constructor.
+    attr_writer :constructor
+
+    # Set whether this function is a destructor.
+    attr_writer :destructor
+
+    # Documentation for the function.
+    attr_writer :doc
+
+    # Initializers for the function.
+    attr_accessor :initializers
+
+    # The words that make up the function name.
+    attr_reader :name_words
 
     # The owner of this function. This may be an empty scope if no owner was
     # defined for this function.
-    attr_reader :owner
+    attr_accessor :owner
 
     # A list of the ParamSpecs this function accepts.
-    attr_reader :params
+    attr_accessor :params
+
+    # Documentation for the function return.
+    attr_accessor :return_doc
+
+    # True if the return is overloaded for this function.
+    attr_writer :return_overloaded
 
     # A TypeSpec describing the return type of this function.
-    attr_reader :return_type
+    attr_accessor :return_type
 
-    # A WrappedFunctionSpec or WrappedCodeSpec this .
-    attr_reader :wrapped
+    # Set whether this function is static.
+    attr_writer :static
+
+    # Set whether this function is virtual.
+    attr_writer :virtual
+
+    # A map of language-specific functions this spec wraps.
+    attr_accessor :wrapped
+
+    # Get the wrapped function for the given language. This is equivalent to
+    # +wrapped[lang]+.
+    def [](lang)
+      @wrapped[lang]
+    end
+
+    # Set the wrapped function for the given language. This is equivalent to
+    # +wrapped[lang]+.
+    def []=(lang, wrapped_function)
+      @wrapped[lang] = wrapped_function
+    end
 
     # True if the function is a constructor, false otherwise.
     def constructor?
@@ -173,21 +258,32 @@ module Wrapture
 
     # A list of includes needed for the declaration of the function.
     def declaration_includes
-      includes = @spec[:return][:includes].dup
+      includes = @return_type.includes
       @params.each { |param| includes.concat(param.includes) }
       includes.concat(@return_type.includes)
       includes.uniq
     end
 
     # True if this function can be defined, false if not.
-    def definable?
-      !@wrapped.nil?
+    #
+    # If +lang+ is given, then the result is true only if this function is
+    # definable for the given language. If not, the result is true if the
+    # function is definable for any language.
+    #
+    # In the long term, this should probably be renamed to something like
+    # "wrappable?" and added to ClassSpec and/or Scope.
+    def definable?(lang: nil)
+      if lang.nil?
+        !@wrapped.empty?
+      else
+        @wrapped.key?(lang)
+      end
     end
 
     # A list of includes needed for the definition of the function.
     def definition_includes
-      includes = @wrapped.includes
-      includes.concat(@spec[:return][:includes])
+      includes = @wrapped[:c].includes
+      includes.concat(@return_type.includes)
       @params.each { |param| includes.concat(param.includes) }
       includes.concat(@return_type.includes)
       includes << 'stdarg.h' if variadic?
@@ -201,37 +297,25 @@ module Wrapture
 
     # A Comment holding the function documentation.
     def doc
-      comment = String.new
-      comment << @spec[:doc] if @spec.key?(:doc)
+      comment = Comment.new
+      comment << @doc unless @doc.nil?
 
       @params
         .reject { |param| param.doc.empty? }
         .each { |param| comment << "\n\n" << param.doc.text }
 
-      if @spec[:return].key?(:doc)
-        comment << "\n\n@return " << @spec[:return][:doc]
-      end
+      comment << "\n\n@return " << @return_doc.text unless @return_doc.nil?
 
-      Comment.new(comment)
-    end
-
-    # A list of initializer specs.
-    def initializers
-      @spec[:initializers]
+      comment
     end
 
     # An array of libraries required for this function call.
     def libraries
-      if @wrapped.nil?
+      if @wrapped.empty?
         []
       else
-        @wrapped.libraries
+        @wrapped[:c].libraries
       end
-    end
-
-    # The words that make up the function name.
-    def name_words
-      @spec[:name]
     end
 
     # The parameters that are optional (have default values) for this function.
@@ -300,12 +384,12 @@ module Wrapture
 
     # True if the return type of this function is overloaded.
     def return_overloaded?
-      @spec[:return][:overloaded]
+      @return_overloaded
     end
 
     # True if the function is static.
     def static?
-      @spec[:static]
+      @static
     end
 
     # True if the function is variadic.
@@ -315,7 +399,7 @@ module Wrapture
 
     # True if the function is virtual.
     def virtual?
-      @spec[:virtual]
+      @virtual
     end
 
     # True if the function has a void return type.

@@ -136,7 +136,6 @@ module Wrapture
       # class with the given name to the given type.
       def self.cast_equivalent(class_spec, var_name, to)
         struct = "struct #{class_spec.struct.name}"
-
         if [EQUIVALENT_STRUCT_KEYWORD, struct].include?(to)
           "#{'*' if class_spec.pointer_wrapper?}#{var_name}->equivalent"
         elsif [EQUIVALENT_POINTER_KEYWORD, "#{struct} *"].include?(to)
@@ -355,16 +354,15 @@ module Wrapture
           blk.declare('int', 'parse_result')
         end
 
-        if !func_spec.void_return? || func_spec.wrapped.use_return?
-          effective_return = func_spec.wrapped.return_val_type
-          if effective_return.name == 'void'
-            effective_return = func_spec.return_type
-          end
-          effective_return = func_spec.resolve_type(effective_return)
+        error_return = func_spec.wrapped[:c].error_rules.any?(&:use_return?)
+        if !func_spec.void_return? || error_return
+          return_type = TypeSpec.new(func_spec.wrapped[:c].return_type.to_s)
+          return_type = func_spec.return_type if return_type.name == 'void'
+          return_type = func_spec.resolve_type(return_type)
 
-          effective_return = 'long' if effective_return.name == 'bool'
+          return_type = 'long' if return_type.name == 'bool'
 
-          blk.declare(effective_return, 'return_val')
+          blk.declare(return_type, 'return_val')
         end
 
         unless func_spec.overloaded?
@@ -902,12 +900,12 @@ module Wrapture
       end
 
       # True if the provided wrapped param spec can be cast to when used in this
-      # function. Expects @spec to be a function spec when called.
+      # function.
       def self.param_uses_equivalent?(func_spec, wrapped_param)
-        param = func_spec.params.find { |p| p.name == wrapped_param[:value] }
+        param = func_spec.params.find { |p| p.name == wrapped_param.value }
 
         !param.nil? &&
-          !wrapped_param[:type].nil? &&
+          !wrapped_param.c_type.nil? &&
           func_spec.owner.type?(param.type)
       end
 
@@ -957,20 +955,20 @@ module Wrapture
       # Gives an expression for using a given parameter.
       # Equivalent structs and pointers are resolved, as well as casts between
       # types if they are known within the scope of this function.
-      def self.resolve_wrapped_param(func_spec, param_hash)
-        used_param = func_spec.params.find { |p| p.name == param_hash[:value] }
+      def self.resolve_wrapped_param(func_spec, param)
+        used_param = func_spec.params.find { |p| p.name == param.value }
 
-        if param_hash[:value] == EQUIVALENT_STRUCT_KEYWORD
+        if param.value == EQUIVALENT_STRUCT_KEYWORD
           class_struct(func_spec.owner)
-        elsif param_hash[:value] == EQUIVALENT_POINTER_KEYWORD
+        elsif param.value == EQUIVALENT_POINTER_KEYWORD
           class_struct_pointer(func_spec.owner)
-        elsif param_hash[:value] == '...'
+        elsif param.value == '...'
           'variadic_args'
-        elsif param_uses_equivalent?(func_spec, param_hash)
+        elsif param_uses_equivalent?(func_spec, param)
           param_class = func_spec.owner.type(used_param.type)
-          cast_equivalent(param_class, used_param.name, param_hash[:type])
+          cast_equivalent(param_class, used_param.name, param.c_type.to_s)
         else
-          param_hash[:value]
+          param.value
         end
       end
 
@@ -1033,28 +1031,28 @@ module Wrapture
       # +scope+ describes all of the classes and other entities that will be
       # wrapped. These will all be put into a namespace named after the scope.
       def self.wrap_scope(scope)
-        build = PythonSource::PythonSourceSet.new(scope.name)
+        set = PythonSource::PythonSourceSet.new(scope.name)
 
-        build.add_module_source(define_module(scope))
+        set.add_module_source(define_module(scope))
 
         scope.libraries.each do |lib|
-          build.add_link(lib)
+          set.add_link(lib)
         end
 
-        build
+        set
       end
 
       # The expression containing the call to the underlying wrapped function.
       def self.wrapped_function_call(func_spec)
-        resolved_params = func_spec.wrapped.params.map do |param|
+        resolved_params = func_spec.wrapped[:c].params.map do |param|
           resolve_wrapped_param(func_spec, param)
         end
 
-        call = "#{func_spec.wrapped.name}( #{resolved_params.join(', ')} )"
+        call = "#{func_spec.wrapped[:c].name}( #{resolved_params.join(', ')} )"
 
         if func_spec.constructor?
           "#{class_struct_pointer(func_spec.owner)} = #{call}"
-        elsif func_spec.wrapped.error_check? || !func_spec.void_return?
+        elsif func_spec.wrapped[:c].error_check? || !func_spec.void_return?
           "return_val = #{call}"
         else
           call
