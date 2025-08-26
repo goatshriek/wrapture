@@ -24,7 +24,9 @@ require 'wrapture/c_code_spec'
 require 'wrapture/c_source'
 require 'wrapture/c_to_cpp_wrapper'
 require 'wrapture/class_spec'
+require 'wrapture/cli'
 require 'wrapture/comment'
+require 'wrapture/config'
 require 'wrapture/constant_spec'
 require 'wrapture/constants'
 require 'wrapture/cpp_source'
@@ -43,8 +45,9 @@ require 'wrapture/struct_spec'
 require 'wrapture/template_spec'
 require 'wrapture/type_spec'
 require 'wrapture/version'
+require 'wrapture/wrap'
 require 'wrapture/wrapper'
 
-# Classes and functions for generating language wrappers
+# Classes and functions for generating language wrappers.
 module Wrapture
 end

@@ -32,6 +32,7 @@ Gem::Specification.new do |spec|
 
   spec.required_ruby_version = '>= 2.6'
   spec.add_dependency 'json', '~> 2.3'
+  spec.add_dependency 'thor', '~> 1.4'
 
   if spec.respond_to?(:metadata)
     spec.metadata = {
