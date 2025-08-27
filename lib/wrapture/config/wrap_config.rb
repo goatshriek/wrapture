@@ -26,9 +26,7 @@ module Wrapture
       # A WrapConfig instance describes the scopes, classes, enumerations, and
       # functions that should be wrapped by an invocation, as well as the input
       # and output language paths. Other details include parallelization,
-      # how to report progress, and what format output should be in. In short,
-      # this configuration defines the core operation that Wrapture is created
-      # to perform.
+      # how to report progress, and output details.
       def initialize
         @scopes = []
         @classes = []

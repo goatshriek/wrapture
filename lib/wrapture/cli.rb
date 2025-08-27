@@ -18,12 +18,27 @@
 # limitations under the License.
 #++
 
-require 'wrapture/cli/wrap'
+require 'thor'
 
 module Wrapture
   # CLI tools for Wrapture invocations.
   module Cli
+    # The wrapture command line interface.
     class Command < Thor
+      # The exit code for the wrapture command is non-zero if an error is
+      # encountered.
+      def self.exit_on_failure?
+        true
+      end
+
+      desc 'wrap <options>', 'generate wrappers for the given specs'
+      option :scope, aliases: 's',
+                     desc: 'file with a scope spec',
+                     repeatable: true
+      def wrap
+        puts 'wrap called!'
+        puts "scope: #{options[:scope]}"
+      end
     end
   end
 end
