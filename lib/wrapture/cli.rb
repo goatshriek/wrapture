@@ -35,6 +35,7 @@ module Wrapture
       option :scope, aliases: 's',
                      desc: 'file with a scope spec',
                      repeatable: true
+      # The wrap cli command.
       def wrap
         puts 'wrap called!'
         puts "scope: #{options[:scope]}"
