@@ -32,11 +32,29 @@ module Wrapture
       end
 
       desc 'wrap <options>', 'generate wrappers for the given specs'
+      option :class, aliases: 'c',
+                     desc: 'file with a class spec',
+                     repeatable: true
+      option :from, desc: 'language to start wrapping from'
+      option :function, aliases: 'f',
+                        desc: 'file with a function spec',
+                        repeatable: true
+      option :enum, aliases: 'e',
+                    desc: 'file with a enum spec',
+                    repeatable: true
+      option :path, aliases: 'p',
+                    desc: 'sequence of wrappers to call',
+                    repeatable: true
       option :scope, aliases: 's',
                      desc: 'file with a scope spec',
                      repeatable: true
+      option :to, desc: 'language to generate wrappers for'
       # The wrap cli command.
       def wrap
+        if options[:path] && (options[:to] || options[:from])
+          raise Thor::Error, '--path (-p) cannot be used with --from or --to'
+        end
+
         puts 'wrap called!'
         puts "scope: #{options[:scope]}"
       end
