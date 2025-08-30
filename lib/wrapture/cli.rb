@@ -31,10 +31,17 @@ module Wrapture
         true
       end
 
-      desc 'wrap <options>', 'generate wrappers for the given specs'
+      desc 'wrap <options> [SPEC] ...', 'generate wrappers for the given specs'
+      long_desc <<-LONGDESC
+        The wrap command wraps all of the given specs in following the provided
+        wrapping paths.
+      LONGDESC
       option :class, aliases: 'c',
                      desc: 'file with a class spec',
                      repeatable: true
+      # TODO: not implemented yet
+      # option :format, desc: 'output format (diff, files, zip)',
+      #                 default: 'file'
       option :from, desc: 'language to start wrapping from'
       option :function, aliases: 'f',
                         desc: 'file with a function spec',
@@ -42,6 +49,15 @@ module Wrapture
       option :enum, aliases: 'e',
                     desc: 'file with a enum spec',
                     repeatable: true
+      # TODO: add this in when it is implemented
+      # option :jobs, aliases: 'j',
+      #               desc: 'number of parallel jobs to run'
+      # TODO: add this in when it is implemented
+      # option :log, aliases: 'l',
+      #              desc: 'file to write log output to'
+      # may change to be a filename when different formats are supported
+      option :output, aliases: 'o',
+                      desc: 'output directory'
       option :path, aliases: 'p',
                     desc: 'sequence of wrappers to call',
                     repeatable: true
@@ -50,13 +66,14 @@ module Wrapture
                      repeatable: true
       option :to, desc: 'language to generate wrappers for'
       # The wrap cli command.
-      def wrap
+      def wrap(*specs)
         if options[:path] && (options[:to] || options[:from])
           raise Thor::Error, '--path (-p) cannot be used with --from or --to'
         end
 
         puts 'wrap called!'
-        puts "scope: #{options[:scope]}"
+        puts "options: #{options}"
+        puts "args: #{specs}"
       end
     end
   end

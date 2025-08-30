@@ -64,7 +64,7 @@ class WrapperTest < Minitest::Test
     validate_paths(paths)
 
     paths.each do |path|
-      assert_includes(from, path.first.from_language,
+      assert_includes(from, path.wrappers.first.from_language,
                       "all path starts must be in #{from}")
     end
 
@@ -79,7 +79,8 @@ class WrapperTest < Minitest::Test
     validate_paths(paths)
 
     paths.each do |path|
-      assert_equal(:x, path.first.from_language, 'all paths must start with x')
+      assert_equal(:x, path.wrappers.first.from_language,
+                   'all paths must start with x')
     end
 
     assert_equal(MOCK_WRAPPERS.count, paths.count,
@@ -103,7 +104,7 @@ class WrapperTest < Minitest::Test
     validate_paths(paths)
 
     paths.each do |path|
-      assert_includes(to, path.last.to_language,
+      assert_includes(to, path.wrappers.last.to_language,
                       "all path ends must be in #{to}")
     end
 
@@ -118,7 +119,8 @@ class WrapperTest < Minitest::Test
     validate_paths(paths)
 
     paths.each do |path|
-      assert_equal(:x, path.last.to_language, 'all paths must end with x')
+      assert_equal(:x, path.wrappers.last.to_language,
+                   'all paths must end with x')
     end
 
     assert_equal(MOCK_WRAPPERS.count, paths.count,
@@ -128,9 +130,9 @@ class WrapperTest < Minitest::Test
   def validate_paths(paths)
     assert_kind_of(Array, paths)
     paths.each do |path|
-      assert_kind_of(Array, path)
+      assert_kind_of(Wrapture::Path, path)
 
-      path.each_cons(2) do |a, b|
+      path.wrappers.each_cons(2) do |a, b|
         assert_equal(a.to_language, b.from_language,
                      'each step in a path must have the same language')
       end

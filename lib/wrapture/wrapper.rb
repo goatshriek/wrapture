@@ -67,10 +67,6 @@ module Wrapture
 
   # An array of wrapper paths that wrap one language in another.
   #
-  # A language wrapping path is represented as an array of Wrapper modules,
-  # which can be invoked sequentially to go from a source language to a target
-  # one.
-  #
   # +from+ and +to+ can be used to restrict the set of returned paths to the
   # provided source and destination languages. If provided, they should be a
   # symbol matching the value of the +FROM_LANGUAGE+ or +TO_LANGUAGE+ values on
@@ -120,6 +116,8 @@ module Wrapture
     end
 
     # remove the paths that do not meet the ending critera
-    paths.select { |it| to.include?(it.last.to_language) }
+    paths = paths.select { |it| to.include?(it.last.to_language) }
+
+    paths.map { |path| Path.new(path) }
   end
 end
