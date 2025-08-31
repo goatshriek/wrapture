@@ -22,7 +22,6 @@ jobs:
       - name: Install Dependencies
         run: |
           gem update --system
-          bundle update --bundler
           bundle config set --local without 'development'
           bundle install
       - name: Run Unit Tests
