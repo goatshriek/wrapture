@@ -31,6 +31,19 @@ module Wrapture
         true
       end
 
+      # Don't allow options that aren't recognized.
+      check_unknown_options!
+
+      # Support help for all commands.
+      class_option :help, aliases: 'h',
+                          desc: 'output command help',
+                          type: :boolean
+
+      # Support version for all commands.
+      class_option :version, aliases: 'v',
+                             desc: 'output command version',
+                             type: :boolean
+
       desc 'wrap <options> [SPEC] ...', 'generate wrappers for the given specs'
       long_desc <<-LONGDESC
         The wrap command wraps all of the given specs in following the provided
@@ -55,7 +68,7 @@ module Wrapture
       # TODO: add this in when it is implemented
       # option :log, aliases: 'l',
       #              desc: 'file to write log output to'
-      # may change to be a filename when different formats are supported
+      # output may change to be a filename when different formats are supported
       option :output, aliases: 'o',
                       desc: 'output directory'
       option :path, aliases: 'p',
@@ -67,6 +80,13 @@ module Wrapture
       option :to, desc: 'language to generate wrappers for'
       # The wrap cli command.
       def wrap(*specs)
+        return help(:wrap) if options[:help]
+
+        if options[:version]
+          puts "Wrapture #{Wrapture::VERSION}"
+          return
+        end
+
         if options[:path] && (options[:to] || options[:from])
           raise Thor::Error, '--path (-p) cannot be used with --from or --to'
         end
