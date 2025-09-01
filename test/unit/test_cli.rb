@@ -24,7 +24,7 @@ require 'wrapture'
 
 class CliTest < Minitest::Test
   def test_help
-    out, err = capture_io do
+    out, _err = capture_io do
       Wrapture::Cli::Command.start(['wrap', '--help'])
     end
 
@@ -37,7 +37,7 @@ class CliTest < Minitest::Test
   end
 
   def test_version
-    out, err = capture_io do
+    out, _err = capture_io do
       Wrapture::Cli::Command.start(['wrap', '--version'])
     end
 
