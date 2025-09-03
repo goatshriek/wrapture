@@ -28,19 +28,31 @@ module Wrapture
       # and output language paths. Other details include parallelization,
       # how to report progress, and output details.
       def initialize
-        @scopes = []
         @classes = []
         @enums = []
+        @functions = []
+        @output = nil
+        @paths = []
+        @scopes = []
       end
 
-      # A list of Pathname instances with scope hashes to wrap.
-      attr_accessor :scopes
-
-      # A list of Pathname instances with class hashes to wrap.
+      # A list of ClassSpec instances with class hashes to wrap.
       attr_accessor :classes
 
-      # A list of Pathname instances with enum hashes to wrap.
+      # A list of EnumSpec instances with enum hashes to wrap.
       attr_accessor :enums
+
+      # A list of FunctionSpec instances to wrap.
+      attr_accessor :functions
+
+      # A Pathname for the output directory for generated wrappers.
+      attr_accessor :output
+
+      # A list of Path instances with the wrapping paths to follow.
+      attr_accessor :paths
+
+      # A list of Scope instances with scope hashes to wrap.
+      attr_accessor :scopes
     end
   end
 end

@@ -48,20 +48,41 @@ module Wrapture
       long_desc <<-LONGDESC
         The wrap command wraps all of the given specs in following the provided
         wrapping paths.
+
+        Specs are provided as paths to YAML files containing the specs. Specs
+        are assumed to be scope specs, and will all be combined into the same
+        scope during loading.
+
+        The --from and --to options allow the starting and ending languages to
+        be manually specified. If either (or both) option is given, then only
+        paths with the specified starting language (--from) and ending language
+        (--to) are used. If neither option is given, then all paths in Wrapture
+        are attempted.
+
+        The --path option allows for complete control over the wrapping paths.
+        It allows precise control over the paths used, and allows invocations
+        not supported by the simpler --from and --to options. A path is given
+        as a comma-separated list of languages, defining a chain of wrappers
+        to follow. For example, "c,c++" will invoke the CToCpp wrapper, and
+        "c,python,java" will invoke the CToPython wrapper followed by the
+        PythonToJava wrapper. The --path option can be given multiple times to
+        generate several different wrapping paths in a single invocation.
       LONGDESC
-      option :class, aliases: 'c',
-                     desc: 'file with a class spec',
-                     repeatable: true
+      # TODO: allow more fine-grained loading of specs
+      # option :class, aliases: 'c',
+      #                desc: 'file with a class spec',
+      #                repeatable: true
       # TODO: not implemented yet
       # option :format, desc: 'output format (diff, files, zip)',
       #                 default: 'file'
       option :from, desc: 'language to start wrapping from'
-      option :function, aliases: 'f',
-                        desc: 'file with a function spec',
-                        repeatable: true
-      option :enum, aliases: 'e',
-                    desc: 'file with a enum spec',
-                    repeatable: true
+      # TODO: allow more fine-grained loading of specs
+      # option :function, aliases: 'f',
+      #                   desc: 'file with a function spec',
+      #                   repeatable: true
+      # option :enum, aliases: 'e',
+      #               desc: 'file with a enum spec',
+      #               repeatable: true
       # TODO: add this in when it is implemented
       # option :jobs, aliases: 'j',
       #               desc: 'number of parallel jobs to run'
@@ -91,9 +112,20 @@ module Wrapture
           raise Thor::Error, '--path (-p) cannot be used with --from or --to'
         end
 
-        puts 'wrap called!'
-        puts "options: #{options}"
-        puts "args: #{specs}"
+        config = Config::WrapConfig.new
+
+        config.paths << if options[:path]
+                          options[:path].map { |it| Path.new(it) }
+                        else
+                          Wrapture.paths(from: options[:from]&.to_sym,
+                                         to: options[:to]&.to_sym)
+                        end
+
+        s = Scope.load_files(*specs)
+        options[:scope]&.each { |it| s.merge_file(it) }
+        config.scopes << s
+
+        wrap(config)
       end
     end
   end
