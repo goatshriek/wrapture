@@ -114,18 +114,20 @@ module Wrapture
 
         config = Config::WrapConfig.new
 
-        config.paths << if options[:path]
-                          options[:path].map { |it| Path.new(it) }
-                        else
-                          Wrapture.paths(from: options[:from]&.to_sym,
-                                         to: options[:to]&.to_sym)
-                        end
+        config.paths = if options[:path]
+                         options[:path].map { |it| Path.new(it) }
+                       else
+                         Wrapture.paths(from: options[:from]&.to_sym,
+                                        to: options[:to]&.to_sym)
+                       end
 
         s = Scope.load_files(*specs)
         options[:scope]&.each { |it| s.merge_file(it) }
         config.scopes << s
 
-        wrap(config)
+        config.output = options[:output] if options[:output]
+
+        Wrapture.wrap(config)
       end
     end
   end

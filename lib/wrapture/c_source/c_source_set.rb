@@ -37,7 +37,10 @@ module Wrapture
       # The name of the library.
       attr_reader :name
 
-      # Creates a CBuild from a provided hash.
+      # The spec representing what this source set implements.
+      attr_reader :spec
+
+      # Creates a CSourceSet from a provided hash.
       def self.from_hash(spec)
         unless spec.key?(:name)
           raise(MissingSpecKey, 'a name must be given for a C library')
@@ -74,9 +77,10 @@ module Wrapture
         @lib_headers = []
         @lib_links = []
         @lib_sources = []
+        @spec = nil
       end
 
-      # Add the content of another C build to this one.
+      # Add the content of another C project to this one.
       def <<(build)
         build.lib_headers.each do |hdr|
           add_lib_header(hdr)

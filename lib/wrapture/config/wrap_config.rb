@@ -31,7 +31,7 @@ module Wrapture
         @classes = []
         @enums = []
         @functions = []
-        @output = nil
+        @output = Pathname.pwd
         @paths = []
         @scopes = []
       end
