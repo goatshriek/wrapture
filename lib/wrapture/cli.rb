@@ -63,7 +63,7 @@ module Wrapture
         It allows precise control over the paths used, and allows invocations
         not supported by the simpler --from and --to options. A path is given
         as a comma-separated list of languages, defining a chain of wrappers
-        to follow. For example, "c,c++" will invoke the CToCpp wrapper, and
+        to follow. For example, "c,cpp" will invoke the CToCpp wrapper, and
         "c,python,java" will invoke the CToPython wrapper followed by the
         PythonToJava wrapper. The --path option can be given multiple times to
         generate several different wrapping paths in a single invocation.
