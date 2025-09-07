@@ -46,4 +46,50 @@ class CliTest < Minitest::Test
     # it would be nice to test this, but older rubies have trouble with it
     # assert_empty(err)
   end
+
+  def test_wrap_with_from
+    scope_file = fixture_yaml_path('minimal_scope')
+
+    Dir.mktmpdir do |dir|
+      out, _err = capture_io do
+        Wrapture::Cli::Command.start(['wrap',
+                                      '--from',
+                                      'c',
+                                      '--output',
+                                      dir,
+                                      '--scope',
+                                      scope_file])
+      end
+
+      assert_empty(out)
+      scope = Wrapture::Scope.load_files(scope_file)
+
+      scope.classes.each do |it|
+        assert_includes(Dir.children(dir), "#{it.name}.cpp")
+      end
+    end
+  end
+
+  def test_wrap_with_paths
+    scope_file = fixture_yaml_path('minimal_scope')
+
+    Dir.mktmpdir do |dir|
+      out, _err = capture_io do
+        Wrapture::Cli::Command.start(['wrap',
+                                      '--path',
+                                      'c,cpp',
+                                      '--output',
+                                      dir,
+                                      '--scope',
+                                      scope_file])
+      end
+
+      assert_empty(out)
+      scope = Wrapture::Scope.load_files(scope_file)
+
+      scope.classes.each do |it|
+        assert_includes(Dir.children(dir), "#{it.name}.cpp")
+      end
+    end
+  end
 end
