@@ -61,8 +61,6 @@ module Wrapture
       case other
       when Path
         @wrappers == other.wrappers
-      when Array
-        @wrappers == other
       else
         false
       end

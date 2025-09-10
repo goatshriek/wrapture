@@ -52,7 +52,7 @@ class WrapperTest < Minitest::Test
     validate_paths(default_paths)
 
     Wrapture::WRAPPERS.each do |wrapper|
-      assert_includes(default_paths, [wrapper],
+      assert_includes(default_paths, Wrapture::Path.new([wrapper]),
                       'the default paths should have each wrapper by itself')
     end
   end

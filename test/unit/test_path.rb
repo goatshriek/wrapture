@@ -22,6 +22,19 @@ require 'minitest/autorun'
 require 'wrapture'
 
 class PathTest < Minitest::Test
+  def test_equals_path
+    path1 = Wrapture::Path.new([Wrapture::Wrapper::CToCpp])
+    path2 = Wrapture::Path.new([Wrapture::Wrapper::CToCpp])
+
+    assert_equal(path1, path2)
+  end
+
+  def test_not_equals_string
+    path = Wrapture::Path.new([Wrapture::Wrapper::CToCpp])
+
+    refute_equal(path, 'c,cpp')
+  end
+
   def test_path_from_array
     wrapper_array = [Wrapture::Wrapper::CToCpp]
     path = Wrapture::Path.new(wrapper_array)
