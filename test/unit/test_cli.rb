@@ -23,6 +23,14 @@ require 'minitest/autorun'
 require 'wrapture'
 
 class CliTest < Minitest::Test
+  def test_exit_on_failure
+    # it would be nice if this test actually tested whether an invocation of the
+    # cli had a non-zero exit on failure, but this would pull the test out of
+    # a pure Ruby environment, so for now we make do with this Thor-specific
+    # test
+    assert_predicate(Wrapture::Cli::Command, :exit_on_failure?)
+  end
+
   def test_help
     out, _err = capture_io do
       Wrapture::Cli::Command.start(['wrap', '--help'])

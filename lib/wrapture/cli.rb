@@ -99,6 +99,8 @@ module Wrapture
                      desc: 'file with a scope spec',
                      repeatable: true
       option :to, desc: 'language to generate wrappers for'
+      exclusive :path, :to
+      exclusive :path, :from
       # The wrap cli command.
       def wrap(*specs)
         return help(:wrap) if options[:help]
@@ -106,10 +108,6 @@ module Wrapture
         if options[:version]
           puts "Wrapture #{Wrapture::VERSION}"
           return
-        end
-
-        if options[:path] && (options[:to] || options[:from])
-          raise Thor::Error, '--path (-p) cannot be used with --from or --to'
         end
 
         config = Config::WrapConfig.new
