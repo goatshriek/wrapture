@@ -28,6 +28,7 @@ module Wrapture
       attr_reader lib_links: Array[String]
       attr_reader lib_sources: Array[Wrapture::SourceFile]
       attr_reader name: String
+      attr_reader spec: Wrapture::Scope
 
       def self.from_hash: (spec_hash) -> Wrapture::CSource::CSourceSet
 
