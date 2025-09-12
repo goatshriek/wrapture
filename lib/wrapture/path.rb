@@ -41,12 +41,12 @@ module Wrapture
     # or from a string with a list of langauges to go through. See
     # Path::wrappers_from_string for the format of the string.
     def initialize(wrappers)
-      case wrappers
-      when String
-        @wrappers = self.class.wrappers_from_string(wrappers)
-      else
-        @wrappers = Array.new(wrappers)
-      end
+      @wrappers = case wrappers
+                  when String
+                    self.class.wrappers_from_string(wrappers)
+                  else
+                    Array.new(wrappers)
+                  end
     end
 
     # The enumerable of wrappers this path contains.
