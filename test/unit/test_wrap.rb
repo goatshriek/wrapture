@@ -1,10 +1,8 @@
-#!/usr/bin/env ruby
-
 # SPDX-License-Identifier: Apache-2.0
 
 # frozen_string_literal: true
 
-# Copyright 2019-2025 Joel E. Anderson
+# Copyright 2025 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,6 +16,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require 'helper'
+
+require 'fixture'
+require 'minitest/autorun'
 require 'wrapture'
 
-Wrapture::Cli::Command.start(ARGV)
+class WrapTest < Minitest::Test
+  def test_wrap
+    config = Wrapture::Config::WrapConfig.new
+    scope_file = fixture_yaml_path('minimal_scope')
+    scope = Wrapture::Scope.load_files(scope_file)
+    config.scopes << scope
+    config.paths << Wrapture::Path.new('c,cpp')
+
+    Dir.mktmpdir do |dir|
+      config.output = dir
+      Wrapture.wrap(config)
+
+      scope.classes.each do |it|
+        assert_includes(Dir.children(dir), "#{it.name}.cpp")
+      end
+    end
+  end
+end

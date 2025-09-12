@@ -1,10 +1,9 @@
-#!/usr/bin/env ruby
-
 # SPDX-License-Identifier: Apache-2.0
 
 # frozen_string_literal: true
 
-# Copyright 2019-2025 Joel E. Anderson
+#--
+# Copyright 2025 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,7 +16,22 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+#++
 
-require 'wrapture'
+module Wrapture
+  # Generate wrappers for the given configuration.
+  def self.wrap(config)
+    config.paths.map do |path|
+      config.scopes.map do |scope|
+        spec = scope
+        path.wrappers.each do |wrapper|
+          source_set = wrapper.wrap(spec)
+          source_set.save(config.output)
+          spec = source_set.spec
+        end
 
-Wrapture::Cli::Command.start(ARGV)
+        spec
+      end
+    end
+  end
+end

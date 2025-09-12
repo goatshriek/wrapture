@@ -37,6 +37,9 @@ module Wrapture
       # The name of the project being build
       attr_reader :name
 
+      # The spec representing what this source set implements.
+      attr_reader :spec
+
       # Create an empty Python project.
       #
       # +name+ will be used as the name of the module the project builds.
@@ -44,6 +47,7 @@ module Wrapture
         @name = name
         @module_links = []
         @module_sources = []
+        @spec = nil
       end
 
       # Add a source file to the project's module's list.

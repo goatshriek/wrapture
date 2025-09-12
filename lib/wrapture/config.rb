@@ -1,10 +1,9 @@
-#!/usr/bin/env ruby
-
 # SPDX-License-Identifier: Apache-2.0
 
 # frozen_string_literal: true
 
-# Copyright 2019-2025 Joel E. Anderson
+#--
+# Copyright 2025 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,7 +16,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+#++
 
-require 'wrapture'
+require 'wrapture/config/wrap_config'
 
-Wrapture::Cli::Command.start(ARGV)
+module Wrapture
+  # A namespace for high level Wrapture invocation configurations.
+  module Config
+  end
+end

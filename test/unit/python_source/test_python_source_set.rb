@@ -1,10 +1,8 @@
-#!/usr/bin/env ruby
-
 # SPDX-License-Identifier: Apache-2.0
 
 # frozen_string_literal: true
 
-# Copyright 2019-2025 Joel E. Anderson
+# Copyright 2025 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,6 +16,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require 'helper'
+
+require 'fixture'
+require 'minitest/autorun'
 require 'wrapture'
 
-Wrapture::Cli::Command.start(ARGV)
+class PythonSourceSetTest < Minitest::Test
+  def test_python_source_add_link
+    set = Wrapture::PythonSource::PythonSourceSet.new('linktest')
+    set.add_link('liblinktest')
+
+    assert_includes(set.module_links, 'liblinktest')
+  end
+end

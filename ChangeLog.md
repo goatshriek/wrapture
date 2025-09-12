@@ -19,6 +19,7 @@ fixes, check out the
 ### Changed
  - Wrappers have been moved to their own modules, and generate build objects
    that describe both the generated sources and how they can be built.
+ - Replaced single `wrapture` script with CLI tool with subcommands.
 
 ### Removed
  - Ruby 2.4 and 2.5 are no longer supported.
