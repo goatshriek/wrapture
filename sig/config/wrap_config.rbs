@@ -15,12 +15,23 @@
 # limitations under the License.
 
 module Wrapture
-  module Cli
-    # no type info for Thor, so we leave it out for now
-    class Command
-      def self.exit_on_failure?: -> bool
-      def wrap: -> untyped
+  module Config
+    class WrapConfig
+      @classes: Array[Wrapture::ClassSpec]
+      @enums: Array[Wrapture::EnumSpec]
+      @functions: Array[Wrapture::FunctionSpec]
+      @output: Pathname
+      @paths: Array[Wrapture::Path]
+      @scopes: Array[Wrapture::Scope]
+
+      def initialize: -> void
+
+      attr_accessor classes: Array[Wrapture::ClassSpec]
+      attr_accessor enums: Array[Wrapture::EnumSpec]
+      attr_accessor functions: Array[Wrapture::FunctionSpec]
+      attr_accessor output: Pathname
+      attr_accessor paths: Array[Wrapture::Path]
+      attr_accessor scopes: Array[Wrapture::Scope]
     end
   end
 end
-

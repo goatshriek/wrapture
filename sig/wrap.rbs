@@ -15,12 +15,5 @@
 # limitations under the License.
 
 module Wrapture
-  module Cli
-    # no type info for Thor, so we leave it out for now
-    class Command
-      def self.exit_on_failure?: -> bool
-      def wrap: -> untyped
-    end
-  end
+  def self.wrap: (Wrapture::Config::WrapConfig) -> Array[Array[Wrapture::SourceSet]]
 end
-

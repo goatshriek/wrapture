@@ -21,14 +21,16 @@
 module Wrapture
   # Generate wrappers for the given configuration.
   def self.wrap(config)
-    config.paths.each do |path|
-      config.scopes.each do |scope|
+    config.paths.map do |path|
+      config.scopes.map do |scope|
         spec = scope
         path.wrappers.each do |wrapper|
           source_set = wrapper.wrap(spec)
           source_set.save(config.output)
           spec = source_set.spec
         end
+
+        spec
       end
     end
   end
