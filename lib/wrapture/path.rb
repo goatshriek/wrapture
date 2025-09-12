@@ -44,7 +44,7 @@ module Wrapture
       case wrappers
       when String
         @wrappers = self.class.wrappers_from_string(wrappers)
-      when Enumerable
+      else
         @wrappers = Array.new(wrappers)
       end
     end
