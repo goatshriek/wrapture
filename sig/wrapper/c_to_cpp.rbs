@@ -19,6 +19,7 @@ module Wrapture
     module CToCpp
       extend Wrapper
 
+      def self.declaration_headers: (Wrapture::ClassSpec) -> Array[String]
       def self.declare_class: (Wrapture::ClassSpec) -> Wrapture::SourceFile
       def self.define_class: (Wrapture::ClassSpec) -> Wrapture::SourceFile
       def self.define_enum: (Wrapture::ClassSpec) -> Wrapture::SourceFile

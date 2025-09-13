@@ -64,6 +64,12 @@ module Wrapture
         end
       end
 
+      # The headers needed to declare the given class.
+      def self.declaration_headers(class_spec)
+        # TODO: pick up here
+        []
+      end
+
       # Generate a source file with the declaration of a class.
       def self.declare_class(class_spec)
         src = SourceFile.new("#{class_spec.name}.hpp")
