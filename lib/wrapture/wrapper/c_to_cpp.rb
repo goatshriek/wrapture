@@ -68,10 +68,17 @@ module Wrapture
       def self.declare_class(class_spec)
         src = SourceFile.new("#{class_spec.name}.hpp")
 
+        guard = header_guard(class_spec)
+        src.puts("#ifndef #{guard}")
+        src.puts("#define #{guard}")
+        src.puts
+
         wrapper = CToCppWrapper.new(class_spec)
         wrapper.declare do |line|
           src.puts(line)
         end
+
+        src.puts("#endif /* #{guard} */")
 
         src
       end
@@ -98,6 +105,11 @@ module Wrapture
         end
 
         src
+      end
+
+      # The symbol to use for header guard checks.
+      def self.header_guard(class_spec)
+        "#{class_spec.screaming_snake_case_name}_HPP"
       end
 
       # True if the provided wrapped param spec can be cast to when used in this

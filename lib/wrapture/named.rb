@@ -38,6 +38,11 @@ module Wrapture
     # The default name is the raw one.
     alias name raw_name
 
+    # The name in screaming snake case.
+    def screaming_snake_case_name
+      name_words.map(&:upcase).join('_')
+    end
+
     # The name in snake_case.
     def snake_case_name
       name_words.map(&:downcase).join('_')

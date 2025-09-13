@@ -248,9 +248,9 @@ module Wrapture
 
     # Gives each line of the declaration of a ClassSpec to the provided block.
     def declare_class
-      yield "#ifndef #{header_guard}"
-      yield "#define #{header_guard}"
-      yield ''
+      # yield "#ifndef #{header_guard}"
+      # yield "#define #{header_guard}"
+      # yield ''
 
       unless @spec.declaration_includes.empty?
         declaration_includes.each { |inc| yield "#include <#{inc}>" }
@@ -302,7 +302,7 @@ module Wrapture
       yield ''
       yield '}' # end of namespace
       yield ''
-      yield "#endif /* #{header_guard} */"
+      # yield "#endif /* #{header_guard} */"
     end
 
     # Gives each line of the declaration of the given ConstantSpec.
