@@ -42,6 +42,7 @@ module Wrapture
     def equivalent_member?: -> bool
     def exception?: -> bool
     def factory?: -> bool
+    def includes: -> Array[String]
     def libraries: -> Array[String]
     def method_specs: -> Array[Wrapture::FunctionSpec]
     def name_words: -> Array[String]

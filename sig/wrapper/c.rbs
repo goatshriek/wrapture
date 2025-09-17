@@ -15,21 +15,9 @@
 # limitations under the License.
 
 module Wrapture
-  class ConstantSpec
-    include Named
-
-    @spec: spec_hash
-    @doc: Wrapture::Comment
-    @type: Wrapture::TypeSpec
-
-    def self.normalize_spec_hash: (spec_hash spec) -> spec_hash
-    def initialize: (spec_hash spec) -> void
-    attr_reader doc: Wrapture::Comment
-    attr_reader type: Wrapture::TypeSpec
-    def declaration_includes: -> Array[String]
-    def definition_includes: -> Array[String]
-    def includes: -> Array[String]
-    def name_words: -> Array[String]
-    def value: -> String
+  module Wrapper
+    module C
+      def self.includes: (Wrapture::ClassSpec | Wrapture::FunctionSpec | Wrapture::ParamSpec | Wrapture::ConstantSpec | Wrapture::TypeSpec) -> Array[String]
+    end
   end
 end

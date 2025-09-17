@@ -272,6 +272,12 @@ module Wrapture
       @scope.overloads?(self)
     end
 
+    # The includes given for this class spec. This does not include those from
+    # items within this class such as functions or constants.
+    def includes
+      spec[:includes]
+    end
+
     # An array of libraries needed for everything in this class.
     def libraries
       @functions.flat_map(&:libraries).concat(@spec[:libraries])

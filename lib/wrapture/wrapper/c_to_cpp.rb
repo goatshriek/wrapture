@@ -67,7 +67,27 @@ module Wrapture
       # The headers needed to declare the given class.
       def self.declaration_headers(class_spec)
         # TODO: pick up here
-        []
+        includes = class_spec.wrapped[:c]
+
+        includes.concat(@struct.includes) if @struct
+
+        @functions.each do |func|
+          unless func.wrapped.key?(:c)
+            raise UndefinableSpec,
+                  'not wrappable in c'
+          end
+
+          includes.concat(func.definition_includes)
+          includes.concat(func.wrapped[:c].includes)
+        end
+
+        @constants.each do |const|
+          includes.concat(const.declaration_includes)
+        end
+
+        includes.concat(@spec[:parent][:includes]) if child?
+
+        includes.uniq
       end
 
       # Generate a source file with the declaration of a class.

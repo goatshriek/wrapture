@@ -82,6 +82,11 @@ module Wrapture
       @spec[:includes].dup
     end
 
+    # A list of includes needed for this constant.
+    def includes
+      @spec[:includes]
+    end
+
     # The name of the constant.
     def name_words
       @spec[:name]

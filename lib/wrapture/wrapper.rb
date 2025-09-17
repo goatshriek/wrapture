@@ -22,8 +22,8 @@ require 'wrapture/wrapper/c_to_cpp'
 require 'wrapture/wrapper/c_to_python'
 
 module Wrapture
-  # +Wrapper+ is the base wrapping functionality that all language wrappers
-  # provide. All wrappers extend this module in order to interface with
+  # +Wrapper+ includes the base wrapping functionality that all language
+  # wrappers provide. All wrappers extend this module in order to interface with
   # universal Wrapture functionality like wrapper chaining.
   #
   # Wrapper modules must have a name of the format "SourceToDest" where Source
