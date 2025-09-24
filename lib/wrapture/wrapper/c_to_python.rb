@@ -354,9 +354,9 @@ module Wrapture
           blk.declare('int', 'parse_result')
         end
 
-        error_return = func_spec.wrapped[:c].error_rules.any?(&:use_return?)
+        error_return = func_spec[:c].error_rules.any?(&:use_return?)
         if !func_spec.void_return? || error_return
-          return_type = TypeSpec.new(func_spec.wrapped[:c].return_type.to_s)
+          return_type = TypeSpec.new(func_spec[:c].return_type.to_s)
           return_type = func_spec.return_type if return_type.name == 'void'
           return_type = func_spec.resolve_type(return_type)
 
@@ -1044,15 +1044,15 @@ module Wrapture
 
       # The expression containing the call to the underlying wrapped function.
       def self.wrapped_function_call(func_spec)
-        resolved_params = func_spec.wrapped[:c].params.map do |param|
+        resolved_params = func_spec[:c].params.map do |param|
           resolve_wrapped_param(func_spec, param)
         end
 
-        call = "#{func_spec.wrapped[:c].name}( #{resolved_params.join(', ')} )"
+        call = "#{func_spec[:c].name}( #{resolved_params.join(', ')} )"
 
         if func_spec.constructor?
           "#{class_struct_pointer(func_spec.owner)} = #{call}"
-        elsif func_spec.wrapped[:c].error_check? || !func_spec.void_return?
+        elsif func_spec[:c].error_check? || !func_spec.void_return?
           "return_val = #{call}"
         else
           call

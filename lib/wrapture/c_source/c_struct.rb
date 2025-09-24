@@ -32,6 +32,15 @@ module Wrapture
       # typedef for this struct.
       attr_reader :typedef
 
+      # Creates a new C struct from a hash.
+      def self.from_hash(spec)
+        unless spec.key?(:name)
+          raise MissingSpecKey, 'a name is required for c structs'
+        end
+
+        new(name: spec[:name])
+      end
+
       # Creates a CStruct from a struct spec.
       def self.from_spec(struct_spec)
         new(name: struct_spec.name)

@@ -49,6 +49,17 @@ module Wrapture
       end
     end
 
+    # Creates a new ClassSpec from hash +spec+.
+    def self.from_hash(spec)
+      class_spec = new(spec)
+
+      if spec.key?(:wrapped) &&
+         spec[:wrapped].key?(:c) &&
+         spec[:wrapped][:c].key?(:equivalent_struct)
+        class_spec[:c] = CSource::CStruct.from_hash(spec[:wrapped][:c])
+      end
+    end
+
     # Returns a normalized copy of a hash specification of a class. See
     # normalize_spec_hash! for details.
     def self.normalize_spec_hash(spec, *templates)
@@ -120,6 +131,9 @@ module Wrapture
     # The underlying struct of this class.
     attr_reader :struct
 
+    # A map of language-specific wrapping details.
+    attr_accessor :wrapped
+
     # Creates a class spec based on the provided hash spec.
     #
     # The scope can be provided if available. Otherwise, a new Scope is created
@@ -182,6 +196,20 @@ module Wrapture
 
       scope << self
       @scope = scope
+
+      @wrapped = {}
+    end
+
+    # Get the wrapping details for the given language. This is equivalent to
+    # +wrapped[lang]+.
+    def [](lang)
+      @wrapped[lang]
+    end
+
+    # Set the wrapping details for the given language. This is equivalent to
+    # +wrapped[lang]=+.
+    def []=(lang, wrapped_function)
+      @wrapped[lang] = wrapped_function
     end
 
     # True if the class has a parent.

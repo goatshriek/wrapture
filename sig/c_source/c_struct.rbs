@@ -25,6 +25,7 @@ module Wrapture
       attr_reader members: Array[CType]
       attr_reader typedef: String
 
+      def self.from_hash: (spec_hash spec) -> Wrapture::CSource::CStruct
       def self.from_spec: (Wrapture::StructSpec) -> Wrapture::CSource::CStruct
       def initialize: (?name: String, ?members: Array[CType], ?typedef: String) -> void
       def ==: (CStruct) -> bool

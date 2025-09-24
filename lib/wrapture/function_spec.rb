@@ -26,7 +26,7 @@ module Wrapture
   class FunctionSpec
     include Named
 
-    # Creates a new FunctionSpec from a hash +spec+.
+    # Creates a new FunctionSpec from hash +spec+.
     def self.from_hash(spec)
       if spec&.key?(:version) && !Wrapture.supports_version?(spec[:version])
         raise UnsupportedSpecVersion
@@ -73,49 +73,10 @@ module Wrapture
       end
 
       if spec.key?(:wrapped) && spec[:wrapped].key?(:c)
-        func_spec.wrapped[:c] = CSource::CFunction.from_hash(spec[:wrapped][:c])
+        func_spec[:c] = CSource::CFunction.from_hash(spec[:wrapped][:c])
       end
 
       func_spec
-    end
-
-    # Returns a copy of the return type specification +spec+.
-    def self.normalize_return_hash(spec)
-      if spec.nil?
-        { type: 'void', includes: [] }
-      else
-        normalized = Marshal.load(Marshal.dump(spec))
-        Comment.validate_doc(spec[:doc]) if spec.key?(:doc)
-        normalized[:type] ||= 'void'
-        normalized[:includes] = Wrapture.normalize_array(spec[:includes])
-        normalized[:libraries] = Wrapture.normalize_array(spec[:libraries])
-        Wrapture.normalize_boolean!(spec, :overloaded)
-        normalized
-      end
-    end
-
-    # Normalizes the hash specification of a function in +spec+ in place.
-    # Normalization will check for things like invalid keys, duplicate entries
-    # in include lists, and will set missing keys to their default values
-    # (for example, an empty list if no includes are given).
-    def self.normalize_spec_hash!(spec)
-      Comment.validate_doc(spec[:doc]) if spec.key?(:doc)
-
-      spec[:version] = Wrapture.spec_version(spec)
-      Wrapture.normalize_boolean!(spec, :static)
-      Wrapture.normalize_boolean!(spec, :virtual)
-      spec[:params] = ParamSpec.normalize_param_list(spec[:params])
-      spec[:return] = normalize_return_hash(spec[:return])
-      spec[:name] = Wrapture.normalize_name(spec, :name)
-
-      spec[:initializers] = [] unless spec.key?(:initializers)
-      if spec[:initializers].any? { |i| !i.key?(:name) && !i[:delegate] }
-        msg = 'initializers must either have a name or be delegating ' \
-              'constructors (have delegate set to true)'
-        raise MissingSpecKey, msg
-      end
-
-      spec
     end
 
     # Creates a function spec based on the provided function spec.
@@ -246,7 +207,7 @@ module Wrapture
     end
 
     # Set the wrapped function for the given language. This is equivalent to
-    # +wrapped[lang]+.
+    # +wrapped[lang]=+.
     def []=(lang, wrapped_function)
       @wrapped[lang] = wrapped_function
     end

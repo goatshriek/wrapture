@@ -38,7 +38,7 @@ module Wrapture
           param_includes = spec.params.flat_map do |it|
             includes(it)
           end
-          (spec.wrapped[:c].includes + param_includes).uniq
+          (spec[:c].includes + param_includes).uniq
         when ConstantSpec, ParamSpec, TypeSpec
           spec.includes
         else
