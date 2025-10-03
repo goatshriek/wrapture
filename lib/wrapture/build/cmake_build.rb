@@ -45,7 +45,7 @@ module Wrapture
         build_info = if spec.key?(:c_sources)
                        CSource::CSourceSet.from_hash(spec[:c_sources])
                      else
-                       CSource::CppSourceSet.from_hash(spec[:cpp_sources])
+                       CppSource::CppSourceSet.from_hash(spec[:cpp_sources])
                      end
 
         new(build_info)

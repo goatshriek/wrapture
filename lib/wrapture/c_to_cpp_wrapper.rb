@@ -248,22 +248,6 @@ module Wrapture
 
     # Gives each line of the declaration of a ClassSpec to the provided block.
     def declare_class
-      # yield "#ifndef #{header_guard}"
-      # yield "#define #{header_guard}"
-      # yield ''
-
-      unless @spec.declaration_includes.empty?
-        declaration_includes.each { |inc| yield "#include <#{inc}>" }
-        yield ''
-      end
-
-      yield "namespace #{@spec.namespace} {"
-      yield ''
-
-      @spec.documentation { |line| yield "  #{line}" }
-      yield "  class #{@spec.name} #{ancestor_suffix} {"
-      yield '  public:'
-
       unless @spec.constants.empty?
         @spec.constants.each do |constant|
           declare_constant(constant) { |line| yield "    #{line}" }
@@ -297,12 +281,6 @@ module Wrapture
         yield ''
         yield "    #{equivalent_member_declaration}"
       end
-
-      yield '  };' # end of class
-      yield ''
-      yield '}' # end of namespace
-      yield ''
-      # yield "#endif /* #{header_guard} */"
     end
 
     # Gives each line of the declaration of the given ConstantSpec.

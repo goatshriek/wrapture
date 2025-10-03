@@ -16,9 +16,9 @@
 
 module Wrapture
   module Named
-    def camel_case_name: () -> String
     def raw_name: () -> String
     alias name raw_name
     def snake_case_name: () -> String
+    def upper_camel_case_name: () -> String
   end
 end

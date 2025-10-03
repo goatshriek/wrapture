@@ -1,0 +1,40 @@
+# SPDX-License-Identifier: Apache-2.0
+
+# Copyright 2025 Joel E. Anderson
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+module Wrapture
+  module CppSource
+    class CppFunction
+      include Wrapture::CSource::CBlock
+
+      @attributes: Array[String]
+      @name: String
+      @params: Enumerable[Wrapture::CSource::CDeclaration]
+      @return_type: Wrapture::CSource::CType
+      @tree: Array[untyped]
+
+      attr_reader attributes: Enumerable[String]
+      attr_reader name: String
+      attr_reader params: Enumerable[Wrapture::CSource::CDeclaration]
+      attr_reader return_type: Wrapture::CSource::CType
+      attr_reader tree: Array[untyped]
+
+      def initialize: (String, ?params: Enumerable[Wrapture::CSource::CDeclaration], ?return_type: Wrapture::CSource::CType) -> void
+      def add_fail_label: (String, ?String) -> CppFunction
+      def add_param: (Wrapture::CSource::CDeclaration) -> CppFunction
+      def declaration: () -> Wrapture::CSource::CDeclaration
+    end
+  end
+end

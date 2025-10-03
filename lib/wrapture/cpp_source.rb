@@ -18,10 +18,37 @@
 # limitations under the License.
 #++
 
+require 'wrapture/cpp_source/cpp_class'
+require 'wrapture/cpp_source/cpp_function'
+require 'wrapture/cpp_source/cpp_source_file'
 require 'wrapture/cpp_source/cpp_source_set'
 
 module Wrapture
   # Classes and utilities for working with C++ source code.
   module CppSource
+    # Formats a C++ class into a set of source file strings.
+    def self.format_class(cls)
+      src = ['class ', cls.name]
+      src << " : #{cls.parent_name}" unless cls.parent_name.nil?
+      src << " {\npublic:\n} /* class "
+      src << cls.name
+      src << ' */'
+
+      src
+    end
+
+    # Formats a syntax tree of C++ source elements into a set of source file
+    # strings.
+    def self.format_tree(tree)
+      tree.flat_map do |node|
+        case node
+        when CppClass
+          format_class(node)
+        else
+          # fall back to the C source formatting for everthing else
+          CSource.format_block([node])
+        end
+      end
+    end
   end
 end

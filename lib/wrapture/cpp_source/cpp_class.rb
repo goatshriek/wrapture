@@ -1,5 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
+# frozen_string_literal: true
+
+#--
 # Copyright 2025 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,11 +16,27 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+#++
 
 module Wrapture
-  module Wrapper
-    module C
-      def self.includes: (Wrapture::Scope | Wrapture::ClassSpec | Wrapture::FunctionSpec | Wrapture::ParamSpec | Wrapture::ConstantSpec | Wrapture::TypeSpec) -> Array[String]
+  module CppSource
+    # A class used in C++ code.
+    class CppClass
+      # A C++ class has methods and attributes.
+      def initialize(name)
+        @name = name
+        @parent_name = nil
+        @public_methods = []
+      end
+
+      # The name of the class.
+      attr_reader :name
+
+      # The fully qualified name of the parent class.
+      attr_accessor :parent_name
+
+      # The member functions for this class with public access.
+      attr_accessor :public_methods
     end
   end
 end

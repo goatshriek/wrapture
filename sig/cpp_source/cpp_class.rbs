@@ -15,9 +15,11 @@
 # limitations under the License.
 
 module Wrapture
-  module Wrapper
-    module C
-      def self.includes: (Wrapture::Scope | Wrapture::ClassSpec | Wrapture::FunctionSpec | Wrapture::ParamSpec | Wrapture::ConstantSpec | Wrapture::TypeSpec) -> Array[String]
+  module CppSource
+    class CppSourceSet
+      @name: String
+      @parent_name: String
+      @public_methods: Array[Wrapture::CppSource::CppFunction]
     end
   end
 end

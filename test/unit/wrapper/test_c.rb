@@ -22,21 +22,22 @@ require 'fixture'
 require 'minitest/autorun'
 require 'wrapture'
 
-class CToCppTest < Minitest::Test
-  def test_declaration_includes_with_no_c_details
+class CWrapperTest < Minitest::Test
+  def test_class_includes_with_no_c_details
     # we need a class spec where there isn't a :c key in wrapped
     class_spec = Wrapture::ClassSpec.new(fixture_hash('versioned_class'))
 
-    assert_empty(Wrapture::Wrapper::CToCpp.declaration_includes(class_spec),
-                 'declaration includes not empty for a class spec with no ' \
+    assert_empty(Wrapture::Wrapper::C.includes(class_spec),
+                 'includes not empty for a class spec with no ' \
                  'entry for c in the wrapped languages')
   end
 
-  def test_from_language
-    assert_equal(:c, Wrapture::Wrapper::CToCpp.from_language)
-  end
+  def test_function_includes_with_no_c_details
+    # we need a function spec where there isn't a :c key in wrapped
+    func_spec = Wrapture::FunctionSpec.new(%w[func without c])
 
-  def test_to_language
-    assert_equal(:cpp, Wrapture::Wrapper::CToCpp.to_language)
+    assert_empty(Wrapture::Wrapper::C.includes(func_spec),
+                 'includes not empty for a func spec with no ' \
+                 'entry for c in the wrapped languages')
   end
 end

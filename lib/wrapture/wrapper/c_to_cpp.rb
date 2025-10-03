@@ -24,6 +24,19 @@ module Wrapture
     module CToCpp
       extend Wrapper
 
+      # Gives a list of ancestor classes of class spec, including a colon
+      # prefix, if the class has ancestors. If not, an empty string is
+      # returned instead.
+      def self.ancestor_suffix(class_spec)
+        if class_spec.child?
+          ": public #{class_spec.parent_name}"
+        elsif class_spec.exception?
+          ': public std::exception'
+        else
+          ''
+        end
+      end
+
       # Returns a cast of the equivalent member of an instance of the given
       # class with the given name from one type to another.
       def self.cast_equivalent(class_spec, var_name, from, to)
@@ -64,46 +77,65 @@ module Wrapture
         end
       end
 
-      # The headers needed to declare the given class.
-      def self.declaration_headers(class_spec)
-        # TODO: pick up here
-        includes = class_spec.wrapped[:c]
+      # The headers needed to declare the given class. This is a subset of the
+      # spec includes, as the includes for things like calling wrapped functions
+      # and invoking error handling are not needed for the declaration.
+      def self.declaration_includes(class_spec)
+        includes = []
 
-        includes.concat(@struct.includes) if @struct
+        includes.concat(class_spec[:c].includes) if class_spec.wrapped.key?(:c)
 
-        @functions.each do |func|
-          unless func.wrapped.key?(:c)
-            raise UndefinableSpec,
-                  'not wrappable in c'
+        class_spec.functions.each do |func|
+          func.params.each do |param|
+            includes.concat(Wrapper::C.includes(param))
           end
-
-          includes.concat(func.definition_includes)
-          includes.concat(func.wrapped[:c].includes)
         end
 
-        @constants.each do |const|
-          includes.concat(const.declaration_includes)
+        class_spec.constants.each do |const|
+          includes.concat(Wrapper::C.includes(const))
         end
 
-        includes.concat(@spec[:parent][:includes]) if child?
+        if class_spec.child?
+          includes.concat(Wrapper::C.includes(class_spec.parent_spec))
+        end
 
         includes.uniq
       end
 
       # Generate a source file with the declaration of a class.
       def self.declare_class(class_spec)
-        src = SourceFile.new("#{class_spec.name}.hpp")
+        class_name = class_spec.upper_camel_case_name
+
+        src = CppSource::CppSourceFile.new("#{class_name}.hpp")
 
         guard = header_guard(class_spec)
         src.puts("#ifndef #{guard}")
         src.puts("#define #{guard}")
         src.puts
 
+        declaration_includes(class_spec).each do |inc|
+          src.puts("#include <#{inc}>")
+        end
+
+        src.puts("namespace #{class_spec.namespace} {")
+        src.puts
+
+        class_spec.documentation { |line| src.puts("  #{line}") }
+
+        # src << Wrapture::CppSource::CppClass.new(class_name)
+
+        src.puts("  class #{class_name} #{ancestor_suffix(class_spec)} {")
+        src.puts('  public:')
+
         wrapper = CToCppWrapper.new(class_spec)
         wrapper.declare do |line|
           src.puts(line)
         end
 
+        src.puts("  } /* class #{class_name} */")
+        src.puts
+        src.puts("} /* namespace #{class_spec.namespace} */")
+        src.puts
         src.puts("#endif /* #{guard} */")
 
         src

@@ -22,6 +22,9 @@ module Wrapture
   module CSource
     # A struct type used in C source code.
     class CStruct
+      # The includes needed to use this function.
+      attr_accessor :includes
+
       # The name of the struct.
       attr_reader :name
 
@@ -48,6 +51,7 @@ module Wrapture
 
       # Creates a type for the base type given.
       def initialize(name: '', members: [], typedef: '')
+        @includes = []
         @name = name
         @members = members
         @typedef = typedef

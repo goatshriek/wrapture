@@ -117,9 +117,5 @@ module Wrapture
         @lib_headers + @lib_sources
       end
     end
-
-    # For now this is equivalent to a C source set, but they may diverge in the
-    # future.
-    CppSourceSet = CSourceSet
   end
 end

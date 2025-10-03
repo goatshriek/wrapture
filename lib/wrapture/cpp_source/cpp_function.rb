@@ -1,5 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
+# frozen_string_literal: true
+
+#--
 # Copyright 2025 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,11 +16,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+#++
 
 module Wrapture
-  module Wrapper
-    module C
-      def self.includes: (Wrapture::Scope | Wrapture::ClassSpec | Wrapture::FunctionSpec | Wrapture::ParamSpec | Wrapture::ConstantSpec | Wrapture::TypeSpec) -> Array[String]
-    end
+  module CppSource
+    # For now, C++ and C functions share an implementation.
+    CppFunction = Wrapture::CSource::CFunction
   end
 end

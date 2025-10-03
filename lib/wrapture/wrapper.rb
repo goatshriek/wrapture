@@ -18,6 +18,7 @@
 # limitations under the License.
 #++
 
+require 'wrapture/wrapper/c'
 require 'wrapture/wrapper/c_to_cpp'
 require 'wrapture/wrapper/c_to_python'
 

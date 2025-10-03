@@ -15,9 +15,8 @@
 # limitations under the License.
 
 module Wrapture
-  module Wrapper
-    module C
-      def self.includes: (Wrapture::Scope | Wrapture::ClassSpec | Wrapture::FunctionSpec | Wrapture::ParamSpec | Wrapture::ConstantSpec | Wrapture::TypeSpec) -> Array[String]
-    end
+  module CppSource
+    def self.format_class: (Wrapture::CppSource::CppClass) -> Enumerable[String]
+    def self.format_tree: (Enumerable[untyped]) -> Enumerable[String]
   end
 end

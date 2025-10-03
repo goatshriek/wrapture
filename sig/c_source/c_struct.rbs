@@ -17,10 +17,12 @@
 module Wrapture
   module CSource
     class CStruct
+      @includes: Array[String]
       @name: String
       @members: Array[CType]
       @typedef: String
 
+      attr_accessor includes: Array[String]
       attr_reader name: String
       attr_reader members: Array[CType]
       attr_reader typedef: String

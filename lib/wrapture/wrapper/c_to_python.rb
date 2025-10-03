@@ -428,7 +428,7 @@ module Wrapture
           src.include('stddef.h', comment: 'for offsetof()')
         end
 
-        scope.definition_includes.each { |inc| src.include(inc) }
+        Wrapper::C.includes(scope).each { |inc| src.include(inc) }
 
         declare_module_struct(src, scope)
 
