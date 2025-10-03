@@ -16,7 +16,7 @@
 
 module Wrapture
   module CppSource
-    class CppSourceSet
+    class CppClass
       @name: String
       @parent_name: String
       @public_methods: Array[Wrapture::CppSource::CppFunction]
