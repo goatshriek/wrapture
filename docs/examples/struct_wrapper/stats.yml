@@ -18,6 +18,23 @@ classes:
   - name: "PlayerStats"
     namespace: "soccer"
     libraries: "stats"
+    wrapped:
+      c:
+        name: "player_stats"
+        includes: "stats.h"
+        members:
+          - name: "goals_scored"
+            type: "int"
+            # games start with no goals scored
+            default_value: 0
+          - name: "yellow_cards"
+            type: "int"
+            # players start without any yellow cards
+            default_value: 0
+          - name: "red_cards"
+            type: "int"
+            # players start without any red cards
+            default_value: 0
     equivalent_struct:
       name: "player_stats"
       includes: "stats.h"

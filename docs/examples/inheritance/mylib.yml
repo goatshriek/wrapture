@@ -18,6 +18,17 @@ classes:
   - name: "Item"
     namespace: "library"
     libraries: "mylib"
+    wrapped:
+      c:
+        name: "mylib_item"
+        includes: "mylib.h"
+        members:
+          - name: "name"
+            type: "const char *"
+            default_value: "NULL"
+          - name: "checked_out"
+            type: "bool"
+            default_value: false
     equivalent_struct:
       name: "mylib_item"
       includes: "mylib.h"

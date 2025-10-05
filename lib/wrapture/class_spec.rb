@@ -198,6 +198,9 @@ module Wrapture
       @scope = scope
 
       @wrapped = {}
+      if @spec.key?(:wrapped) && @spec[:wrapped].key?(:c)
+        @wrapped[:c] = CSource::CStruct.from_hash(@spec[:wrapped][:c])
+      end
     end
 
     # Get the wrapping details for the given language. This is equivalent to

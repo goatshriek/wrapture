@@ -53,6 +53,9 @@ module Wrapture
                   includes(it)
                 end
                 spec_includes + param_includes
+              when EnumSpec
+                # TODO: this should be refactored to use a wrapped :c key
+                spec.definition_includes
               when ConstantSpec, ParamSpec, TypeSpec
                 # TODO: this should be refactored to use a wrapped :c key
                 spec.includes

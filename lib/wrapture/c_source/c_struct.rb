@@ -23,7 +23,7 @@ module Wrapture
     # A struct type used in C source code.
     class CStruct
       # The includes needed to use this function.
-      attr_accessor :includes
+      attr_reader :includes
 
       # The name of the struct.
       attr_reader :name
@@ -41,7 +41,13 @@ module Wrapture
           raise MissingSpecKey, 'a name is required for c structs'
         end
 
-        new(name: spec[:name])
+        c_struct = new(name: spec[:name])
+
+        if spec.key?(:includes)
+          c_struct.includes.concat(Wrapture.normalize_array(spec[:includes]))
+        end
+
+        c_struct
       end
 
       # Creates a CStruct from a struct spec.

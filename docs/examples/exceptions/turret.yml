@@ -21,6 +21,10 @@ classes:
   - name: "Turret"
     namespace: "defense_turret"
     libraries: "turret"
+    wrapped:
+      c:
+        name: "turret"
+        includes: "turret.h"
     equivalent_struct:
       name: "turret"
       includes: "turret.h"
@@ -99,10 +103,11 @@ classes:
               - value: "equivalent_struct_pointer"
   - name: "TurretException"
     namespace: "defense_turret"
-    parent:
-      name: "std::exception"
-      includes: "exception"
     exception: true
+    wrapped:
+      c:
+        name: "turret_error"
+        includes: "turret_error.h"
     equivalent_struct:
       name: "turret_error"
       includes: "turret_error.h"

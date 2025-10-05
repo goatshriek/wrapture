@@ -77,6 +77,11 @@ module Wrapture
         end
       end
 
+      # Gives the filename used for the declaration of a given spec.
+      def self.declaration_filename(spec)
+        "#{spec.upper_camel_case_name}.hpp"
+      end
+
       # The headers needed to declare the given class. This is a subset of the
       # spec includes, as the includes for things like calling wrapped functions
       # and invoking error handling are not needed for the declaration.
@@ -88,6 +93,9 @@ module Wrapture
         class_spec.functions.each do |func|
           func.params.each do |param|
             includes.concat(Wrapper::C.includes(param))
+
+            param_type = class_spec.type(param.type)
+            includes << declaration_filename(param_type) unless param_type.nil?
           end
         end
 
@@ -97,6 +105,11 @@ module Wrapture
 
         if class_spec.child?
           includes.concat(Wrapper::C.includes(class_spec.parent_spec))
+
+          parent_spec = class_spec.type(class_spec.parent_name)
+          includes << declaration_filename(parent_spec) unless parent_spec.nil?
+        elsif class_spec.exception?
+          includes << 'exception'
         end
 
         includes.uniq
@@ -132,7 +145,7 @@ module Wrapture
           src.puts(line)
         end
 
-        src.puts("  } /* class #{class_name} */")
+        src.puts("  }; /* class #{class_name} */")
         src.puts
         src.puts("} /* namespace #{class_spec.namespace} */")
         src.puts
@@ -163,6 +176,23 @@ module Wrapture
         end
 
         src
+      end
+
+      # The name of the file that the definition of this spec will be written
+      # to. This may be the same as the declaration filename for specs that are
+      # not forward declared.
+      def self.definition_filename(spec)
+        if forward_declared?(spec)
+          "#{spec.upper_camel_case_name}.cpp"
+        else
+          "#{spec.upper_camel_case_name}.hpp"
+        end
+      end
+
+      # True if this instance's spec has separate definition and declaration
+      # files.
+      def self.forward_declared?(spec)
+        !spec.is_a?(EnumSpec)
       end
 
       # The symbol to use for header guard checks.

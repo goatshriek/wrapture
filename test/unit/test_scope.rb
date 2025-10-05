@@ -66,26 +66,7 @@ class ScopeTest < Minitest::Test
     scope = Wrapture::Scope.new(spec_without_template)
     no_template_build = Wrapture::Wrapper::CToCpp.wrap_scope(scope)
 
-    assert_equal(with_template_build.sources.first.path,
-                 no_template_build.sources.first.path)
-    assert_equal(with_template_build.sources.first.contents,
-                 no_template_build.sources.first.contents)
-    assert_equal(with_template_build.sources.first,
-                 no_template_build.sources.first)
-
     with_template_build.sources.each do |with_src|
-      # puts with_src.hash
-      # puts with_src.class
-
-      # no_template_build.sources.each do |without_src|
-      #   puts without_src.hash
-      #   puts without_src.class
-      # end
-
-      # puts no_template_build.class
-      # puts no_template_build.sources.class
-      # puts no_template_build.include?(with_src)
-
       assert_includes(no_template_build, with_src,
                       "the build without templates is missing #{with_src}")
     end

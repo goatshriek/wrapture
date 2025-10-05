@@ -19,6 +19,10 @@ classes:
   - name: "SecurityEvent"
     namespace: "home_automation"
     libraries: "security_system"
+    wrapped:
+      c:
+        name: "event"
+        includes: "security_system.h"
     equivalent_struct:
       name: "event"
       includes: "security_system.h"

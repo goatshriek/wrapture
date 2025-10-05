@@ -338,7 +338,7 @@ module Wrapture
         signature = function_definition_signature(func_spec)
         yield "#{signature} #{initializer_suffix(func_spec)}{"
         factory_constructor(@spec).tree.each { |line| yield "  #{line}" }
-        yield '}'
+        yield '} /* end factory constructor */'
       end
 
       if @spec.struct&.members?
@@ -533,9 +533,9 @@ module Wrapture
         line_prefix = '} else '
       end
 
-      func.puts("#{line_prefix}{")
-      func.puts("  return new #{@spec.name}( equivalent );")
       func.puts('}')
+      func.puts
+      func.puts("return new #{@spec.name}( equivalent );")
 
       func
     end
