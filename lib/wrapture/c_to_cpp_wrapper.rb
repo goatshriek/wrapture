@@ -285,17 +285,17 @@ module Wrapture
 
     # Gives each line of the declaration of the given ConstantSpec.
     def declare_constant(constant_spec, &block)
-      constant_spec.doc&.format_as_doxygen(max_line_length: 76, &block)
+      # constant_spec.doc&.format_as_doxygen(max_line_length: 76, &block)
       variable = type_variable(constant_spec.type, constant_spec.name)
-      yield "static const #{variable};"
+      block.yield "static const #{variable};"
     end
 
     # Gives each line of the declaration of a FunctionSpec to the provided
     # block.
     def declare_function(&block)
-      @spec.doc.format_as_doxygen(max_line_length: 76) do |line|
-        block.call(line)
-      end
+      # @spec.doc.format_as_doxygen(max_line_length: 76) do |line|
+      #   block.call(line)
+      # end
 
       modifier_prefix = if @spec.static?
                           'static '
@@ -385,9 +385,9 @@ module Wrapture
         indent += 2
       end
 
-      @spec.doc.format_as_doxygen(max_line_length: 76) do |line|
-        yield "#{' ' * indent}#{line}"
-      end
+      # @spec.doc.format_as_doxygen(max_line_length: 76) do |line|
+      #   yield "#{' ' * indent}#{line}"
+      # end
 
       yield "#{' ' * indent}enum class #{@spec.name} {"
       indent += 2
@@ -477,8 +477,9 @@ module Wrapture
     # Calls the given block once for each line of the documentation for an
     # element.
     def enum_element_doc(element, &block)
-      doc = Comment.new(element.fetch(:doc, nil))
-      doc.format_as_doxygen(max_line_length: 74) { |line| block.call(line) }
+      nil
+      # doc = Comment.new(element.fetch(:doc, nil))
+      # doc.format_as_doxygen(max_line_length: 74) { |line| block.call(line) }
     end
 
     # The declaration of the equivalent member of this class.

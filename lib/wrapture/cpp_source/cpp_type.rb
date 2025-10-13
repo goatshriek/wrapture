@@ -20,27 +20,20 @@
 
 module Wrapture
   module CppSource
-    # A class used in C++ code.
-    class CppClass
-      # A C++ class must have a name, at a minimum.
-      def initialize(name)
-        @doc = Comment.new
-        @methods = []
-        @name = name
-        @parent_name = nil
+    # A type used in C++ code.
+    class CppType
+      # Get a C++ type that corresponds to a given TypeSpec.
+      def self.from_spec(type_spec)
+        new(type_spec.name)
       end
 
-      # The documentation for the class.
-      attr_accessor :doc
+      # A C++ type is defined as a name.
+      def initialize(name)
+        @name = name
+      end
 
-      # The methods of this class.
-      attr_reader :methods
-
-      # The name of the class.
-      attr_reader :name
-
-      # The fully qualified name of the parent class.
-      attr_accessor :parent_name
+      # The name of the type.
+      attr_accessor :name
     end
   end
 end

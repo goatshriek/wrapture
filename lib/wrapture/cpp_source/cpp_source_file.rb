@@ -24,7 +24,7 @@ module Wrapture
   module CppSource
     # A C++ source file.
     class CppSourceFile < SourceFile
-      include Wrapture::CSource::CBlock
+      include CppBlock
 
       # The source tree of this file.
       attr_reader :tree

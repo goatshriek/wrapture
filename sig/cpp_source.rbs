@@ -16,7 +16,11 @@
 
 module Wrapture
   module CppSource
-    def self.format_class: (Wrapture::CppSource::CppClass) -> Enumerable[String]
+    def self.format_block: (Wrapture::CppSource::CppBlock) -> Enumerable[String]
+    def self.format_class_declaration: (Wrapture::CppSource::CppDeclaration) -> Enumerable[String]
+    def self.format_class_definition: (Wrapture::CppSource::CppClass) -> Enumerable[String]
+    def self.format_declaration: (Wrapture::CppSource::CppDeclaration) -> Enumerable[String]
+    def self.format_method_declaration: (Wrapture::CppSource::CppMethod) -> Enumerable[String]
     def self.format_tree: (Enumerable[untyped]) -> Enumerable[String]
   end
 end

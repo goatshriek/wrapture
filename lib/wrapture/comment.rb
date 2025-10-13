@@ -30,7 +30,7 @@ module Wrapture
     end
 
     # The raw text of the comment.
-    attr_reader :text
+    attr_accessor :text
 
     # Creates a comment from a string. If the provided string is nil, then an
     # empty string is used.
@@ -68,14 +68,6 @@ module Wrapture
       end
 
       yield last_line if last_line
-    end
-
-    # Calls the given block for each line of the comment formatted using Doxygen
-    # style.
-    # TODO: functionality should be moved to C source somewhere
-    def format_as_doxygen(max_line_length: 80, &block)
-      format(line_prefix: ' * ', first_line: '/**',
-             last_line: ' */', max_line_length: max_line_length, &block)
     end
 
     # Calls the given block for each line of the comment formatted as a Python

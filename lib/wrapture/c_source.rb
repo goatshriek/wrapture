@@ -185,6 +185,9 @@ module Wrapture
 
     # Adds indentation to the given tree of source chunks. This is done by
     # adding spaces on lines that are not empty.
+    #
+    # TODO: eventually, this should move out of the CSource module since it
+    # isn't based in C code, but is far more general.
     def self.indent(tree)
       format_block(tree).join.split("\n").map do |line|
         if line.empty?

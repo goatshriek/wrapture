@@ -1,8 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 
-# frozen_string_literal: true
-
-#--
 # Copyright 2025 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,31 +13,15 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#++
 
 module Wrapture
   module CppSource
-    # A class used in C++ code.
-    class CppClass
-      # A C++ class must have a name, at a minimum.
-      def initialize(name)
-        @doc = Comment.new
-        @methods = []
-        @name = name
-        @parent_name = nil
-      end
-
-      # The documentation for the class.
-      attr_accessor :doc
-
-      # The methods of this class.
-      attr_reader :methods
-
-      # The name of the class.
-      attr_reader :name
-
-      # The fully qualified name of the parent class.
-      attr_accessor :parent_name
+    module CppBlock
+      def <<: (untyped) -> CppBlock
+      def declare: (untyped, String, ?Array[String], ?String) -> CppBlock
+      def if: (String) { (CppBlock) -> void } -> CSource::CIf
+      def include: (String, ?comment: Comment | String, ?quote: bool) -> CppBlock
+      def puts: (*String) -> CppBlock
     end
   end
 end

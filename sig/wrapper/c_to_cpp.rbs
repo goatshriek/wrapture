@@ -20,6 +20,7 @@ module Wrapture
       extend Wrapper
 
       def self.ancestor_suffix: (Wrapture::ClassSpec) -> String
+      def self.class_from_spec: (Wrapture::ClassSpec) -> Wrapture::CppSource::CppClass
       def self.declaration_filename: (untyped) -> String
       def self.declaration_includes: (Wrapture::ClassSpec) -> Array[String]
       def self.declare_class: (Wrapture::ClassSpec) -> Wrapture::SourceFile

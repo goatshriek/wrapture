@@ -55,6 +55,37 @@ module Wrapture
         end
       end
 
+      # Creates a CppClass instance from a ClassSpec.
+      def self.class_from_spec(spec)
+        class_name = spec.upper_camel_case_name
+        cls = Wrapture::CppSource::CppClass.new(class_name)
+        cls.doc = spec.doc
+
+        if spec.child?
+          cls.parent_name = spec.parent_name
+        elsif spec.exception?
+          cls.parent_name = 'std::exception'
+        end
+
+        spec.method_specs.each do |meth_spec|
+          meth_name = meth_spec.upper_camel_case_name
+          meth = Wrapture::CppSource::CppMethod.new(meth_name)
+          return_spec = meth_spec.return_type
+          meth.return_type = Wrapture::CppSource::CppType.from_spec(return_spec)
+          meth_spec.params.each do |param_spec|
+            param_type = param_spec.type
+            param_name = param_spec.name
+            decl = Wrapture::CppSource::CppDeclaration.new(param_type,
+                                                           name: param_name)
+            meth.params << decl
+          end
+
+          cls.methods << meth
+        end
+
+        cls
+      end
+
       # Gives a code snippet that accesses the equivalent struct from
       # within the class using the given variable name.
       def self.class_struct(class_spec, var_name: 'this')
@@ -133,9 +164,7 @@ module Wrapture
         src.puts("namespace #{class_spec.namespace} {")
         src.puts
 
-        class_spec.documentation { |line| src.puts("  #{line}") }
-
-        # src << Wrapture::CppSource::CppClass.new(class_name)
+        src.declare(class_from_spec(class_spec))
 
         src.puts("  class #{class_name} #{ancestor_suffix(class_spec)} {")
         src.puts('  public:')

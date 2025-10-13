@@ -20,27 +20,35 @@
 
 module Wrapture
   module CppSource
-    # A class used in C++ code.
-    class CppClass
-      # A C++ class must have a name, at a minimum.
+    # A method in a C++ class.
+    class CppMethod
+      include CppBlock
+
+      # A new method is public, has no parameters, a void return, and an empty
+      # body.
       def initialize(name)
-        @doc = Comment.new
-        @methods = []
+        @accessibility = :public
         @name = name
-        @parent_name = nil
+        @params = []
+        @return_type = Wrapture::CSource::CType.new('void')
+        @tree = []
       end
 
-      # The documentation for the class.
-      attr_accessor :doc
+      # The accessibility of a method can be +:public+, +:private+, or
+      # +:protected+.
+      attr_accessor :accessibility
 
-      # The methods of this class.
-      attr_reader :methods
-
-      # The name of the class.
+      # The name of the method.
       attr_reader :name
 
-      # The fully qualified name of the parent class.
-      attr_accessor :parent_name
+      # The parameters of the method.
+      attr_accessor :params
+
+      # The return type of the method.
+      attr_accessor :return_type
+
+      # The tree of the method body statements.
+      attr_reader :tree
     end
   end
 end
