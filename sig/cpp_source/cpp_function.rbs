@@ -17,24 +17,22 @@
 module Wrapture
   module CppSource
     class CppFunction
-      include Wrapture::CSource::CBlock
-
-      @attributes: Array[String]
+      @accessibility: Symbol
       @name: String
-      @params: Enumerable[Wrapture::CSource::CDeclaration]
-      @return_type: Wrapture::CSource::CType
+      @return_type: CppType
+      @static: bool
       @tree: Array[untyped]
 
-      attr_reader attributes: Enumerable[String]
+      attr_accessor accessibility: Symbol
+      attr_accessor attributes: Array[String]
       attr_reader name: String
-      attr_reader params: Enumerable[Wrapture::CSource::CDeclaration]
-      attr_reader return_type: Wrapture::CSource::CType
+      attr_reader params: Array[untyped]
+      attr_accessor return_type: CppType
+      attr_writer static: bool
       attr_reader tree: Array[untyped]
 
-      def initialize: (String, ?params: Enumerable[Wrapture::CSource::CDeclaration], ?return_type: Wrapture::CSource::CType) -> void
-      def add_fail_label: (String, ?String) -> CppFunction
-      def add_param: (Wrapture::CSource::CDeclaration) -> CppFunction
-      def declaration: () -> Wrapture::CSource::CDeclaration
+      def initialize: (String) -> void
+      def static?: () -> bool
     end
   end
 end

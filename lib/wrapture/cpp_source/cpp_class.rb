@@ -25,7 +25,7 @@ module Wrapture
       # A C++ class must have a name, at a minimum.
       def initialize(name)
         @doc = Comment.new
-        @methods = []
+        @member_functions = []
         @name = name
         @parent_name = nil
       end
@@ -34,7 +34,7 @@ module Wrapture
       attr_accessor :doc
 
       # The methods of this class.
-      attr_reader :methods
+      attr_reader :member_functions
 
       # The name of the class.
       attr_reader :name

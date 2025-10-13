@@ -68,19 +68,20 @@ module Wrapture
         end
 
         spec.method_specs.each do |meth_spec|
-          meth_name = meth_spec.upper_camel_case_name
-          meth = Wrapture::CppSource::CppMethod.new(meth_name)
+          func_name = meth_spec.upper_camel_case_name
+          func = Wrapture::CppSource::CppFunction.new(func_name)
           return_spec = meth_spec.return_type
-          meth.return_type = Wrapture::CppSource::CppType.from_spec(return_spec)
+          func.return_type = Wrapture::CppSource::CppType.from_spec(return_spec)
+          func.static = meth_spec.static?
           meth_spec.params.each do |param_spec|
             param_type = param_spec.type
             param_name = param_spec.name
             decl = Wrapture::CppSource::CppDeclaration.new(param_type,
                                                            name: param_name)
-            meth.params << decl
+            func.params << decl
           end
 
-          cls.methods << meth
+          cls.member_functions << func
         end
 
         cls

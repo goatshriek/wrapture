@@ -22,7 +22,6 @@ require 'wrapture/cpp_source/cpp_block'
 require 'wrapture/cpp_source/cpp_class'
 require 'wrapture/cpp_source/cpp_declaration'
 require 'wrapture/cpp_source/cpp_function'
-require 'wrapture/cpp_source/cpp_method'
 require 'wrapture/cpp_source/cpp_source_file'
 require 'wrapture/cpp_source/cpp_source_set'
 require 'wrapture/cpp_source/cpp_type'
@@ -44,8 +43,12 @@ module Wrapture
       src << " : #{cls.parent_name}" unless cls.parent_name.nil?
       src << " {\npublic:\n"
 
-      cls.methods.select { |meth| meth.accessibility == :public }.each do |meth|
-        decl = format_method_declaration(meth) + ["\n"]
+      public_member_functions = cls.member_functions.select do |it|
+        it.accessibility == :public
+      end
+
+      public_member_functions.each do |meth|
+        decl = format_member_function_declaration(meth) + ["\n"]
         src += Wrapture::CSource.indent(decl)
       end
 
@@ -85,8 +88,12 @@ module Wrapture
     end
 
     # Formats a method declaration into a set of source file strings.
-    def self.format_method_declaration(meth)
-      src = format_declaration(CppDeclaration.new(meth.return_type))
+    def self.format_member_function_declaration(meth)
+      src = []
+
+      src << 'static ' if meth.static?
+
+      src += format_declaration(CppDeclaration.new(meth.return_type))
       src += [' ', meth.name, '(']
 
       if meth.params.empty?

@@ -20,7 +20,44 @@
 
 module Wrapture
   module CppSource
-    # For now, C++ and C functions share an implementation.
-    CppFunction = Wrapture::CSource::CFunction
+    # A C++. This may be a member function or a free function.
+    class CppFunction
+      include CppBlock
+
+      # A new method is public, non-static, has no parameters, a void return,
+      # and an empty body.
+      def initialize(name)
+        @accessibility = :public
+        @name = name
+        @params = []
+        @return_type = Wrapture::CSource::CType.new('void')
+        @static = false
+        @tree = []
+      end
+
+      # The accessibility of a method can be +:public+, +:private+, or
+      # +:protected+.
+      attr_accessor :accessibility
+
+      # The name of the method.
+      attr_reader :name
+
+      # The parameters of the method.
+      attr_accessor :params
+
+      # The return type of the method.
+      attr_accessor :return_type
+
+      # True if this method is static.
+      attr_writer :static
+
+      # The tree of the method body statements.
+      attr_reader :tree
+
+      # True if this method is static.
+      def static?
+        @static
+      end
+    end
   end
 end

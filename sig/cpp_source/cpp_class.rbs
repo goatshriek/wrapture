@@ -18,12 +18,12 @@ module Wrapture
   module CppSource
     class CppClass
       @doc: Comment
-      @methods: Array[CppMethod]
+      @member_functions: Array[CppFunction]
       @name: String
       @parent_name: String
 
       attr_accessor doc: Comment
-      attr_reader methods: Array[CppMethod]
+      attr_reader member_functions: Array[CppFunction]
       attr_reader name: String
       attr_reader parent_name: String
 
