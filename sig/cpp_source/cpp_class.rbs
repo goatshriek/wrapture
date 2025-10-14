@@ -17,11 +17,17 @@
 module Wrapture
   module CppSource
     class CppClass
+      @constructors: Array[CppFunction]
+      @data_members: Array[CppDeclaration]
+      @destructor: CppFunction | nil
       @doc: Comment
       @member_functions: Array[CppFunction]
       @name: String
       @parent_name: String
 
+      attr_reader constructors: Array[CppFunction]
+      attr_accessor data_members: Enumerable[CppDeclaration]
+      attr_accessor destructor: CppFunction | nil
       attr_accessor doc: Comment
       attr_reader member_functions: Array[CppFunction]
       attr_reader name: String

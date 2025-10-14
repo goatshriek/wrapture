@@ -67,6 +67,23 @@ module Wrapture
           cls.parent_name = 'std::exception'
         end
 
+        spec.constructors.each do |it|
+          func = Wrapture::CppSource::CppFunction.new(class_name)
+          it.params.each do |param_spec|
+            param_type = param_spec.type
+            param_name = param_spec.name
+            decl = Wrapture::CppSource::CppDeclaration.new(param_type,
+                                                           name: param_name)
+            func.params << decl
+          end
+          cls.constructors << func
+        end
+
+        unless spec.destructor.nil?
+          func = Wrapture::CppSource::CppFunction.new("~#{class_name}")
+          cls.destructor = func
+        end
+
         spec.method_specs.each do |meth_spec|
           func_name = meth_spec.upper_camel_case_name
           func = Wrapture::CppSource::CppFunction.new(func_name)
@@ -82,6 +99,12 @@ module Wrapture
           end
 
           cls.member_functions << func
+        end
+
+        if C.equivalent_member?(spec)
+          cls.data_members << Wrapture::CSource::CDeclaration.new(
+            spec[:c], 'equivalent'
+          )
         end
 
         cls

@@ -22,13 +22,14 @@ module Wrapture
   module CppSource
     # A class used in C++ code.
     class CppClass
-      # A C++ class must have a name, at a minimum.
-      def initialize(name)
-        @doc = Comment.new
-        @member_functions = []
-        @name = name
-        @parent_name = nil
-      end
+      # The constructors of this class.
+      attr_reader :constructors
+
+      # The data members of the class.
+      attr_accessor :data_members
+
+      # The destructor for the class, if a non-default one is needed.
+      attr_accessor :destructor
 
       # The documentation for the class.
       attr_accessor :doc
@@ -41,6 +42,17 @@ module Wrapture
 
       # The fully qualified name of the parent class.
       attr_accessor :parent_name
+
+      # A C++ class must have a name, at a minimum.
+      def initialize(name)
+        @constructors = []
+        @data_members = []
+        @destructor = nil
+        @doc = Comment.new
+        @member_functions = []
+        @name = name
+        @parent_name = nil
+      end
     end
   end
 end

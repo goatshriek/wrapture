@@ -38,7 +38,7 @@ module Wrapture
       def initialize(cpp_type, name: nil, attributes: [], value: nil)
         @cpp_type = case cpp_type
                     when String
-                      CType.new(cpp_type)
+                      CppType.new(cpp_type)
                     else
                       cpp_type
                     end

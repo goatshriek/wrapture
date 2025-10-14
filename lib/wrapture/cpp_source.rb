@@ -43,12 +43,26 @@ module Wrapture
       src << " : #{cls.parent_name}" unless cls.parent_name.nil?
       src << " {\npublic:\n"
 
+      cls.constructors.each do |it|
+        decl = format_constructor_declaration(it) + [";\n"]
+        src += Wrapture::CSource.indent(decl)
+      end
+
+      unless cls.destructor.nil?
+        src += Wrapture::CSource.indent(['~', cls.name, '(void);'])
+      end
+
       public_member_functions = cls.member_functions.select do |it|
         it.accessibility == :public
       end
 
-      public_member_functions.each do |meth|
-        decl = format_member_function_declaration(meth) + ["\n"]
+      public_member_functions.each do |it|
+        decl = format_member_function_declaration(it) + [";\n"]
+        src += Wrapture::CSource.indent(decl)
+      end
+
+      cls.data_members.each do |it|
+        decl = format_declaration(it) + [";\n"]
         src += Wrapture::CSource.indent(decl)
       end
 
@@ -64,8 +78,32 @@ module Wrapture
       # TODO: implement
     end
 
+    # Formats the declaration of a C++ constructor into a set of source file
+    # strings.
+    def self.format_constructor_declaration(func)
+      src = [func.name, '(']
+
+      if func.params.empty?
+        src << 'void'
+      else
+        func.params.each do |param_decl|
+          src += format_declaration(param_decl)
+          src << ', '
+        end
+
+        # get rid of the trailing comma
+        src.pop
+      end
+
+      src + [')']
+    end
+
     # Formats a declaration into a set of source code strings.
     def self.format_declaration(decl)
+      if decl.is_a?(CSource::CDeclaration)
+        return CSource.format_declaration(decl)
+      end
+
       src = [decl.cpp_type.name]
 
       src += [' ', decl.name] unless decl.name.nil?
@@ -108,7 +146,7 @@ module Wrapture
         src.pop
       end
 
-      src + [');']
+      src + [')']
     end
 
     # Formats a syntax tree of C++ source elements into a set of source file
