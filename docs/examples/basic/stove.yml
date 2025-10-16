@@ -22,8 +22,9 @@ classes:
     libraries: "stove"
     wrapped:
       c:
-        name: "stove"
-        includes: "stove.h"
+        pointer:
+          name: "stove"
+          includes: "stove.h"
     equivalent_struct:
       name: "stove"
     constructors:

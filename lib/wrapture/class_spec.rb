@@ -53,11 +53,16 @@ module Wrapture
     def self.from_hash(spec)
       class_spec = new(spec)
 
-      if spec.key?(:wrapped) &&
-         spec[:wrapped].key?(:c) &&
-         spec[:wrapped][:c].key?(:equivalent_struct)
-        class_spec[:c] = CSource::CStruct.from_hash(spec[:wrapped][:c])
+      if spec.key?(:wrapped) && spec[:wrapped].key?(:c)
+        if spec[:c].key?(:pointer)
+          struct_type = CSource::CStruct.from_hash(spec[:wrapped][:c][:pointer])
+          class_spec[:c] = CSource::CPointer.new(struct_type)
+        else
+          class_spec[:c] = CSource::CStruct.from_hash(spec[:wrapped][:c])
+        end
       end
+
+      class_spec
     end
 
     # Returns a normalized copy of a hash specification of a class. See
@@ -199,7 +204,12 @@ module Wrapture
 
       @wrapped = {}
       if @spec.key?(:wrapped) && @spec[:wrapped].key?(:c)
-        @wrapped[:c] = CSource::CStruct.from_hash(@spec[:wrapped][:c])
+        if @spec[:wrapped][:c].key?(:pointer)
+          struct_type = CSource::CStruct.from_hash(spec[:wrapped][:c][:pointer])
+          @wrapped[:c] = CSource::CPointer.new(struct_type)
+        else
+          @wrapped[:c] = CSource::CStruct.from_hash(spec[:wrapped][:c])
+        end
       end
     end
 

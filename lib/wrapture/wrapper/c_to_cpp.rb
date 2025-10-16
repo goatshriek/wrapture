@@ -72,10 +72,17 @@ module Wrapture
           it.params.each do |param_spec|
             param_type = param_spec.type
             param_name = param_spec.name
-            decl = Wrapture::CppSource::CppDeclaration.new(param_type,
-                                                           name: param_name)
+            decl = CppSource::CppDeclaration.new(param_type,
+                                                 name: param_name)
             func.params << decl
           end
+          cls.constructors << func
+        end
+
+        if generate_pointer_constructor?(spec)
+          func = Wrapture::CppSource::CppFunction.new(class_name)
+          func.params << CppSource::CppDeclaration.new(spec[:c],
+                                                       name: 'equivalent')
           cls.constructors << func
         end
 
@@ -143,6 +150,7 @@ module Wrapture
       def self.declaration_includes(class_spec)
         includes = []
 
+        # TODO: pick up here, add includes for CPointer
         includes.concat(class_spec[:c].includes) if class_spec.wrapped.key?(:c)
 
         class_spec.functions.each do |func|
@@ -246,6 +254,11 @@ module Wrapture
       # files.
       def self.forward_declared?(spec)
         !spec.is_a?(EnumSpec)
+      end
+
+      # True if a pointer constructor should be generated for the given class.
+      def self.generate_pointer_constructor?(class_spec)
+        class_spec.wrapped.key?(:c) && class_spec[:c].is_a?(CSource::CPointer)
       end
 
       # The symbol to use for header guard checks.

@@ -28,6 +28,7 @@ module Wrapture
       def self.define_enum: (Wrapture::ClassSpec) -> Wrapture::SourceFile
       def self.definition_filename: (Wrapture::ClassSpec) -> String
       def self.forward_declared?: (untyped) -> String
+      def self.generate_pointer_constructor?: (Wrapture::ClassSpec) -> bool
       def self.header_guard: (Wrapture::ClassSpec) -> String
       def self.wrap_class: (Wrapture::ClassSpec) -> Wrapture::CppSource::CppSourceSet
       def self.wrap_enum: (Wrapture::EnumSpec) -> Wrapture::CppSource::CppSourceSet

@@ -17,6 +17,7 @@
 module Wrapture
   module Wrapper
     module C
+      def self.equivalent_member?: (Wrapture::ClassSpec) -> bool
       def self.includes: (Wrapture::Scope | Wrapture::ClassSpec | Wrapture::FunctionSpec | Wrapture::ParamSpec | Wrapture::ConstantSpec | Wrapture::TypeSpec) -> Array[String]
     end
   end
