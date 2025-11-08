@@ -312,25 +312,25 @@ module Wrapture
 
     # Gives each line of the definition of a ClassSpec to the provided block.
     def define_class
-      yield "#include <#{@spec.name}.hpp>"
-      definition_includes.each { |inc| yield "#include <#{inc}>" }
+      # yield "#include <#{@spec.name}.hpp>"
+      # definition_includes.each { |inc| yield "#include <#{inc}>" }
 
-      yield ''
-      yield "namespace #{@spec.namespace} {"
+      # yield ''
+      # yield "namespace #{@spec.namespace} {"
 
       yield unless @spec.constants.empty?
       @spec.constants.each do |const|
         yield "  #{define_constant(const, @spec.name)};"
       end
 
-      if autogen_pointer_constructor?
-        func_spec = FunctionSpec.from_hash(pointer_constructor_hash)
-        func_spec.owner = @spec
-        signature = function_definition_signature(func_spec)
-        yield "#{signature} #{initializer_suffix(func_spec)}{"
-        pointer_constructor(@spec).tree.each { |line| yield "  #{line}" }
-        yield '}'
-      end
+      # if autogen_pointer_constructor?
+      #   func_spec = FunctionSpec.from_hash(pointer_constructor_hash)
+      #   func_spec.owner = @spec
+      #   signature = function_definition_signature(func_spec)
+      #   yield "#{signature} #{initializer_suffix(func_spec)}{"
+      #   pointer_constructor(@spec).tree.each { |line| yield "  #{line}" }
+      #   yield '}'
+      # end
 
       if @spec.factory?
         func_spec = FunctionSpec.from_hash(factory_constructor_hash)
@@ -355,8 +355,8 @@ module Wrapture
         self.class.define_spec(function) { |line| yield "  #{line}" }
       end
 
-      yield ''
-      yield '}' # end of namespace
+      # yield ''
+      # yield '}' # end of namespace
     end
 
     # Gives each line of the definition of a ConstantSpec in a given class to

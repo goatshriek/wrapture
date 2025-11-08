@@ -365,6 +365,8 @@ module Wrapture
           blk.declare(return_type, 'return_val')
         end
 
+        # if the function is overloaded, then params are passed as args, rather
+        # than being parsed in this wrapper
         unless func_spec.overloaded?
           declare_wrapper_param_locals(blk,
                                        func_spec)

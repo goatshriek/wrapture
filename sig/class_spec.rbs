@@ -38,6 +38,7 @@ module Wrapture
     def child?: -> bool
     def constructors: -> Array[Wrapture::FunctionSpec]
     def declaration_includes: -> Array[String]
+    def definable?: () -> bool
     def definition_includes: -> Array[String]
     def destructor: -> Wrapture::FunctionSpec
     def documentation: { (String) -> void } -> void

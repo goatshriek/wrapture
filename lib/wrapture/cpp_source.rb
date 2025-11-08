@@ -75,11 +75,23 @@ module Wrapture
 
     # Formats the definition of a C++ class into a set of source file strings.
     def self.format_class_definition(cls)
-      # TODO: implement
+      src = []
+      cls.constructors.each do |constructor_func|
+        src.concat(format_constructor_definition(constructor_func))
+        src << "\n\n"
+      end
+
+      cls.member_functions.each do |member_func|
+        src.concat(format_member_function_definition(cls.name, member_func))
+        src << "\n\n"
+      end
+
+      src
     end
 
     # Formats the declaration of a C++ constructor into a set of source file
-    # strings.
+    # strings. This is subtly different from method declarations, which have
+    # return types.
     def self.format_constructor_declaration(func)
       src = [func.name, '(']
 
@@ -95,7 +107,20 @@ module Wrapture
         src.pop
       end
 
-      src + [')']
+      src << ')'
+    end
+
+    # Formats the definition of a C++ constructor into a set of source file
+    # strings. This is subtly different from method definitions, which have
+    # return types and do not have initializer lists.
+    #
+    # The function name is assumed to be the class name.
+    def self.format_constructor_definition(func)
+      src = [func.name, '::']
+      src += format_constructor_declaration(func)
+      src << "{\n"
+      src += Wrapture::CSource.indent(format_block(func))
+      src << '}'
     end
 
     # Formats a declaration into a set of source code strings.
@@ -125,19 +150,19 @@ module Wrapture
       src
     end
 
-    # Formats a method declaration into a set of source file strings.
-    def self.format_member_function_declaration(meth)
+    # Formats a member function declaration into a set of source file strings.
+    def self.format_member_function_declaration(func)
       src = []
 
-      src << 'static ' if meth.static?
+      src << 'static ' if func.static?
 
-      src += format_declaration(CppDeclaration.new(meth.return_type))
-      src += [' ', meth.name, '(']
+      src += format_declaration(CppDeclaration.new(func.return_type))
+      src += [' ', func.name, '(']
 
-      if meth.params.empty?
+      if func.params.empty?
         src << 'void'
       else
-        meth.params.each do |param_decl|
+        func.params.each do |param_decl|
           src += format_declaration(param_decl)
           src << ', '
         end
@@ -147,6 +172,28 @@ module Wrapture
       end
 
       src + [')']
+    end
+
+    # Formats a member function definition into a set of source file strings.
+    def self.format_member_function_definition(class_name, func)
+      src = format_declaration(CppDeclaration.new(func.return_type))
+      src += [' ', class_name, '::', func.name, '(']
+
+      if func.params.empty?
+        src << 'void'
+      else
+        func.params.each do |param_decl|
+          src += format_declaration(param_decl)
+          src << ', '
+        end
+
+        # get rid of the trailing comma
+        src.pop
+      end
+
+      src << "){\n"
+      src += Wrapture::CSource.indent(format_block(func))
+      src << '}'
     end
 
     # Formats a syntax tree of C++ source elements into a set of source file

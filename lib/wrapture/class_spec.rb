@@ -259,6 +259,11 @@ module Wrapture
       includes.uniq
     end
 
+    # True if this class can be defined.
+    def definable?
+      @functions.all?(&:definable?)
+    end
+
     # A list of includes needed for the definition of the class.
     def definition_includes
       includes = @spec[:includes].dup

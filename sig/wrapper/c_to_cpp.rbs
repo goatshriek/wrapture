@@ -21,18 +21,26 @@ module Wrapture
 
       def self.ancestor_suffix: (Wrapture::ClassSpec) -> String
       def self.class_from_spec: (Wrapture::ClassSpec) -> Wrapture::CppSource::CppClass
+      def self.converter: (untyped, untyped, untyped) -> Proc
       def self.declaration_filename: (untyped) -> String
       def self.declaration_includes: (Wrapture::ClassSpec) -> Array[String]
       def self.declare_class: (Wrapture::ClassSpec) -> Wrapture::SourceFile
+      def self.declare_member_function_locals: (Wrapture::CppSource::CppBlock, Wrapture::FunctionSpec) -> Wrapture::CppSource::CppBlock
       def self.define_class: (Wrapture::ClassSpec) -> Wrapture::SourceFile
       def self.define_enum: (Wrapture::ClassSpec) -> Wrapture::SourceFile
       def self.definition_filename: (Wrapture::ClassSpec) -> String
+      def self.definition_includes: (Wrapture::ClassSpec) -> Array[String]
       def self.forward_declared?: (untyped) -> String
       def self.generate_pointer_constructor?: (Wrapture::ClassSpec) -> bool
       def self.header_guard: (Wrapture::ClassSpec) -> String
+      def self.member_function_from_spec: (Wrapture::FunctionSpec) -> Wrapture::CppSource::CppFunction
+      def self.pointer_constructor: (Wrapture::ClassSpec) -> Wrapture::CppSource::CppFunction
+      def self.resolve_wrapped_param: (Wrapture::FunctionSpec, Wrapture::CSource::CDeclaration) -> String
       def self.wrap_class: (Wrapture::ClassSpec) -> Wrapture::CppSource::CppSourceSet
       def self.wrap_enum: (Wrapture::EnumSpec) -> Wrapture::CppSource::CppSourceSet
       def self.wrap_scope: (Wrapture::Scope) -> Wrapture::CppSource::CppSourceSet
+      def self.wrapped_function_call: (Wrapture::FunctionSpec) -> String
+      def self.wrapper_captures_return?: (Wrapture::FunctionSpec) -> bool
     end
   end
 end

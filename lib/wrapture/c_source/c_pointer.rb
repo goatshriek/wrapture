@@ -42,6 +42,11 @@ module Wrapture
 
       # Alias to support Enumerable#uniq.
       alias eql? ==
+
+      # The includes needed to use this pointer type.
+      def includes
+        @c_type.includes.dup
+      end
     end
   end
 end

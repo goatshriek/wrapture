@@ -24,6 +24,7 @@ module Wrapture
       def initialize: (CType | CStruct | String) -> void
       def ==: (CPointer) -> bool
       alias eql? ==
+      def includes: () -> Enumerable[String]
     end
   end
 end
