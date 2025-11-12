@@ -20,7 +20,7 @@ module Wrapture
       extend Wrapper
 
       def self.ancestor_suffix: (Wrapture::ClassSpec) -> String
-      def self.class_from_spec: (Wrapture::ClassSpec) -> Wrapture::CppSource::CppClass
+      def self.defined_class_from_spec: (Wrapture::ClassSpec) -> Wrapture::CppSource::CppClass
       def self.converter: (untyped, untyped, untyped) -> Proc
       def self.declaration_filename: (untyped) -> String
       def self.declaration_includes: (Wrapture::ClassSpec) -> Array[String]
@@ -36,6 +36,7 @@ module Wrapture
       def self.member_function_from_spec: (Wrapture::FunctionSpec) -> Wrapture::CppSource::CppFunction
       def self.pointer_constructor: (Wrapture::ClassSpec) -> Wrapture::CppSource::CppFunction
       def self.resolve_wrapped_param: (Wrapture::FunctionSpec, Wrapture::CSource::CDeclaration) -> String
+      def self.type_class_from_spec: (Wrapture::ClassSpec) -> Wrapture::CppSource::CppClass
       def self.wrap_class: (Wrapture::ClassSpec) -> Wrapture::CppSource::CppSourceSet
       def self.wrap_enum: (Wrapture::EnumSpec) -> Wrapture::CppSource::CppSourceSet
       def self.wrap_scope: (Wrapture::Scope) -> Wrapture::CppSource::CppSourceSet

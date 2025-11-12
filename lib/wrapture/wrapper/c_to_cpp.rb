@@ -55,52 +55,6 @@ module Wrapture
         end
       end
 
-      # Creates a CppClass instance from a ClassSpec.
-      def self.class_from_spec(spec)
-        class_name = spec.upper_camel_case_name
-        cls = Wrapture::CppSource::CppClass.new(class_name)
-        cls.doc = spec.doc
-
-        if spec.child?
-          cls.parent_name = spec.parent_name
-        elsif spec.exception?
-          cls.parent_name = 'std::exception'
-        end
-
-        spec.constructors.each do |it|
-          func = Wrapture::CppSource::CppFunction.new(class_name)
-          it.params.each do |param_spec|
-            param_type = param_spec.type
-            param_name = param_spec.name
-            decl = CppSource::CppDeclaration.new(param_type,
-                                                 name: param_name)
-            func.params << decl
-          end
-          cls.constructors << func
-        end
-
-        if generate_pointer_constructor?(spec)
-          cls.constructors << pointer_constructor(spec)
-        end
-
-        unless spec.destructor.nil?
-          func = Wrapture::CppSource::CppFunction.new("~#{class_name}")
-          cls.destructor = func
-        end
-
-        spec.method_specs.each do |meth_spec|
-          cls.member_functions << member_function_from_spec(meth_spec)
-        end
-
-        if C.equivalent_member?(spec)
-          cls.data_members << Wrapture::CSource::CDeclaration.new(
-            spec[:c], 'equivalent'
-          )
-        end
-
-        cls
-      end
-
       # Gives a code snippet that accesses the equivalent struct from
       # within the class using the given variable name.
       def self.class_struct(class_spec, var_name: 'this')
@@ -129,13 +83,24 @@ module Wrapture
       # each of the parameters as well as what a converter must do needs to be
       # well-defined, documented, and tested thoroughly.
       def self.converter(from, to, context)
-        # TODO: pick up here, implementing and integrating with parameter
-        # resolution
-        # to :equivalent_struct and :equivalent_pointer
-        # casting between types
-        if from == :this
-          from = class_from_spec(context.owner) # assume a FunctionSpec
+        context_class = context.owner # assume a FunctionSpec
+
+        from = type_class_from_spec(context_class) if from == :this
+
+        if to == :equivalent_struct
+          to = type_class_from_spec(context_class).equivalent_member.c_type
+          to = to.c_type if to.instance_of?(CPointer)
         end
+
+        if to == :equivalent_pointer
+          to = type_class_from_spec(context_class).equivalent_member.c_type
+          to = CSource::CPointer.new(to) if to.instance_of?(CSource::CStruct)
+        end
+
+        if to == from.equivalent_member.c_type
+          return proc { |val| "#{val}->equivalent" }
+        end
+
         proc { "conversion from #{from} to #{to} within context #{context}" }
       end
 
@@ -197,7 +162,7 @@ module Wrapture
         src.puts("namespace #{class_spec.namespace} {")
         src.puts
 
-        src.declare(class_from_spec(class_spec))
+        src.declare(defined_class_from_spec(class_spec))
 
         src.puts
         src.puts("} /* namespace #{class_spec.namespace} */")
@@ -234,8 +199,9 @@ module Wrapture
         src.puts("namespace #{class_spec.namespace} {")
         src.puts
 
-        src << class_from_spec(class_spec)
+        src << defined_class_from_spec(class_spec)
 
+        # TODO: pick up here, commenting out old wrapper output
         wrapper = CToCppWrapper.new(class_spec)
         wrapper.define do |line|
           src.puts(line)
@@ -257,6 +223,55 @@ module Wrapture
         end
 
         src
+      end
+
+      # Creates a CppClass instance from a ClassSpec, with all members and
+      # functions fully defined.
+      def self.defined_class_from_spec(spec)
+        # start with the type class, then build out the definitions
+        cls = type_class_from_spec(spec)
+        # class_name = spec.upper_camel_case_name
+        # cls = Wrapture::CppSource::CppClass.new(class_name)
+        cls.doc = spec.doc
+
+        if spec.child?
+          cls.parent_name = spec.parent_name
+        elsif spec.exception?
+          cls.parent_name = 'std::exception'
+        end
+
+        spec.constructors.each do |it|
+          func = Wrapture::CppSource::CppFunction.new(cls.name)
+          it.params.each do |param_spec|
+            param_type = param_spec.type
+            param_name = param_spec.name
+            decl = CppSource::CppDeclaration.new(param_type,
+                                                 name: param_name)
+            func.params << decl
+          end
+          cls.constructors << func
+        end
+
+        if generate_pointer_constructor?(spec)
+          cls.constructors << pointer_constructor(spec)
+        end
+
+        unless spec.destructor.nil?
+          func = Wrapture::CppSource::CppFunction.new("~#{cls.name}")
+          cls.destructor = func
+        end
+
+        spec.method_specs.each do |meth_spec|
+          cls.member_functions << member_function_from_spec(meth_spec)
+        end
+
+        # if C.equivalent_member?(spec)
+        #   eqv = Wrapture::CSource::CDeclaration.new(spec[:c], 'equivalent')
+        #   cls.data_members << eqv
+        #   cls.equivalent_member = eqv
+        # end
+
+        cls
       end
 
       # The name of the file that the definition of this spec will be written
@@ -343,13 +358,16 @@ module Wrapture
       # Equivalent structs and pointers are resolved, as well as casts between
       # types if they are known within the scope of this function.
       def self.resolve_wrapped_param(func_spec, param)
-        conversion = if param.value == EQUIVALENT_STRUCT_KEYWORD
+        val = param.value
+        conversion = if val == EQUIVALENT_STRUCT_KEYWORD
+                       val = 'this'
                        converter(:this, :equivalent_struct, func_spec)
                        # class_struct(func_spec.owner)
-                     elsif param.value == EQUIVALENT_POINTER_KEYWORD
+                     elsif val == EQUIVALENT_POINTER_KEYWORD
+                       val = 'this'
                        converter(:this, :equivalent_pointer, func_spec)
                        # class_struct_pointer(func_spec.owner)
-                     elsif param.value == '...'
+                     elsif val == '...'
                        converter(:variadic_args, :variadic_args, func_spec)
                      # TODO: remove this predicate, and rely on the converter
                      # to make this determination itself
@@ -363,7 +381,7 @@ module Wrapture
                        proc { |val| val }
                      end
 
-        conversion.call(param.value)
+        conversion.call(val)
       end
 
       # The pointer constructor for a class spec.
@@ -372,6 +390,21 @@ module Wrapture
         func = Wrapture::CppSource::CppFunction.new(class_name)
         func.params << CSource::CDeclaration.new(class_spec[:c], 'equivalent')
         func << 'this->equivalent = equivalent;'
+      end
+
+      # Creates a CppClass instance from a ClassSpec, with enough information
+      # available to use the class for type conversions.
+      def self.type_class_from_spec(spec)
+        class_name = spec.upper_camel_case_name
+        cls = Wrapture::CppSource::CppClass.new(class_name)
+
+        if C.equivalent_member?(spec)
+          eqv = Wrapture::CSource::CDeclaration.new(spec[:c], 'equivalent')
+          cls.data_members << eqv
+          cls.equivalent_member = eqv
+        end
+
+        cls
       end
 
       # Generates a build for a C++ library wrapping a class.
@@ -414,19 +447,29 @@ module Wrapture
       # The expression containing the call to the underlying wrapped function.
       def self.wrapped_function_call(func_spec)
         wrapped = func_spec.wrapped[:c]
-        # TODO: pick up here, calling converter
         params = wrapped.params.map do |it|
           resolve_wrapped_param(func_spec, it)
         end
 
-        "#{wrapped.name}(#{params.join(', ')})"
+        if wrapper_captures_return?(func_spec)
+          "return_val = #{wrapped.name}(#{params.join(', ')})"
+        elsif !func_spec.void_return?
+          "return #{wrapped.name}(#{params.join(', ')})"
+        else
+          "#{wrapped.name}(#{params.join(', ')})"
+        end
       end
 
       # True if the wrapper for the given function needs to save the return
       # value from the wrapped function.
       def self.wrapper_captures_return?(func_spec)
+        # true if the return value of the wrapped function must be converted
+        # into a C++ type before it is returned
+        convert_return = !func_spec.void_return? &&
+                         func_spec.return_type != func_spec[:c].return_type
+
         func_spec[:c].error_rules.any?(&:use_return?) ||
-          !func_spec.void_return?
+          convert_return
       end
     end
   end

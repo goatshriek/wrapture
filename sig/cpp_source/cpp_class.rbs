@@ -21,6 +21,7 @@ module Wrapture
       @data_members: Array[CppDeclaration]
       @destructor: CppFunction | nil
       @doc: Comment
+      @equivalent_member: CppDeclaration | nil
       @member_functions: Array[CppFunction]
       @name: String
       @parent_name: String
@@ -29,6 +30,7 @@ module Wrapture
       attr_accessor data_members: Enumerable[CppDeclaration]
       attr_accessor destructor: CppFunction | nil
       attr_accessor doc: Comment
+      attr_accessor equivalent_member: CppDeclaration | nil
       attr_reader member_functions: Array[CppFunction]
       attr_reader name: String
       attr_reader parent_name: String

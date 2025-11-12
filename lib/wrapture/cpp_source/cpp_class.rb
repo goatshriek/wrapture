@@ -34,6 +34,11 @@ module Wrapture
       # The documentation for the class.
       attr_accessor :doc
 
+      # The equivalent member declaration for the class. This is a duplicate of
+      # the declaration in +data_members+, to be used when needed for things
+      # like casting.
+      attr_accessor :equivalent_member
+
       # The methods of this class.
       attr_reader :member_functions
 
@@ -49,6 +54,7 @@ module Wrapture
         @data_members = []
         @destructor = nil
         @doc = Comment.new
+        @equivalent_member = nil
         @member_functions = []
         @name = name
         @parent_name = nil
