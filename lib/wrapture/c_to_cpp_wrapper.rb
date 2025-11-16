@@ -476,7 +476,7 @@ module Wrapture
 
     # Calls the given block once for each line of the documentation for an
     # element.
-    def enum_element_doc(element, &block)
+    def enum_element_doc(_element, &_block)
       nil
       # doc = Comment.new(element.fetch(:doc, nil))
       # doc.format_as_doxygen(max_line_length: 74) { |line| block.call(line) }
