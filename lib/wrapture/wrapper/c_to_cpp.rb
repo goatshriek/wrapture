@@ -201,10 +201,10 @@ module Wrapture
 
         src << defined_class_from_spec(class_spec)
 
-        # TODO: pick up here, commenting out old wrapper output
         wrapper = CToCppWrapper.new(class_spec)
         wrapper.define do |line|
-          src.puts(line)
+          # src.puts(line)
+          src.puts("// #{line}")
         end
 
         src.puts
@@ -249,6 +249,8 @@ module Wrapture
                                                  name: param_name)
             func.params << decl
           end
+
+          func.puts("#{wrapped_function_call(it)};")
           cls.constructors << func
         end
 
@@ -258,18 +260,14 @@ module Wrapture
 
         unless spec.destructor.nil?
           func = Wrapture::CppSource::CppFunction.new("~#{cls.name}")
+          func << wrapped_function_call(spec.destructor)
+          func << ';'
           cls.destructor = func
         end
 
         spec.method_specs.each do |meth_spec|
           cls.member_functions << member_function_from_spec(meth_spec)
         end
-
-        # if C.equivalent_member?(spec)
-        #   eqv = Wrapture::CSource::CDeclaration.new(spec[:c], 'equivalent')
-        #   cls.data_members << eqv
-        #   cls.equivalent_member = eqv
-        # end
 
         cls
       end
@@ -450,13 +448,18 @@ module Wrapture
         params = wrapped.params.map do |it|
           resolve_wrapped_param(func_spec, it)
         end
+        wrapped_call = "#{wrapped.name}(#{params.join(', ')})"
 
-        if wrapper_captures_return?(func_spec)
-          "return_val = #{wrapped.name}(#{params.join(', ')})"
+        if func_spec.constructor?
+          # TODO: constructor pointer handling needs to be more deliberate,
+          # and also support ownership annotations
+          "this->equivalent = #{wrapped_call}"
+        elsif wrapper_captures_return?(func_spec)
+          "return_val = #{wrapped_call}"
         elsif !func_spec.void_return?
-          "return #{wrapped.name}(#{params.join(', ')})"
+          "return #{wrapped_call}"
         else
-          "#{wrapped.name}(#{params.join(', ')})"
+          wrapped_call
         end
       end
 

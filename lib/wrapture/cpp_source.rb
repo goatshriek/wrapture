@@ -81,6 +81,11 @@ module Wrapture
         src << "\n\n"
       end
 
+      unless cls.destructor.nil?
+        src.concat(format_destructor_definition(cls.name, cls.destructor))
+        src << "\n\n"
+      end
+
       cls.member_functions.each do |member_func|
         src.concat(format_member_function_definition(cls.name, member_func))
         src << "\n\n"
@@ -132,6 +137,15 @@ module Wrapture
       src = [decl.cpp_type.name]
 
       src += [' ', decl.name] unless decl.name.nil?
+
+      src
+    end
+
+    # Formats the definition of a destructor into a set of source code strings.
+    def self.format_destructor_definition(class_name, func)
+      src = [class_name, '::', func.name, "(void){\n"]
+      src += Wrapture::CSource.indent(format_block(func))
+      src << '}'
 
       src
     end
