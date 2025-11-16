@@ -37,6 +37,12 @@ namespace 'test' do
   end
 
   namespace 'integration' do
+    Rake::TestTask.new(:cpp) do |task|
+      task.description = 'Run C++ integration tests'
+      task.libs << 'test'
+      task.pattern = 'test/integration/cpp/**/test_*.rb'
+    end
+
     Rake::TestTask.new(:python) do |task|
       task.description = 'Run Python integration tests'
       task.libs << 'test'
@@ -45,7 +51,7 @@ namespace 'test' do
   end
 
   desc 'Run all integration tests'
-  task integration: 'test:integration:python'
+  task integration: ['test:integration:cpp', 'test:integration:python']
 end
 
 desc 'Run all tests'
