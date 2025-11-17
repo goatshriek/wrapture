@@ -156,7 +156,7 @@ module Wrapture
         src.puts
 
         declaration_includes(class_spec).sort.each do |inc|
-          src.puts("#include <#{inc}>")
+          src << CSource::CInclude.new(inc)
         end
 
         src.puts("namespace #{class_spec.namespace} {")
@@ -193,7 +193,7 @@ module Wrapture
         src = CppSource::CppSourceFile.new("#{class_spec.name}.cpp")
 
         definition_includes(class_spec).sort.each do |inc|
-          src.puts("#include <#{inc}>")
+          src << CSource::CInclude.new(inc)
         end
 
         src.puts("namespace #{class_spec.namespace} {")

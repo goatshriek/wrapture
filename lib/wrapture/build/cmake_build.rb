@@ -109,20 +109,43 @@ module Wrapture
           lib_targets = []
           @source_set.lib_links.each do |lib|
             target_name = "#{@source_set.name}_#{lib}"
-            file.puts("find_library(LIB#{lib.upcase}_FOUND #{lib})")
+            find_var = "LIB#{lib.upcase}_LOCATION"
+            file.puts("find_library(#{find_var} #{lib} REQUIRED)")
             file.puts("add_library(#{target_name} SHARED IMPORTED)")
             file.puts("set_target_properties(#{target_name} PROPERTIES")
-            file.puts("  IMPORTED_LOCATION ${LIB#{lib.upcase}_FOUND}")
+            file.puts("  IMPORTED_LOCATION ${#{find_var}}")
             file.puts(')')
             file.puts
 
             lib_targets.append(target_name)
           end
 
+          required_includes = @source_set.includes
+          unless required_includes.empty?
+            file.puts('include(CheckIncludeFile)')
+            file.puts
+            @source_set.includes.each do |inc|
+              found_var = "HAVE_#{inc.file.upcase}".gsub('.', '_')
+              file.puts("check_include_file(#{inc.file} #{found_var})")
+              file.puts("if(NOT #{found_var})")
+              error_message = "#{inc.file} is required for #{@source_set.name}"
+              file.puts("  message(SEND_ERROR \"#{error_message}\")")
+              file.puts('endif()')
+              file.puts
+            end
+          end
+
           lib_deps = lib_targets.join(' ')
           file.puts("add_library(#{@source_set.name} ${#{source_list}})")
           file.puts("target_link_libraries(#{@source_set.name}")
           file.puts("  PRIVATE #{lib_deps}")
+          file.puts(')')
+          file.puts("target_include_directories(#{@source_set.name}")
+          if @source_dir
+            file.puts("  PRIVATE ${#{@source_set.name.upcase}_DIR}")
+          else
+            file.puts('  PRIVATE ${PROJECT_SOURCE_DIR}')
+          end
           file.puts(')')
           file.puts
         end

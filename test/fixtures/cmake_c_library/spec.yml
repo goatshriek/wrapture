@@ -25,10 +25,15 @@ classes:
             type: "int"
           - name: "n2"
             type: "int"
+        return:
+          type: "int"
         wrapped:
           c:
             name: cmakeclib_add
+            includes: "cmakelibc.h"
+            libraries: cmakeclib
             params:
               - name: n1
               - name: n2
-            libraries: cmakeclib
+            return:
+              type: "int"

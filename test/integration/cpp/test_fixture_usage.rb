@@ -24,6 +24,7 @@ require 'wrapture'
 
 class CppFixtureUsageIntegrationTest < Minitest::Test
   def test_cmake_c_lib_usage
+    # build the c library that is being wrapped
     build_dir = fixture_build_dir('cmake_c_library')
     wrapped_build = fixture_build('cmake_c_library')
     wrapped_build.save_build_sources(build_dir)
@@ -31,11 +32,20 @@ class CppFixtureUsageIntegrationTest < Minitest::Test
       system(cmd, chdir: build_dir, exception: true)
     end
 
+    # create the c++ wrapper and a CMake build
     spec_hash = fixture_hash('cmake_c_library')
     scope = Wrapture::Scope.new(spec_hash)
-    wrapper_build = Wrapture::Wrapper::CToCpp.wrap_scope(scope)
+    wrapper_sources = Wrapture::Wrapper::CToCpp.wrap_scope(scope)
+    wrapper_build = Wrapture::Build::CmakeBuild.new(wrapper_sources)
+
+    # write the wrapper files
     cpp_build_dir = File.join(build_dir, 'cpp')
     FileUtils.mkdir_p(cpp_build_dir)
     wrapper_build.save(cpp_build_dir)
+
+    # build the wrapper
+    wrapper_build.build_commands.each do |cmd|
+      system(cmd, chdir: cpp_build_dir, exception: true)
+    end
   end
 end

@@ -33,9 +33,9 @@ class PythonFixtureUsageIntegrationTest < Minitest::Test
 
     spec_hash = fixture_hash('cmake_c_library')
     scope = Wrapture::Scope.new(spec_hash)
-    wrapper_build = Wrapture::Wrapper::CToPython.wrap_scope(scope)
+    wrapper_sources = Wrapture::Wrapper::CToPython.wrap_scope(scope)
     python_build_dir = File.join(build_dir, 'python')
     FileUtils.mkdir_p(python_build_dir)
-    wrapper_build.save(python_build_dir)
+    wrapper_sources.save(python_build_dir)
   end
 end

@@ -37,6 +37,7 @@ module Wrapture
       def add_lib_header: (Wrapture::SourceFile) -> void
       def add_lib_source: (Wrapture::SourceFile) -> void
       def add_lib_link: (String) -> void
+      def includes: () -> Enumerable[Wrapture::CSource::CInclude]
       def sources: -> Array[Wrapture::SourceFile]
     end
   end
