@@ -154,7 +154,7 @@ module Wrapture
       def self.declare_class(class_spec, scope)
         class_name = class_spec.upper_camel_case_name
         namespace_words = if scope.decorate_wrapped_name?
-                            C.decorate_name_words(scope.name_words)
+                            Cpp.decorate_name_words(scope.name_words)
                           else
                             scope.name_words
                           end
@@ -452,7 +452,15 @@ module Wrapture
       # +scope+ describes all of the classes and other entities that will be
       # wrapped. These will all be put into a namespace named after the scope.
       def self.wrap_scope(scope)
-        build = CppSource::CppSourceSet.new(scope.name)
+        name_words = if scope.decorate_wrapped_name?
+                       puts 'decorated wrapped scope name!'
+                       Cpp.decorate_name_words(scope.name_words)
+                     else
+                       puts 'did not decorate scope name'
+                       scope.name_words
+                     end
+        name = name_words.map(&:downcase).join
+        build = CppSource::CppSourceSet.new(name)
 
         scope.each do |scope_member|
           build << wrap(scope_member, scope: scope)

@@ -28,11 +28,9 @@ module Wrapture
 
     # Creates a new Scope from hash +spec+.
     def self.from_hash(spec)
-      spec = new(spec)
-
-      spec.decorate_wrapped_name = spec.fetch(:decorate_wrapped_name, false)
-
-      spec
+      scope = new(spec)
+      scope.decorate_wrapped_name = spec.fetch(:decorate_wrapped_name, false)
+      scope
     end
 
     # Creates a scope containing all of the specs in the given files.
