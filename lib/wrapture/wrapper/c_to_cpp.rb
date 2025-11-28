@@ -88,16 +88,22 @@ module Wrapture
         from = type_class_from_spec(context_class) if from == :this
 
         if to == :equivalent_struct
-          to = type_class_from_spec(context_class).equivalent_member.c_type
+          type_class = type_class_from_spec(context_class)
+          raise MissingWrapped if type_class.equivalent_member.nil?
+
+          to = type_class.equivalent_member.c_type
           to = to.c_type if to.instance_of?(CPointer)
         end
 
         if to == :equivalent_pointer
-          to = type_class_from_spec(context_class).equivalent_member.c_type
+          type_class = type_class_from_spec(context_class)
+          raise MissingWrapped if type_class.equivalent_member.nil?
+
+          to = type_class.equivalent_member.c_type
           to = CSource::CPointer.new(to) if to.instance_of?(CSource::CStruct)
         end
 
-        if to == from.equivalent_member.c_type
+        if to == from.equivalent_member&.c_type
           return proc { |val| "#{val}->equivalent" }
         end
 
@@ -145,8 +151,14 @@ module Wrapture
       end
 
       # Generate a source file with the declaration of a class.
-      def self.declare_class(class_spec)
+      def self.declare_class(class_spec, scope)
         class_name = class_spec.upper_camel_case_name
+        namespace_words = if scope.decorate_wrapped_name?
+                            C.decorate_name_words(scope.name_words)
+                          else
+                            scope.name_words
+                          end
+        namespace = Named.snake_case_name(namespace_words)
 
         src = CppSource::CppSourceFile.new("#{class_name}.hpp")
 
@@ -159,13 +171,13 @@ module Wrapture
           src << CSource::CInclude.new(inc)
         end
 
-        src.puts("namespace #{class_spec.namespace} {")
+        src.puts("namespace #{namespace} {")
         src.puts
 
         src.declare(defined_class_from_spec(class_spec))
 
         src.puts
-        src.puts("} /* namespace #{class_spec.namespace} */")
+        src.puts("} /* namespace #{namespace} */")
         src.puts
         src.puts("#endif /* #{guard} */")
 
@@ -185,10 +197,17 @@ module Wrapture
       end
 
       # Generate a source file with the definition of a class.
-      def self.define_class(class_spec)
+      def self.define_class(class_spec, scope)
         unless class_spec.definable?
           raise UndefinableSpec, "#{class_spec.name} is not definable"
         end
+
+        namespace_words = if scope.decorate_wrapped_name?
+                            Cpp.decorate_name_words(scope.name_words)
+                          else
+                            scope.name_words
+                          end
+        namespace = Named.snake_case_name(namespace_words)
 
         src = CppSource::CppSourceFile.new("#{class_spec.name}.cpp")
 
@@ -196,7 +215,7 @@ module Wrapture
           src << CSource::CInclude.new(inc)
         end
 
-        src.puts("namespace #{class_spec.namespace} {")
+        src.puts("namespace #{namespace} {")
         src.puts
 
         src << defined_class_from_spec(class_spec)
@@ -208,7 +227,7 @@ module Wrapture
         end
 
         src.puts
-        src.puts("} /* namespace #{class_spec.namespace} */")
+        src.puts("} /* namespace #{namespace} */")
 
         src
       end
@@ -219,7 +238,7 @@ module Wrapture
 
         wrapper = CToCppWrapper.new(enum_spec)
         wrapper.define do |line|
-          src.puts(line)
+          src.puts(line) unless line.nil?
         end
 
         src
@@ -406,11 +425,11 @@ module Wrapture
       end
 
       # Generates a build for a C++ library wrapping a class.
-      def self.wrap_class(class_spec)
+      def self.wrap_class(class_spec, scope: Scope.new)
         set = CppSource::CppSourceSet.new(class_spec.name)
 
-        set.add_lib_header(declare_class(class_spec))
-        set.add_lib_source(define_class(class_spec))
+        set.add_lib_header(declare_class(class_spec, scope))
+        set.add_lib_source(define_class(class_spec, scope))
 
         class_spec.libraries.each do |lib|
           set.add_lib_link(lib)
@@ -436,7 +455,7 @@ module Wrapture
         build = CppSource::CppSourceSet.new(scope.name)
 
         scope.each do |scope_member|
-          build << wrap(scope_member)
+          build << wrap(scope_member, scope: scope)
         end
 
         build

@@ -19,10 +19,12 @@ module Wrapture
     include Enumerable[(Wrapture::ClassSpec | Wrapture::EnumSpec)]
     include Named
 
+    def self.from_hash: (spec_hash spec) -> Wrapture::Scope
     def self.load_files: (Array[String] filenames) -> Wrapture::Scope
     def self.normalize_spec_hash: (spec_hash spec, *Wrapture::TemplateSpec templates) -> spec_hash
     def self.normalize_spec_hash!: (spec_hash spec, *Wrapture::TemplateSpec templates) -> spec_hash
     attr_reader classes: Array[bot]
+    attr_writer decorate_wrapped_name: bool
     attr_reader doc: Wrapture::Comment
     attr_reader enums: Array[bot]
     attr_reader templates: Array[bot]
@@ -30,6 +32,7 @@ module Wrapture
     def <<: ( (Wrapture::TemplateSpec | Wrapture::ClassSpec | Wrapture::EnumSpec) spec) -> Wrapture::Scope
     def add_class_spec_hash: (spec_hash spec) -> Wrapture::ClassSpec
     def add_enum_spec_hash: (spec_hash spec) -> Wrapture::EnumSpec
+    def decorate_wrapped_name?: -> bool
     def definable?: -> bool
     def definition_includes: -> Array[String]
     def each: { ((Wrapture::ClassSpec | Wrapture::EnumSpec) spec) -> void } -> void

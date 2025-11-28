@@ -21,6 +21,7 @@
 require 'wrapture/wrapper/c'
 require 'wrapture/wrapper/c_to_cpp'
 require 'wrapture/wrapper/c_to_python'
+require 'wrapture/wrapper/cpp'
 
 module Wrapture
   # +Wrapper+ includes the base wrapping functionality that all language
@@ -50,10 +51,10 @@ module Wrapture
     end
 
     # Generates a wrapper for a given spec.
-    def wrap(spec)
+    def wrap(spec, scope: Scope.new)
       case spec
       when ClassSpec
-        wrap_class(spec)
+        wrap_class(spec, scope: scope)
       when EnumSpec
         wrap_enum(spec)
       when Scope

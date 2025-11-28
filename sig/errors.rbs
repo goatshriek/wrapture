@@ -21,6 +21,9 @@ module Wrapture
   class MissingNamespace < WraptureError
   end
 
+  class MissingWrapped < WraptureError
+  end
+
   class UndefinableSpec < WraptureError
   end
 

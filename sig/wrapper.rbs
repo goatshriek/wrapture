@@ -18,7 +18,7 @@ module Wrapture
   module Wrapper
     def from_language: () -> Symbol
     def to_language: () -> Symbol
-    def wrap: (Wrapture::ClassSpec | Wrapture::EnumSpec | Wrapture::Scope) -> Wrapture::Build
+    def wrap: ((Wrapture::ClassSpec | Wrapture::EnumSpec | Wrapture::Scope), ?Scope) -> Wrapture::Build
   end
 
   WRAPPERS: Array[Wrapture::Wrapper]

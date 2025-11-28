@@ -16,6 +16,8 @@
 
 module Wrapture
   module Named
+    def self.snake_case_name: (Enumerable[String]) -> String
+
     def raw_name: () -> String
     alias name raw_name
     def snake_case_name: () -> String

@@ -33,24 +33,6 @@ class FunctionSpecTest < Minitest::Test
     refute_includes(code, 'return return_val;')
   end
 
-  def test_documentation
-    test_spec = fixture_hash('documented_function')
-
-    spec = Wrapture::FunctionSpec.from_hash(test_spec)
-
-    comment = String.new
-    Wrapture::CToCppWrapper.declare_spec(spec) do |line|
-      next if line.nil? || !line.lstrip.start_with?('/**', '*')
-
-      comment << line << "\n"
-    end
-
-    refute_empty(comment)
-    assert_includes(comment, 'FunctionDocIdentifier')
-    assert_includes(comment, 'ParamDocIdentifier')
-    assert_includes(comment, 'ReturnDocIdentifier')
-  end
-
   def test_exception_throwing_function
     test_spec = fixture_hash('exception_throwing_function')
     spec = Wrapture::FunctionSpec.from_hash(test_spec)

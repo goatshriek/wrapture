@@ -16,8 +16,9 @@
 
 name: "ClassWithStaticFunction"
 namespace: "wrapture_test"
-equivalent_struct:
-  name: "basic_struct"
+wrapped:
+  c:
+    name: "basic_struct"
 functions:
   - name: "StaticFunction"
     static: true

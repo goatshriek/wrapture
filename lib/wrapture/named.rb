@@ -25,6 +25,10 @@ module Wrapture
   # up the name. These words are used to form the name forms that this module
   # provides.
   module Named
+    def self.snake_case_name(name_words)
+      name_words.map(&:downcase).join('_')
+    end
+
     # The raw name, obtained by joining all parts.
     def raw_name
       name_words.join
@@ -40,7 +44,7 @@ module Wrapture
 
     # The name in snake_case.
     def snake_case_name
-      name_words.map(&:downcase).join('_')
+      Named.snake_case_name(name_words)
     end
 
     # The name in UpperCamelCase.

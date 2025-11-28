@@ -61,6 +61,10 @@ module Wrapture
   class MissingNamespace < WraptureError
   end
 
+  # A wrapped component was used, but not defined.
+  class MissingWrapped < WraptureError
+  end
+
   # The spec cannot be defined due to missing information.
   class UndefinableSpec < WraptureError
   end

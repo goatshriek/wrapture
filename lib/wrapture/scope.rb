@@ -26,6 +26,15 @@ module Wrapture
     include Enumerable
     include Named
 
+    # Creates a new Scope from hash +spec+.
+    def self.from_hash(spec)
+      spec = new(spec)
+
+      spec.decorate_wrapped_name = spec.fetch(:decorate_wrapped_name, false)
+
+      spec
+    end
+
     # Creates a scope containing all of the specs in the given files.
     def self.load_files(*filenames)
       scope = Scope.new
@@ -86,6 +95,9 @@ module Wrapture
     # A list of classes currently in the scope.
     attr_reader :classes
 
+    # If true, then generated wrappers use a decorated version of the name.
+    attr_writer :decorate_wrapped_name
+
     # The documentation comment for this scope.
     attr_reader :doc
 
@@ -103,6 +115,7 @@ module Wrapture
     # name:: the explicit name of this scope
     def initialize(spec = {})
       @classes = []
+      @decorate_wrapped_name = false
       @enums = []
       @templates = []
 
@@ -143,6 +156,11 @@ module Wrapture
     # hash.
     def add_enum_spec_hash(spec)
       @enums << EnumSpec.new(spec)
+    end
+
+    # True if this scope's name should be decorated in wrappers.
+    def decorate_wrapped_name?
+      @decorate_wrapped_name
     end
 
     # True if this scope (and everything in it) can be defined.

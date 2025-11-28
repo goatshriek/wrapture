@@ -22,6 +22,13 @@ module Wrapture
   module Wrapper
     # Utilities for wrappers that use C as either a from or to language.
     module C
+      # Makes a decorated version of the given name so that it is unique among
+      # other names based on the C language. This is done by prepending "c" to
+      # the name, for example "MyLib" will become "CMyLib".
+      def self.decorate_name_words(name_words)
+        ['c'] + name_words
+      end
+
       # True if the class has an underlying equivalent struct member for itself.
       #
       # A class might not have an equivalent struct member even though it is

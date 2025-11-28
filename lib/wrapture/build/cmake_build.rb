@@ -90,7 +90,8 @@ module Wrapture
                         ''
                       end
 
-        file.puts("set(#{@source_set.name.upcase}_HEADERS")
+        header_list = "#{@source_set.name.upcase}_HEADERS"
+        file.puts("set(#{header_list}")
         @source_set.lib_headers.each do |header|
           file.puts("  \"#{path_prefix}#{header.path}\"")
         end
@@ -120,21 +121,6 @@ module Wrapture
             lib_targets.append(target_name)
           end
 
-          required_includes = @source_set.includes
-          unless required_includes.empty?
-            file.puts('include(CheckIncludeFile)')
-            file.puts
-            @source_set.includes.each do |inc|
-              found_var = "HAVE_#{inc.file.upcase}".gsub('.', '_')
-              file.puts("check_include_file(#{inc.file} #{found_var})")
-              file.puts("if(NOT #{found_var})")
-              error_message = "#{inc.file} is required for #{@source_set.name}"
-              file.puts("  message(SEND_ERROR \"#{error_message}\")")
-              file.puts('endif()')
-              file.puts
-            end
-          end
-
           lib_deps = lib_targets.join(' ')
           file.puts("add_library(#{@source_set.name} ${#{source_list}})")
           file.puts("target_link_libraries(#{@source_set.name}")
@@ -150,7 +136,10 @@ module Wrapture
           file.puts
         end
 
-        file.puts('# todo add install command with headers (cmake_build)')
+        file.puts('include(GNUInstallDirs)')
+        file.puts("install(TARGETS #{@source_set.name})")
+        header_dest = 'DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}'
+        file.puts("install(FILES ${#{header_list}} #{header_dest})")
 
         file
       end
