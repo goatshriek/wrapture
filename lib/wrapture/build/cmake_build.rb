@@ -124,7 +124,7 @@ module Wrapture
           lib_deps = lib_targets.join(' ')
           file.puts("add_library(#{@source_set.name} ${#{source_list}})")
           file.puts("target_link_libraries(#{@source_set.name}")
-          file.puts("  PRIVATE #{lib_deps}")
+          file.puts("  PUBLIC #{lib_deps}")
           file.puts(')')
           file.puts("target_include_directories(#{@source_set.name}")
           if @source_dir
@@ -142,6 +142,11 @@ module Wrapture
         file.puts("install(FILES ${#{header_list}} #{header_dest})")
 
         file
+      end
+
+      # Invocations of CMake to configure and install this project.
+      def install_commands(install_dir: '.')
+        ['cmake .', "cmake --install . --prefix #{install_dir}"]
       end
 
       # All source files in this project.

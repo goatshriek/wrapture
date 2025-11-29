@@ -30,6 +30,7 @@ module Wrapture
       def build_commands: -> Array[String]
       def build_system_sources: -> Array[Wrapture::SourceFile]
       def cmake_lists: -> Wrapture::SourceFile
+      def install_commands: (?install_dir: String) -> Array[String]
       def sources: -> Enumerable[Wrapture::SourceFile]
     end
   end

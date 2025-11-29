@@ -16,6 +16,10 @@
  * limitations under the License.
  */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * Adds two numbers and checks for overflow, returning the min/max value if
  * overflow occurs.
@@ -26,3 +30,7 @@
  * INT_MAX if overflow occurs.
  */
 int cmakeclib_add( int n1, int n2 );
+
+#ifdef __cplusplus
+} /* extern "C" */
+#endif

@@ -453,10 +453,8 @@ module Wrapture
       # wrapped. These will all be put into a namespace named after the scope.
       def self.wrap_scope(scope)
         name_words = if scope.decorate_wrapped_name?
-                       puts 'decorated wrapped scope name!'
                        Cpp.decorate_name_words(scope.name_words)
                      else
-                       puts 'did not decorate scope name'
                        scope.name_words
                      end
         name = name_words.map(&:downcase).join

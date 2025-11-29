@@ -21,10 +21,10 @@
 #include <iostream>
 
 using namespace std;
-using namespace cmakeclib;
+using namespace cpp_cmake_c_lib;
 
 int main(int argc, char **argv){
-  int result = CmakeCLib.add(3, 4);
+  int result = CmakeCLib::Add(3, 4);
 
   if(result != 7){
     cout << "3 + 4 was not 7!" << endl;
