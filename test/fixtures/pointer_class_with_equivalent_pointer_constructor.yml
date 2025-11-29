@@ -16,20 +16,21 @@
 
 name: "PointerClassWithExplicitPointerConstructor"
 namespace: "wrapture_test"
-equivalent_struct:
-  name: "wrapped_struct"
+wrapped:
+  c:
+    name: "wrapped_struct"
 constructors:
   - wrapped:
       c:
         name: "new_thing"
         params:
           - name: "original_thing"
-            type: "equivalent_struct_pointer"
+            type: "equivalent_pointer"
         return:
-          type: "equivalent_struct_pointer"
+          type: "equivalent_pointer"
 destructor:
   wrapped:
     c:
       name: "destroy_a_struct"
       params:
-        - name: "equivalent_struct_pointer"
+        - name: "equivalent_pointer"

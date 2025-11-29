@@ -37,6 +37,8 @@ module Wrapture
 
       # Compares with another pointer.
       def ==(other)
+        return false unless other.is_a?(CPointer)
+
         @c_type == other.c_type
       end
 

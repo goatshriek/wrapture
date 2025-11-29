@@ -18,13 +18,14 @@ templates:
   - name: "dr-seuss-class"
     value:
       namespace: "wrapture_test"
-      equivalent_struct:
-        name:
-          is_param: true
-          name: "equivalent-struct-name"
-        includes:
-          is_param: true
-          name: "include-list"
+      wrapped:
+        c:
+          name:
+            is_param: true
+            name: "equivalent-struct-name"
+          includes:
+            is_param: true
+            name: "include-list"
       functions:
         - name: "to_string"
           return:

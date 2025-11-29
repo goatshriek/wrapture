@@ -16,8 +16,9 @@
 
 name: "ClassWithReturnActionInConstructor"
 namespace: "wrapture_test"
-equivalent_struct:
-  name: "irrelevant"
+wrapped:
+  c:
+    name: "irrelevant"
 constructors:
   - wrapped:
       c:

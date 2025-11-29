@@ -17,9 +17,10 @@
 classes:
   - name: "OneClass"
     namespace: "wrapture_test"
-    equivalent_struct:
-      name: "one_struct"
-      includes: "one_struct.h"
+    wrapped:
+      c:
+        name: "one_struct"
+        includes: "one_struct.h"
     functions:
       - name: "to_string"
         return:
@@ -31,9 +32,10 @@ classes:
               - value: "equivalent_struct_pointer"
   - name: "TwoClass"
     namespace: "wrapture_test"
-    equivalent_struct:
-      name: "two_struct"
-      includes: "two_struct.h"
+    wrapped:
+      c:
+        name: "two_struct"
+        includes: "two_struct.h"
     functions:
       - name: "to_string"
         return:
@@ -45,9 +47,10 @@ classes:
               - value: "equivalent_struct_pointer"
   - name: "RedClass"
     namespace: "wrapture_test"
-    equivalent_struct:
-      name: "red_struct"
-      includes: "red_struct.h"
+    wrapped:
+      c:
+        name: "red_struct"
+        includes: "red_struct.h"
     functions:
       - name: "to_string"
         return:
@@ -59,9 +62,10 @@ classes:
               - value: "equivalent_struct_pointer"
   - name: "BlueClass"
     namespace: "wrapture_test"
-    equivalent_struct:
-      name: "blue_struct"
-      includes: "blue_struct.h"
+    wrapped:
+      c:
+        name: "blue_struct"
+        includes: "blue_struct.h"
     functions:
       - name: "to_string"
         return:

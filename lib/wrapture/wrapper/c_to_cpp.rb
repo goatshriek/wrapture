@@ -92,7 +92,7 @@ module Wrapture
           raise MissingWrapped if type_class.equivalent_member.nil?
 
           to = type_class.equivalent_member.c_type
-          to = to.c_type if to.instance_of?(CPointer)
+          to = to.c_type if to.instance_of?(CSource::CPointer)
         end
 
         if to == :equivalent_pointer
@@ -103,11 +103,14 @@ module Wrapture
           to = CSource::CPointer.new(to) if to.instance_of?(CSource::CStruct)
         end
 
-        if to == from.equivalent_member&.c_type
+        if from.is_a?(CppSource::CppClass) &&
+           to == from.equivalent_member&.c_type
           return proc { |val| "#{val}->equivalent" }
         end
 
-        proc { "conversion from #{from} to #{to} within context #{context}" }
+        proc {
+          "TODO: conversion from #{from} to #{to} within context #{context}"
+        }
       end
 
       # Gives the filename used for the declaration of a given spec.
