@@ -17,6 +17,7 @@
 module Wrapture
   module CppSource
     class CppClass
+      @constants: Array[CppDeclaration]
       @constructors: Array[CppFunction]
       @data_members: Array[CppDeclaration]
       @destructor: CppFunction | nil
@@ -26,6 +27,7 @@ module Wrapture
       @name: String
       @parent_name: String
 
+      attr_reader constants: Array[CppDeclaration]
       attr_reader constructors: Array[CppFunction]
       attr_accessor data_members: Enumerable[CppDeclaration]
       attr_accessor destructor: CppFunction | nil

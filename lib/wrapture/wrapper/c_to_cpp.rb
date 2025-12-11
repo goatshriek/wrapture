@@ -252,14 +252,21 @@ module Wrapture
       def self.defined_class_from_spec(spec)
         # start with the type class, then build out the definitions
         cls = type_class_from_spec(spec)
-        # class_name = spec.upper_camel_case_name
-        # cls = Wrapture::CppSource::CppClass.new(class_name)
         cls.doc = spec.doc
 
         if spec.child?
           cls.parent_name = spec.parent_name
         elsif spec.exception?
           cls.parent_name = 'std::exception'
+        end
+
+        spec.constants.each do |it|
+          decl = CppSource::CppDeclaration.new(it.type, name: it.name,
+                                                        value: it.value)
+          decl.attributes << 'static'
+          decl.attributes << 'const'
+
+          cls.constants << decl
         end
 
         spec.constructors.each do |it|
@@ -274,6 +281,10 @@ module Wrapture
 
           func.puts("#{wrapped_function_call(it)};")
           cls.constructors << func
+        end
+
+        if generate_member_constructor?(spec)
+          cls.constructors << member_constructor(spec)
         end
 
         if generate_pointer_constructor?(spec)
@@ -319,9 +330,20 @@ module Wrapture
         !spec.is_a?(EnumSpec)
       end
 
+      # True if a member constructor should be generated for the given class.
+      #
+      # A member constructor is generated for a class where the wrapped struct
+      # has any members defined. The member constructor sets all of the defined
+      # members of the wrapped struct based on its arguments.
+      def self.generate_member_constructor?(class_spec)
+        class_spec.wrapped.key?(:c) &&
+          class_spec[:c].is_a?(CSource::CStruct) &&
+          !class_spec[:c].members.empty?
+      end
+
       # True if a pointer constructor should be generated for the given class.
       #
-      # Pointer constructors are generated for classes where the wrapped struct
+      # A pointer constructor is generated for a class where the wrapped struct
       # is already a pointer. The pointer constructor sets the wrapped struct
       # to the parameter, instead of calling any of the constructor functions.
       def self.generate_pointer_constructor?(class_spec)
@@ -331,6 +353,11 @@ module Wrapture
       # The symbol to use for header guard checks.
       def self.header_guard(class_spec)
         "#{class_spec.screaming_snake_case_name}_HPP"
+      end
+
+      # The member constructor for a class spec.
+      def self.member_constructor(class_spec)
+        # TODO: pick up here, implementing member constructors
       end
 
       # Define a member function based on a function spec.
@@ -348,8 +375,6 @@ module Wrapture
                                                          name: param_name)
           func.params << decl
         end
-
-        # TODO: pick up here, finish member function definition
 
         declare_member_function_locals(func, spec)
 

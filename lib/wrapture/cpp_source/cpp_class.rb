@@ -22,6 +22,9 @@ module Wrapture
   module CppSource
     # A class used in C++ code.
     class CppClass
+      # Class constants.
+      attr_reader :constants
+
       # The constructors of this class.
       attr_reader :constructors
 
@@ -50,6 +53,7 @@ module Wrapture
 
       # A C++ class must have a name, at a minimum.
       def initialize(name)
+        @constants = []
         @constructors = []
         @data_members = []
         @destructor = nil

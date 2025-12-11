@@ -43,6 +43,11 @@ module Wrapture
       src << " : #{cls.parent_name}" unless cls.parent_name.nil?
       src << " {\npublic:\n"
 
+      cls.constants.each do |it|
+        decl = format_declaration(it) + [";\n"]
+        src += Wrapture::CSource.indent(decl)
+      end
+
       cls.constructors.each do |it|
         decl = format_constructor_declaration(it) + [";\n"]
         src += Wrapture::CSource.indent(decl)
@@ -134,9 +139,11 @@ module Wrapture
         return CSource.format_declaration(decl)
       end
 
-      src = [decl.cpp_type.name]
-
+      src = []
+      src << "#{decl.attributes.join(' ')} " unless decl.attributes.empty?
+      src << decl.cpp_type.name
       src += [' ', decl.name] unless decl.name.nil?
+      src += [' = '] + format_initialization(decl) if decl.initialized?
 
       src
     end
@@ -162,6 +169,11 @@ module Wrapture
                      end
 
       src
+    end
+
+    # Formats the initialization of a declaration.
+    def self.format_initialization(decl)
+      [decl.value]
     end
 
     # Formats a member function declaration into a set of source file strings.

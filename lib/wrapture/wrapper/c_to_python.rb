@@ -219,7 +219,8 @@ module Wrapture
                  "#{var_name}->equivalent"
                end
 
-        if class_spec.pointer_wrapper?
+        # TODO: refactor this when moving to the new conversion convention
+        if equivalent_member_declaration(class_spec).c_type.is_a?(CSource::CPointer)
           name
         else
           "&(#{name})"
@@ -273,7 +274,7 @@ module Wrapture
           members << "#{constant_spec.type} #{constant_spec.snake_case_name};"
         end
 
-        if class_spec.equivalent_member?
+        if C.equivalent_member?(class_spec)
           members << equivalent_member_declaration(class_spec)
         end
 
@@ -605,12 +606,7 @@ module Wrapture
 
       # The declaration of the equivalent member of this class.
       def self.equivalent_member_declaration(class_spec)
-        type = Wrapture::CSource::CStruct.from_spec(class_spec.struct)
-        if class_spec.pointer_wrapper?
-          type = Wrapture::CSource::CPointer.new(type)
-        end
-
-        Wrapture::CSource::CDeclaration.new(type, 'equivalent')
+        Wrapture::CSource::CDeclaration.new(class_spec[:c], 'equivalent')
       end
 
       # The factory constructor for an overloaded struct.
