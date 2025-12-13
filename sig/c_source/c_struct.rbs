@@ -24,7 +24,7 @@ module Wrapture
 
       attr_accessor includes: Array[String]
       attr_reader name: String
-      attr_reader members: Array[CType]
+      attr_reader members: Array[CDeclaration]
       attr_reader typedef: String
 
       def self.from_hash: (spec_hash spec) -> Wrapture::CSource::CStruct

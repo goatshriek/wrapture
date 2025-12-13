@@ -103,9 +103,13 @@ module Wrapture
           to = CSource::CPointer.new(to) if to.instance_of?(CSource::CStruct)
         end
 
-        if from.is_a?(CppSource::CppClass) &&
-           to == from.equivalent_member&.c_type
-          return proc { |val| "#{val}->equivalent" }
+        if from.is_a?(CppSource::CppClass)
+          equivalent_c_type = from.equivalent_member&.c_type
+          if to == equivalent_c_type
+            return proc { |val| "#{val}->equivalent" }
+          elsif to == CSource::CPointer.new(equivalent_c_type)
+            return proc { |val| "&#{val}->equivalent" }
+          end
         end
 
         proc {
@@ -285,6 +289,8 @@ module Wrapture
 
         if generate_member_constructor?(spec)
           cls.constructors << member_constructor(spec)
+        else
+          puts 'no member constructor generated!'
         end
 
         if generate_pointer_constructor?(spec)
@@ -357,7 +363,16 @@ module Wrapture
 
       # The member constructor for a class spec.
       def self.member_constructor(class_spec)
-        # TODO: pick up here, implementing member constructors
+        class_name = class_spec.upper_camel_case_name
+        func = Wrapture::CppSource::CppFunction.new(class_name)
+
+        func.params.concat(class_spec[:c].members)
+
+        class_spec[:c].members.map do |member|
+          func.puts("this->equivalent.#{member.name} = #{member.name};")
+        end
+
+        func
       end
 
       # Define a member function based on a function spec.
@@ -411,7 +426,6 @@ module Wrapture
                      elsif val == EQUIVALENT_POINTER_KEYWORD
                        val = 'this'
                        converter(:this, :equivalent_pointer, func_spec)
-                       # class_struct_pointer(func_spec.owner)
                      elsif val == '...'
                        converter(:variadic_args, :variadic_args, func_spec)
                      # TODO: remove this predicate, and rely on the converter

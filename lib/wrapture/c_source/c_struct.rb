@@ -47,6 +47,12 @@ module Wrapture
           c_struct.includes.concat(Wrapture.normalize_array(spec[:includes]))
         end
 
+        if spec.key?(:members)
+          spec[:members].each do |member|
+            c_struct.members << CDeclaration.new(member[:type], member[:name])
+          end
+        end
+
         c_struct
       end
 
