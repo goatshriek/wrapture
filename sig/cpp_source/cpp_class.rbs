@@ -38,6 +38,7 @@ module Wrapture
       attr_reader parent_name: String
 
       def initialize: (String) -> void
+      def to_s: () -> String
     end
   end
 end

@@ -37,7 +37,7 @@ int main( int argc, char **argv ) {
       blaster.Fire();
     }
   } catch( TurretException &e ) {
-    cout << e.message() << endl;
+    cout << e.Message() << endl;
   }
 
   blaster.Reload();
@@ -48,13 +48,13 @@ int main( int argc, char **argv ) {
       blaster.Fire();
     }
   } catch( TurretException &e ) {
-    cout << e.message() << endl;
+    cout << e.Message() << endl;
   }
 
   try {
     blaster.Aim( -6, -6, 6 );
   } catch( TargetingException &e ) {
-    cout << e.message() << endl;
+    cout << e.Message() << endl;
   }
 
   return EXIT_SUCCESS;

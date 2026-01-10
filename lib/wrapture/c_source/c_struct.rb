@@ -78,6 +78,11 @@ module Wrapture
 
       # Alias to support Enumerable#uniq.
       alias eql? ==
+
+      # String representation of this struct.
+      def to_s
+        @name
+      end
     end
   end
 end

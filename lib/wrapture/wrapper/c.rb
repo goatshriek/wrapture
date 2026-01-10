@@ -23,29 +23,44 @@ module Wrapture
     # Utilities for wrappers that use C as either a from or to language.
     module C
       # Makes a decorated version of the given name so that it is unique among
-      # other names based on the C language. This is done by prepending "c" to
-      # the name, for example "MyLib" will become "CMyLib".
+      # other wrapper names based on the C language. This is done by prepending
+      # "c" to the name, for example "MyLib" will become "CMyLib".
       def self.decorate_name_words(name_words)
         ['c'] + name_words
       end
 
+      # True if one of the ancestors of a class has an equivalent struct that
+      # it can use.
+      #
+      # TODO: For now we only check the direct parent class. However,
+      # once a context is formalized into a type, it should be changed
+      # to that, and the entire chain should be checked.
+      def self.equivalent_ancestor?(class_spec)
+        return false unless class_spec.child?
+
+        parent = class_spec.parent_spec
+        !parent.nil? &&
+          parent.wrapped.key?(:c) &&
+          parent[:c] == class_spec[:c]
+      end
+
       # True if the class has an underlying equivalent struct member for itself.
       #
-      # A class might not have an equivalent struct member even though it is
-      # wraps a struct. One such example is if it is able to use its parent
-      # class member since the parent wraps the same struct.
+      # A class might not have an equivalent struct member even though it
+      # wraps a struct. One such example is if it is able to use one of its
+      # ancestor's members if it wraps the same struct.
       def self.equivalent_member?(class_spec)
         # there's no equivalent member if there's no wrapped struct
         return false unless class_spec.wrapped.key?(:c)
 
-        # we have to have an equivalent member if we can't re-use a parent's
-        return true unless class_spec.child?
+        # let's see if we can re-use an ancestor's struct
+        !equivalent_ancestor?(class_spec)
+      end
 
-        # let's see if we can re-use the parent struct
-        parent = class_spec.parent_spec
-        parent.nil? ||
-          parent.struct_name != class_spec.struct_name ||
-          parent.pointer_wrapper? != class_spec.pointer_wrapper?
+      # The type of the equivalent struct for a class spec if one exists, nil
+      # if not.
+      def self.equivalent_type(class_spec)
+        class_spec[:c] if class_spec.wrapped.key?(:c)
       end
 
       # An array with all includes in the given spec. For specs that include

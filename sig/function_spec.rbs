@@ -34,9 +34,10 @@ module Wrapture
     def required_params: -> Array[Wrapture::ParamSpec]
     def resolved_return: -> Wrapture::TypeSpec
     def return_expression: (?func_name: String) -> String
-    def static?: -> bool
     def resolve_type: (Wrapture::TypeSpec type_spec) -> Wrapture::TypeSpec
     def return_overloaded?: -> bool
+    def static?: -> bool
+    def to_s: () -> String
     def variadic?: -> bool
     def virtual?: -> bool
     def void_return?: -> bool

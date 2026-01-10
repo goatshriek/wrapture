@@ -25,6 +25,7 @@ module Wrapture
       def ==: (CPointer) -> bool
       alias eql? ==
       def includes: () -> Enumerable[String]
+      def to_s: () -> String
     end
   end
 end

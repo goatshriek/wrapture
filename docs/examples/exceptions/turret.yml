@@ -23,11 +23,9 @@ classes:
     libraries: "turret"
     wrapped:
       c:
-        name: "turret"
-        includes: "turret.h"
-    equivalent_struct:
-      name: "turret"
-      includes: "turret.h"
+        pointer:
+          name: "turret"
+          includes: "turret.h"
     constructors:
       - wrapped:
           c:
@@ -106,11 +104,9 @@ classes:
     exception: true
     wrapped:
       c:
-        name: "turret_error"
-        includes: "turret_error.h"
-    equivalent_struct:
-      name: "turret_error"
-      includes: "turret_error.h"
+        pointer:
+          name: "turret_error"
+          includes: "turret_error.h"
     constructors:
       - wrapped:
           c:
@@ -136,13 +132,15 @@ classes:
     parent:
       name: "TurretException"
     exception: true
-    equivalent_struct:
-      name: "turret_error"
-      includes: "turret_error.h"
-      rules:
-        - member_name: "code"
-          condition: "equals"
-          value: "JAMMED"
+    wrapped:
+      c:
+        pointer:
+          name: "turret_error"
+          includes: "turret_error.h"
+          rules:
+            - member_name: "code"
+              condition: "equals"
+              value: "JAMMED"
     functions:
       - name: "message"
         return:
@@ -161,13 +159,15 @@ classes:
     parent:
       name: "TurretException"
     exception: true
-    equivalent_struct:
-      name: "turret_error"
-      includes: "turret_error.h"
-      rules:
-        - member_name: "code"
-          condition: "equals"
-          value: "OUT_OF_AMMO"
+    wrapped:
+      c:
+        pointer:
+          name: "turret_error"
+          includes: "turret_error.h"
+          rules:
+            - member_name: "code"
+              condition: "equals"
+              value: "OUT_OF_AMMO"
     functions:
       - name: "message"
         return:
@@ -186,13 +186,15 @@ classes:
     parent:
       name: "TurretException"
     exception: true
-    equivalent_struct:
-      name: "turret_error"
-      includes: "turret_error.h"
-      rules:
-        - member_name: "code"
-          condition: "equals"
-          value: "TARGETING_ERROR"
+    wrapped:
+      c:
+        pointer:
+          name: "turret_error"
+          includes: "turret_error.h"
+          rules:
+            - member_name: "code"
+              condition: "equals"
+              value: "TARGETING_ERROR"
     functions:
       - name: "message"
         return:

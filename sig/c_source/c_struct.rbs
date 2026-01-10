@@ -32,6 +32,7 @@ module Wrapture
       def initialize: (?name: String, ?members: Array[CType], ?typedef: String) -> void
       def ==: (CStruct) -> bool
       alias eql? ==
+      def to_s: () -> String
     end
   end
 end

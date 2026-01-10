@@ -353,6 +353,11 @@ module Wrapture
       @static
     end
 
+    # A string representation of the function.
+    def to_s
+      upper_camel_case_name
+    end
+
     # True if the function is variadic.
     def variadic?
       @params.last&.variadic?

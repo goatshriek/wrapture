@@ -37,9 +37,9 @@ module Wrapture
       # The documentation for the class.
       attr_accessor :doc
 
-      # The equivalent member declaration for the class. This is a duplicate of
-      # the declaration in +data_members+, to be used when needed for things
-      # like casting.
+      # The equivalent member declaration for the class. This is either a
+      # duplicate of the declaration in +data_members+, or the declaration in
+      # the parent.
       attr_accessor :equivalent_member
 
       # The methods of this class.
@@ -62,6 +62,11 @@ module Wrapture
         @member_functions = []
         @name = name
         @parent_name = nil
+      end
+
+      # A string representation of this class.
+      def to_s
+        @name
       end
     end
   end

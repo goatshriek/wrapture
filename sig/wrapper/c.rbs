@@ -18,6 +18,7 @@ module Wrapture
   module Wrapper
     module C
       def self.decorate_name_words: (Array[String]) -> Array[String]
+      def self.equivalent_ancestor?: (Wrapture::ClassSpec) -> bool
       def self.equivalent_member?: (Wrapture::ClassSpec) -> bool
       def self.includes: (Wrapture::Scope | Wrapture::ClassSpec | Wrapture::FunctionSpec | Wrapture::ParamSpec | Wrapture::ConstantSpec | Wrapture::TypeSpec) -> Array[String]
     end

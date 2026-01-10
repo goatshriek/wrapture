@@ -63,6 +63,12 @@ module Wrapture
 
   # A wrapped component was used, but not defined.
   class MissingWrapped < WraptureError
+    def initialize(wrapped)
+      # TODO: mak this message more generic for source/destination languages
+      msg = "equivalent member referenced in #{wrapped.name}, " \
+            'but no wrapped struct defined'
+      super(msg)
+    end
   end
 
   # The spec cannot be defined due to missing information.

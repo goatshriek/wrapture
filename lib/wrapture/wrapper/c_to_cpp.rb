@@ -88,29 +88,29 @@ module Wrapture
         from = type_class_from_spec(context_class) if from == :this
 
         if to == :equivalent_struct
-          type_class = type_class_from_spec(context_class)
-          raise MissingWrapped if type_class.equivalent_member.nil?
+          to = C.equivalent_type(context_class)
+          raise MissingWrapped, context_class if to.nil?
 
-          to = type_class.equivalent_member.c_type
           to = to.c_type if to.instance_of?(CSource::CPointer)
         end
 
         if to == :equivalent_pointer
-          type_class = type_class_from_spec(context_class)
-          raise MissingWrapped if type_class.equivalent_member.nil?
+          to = C.equivalent_type(context_class)
+          raise MissingWrapped, context_class if to.nil?
 
-          to = type_class.equivalent_member.c_type
           to = CSource::CPointer.new(to) if to.instance_of?(CSource::CStruct)
         end
 
-        if from.is_a?(CppSource::CppClass)
-          equivalent_c_type = from.equivalent_member&.c_type
+        if from.is_a?(CppSource::CppClass) && !from.equivalent_member.nil?
+          equivalent_c_type = from.equivalent_member.c_type
           if to == equivalent_c_type
             return proc { |val| "#{val}->equivalent" }
           elsif to == CSource::CPointer.new(equivalent_c_type)
             return proc { |val| "&#{val}->equivalent" }
           end
         end
+
+        # TODO: pick up here: detect and use parent equivalent members
 
         proc {
           "TODO: conversion from #{from} to #{to} within context #{context}"
@@ -289,8 +289,6 @@ module Wrapture
 
         if generate_member_constructor?(spec)
           cls.constructors << member_constructor(spec)
-        else
-          puts 'no member constructor generated!'
         end
 
         if generate_pointer_constructor?(spec)
@@ -422,7 +420,6 @@ module Wrapture
         conversion = if val == EQUIVALENT_STRUCT_KEYWORD
                        val = 'this'
                        converter(:this, :equivalent_struct, func_spec)
-                       # class_struct(func_spec.owner)
                      elsif val == EQUIVALENT_POINTER_KEYWORD
                        val = 'this'
                        converter(:this, :equivalent_pointer, func_spec)
@@ -460,6 +457,9 @@ module Wrapture
         if C.equivalent_member?(spec)
           eqv = Wrapture::CSource::CDeclaration.new(spec[:c], 'equivalent')
           cls.data_members << eqv
+          cls.equivalent_member = eqv
+        elsif C.equivalent_ancestor?(spec)
+          eqv = Wrapture::CSource::CDeclaration.new(spec[:c], 'equivalent')
           cls.equivalent_member = eqv
         end
 

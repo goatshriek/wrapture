@@ -49,6 +49,11 @@ module Wrapture
       def includes
         @c_type.includes.dup
       end
+
+      # A String representation of this pointer.
+      def to_s
+        "pointer to #{@c_type}"
+      end
     end
   end
 end
