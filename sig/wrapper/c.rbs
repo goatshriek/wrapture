@@ -21,6 +21,7 @@ module Wrapture
       def self.equivalent_ancestor?: (Wrapture::ClassSpec) -> bool
       def self.equivalent_member?: (Wrapture::ClassSpec) -> bool
       def self.includes: (Wrapture::Scope | Wrapture::ClassSpec | Wrapture::FunctionSpec | Wrapture::ParamSpec | Wrapture::ConstantSpec | Wrapture::TypeSpec) -> Array[String]
+      def self.wrapped_members?: (Wrapture::ClassSpec) -> bool
     end
   end
 end

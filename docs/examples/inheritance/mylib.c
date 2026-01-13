@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /*
- * Copyright 2024 Joel E. Anderson
+ * Copyright 2024-2026 Joel E. Anderson
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ void check_out_item( struct mylib_item *item ){
   }
 }
 
-int get_page_count( struct mylib_item *item ){
+int get_page_count( const struct mylib_item *item ){
   if( item ){
     return item->page_count;
   } else {

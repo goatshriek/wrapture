@@ -106,6 +106,15 @@ module Wrapture
 
         inc.uniq
       end
+
+      # True if the given class wraps a struct (not a pointer) with members
+      # defined in it. This is useful for determing if a constructor or
+      # accessors can be generated based on the fields.
+      def self.wrapped_members?(class_spec)
+        class_spec.wrapped.key?(:c) &&
+          class_spec[:c].is_a?(CSource::CStruct) &&
+          !class_spec[:c].members.empty?
+      end
     end
   end
 end

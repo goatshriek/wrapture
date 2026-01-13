@@ -25,7 +25,7 @@ module Wrapture
       attr_reader cpp_type: untyped
       attr_reader name: String
       attr_reader attributes: Enumerable[String]
-      attr_reader value: Array[untyped] | String | nil
+      attr_writer value: Array[untyped] | String | nil
 
       def initialize: (untyped, String, ?Array[String], ?String) -> void
       def ==: (CppDeclaration) -> bool

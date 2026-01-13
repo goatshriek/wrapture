@@ -280,6 +280,9 @@ module Wrapture
             param_name = param_spec.name
             decl = CppSource::CppDeclaration.new(param_type,
                                                  name: param_name)
+
+            decl.value = param_spec.default_value if param_spec.default_value?
+
             func.params << decl
           end
 
@@ -287,9 +290,7 @@ module Wrapture
           cls.constructors << func
         end
 
-        if generate_member_constructor?(spec)
-          cls.constructors << member_constructor(spec)
-        end
+        cls.constructors << member_constructor(spec) if C.wrapped_members?(spec)
 
         if generate_pointer_constructor?(spec)
           cls.constructors << pointer_constructor(spec)
@@ -334,17 +335,6 @@ module Wrapture
         !spec.is_a?(EnumSpec)
       end
 
-      # True if a member constructor should be generated for the given class.
-      #
-      # A member constructor is generated for a class where the wrapped struct
-      # has any members defined. The member constructor sets all of the defined
-      # members of the wrapped struct based on its arguments.
-      def self.generate_member_constructor?(class_spec)
-        class_spec.wrapped.key?(:c) &&
-          class_spec[:c].is_a?(CSource::CStruct) &&
-          !class_spec[:c].members.empty?
-      end
-
       # True if a pointer constructor should be generated for the given class.
       #
       # A pointer constructor is generated for a class where the wrapped struct
@@ -366,6 +356,7 @@ module Wrapture
 
         func.params.concat(class_spec[:c].members)
 
+        # TODO: why is this a map instead of each?
         class_spec[:c].members.map do |member|
           func.puts("this->equivalent.#{member.name} = #{member.name};")
         end

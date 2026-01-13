@@ -148,6 +148,8 @@ module Wrapture
 
     # Formats the initialization of a declaration.
     def self.format_initialization(decl)
+      return [decl.value] unless decl.value.is_a?(Enumerable)
+
       stmts = decl.value.flat_map do |val|
         if val.is_a?(CDeclaration)
           format_initialization(val) + [",\n"]

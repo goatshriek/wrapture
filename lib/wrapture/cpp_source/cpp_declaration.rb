@@ -32,7 +32,7 @@ module Wrapture
       attr_reader :attributes
 
       # The value of the variable to use for initialization.
-      attr_reader :value
+      attr_writer :value
 
       # A declaration has a type, and optionally a name and/or value.
       def initialize(cpp_type, name: nil, attributes: [], value: nil)

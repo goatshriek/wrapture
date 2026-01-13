@@ -457,6 +457,7 @@ module Wrapture
 
         overload_groups = {}
         scope.classes.each do |class_spec|
+          # TODO: member constructors aren't implemented for Python!
           unless class_spec.functions.any?(&:constructor?)
             src << default_constructor(class_spec)
           end

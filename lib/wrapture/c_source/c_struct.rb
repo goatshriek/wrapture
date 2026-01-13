@@ -49,7 +49,10 @@ module Wrapture
 
         if spec.key?(:members)
           spec[:members].each do |member|
-            c_struct.members << CDeclaration.new(member[:type], member[:name])
+            value = member.fetch(:default_value, nil)
+            member_decl = CDeclaration.new(member[:type], member[:name],
+                                           value: value)
+            c_struct.members << member_decl
           end
         end
 
@@ -71,7 +74,8 @@ module Wrapture
 
       # Compares with another struct.
       def ==(other)
-        @name == other.name &&
+        !other.nil? &&
+          @name == other.name &&
           @members == other.members &&
           @typedef == other.typedef
       end

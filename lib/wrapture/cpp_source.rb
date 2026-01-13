@@ -40,7 +40,7 @@ module Wrapture
       src += format_doxygen(cls.doc) unless cls.doc.empty?
       src << 'class '
       src << cls.name
-      src << " : #{cls.parent_name}" unless cls.parent_name.nil?
+      src << " : public #{cls.parent_name}" unless cls.parent_name.nil?
       src << " {\npublic:\n"
 
       cls.constants.each do |it|
@@ -126,9 +126,21 @@ module Wrapture
     #
     # The function name is assumed to be the class name.
     def self.format_constructor_definition(func)
-      src = [func.name, '::']
-      src += format_constructor_declaration(func)
-      src << "{\n"
+      src = [func.name, '::', func.name, '(']
+
+      if func.params.empty?
+        src << 'void'
+      else
+        func.params.each do |param_decl|
+          src += format_function_definition_param(param_decl)
+          src << ', '
+        end
+
+        # get rid of the trailing comma
+        src.pop
+      end
+
+      src << "){\n"
       src += Wrapture::CSource.indent(format_block(func))
       src << '}'
     end
@@ -171,6 +183,20 @@ module Wrapture
       src
     end
 
+    # Formats a parameter in a function definition into a set of source file
+    # strings. This is not quite the same as a normal declaration, as the value
+    # will not be included even if it is defined.
+    def self.format_function_definition_param(decl)
+      src = if decl.is_a?(CSource::CDeclaration)
+              [decl.c_type.to_s]
+            else
+              [decl.cpp_type.name]
+            end
+
+      src += [' ', decl.name] unless decl.name.nil?
+      src
+    end
+
     # Formats the initialization of a declaration.
     def self.format_initialization(decl)
       [decl.value]
@@ -209,7 +235,7 @@ module Wrapture
         src << 'void'
       else
         func.params.each do |param_decl|
-          src += format_declaration(param_decl)
+          src += format_function_definition_param(param_decl)
           src << ', '
         end
 
