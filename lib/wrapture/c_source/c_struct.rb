@@ -72,12 +72,22 @@ module Wrapture
         @typedef = typedef
       end
 
-      # Compares with another struct.
+      # Compares with another struct. If the other is a CType, then only the
+      # type as a string is compared to the struct's name.
+      #
+      # TODO: this special handling of CType needs to be revisited.
       def ==(other)
-        !other.nil? &&
-          @name == other.name &&
-          @members == other.members &&
-          @typedef == other.typedef
+        case other
+        when CType
+          @name == other.to_s
+        when CStruct
+          !other.nil? &&
+            @name == other.name &&
+            @members == other.members &&
+            @typedef == other.typedef
+        else
+          false
+        end
       end
 
       # Alias to support Enumerable#uniq.

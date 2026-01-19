@@ -57,6 +57,32 @@ module Wrapture
         !equivalent_ancestor?(class_spec)
       end
 
+      # The equivalents truct pointer type for a class spec if an underlying
+      # struct exists, nil if not. If the class wraps a struct directly, this
+      # type will be a pointer to the struct type, not the struct type itself.
+      def self.equivalent_pointer(class_spec)
+        if class_spec.wrapped.key?(:c)
+          if class_spec[:c].instance_of?(CSource::CStruct)
+            CSource::CPointer.new(class_spec[:c])
+          else
+            class_spec[:c]
+          end
+        end
+      end
+
+      # The equivalent struct type for a class spec if one exists, nil if not.
+      # If the class wraps a pointer to a struct, this type will be the struct
+      # type, not the pointer type.
+      def self.equivalent_struct(class_spec)
+        if class_spec.wrapped.key?(:c)
+          if class_spec[:c].instance_of?(CSource::CPointer)
+            class_spec[:c].c_type
+          else
+            class_spec[:c]
+          end
+        end
+      end
+
       # The type of the equivalent struct for a class spec if one exists, nil
       # if not.
       def self.equivalent_type(class_spec)

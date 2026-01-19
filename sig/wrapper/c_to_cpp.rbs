@@ -27,6 +27,7 @@ module Wrapture
       def self.declare_class: (Wrapture::ClassSpec, Wrapture::Scope) -> Wrapture::SourceFile
       def self.declare_member_function_locals: (Wrapture::CppSource::CppBlock, Wrapture::FunctionSpec) -> Wrapture::CppSource::CppBlock
       def self.define_class: (Wrapture::ClassSpec, Wrapture::Scope) -> Wrapture::SourceFile
+      def self.define_constructor: (Wrapture::ClassSpec, Wrapture::FunctionSpec) -> Wrapture:CppSource::CppFunction
       def self.define_enum: (Wrapture::ClassSpec) -> Wrapture::SourceFile
       def self.definition_filename: (Wrapture::ClassSpec) -> String
       def self.definition_includes: (Wrapture::ClassSpec) -> Array[String]

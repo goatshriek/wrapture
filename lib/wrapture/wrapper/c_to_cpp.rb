@@ -88,17 +88,13 @@ module Wrapture
         from = type_class_from_spec(context_class) if from == :this
 
         if to == :equivalent_struct
-          to = C.equivalent_type(context_class)
+          to = C.equivalent_struct(context_class)
           raise MissingWrapped, context_class if to.nil?
-
-          to = to.c_type if to.instance_of?(CSource::CPointer)
         end
 
         if to == :equivalent_pointer
-          to = C.equivalent_type(context_class)
+          to = C.equivalent_pointer(context_class)
           raise MissingWrapped, context_class if to.nil?
-
-          to = CSource::CPointer.new(to) if to.instance_of?(CSource::CStruct)
         end
 
         if from.is_a?(CppSource::CppClass) && !from.equivalent_member.nil?
@@ -203,6 +199,44 @@ module Wrapture
         end
       end
 
+      # Generate the definition for a constructor function.
+      def self.define_constructor(class_spec, func_spec)
+        class_name = type_class_from_spec(class_spec)
+
+        # TODO: pick up here, add check for return type equality to wrapped type
+        # raise InvalidConstructor if this happens
+        # need to add a unit test for this condition as well
+        return_type = func_spec[:c].return_type
+        if return_type.to_s == EQUIVALENT_STRUCT_KEYWORD
+          return_type = C.equivalent_struct(class_spec)
+        end
+        if return_type.to_s == EQUIVALENT_POINTER_KEYWORD
+          return_type = C.equivalent_pointer(class_spec)
+        end
+        if C.equivalent_type(class_spec) != return_type
+          msg = "a constructor for #{class_name} returns #{return_type} " \
+                'instead of the class equivalent ' \
+                "#{C.equivalent_type(class_spec)}"
+          raise InvalidConstructor, msg
+        end
+
+        func = Wrapture::CppSource::CppFunction.new(class_name)
+        func_spec.params.each do |param_spec|
+          param_type = param_spec.type
+          param_name = param_spec.name
+          decl = CppSource::CppDeclaration.new(param_type,
+                                               name: param_name)
+
+          decl.value = param_spec.default_value if param_spec.default_value?
+
+          func.params << decl
+        end
+
+        func.puts("#{wrapped_function_call(func_spec)};")
+
+        func
+      end
+
       # Generate a source file with the definition of a class.
       def self.define_class(class_spec, scope)
         unless class_spec.definable?
@@ -274,20 +308,7 @@ module Wrapture
         end
 
         spec.constructors.each do |it|
-          func = Wrapture::CppSource::CppFunction.new(cls.name)
-          it.params.each do |param_spec|
-            param_type = param_spec.type
-            param_name = param_spec.name
-            decl = CppSource::CppDeclaration.new(param_type,
-                                                 name: param_name)
-
-            decl.value = param_spec.default_value if param_spec.default_value?
-
-            func.params << decl
-          end
-
-          func.puts("#{wrapped_function_call(it)};")
-          cls.constructors << func
+          cls.constructors << define_constructor(spec, it)
         end
 
         cls.constructors << member_constructor(spec) if C.wrapped_members?(spec)
@@ -510,7 +531,8 @@ module Wrapture
 
         if func_spec.constructor?
           # TODO: constructor pointer handling needs to be more deliberate,
-          # and also support ownership annotations
+          # including support passing address of struct as arg and ownership
+          # annotations
           "this->equivalent = #{wrapped_call}"
         elsif wrapper_captures_return?(func_spec)
           "return_val = #{wrapped_call}"

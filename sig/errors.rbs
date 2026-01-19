@@ -2,6 +2,9 @@ module Wrapture
   class WraptureError < StandardError
   end
 
+  class InvalidConstructor < WraptureError
+  end
+
   class InvalidDoc < WraptureError
   end
 

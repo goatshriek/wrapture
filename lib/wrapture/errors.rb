@@ -23,6 +23,10 @@ module Wrapture
   class WraptureError < StandardError
   end
 
+  # A constructor is invalid.
+  class InvalidConstructor < WraptureError
+  end
+
   # A documentation string is invalid.
   class InvalidDoc < WraptureError
   end

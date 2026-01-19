@@ -51,10 +51,17 @@ module Wrapture
 
     # Creates a new ClassSpec from hash +spec+.
     def self.from_hash(spec)
+      c_constructors = spec[:constructors].reject do |it|
+        it.dig(:wrapped, :c).nil?
+      end
+      if c_constructors.any? { |it| it.dig(:wrapped, :c, :return, :type).nil? }
+        raise InvalidConstructor, 'a constructor did not have a return type'
+      end
+
       class_spec = new(spec)
 
       if spec.key?(:wrapped) && spec[:wrapped].key?(:c)
-        if spec[:c].key?(:pointer)
+        if spec[:wrapped][:c].key?(:pointer)
           struct_type = CSource::CStruct.from_hash(spec[:wrapped][:c][:pointer])
           class_spec[:c] = CSource::CPointer.new(struct_type)
         else
