@@ -16,8 +16,10 @@
 
 name: "ClassWithConstant"
 namespace: "wrapture_test"
-equivalent_struct:
-  name: "basic_struct"
+wrapped:
+  c:
+    pointer:
+      name: "basic_struct"
 constants:
   - name: "TEST_CONSTANT"
     type: "int"

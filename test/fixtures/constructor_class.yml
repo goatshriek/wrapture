@@ -16,13 +16,15 @@
 
 name: "ClassWithConstructor"
 namespace: "wrapture_test"
-equivalent_struct:
-  name: "constructed_struct"
-  members:
-    - name: "member_1"
-      type: "int"
-  includes:
-    - "constructed.h"
+wrapped:
+  c:
+    pointer:
+      name: "constructed_struct"
+      members:
+        - name: "member_1"
+          type: "int"
+      includes:
+        - "constructed.h"
 constructors:
   - wrapped:
       c:
@@ -31,16 +33,16 @@ constructors:
           - name: "new_name"
             type: "const char *"
         return:
-          type: "equivalent-struct-pointer"
+          type: "equivalent_struct_pointer"
         includes: "constructed.h"
   - wrapped:
       c:
         name: "copy_struct"
         params:
           - name: "original_struct"
-            type: "equivalent-struct"
+            type: "equivalent_struct"
         return:
-          type: "equivalent-struct-pointer"
+          type: "equivalent_struct_pointer"
         includes:
           - "constructed.h"
   - wrapped:
@@ -48,29 +50,29 @@ constructors:
         name: "copy_struct_pointer"
         params:
           - name: "original_struct_pointer"
-            type: "equivalent-struct-pointer"
+            type: "equivalent_struct_pointer"
         return:
-          type: "equivalent-struct-pointer"
+          type: "equivalent_struct_pointer"
 destructor:
   wrapped:
     c:
       name: "destroy_a_struct"
       params:
-        - name: "equivalent-struct-pointer"
+        - name: "equivalent_struct_pointer"
       includes:
         - "constructed.h"
 functions:
   - name: "CompareToStruct"
     params:
       - name: "compare_to"
-        type: "equivalent-struct"
+        type: "equivalent_struct"
     return:
       type: "int"
     wrapped:
       c:
         name: "compare_structs"
         params:
-          - name: "equivalent-struct"
+          - name: "equivalent_struct"
           - name: "compare_to"
         return:
           type: "int"

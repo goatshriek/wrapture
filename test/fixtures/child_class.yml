@@ -16,8 +16,10 @@
 
 name: "ChildClass"
 namespace: "wrapture_test"
-equivalent_struct:
-  name: "error_struct"
+wrapped:
+  c:
+    pointer:
+      name: "error_struct"
 parent:
   name: "exception"
   includes: "exception"

@@ -18,8 +18,9 @@ name: "PointerWrappingClass"
 namespace: "wrapture_test"
 wrapped:
   c:
-    name: "wrapped_struct"
-    includes: "wrapme.h"
+    pointer:
+      name: "wrapped_struct"
+      includes: "wrapme.h"
 constructors:
   - wrapped:
       c:

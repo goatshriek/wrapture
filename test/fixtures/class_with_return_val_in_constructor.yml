@@ -18,7 +18,8 @@ name: "ClassWithReturnActionInConstructor"
 namespace: "wrapture_test"
 wrapped:
   c:
-    name: "irrelevant"
+    pointer:
+      name: "irrelevant"
 constructors:
   - wrapped:
       c:
