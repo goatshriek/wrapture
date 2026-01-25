@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
+# frozen_string_literal: true
+
 # Copyright 2025 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,14 +16,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-module Wrapture
-  module CSource
-    class CType
-      def self.from_hash: (spec_hash) -> CType
-      def initialize: (String) -> void
-      def ==: (CType) -> bool
-      alias eql? ==
-      def to_s: () -> String
-    end
+require 'helper'
+
+require 'fixture'
+require 'minitest/autorun'
+require 'wrapture'
+
+# Tests for C++ source formatting.
+class CppSourceTest < Minitest::Test
+  def test_function_definition_param_of_c_declaration_of_pointer
+    base = Wrapture::CSource::CType.new('test_type')
+    pointer_type = Wrapture::CSource::CPointer.new(base)
+    decl = Wrapture::CSource::CDeclaration.new(pointer_type, 'test_val')
+    result = Wrapture::CppSource.format_function_definition_param(decl).join
+
+    assert_equal('test_type *test_val', result)
   end
 end

@@ -41,7 +41,8 @@ module Wrapture
           raise MissingSpecKey, 'a name is required for c structs'
         end
 
-        c_struct = new(name: spec[:name])
+        name = spec[:name].delete_prefix('struct ')
+        c_struct = new(name: name)
 
         if spec.key?(:includes)
           c_struct.includes.concat(Wrapture.normalize_array(spec[:includes]))

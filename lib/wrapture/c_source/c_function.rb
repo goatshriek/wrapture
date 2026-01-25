@@ -36,9 +36,9 @@ module Wrapture
           spec[:params].each do |param|
             type = case param[:type]
                    when String
-                     CType.new(param[:type])
+                     CType.from_hash({ name: param[:type] })
                    when Hash
-                     CType.new(param[:type][:name])
+                     CType.from_hash(param[:type])
                    end
             name = (param[:name] if param.key?(:name))
             value = if param.key?(:value)

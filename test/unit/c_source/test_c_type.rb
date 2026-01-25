@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
+# frozen_string_literal: true
+
 # Copyright 2025 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,14 +16,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-module Wrapture
-  module CSource
-    class CType
-      def self.from_hash: (spec_hash) -> CType
-      def initialize: (String) -> void
-      def ==: (CType) -> bool
-      alias eql? ==
-      def to_s: () -> String
-    end
+require 'helper'
+
+require 'fixture'
+require 'minitest/autorun'
+require 'wrapture'
+
+class CStructTest < Minitest::Test
+  def test_pointer_to_struct_from_hash_string
+    type = Wrapture::CSource::CType.from_hash({ name: 'struct test_struct *' })
+
+    assert_kind_of(Wrapture::CSource::CPointer, type)
+    assert_kind_of(Wrapture::CSource::CStruct, type.c_type)
+    assert_equal('test_struct', type.c_type.name)
   end
 end

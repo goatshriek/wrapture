@@ -21,10 +21,9 @@ classes:
     includes: "fridge.h"
     wrapped:
       c:
-        name: "ice_maker"
-        includes: "fridge.h"
-    equivalent_struct:
-      name: "ice_maker"
+        pointer:
+          name: "struct ice_maker"
+          includes: "fridge.h"
     constructors:
       - wrapped:
           c:
@@ -42,10 +41,9 @@ classes:
     includes: "fridge.h"
     wrapped:
       c:
-        name: "water_filter"
-        includes: "fridge.h"
-    equivalent_struct:
-      name: "water_filter"
+        pointer:
+          name: "struct water_filter"
+          includes: "fridge.h"
     constructors:
       - wrapped:
           c:
@@ -60,10 +58,9 @@ classes:
     libraries: "fridge"
     wrapped:
       c:
-        name: "freezer"
-        includes: "fridge.h"
-    equivalent_struct:
-      name: "freezer"
+        pointer:
+          name: "struct freezer"
+          includes: "fridge.h"
     constructors:
       - wrapped:
           c:
@@ -82,10 +79,9 @@ classes:
       - "fridge.h"
     wrapped:
       c:
-        name: "fridge"
-        includes: "fridge.h"
-    equivalent_struct:
-      name: "fridge"
+        pointer:
+          name: "fridge"
+          includes: "fridge.h"
     constructors:
       - wrapped:
           c:

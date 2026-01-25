@@ -85,7 +85,14 @@ module Wrapture
       def self.converter(from, to, context)
         context_class = context.owner # assume a FunctionSpec
 
-        from = type_class_from_spec(context_class) if from == :this
+        if from == :this
+          from = CSource::CPointer.new(type_class_from_spec(context_class))
+        end
+
+        if from.is_a?(TypeSpec)
+          from_class = context_class.type(from)
+          from = type_class_from_spec(from_class) unless from_class.nil?
+        end
 
         if to == :equivalent_struct
           to = C.equivalent_struct(context_class)
@@ -100,13 +107,22 @@ module Wrapture
         if from.is_a?(CppSource::CppClass) && !from.equivalent_member.nil?
           equivalent_c_type = from.equivalent_member.c_type
           if to == equivalent_c_type
+            return proc { |val| "#{val}.equivalent" }
+          elsif to == CSource::CPointer.new(equivalent_c_type)
+            return proc { |val| "&#{val}.equivalent" }
+          end
+        end
+
+        if from.is_a?(CSource::CPointer) &&
+           from.c_type.is_a?(CppSource::CppClass) &&
+           !from.c_type.equivalent_member.nil?
+          equivalent_c_type = from.c_type.equivalent_member.c_type
+          if to == equivalent_c_type
             return proc { |val| "#{val}->equivalent" }
           elsif to == CSource::CPointer.new(equivalent_c_type)
             return proc { |val| "&#{val}->equivalent" }
           end
         end
-
-        # TODO: pick up here: detect and use parent equivalent members
 
         proc {
           "TODO: conversion from #{from} to #{to} within context #{context}"

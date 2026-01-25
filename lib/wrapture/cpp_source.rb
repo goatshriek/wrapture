@@ -187,12 +187,11 @@ module Wrapture
     # strings. This is not quite the same as a normal declaration, as the value
     # will not be included even if it is defined.
     def self.format_function_definition_param(decl)
-      src = if decl.is_a?(CSource::CDeclaration)
-              [decl.c_type.to_s]
-            else
-              [decl.cpp_type.name]
-            end
+      if decl.is_a?(CSource::CDeclaration)
+        return Wrapture::CSource.format_declaration(decl)
+      end
 
+      src = [decl.cpp_type.name]
       src += [' ', decl.name] unless decl.name.nil?
       src
     end
