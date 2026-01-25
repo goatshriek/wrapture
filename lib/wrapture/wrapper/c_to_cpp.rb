@@ -77,7 +77,8 @@ module Wrapture
         end
       end
 
-      # Retrieves a conversion proc converts one source component to another.
+      # Retrieves a conversion proc which converts one source component to
+      # another.
       #
       # TODO: for this to be a usable interface point, the semantics around
       # each of the parameters as well as what a converter must do needs to be
@@ -209,6 +210,7 @@ module Wrapture
         blk << 'va_list variadic_args;' if func_spec.variadic?
 
         if wrapper_captures_return?(func_spec)
+          # TODO: pick up here, resolving return type from keywords
           return_type = func_spec.wrapped[:c].return_type
           blk << CSource::CDeclaration.new(return_type, 'return_val')
           blk.puts(';')
