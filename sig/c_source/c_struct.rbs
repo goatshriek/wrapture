@@ -20,11 +20,13 @@ module Wrapture
       @includes: Array[String]
       @name: String
       @members: Array[CType]
+      @rules: Array[CExpression]
       @typedef: String
 
       attr_accessor includes: Array[String]
       attr_reader name: String
       attr_reader members: Array[CDeclaration]
+      attr_reader rules: Array[CExpression]
       attr_reader typedef: String
 
       def self.from_hash: (spec_hash spec) -> Wrapture::CSource::CStruct

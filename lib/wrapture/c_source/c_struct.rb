@@ -31,6 +31,11 @@ module Wrapture
       # The members of the struct.
       attr_reader :members
 
+      # An optional array of expressions that specify rules that the struct must
+      # meet. Specifically, any conditions that the members must meet, for
+      # example if a particular member must be a particular value.
+      attr_reader :rules
+
       # The typedef name of the struct. If this is empty, then there is no
       # typedef for this struct.
       attr_reader :typedef
@@ -57,6 +62,19 @@ module Wrapture
           end
         end
 
+        if spec.key?(:rules)
+          spec[:rules].each do |rule|
+            next unless rule.key?(:member_name)
+
+            op = CExpression::OPERATORS.find do |op|
+              op.to_s == rule[:condition]
+            end
+            c_struct.rules << CExpression.new(
+              [rule[:member_name], rule[:value]], op
+            )
+          end
+        end
+
         c_struct
       end
 
@@ -70,6 +88,7 @@ module Wrapture
         @includes = []
         @name = name
         @members = members
+        @rules = []
         @typedef = typedef
       end
 

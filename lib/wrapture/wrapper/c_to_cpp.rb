@@ -210,8 +210,13 @@ module Wrapture
         blk << 'va_list variadic_args;' if func_spec.variadic?
 
         if wrapper_captures_return?(func_spec)
-          # TODO: pick up here, resolving return type from keywords
           return_type = func_spec.wrapped[:c].return_type
+          if return_type.to_s == EQUIVALENT_STRUCT_KEYWORD
+            return_type = C.equivalent_struct(func_spec.owner)
+          end
+          if return_type.to_s == EQUIVALENT_POINTER_KEYWORD
+            return_type = C.equivalent_pointer(func_spec.owner)
+          end
           blk << CSource::CDeclaration.new(return_type, 'return_val')
           blk.puts(';')
         end

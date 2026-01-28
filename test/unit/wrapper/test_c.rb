@@ -32,6 +32,14 @@ class CWrapperTest < Minitest::Test
                  'entry for c in the wrapped languages')
   end
 
+  def test_factory
+    scope_hash = fixture_hash('overloaded_struct')
+    scope = Wrapture::Scope.new(scope_hash)
+    factory_class = scope.classes.find { |it| it.name == 'Parent' }
+
+    assert(Wrapture::Wrapper::C.factory?(factory_class, scope))
+  end
+
   def test_function_includes_with_no_c_details
     # we need a function spec where there isn't a :c key in wrapped
     func_spec = Wrapture::FunctionSpec.new(%w[func without c])

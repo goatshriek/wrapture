@@ -23,6 +23,7 @@ module Wrapture
       def self.equivalent_pointer: (Wrapture::ClassSpec) -> Wrapture::CSource::CPointer?
       def self.equivalent_struct: (Wrapture::ClassSpec) -> Wrapture::CSource::CStruct?
       def self.equivalent_type: (Wrapture::ClassSpec) -> Wrapture::CSource::CType?
+      def self.factory?: (Wrapture::ClassSpec, Wrapture::Scope) -> bool
       def self.includes: (Wrapture::Scope | Wrapture::ClassSpec | Wrapture::FunctionSpec | Wrapture::ParamSpec | Wrapture::ConstantSpec | Wrapture::TypeSpec) -> Array[String]
       def self.wrapped_members?: (Wrapture::ClassSpec) -> bool
     end

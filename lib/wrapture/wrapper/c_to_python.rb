@@ -357,11 +357,18 @@ module Wrapture
 
         error_return = func_spec[:c].error_rules.any?(&:use_return?)
         if !func_spec.void_return? || error_return
-          return_type = TypeSpec.new(func_spec[:c].return_type.to_s)
-          return_type = func_spec.return_type if return_type.name == 'void'
-          return_type = func_spec.resolve_type(return_type)
+          # return_type = TypeSpec.new(func_spec[:c].return_type.to_s)
+          # return_type = func_spec.return_type if return_type.name == 'void'
+          # return_type = func_spec.resolve_type(return_type)
+          return_type = func_spec.wrapped[:c].return_type
+          if return_type.to_s == EQUIVALENT_STRUCT_KEYWORD
+            return_type = C.equivalent_struct(func_spec.owner)
+          end
+          if return_type.to_s == EQUIVALENT_POINTER_KEYWORD
+            return_type = C.equivalent_pointer(func_spec.owner)
+          end
 
-          return_type = 'long' if return_type.name == 'bool'
+          return_type = 'long' if return_type == CSource::CType.new('bool')
 
           blk.declare(return_type, 'return_val')
         end
@@ -444,15 +451,16 @@ module Wrapture
           src.declare('PyTypeObject', type_object_name(class_spec),
                       attributes: ['static'])
 
-          next unless class_spec.factory?
+          # next unless class_spec.factory?
+          next unless C.factory?(class_spec, scope)
 
           # TODO: do we need this forward declaration?
           src << factory_constructor(class_spec).declaration
           src << ";\n"
         end
 
-        scope.classes.select(&:factory?).each do |class_spec|
-          src << factory_constructor(class_spec)
+        scope.classes.select do |it|
+          src << factory_constructor(class_spec) if C.factory?(it, scope)
         end
 
         overload_groups = {}

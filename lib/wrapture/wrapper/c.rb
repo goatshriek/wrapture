@@ -89,6 +89,27 @@ module Wrapture
         class_spec[:c] if class_spec.wrapped.key?(:c)
       end
 
+      # True if the given ClassSpec is a factory in the given context. A factory
+      # class can generate instances of different classes from the same struct,
+      # based on rules specified for each class.
+      #
+      # In order for a class to be a factory, it must have at least one child
+      # class that wraps the same struct, and has rules associated with it. The
+      # factory class itself may not have any rules associated with its struct.
+      #
+      # TODO: can the child and no rules in the parent rules be relaxed?
+      def self.factory?(class_spec, context)
+        unless class_spec[:c].rules.empty? && equivalent_member?(class_spec)
+          return false
+        end
+
+        context.classes.any? do |it|
+          class_spec[:c].name == it[:c].name &&
+            class_spec.name == it.parent_name &&
+            !it[:c].rules.empty?
+        end
+      end
+
       # An array with all includes in the given spec. For specs that include
       # others, the array will have all includes of the included items as well.
       # +uniq+ is called on the array before it is returned to remove
