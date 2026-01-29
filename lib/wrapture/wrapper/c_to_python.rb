@@ -460,7 +460,7 @@ module Wrapture
         end
 
         scope.classes.select do |it|
-          src << factory_constructor(class_spec) if C.factory?(it, scope)
+          src << factory_constructor(it) if C.factory?(it, scope)
         end
 
         overload_groups = {}
@@ -621,9 +621,8 @@ module Wrapture
       # The factory constructor for an overloaded struct.
       def self.factory_constructor(class_spec)
         name = "new_#{class_spec.name}"
-        struct_type = Wrapture::CSource::CStruct.from_spec(class_spec.struct)
-        pointer_type = Wrapture::CSource::CPointer.new(struct_type)
-        params = [Wrapture::CSource::CDeclaration.new(pointer_type,
+        equivalent_type = C.equivalent_type(class_spec)
+        params = [Wrapture::CSource::CDeclaration.new(equivalent_type,
                                                       'equivalent')]
         return_type = Wrapture::CSource::CPointer.new('PyObject')
         func = Wrapture::CSource::CFunction.new(name, params: params,
@@ -633,12 +632,29 @@ module Wrapture
         func.declare(type_object_type, 'type')
         func.declare(return_type, 'obj')
 
+        overload_classes = class_spec.scope.select do |it|
+          C.overload?(class_spec, it)
+        end
         cond = nil
-        class_spec.scope.overloads(class_spec).each do |overload|
+        overload_classes.each do |overload|
+          variable_access = if C.equivalent_type(overload).is_a?(CSource::CPointer)
+                              'equivalent->'
+                            else
+                              'equivalent.'
+                            end
+
+          checks = C.equivalent_struct(overload).rules.map do |it|
+            new_vals = it.vals.dup
+            new_vals[0] = "#{variable_access}#{it.vals[0]}"
+
+            CSource::CExpression.new(new_vals, it.operator)
+          end
+          check_expression = CSource::CExpression.new(checks, :and)
+
           cond = if cond.nil?
-                   func.if(overload.struct.rules_check('equivalent'))
+                   func.if(check_expression)
                  else
-                   cond.else_if(overload.struct.rules_check('equivalent'))
+                   cond.else_if(check_expression)
                  end
 
           blk = cond.if_block

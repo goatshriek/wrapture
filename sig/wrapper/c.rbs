@@ -25,6 +25,7 @@ module Wrapture
       def self.equivalent_type: (Wrapture::ClassSpec) -> Wrapture::CSource::CType?
       def self.factory?: (Wrapture::ClassSpec, Wrapture::Scope) -> bool
       def self.includes: (Wrapture::Scope | Wrapture::ClassSpec | Wrapture::FunctionSpec | Wrapture::ParamSpec | Wrapture::ConstantSpec | Wrapture::TypeSpec) -> Array[String]
+      def self.overload?: (Wrapture::ClassSpec, Wrapture::ClassSpec) -> bool
       def self.wrapped_members?: (Wrapture::ClassSpec) -> bool
     end
   end

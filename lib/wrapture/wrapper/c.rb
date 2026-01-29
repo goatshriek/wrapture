@@ -99,14 +99,16 @@ module Wrapture
       #
       # TODO: can the child and no rules in the parent rules be relaxed?
       def self.factory?(class_spec, context)
-        unless class_spec[:c].rules.empty? && equivalent_member?(class_spec)
+        class_struct = equivalent_struct(class_spec)
+        unless class_struct.rules.empty? && equivalent_member?(class_spec)
           return false
         end
 
         context.classes.any? do |it|
-          class_spec[:c].name == it[:c].name &&
+          other_struct = equivalent_struct(it)
+          class_struct.name == other_struct.name &&
             class_spec.name == it.parent_name &&
-            !it[:c].rules.empty?
+            !other_struct.rules.empty?
         end
       end
 
@@ -152,6 +154,19 @@ module Wrapture
               end
 
         inc.uniq
+      end
+
+      # True if the overload ClassSpec is an overload of the factory ClassSpec.
+      # That is, if the wrapped struct of the overload class is the same as
+      # that of the factory class, with additional rules.
+      def self.overload?(factory, overload)
+        factory_struct = equivalent_struct(factory)
+        overload_struct = equivalent_struct(overload)
+
+        factory_struct.rules.empty? &&
+          factory_struct.name == overload_struct.name &&
+          factory.name == overload.parent_name &&
+          !overload_struct.rules.empty?
       end
 
       # True if the given class wraps a struct (not a pointer) with members

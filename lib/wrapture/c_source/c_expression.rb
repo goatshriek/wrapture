@@ -24,7 +24,15 @@ module Wrapture
     class CExpression
       # An array of operator symbols.
       OPERATORS = %i[equal greater_than greater_than_equal less_than
-                     less_than_equal not_equal].freeze
+                     less_than_equal not_equal and or].freeze
+
+      # The values in the expression, in the order they should be used by the
+      # operator.
+      attr_reader :vals
+
+      # The operator used in the expression, or nil if it is a standalone
+      # expression.
+      attr_reader :operator
 
       # An expression as at least one value, and optionally an operator that
       # defines what is done to the values.

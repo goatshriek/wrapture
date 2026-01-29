@@ -48,4 +48,15 @@ class CWrapperTest < Minitest::Test
                  'includes not empty for a func spec with no ' \
                  'entry for c in the wrapped languages')
   end
+
+  def test_overload
+    scope_hash = fixture_hash('overloaded_struct')
+    scope = Wrapture::Scope.new(scope_hash)
+    factory_class = scope.classes.find { |it| it.name == 'Parent' }
+    overload_class_one = scope.classes.find { |it| it.name == 'ChildOne' }
+    overload_class_two = scope.classes.find { |it| it.name == 'ChildTwo' }
+
+    assert(Wrapture::Wrapper::C.overload?(factory_class, overload_class_one))
+    assert(Wrapture::Wrapper::C.overload?(factory_class, overload_class_two))
+  end
 end

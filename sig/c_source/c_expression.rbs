@@ -22,6 +22,9 @@ module Wrapture
 
       OPERATORS: Array[Symbol]
 
+      attr_reader vals: Array[String | CExpression]
+      attr_reader operator: Symbol
+
       def initialize: (String | Array[String | CExpression], Symbol) -> void
     end
   end
