@@ -188,7 +188,8 @@ module Wrapture
     # will not be included even if it is defined.
     def self.format_function_definition_param(decl)
       if decl.is_a?(CSource::CDeclaration)
-        return Wrapture::CSource.format_declaration(decl)
+        new_decl = CSource::CDeclaration.new(decl.c_type, decl.name)
+        return format_declaration(new_decl)
       end
 
       src = [decl.cpp_type.name]

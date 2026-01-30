@@ -61,6 +61,7 @@ module Wrapture
         if spec.key?(:error_check)
           check = spec[:error_check]
 
+          # TODO: pick up here, refactoring this to use CExpression instead
           func.error_rules = check[:rules].map do |rule_spec|
             RuleSpec.new(rule_spec)
           end

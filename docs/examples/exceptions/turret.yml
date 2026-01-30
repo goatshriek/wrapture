@@ -60,7 +60,7 @@ classes:
             error_check:
               rules:
                 - left_expression: "return_value"
-                  condition: "not_equals"
+                  condition: "not_equal"
                   right_expression: "success()"
               error_action:
                 name: "throw_exception"
@@ -87,7 +87,7 @@ classes:
             error_check:
               rules:
                 - left_expression: "return_value"
-                  condition: "not_equals"
+                  condition: "not_equal"
                   right_expression: "success()"
               error_action:
                 name: "throw_exception"
@@ -139,7 +139,7 @@ classes:
           includes: "turret_error.h"
           rules:
             - member_name: "code"
-              condition: "equals"
+              condition: "equal"
               value: "JAMMED"
     functions:
       - name: "message"
@@ -166,7 +166,7 @@ classes:
           includes: "turret_error.h"
           rules:
             - member_name: "code"
-              condition: "equals"
+              condition: "equal"
               value: "OUT_OF_AMMO"
     functions:
       - name: "message"
@@ -193,7 +193,7 @@ classes:
           includes: "turret_error.h"
           rules:
             - member_name: "code"
-              condition: "equals"
+              condition: "equal"
               value: "TARGETING_ERROR"
     functions:
       - name: "message"
