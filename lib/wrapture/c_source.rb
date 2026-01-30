@@ -43,6 +43,8 @@ module Wrapture
           node
         when CDeclaration
           format_declaration(node)
+        when CExpression
+          format_expression(node)
         when CStruct
           format_struct(node)
         when CFunction
@@ -54,6 +56,25 @@ module Wrapture
         else
           "#{node}\n"
         end
+      end
+    end
+
+    # Formats an expression into a set of source code strings. This method also
+    # accepts a string, which is simply returned.
+    def self.format_expression(expr)
+      return [expr] if expr.is_a?(String)
+
+      case expr.operator
+      when :and
+        expr.vals.map do |it|
+          format_expression(it).join
+        end.join(' && ')
+      when :equal
+        format_expression(expr.vals[0]) +
+          [' == '] +
+          format_expression(expr.vals[1])
+      else
+        format_expression(expr.vals[0])
       end
     end
 
@@ -132,7 +153,7 @@ module Wrapture
 
     # Formats an if-else block.
     def self.format_if(if_condition)
-      src = ['if( ', if_condition.condition, " ){\n"]
+      src = ['if( ', format_expression(if_condition.condition), " ){\n"]
       src += indent(if_condition.if_block.tree)
       src << '}'
 
@@ -143,7 +164,7 @@ module Wrapture
       when nil
         src + ["\n"]
       else
-        src + [' else {'] + indent(format_block(else_block.tree)) + ["}\n"]
+        src + [" else {\n"] + indent(format_block(else_block.tree)) + ["}\n"]
       end
     end
 

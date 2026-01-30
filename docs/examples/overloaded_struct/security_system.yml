@@ -78,7 +78,7 @@ classes:
           includes: "security_system.h"
           rules:
             - member_name: "code"
-              condition: "equals"
+              condition: "equal"
               value: "CAMERA_EVENT"
     constructors:
       - wrapped:
@@ -109,7 +109,7 @@ classes:
           includes: "security_system.h"
           rules:
             - member_name: "code"
-              condition: "equals"
+              condition: "equal"
               value: "GLASS_BREAK_EVENT"
     constructors:
       - wrapped:
@@ -140,7 +140,7 @@ classes:
           includes: "security_system.h"
           rules:
             - member_name: "code"
-              condition: "equals"
+              condition: "equal"
               value: "MOTION_EVENT"
     constructors:
       - wrapped:

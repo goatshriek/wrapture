@@ -69,6 +69,12 @@ module Wrapture
             op = CExpression::OPERATORS.find do |op|
               op.to_s == rule[:condition]
             end
+
+            if rule.key?(:condition) && op.nil?
+              msg = "unrecognized rule condition #{rule[:condition]}"
+              raise InvalidRuleCondition, msg
+            end
+
             c_struct.rules << CExpression.new(
               [rule[:member_name], rule[:value]], op
             )

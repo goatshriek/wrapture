@@ -10,6 +10,8 @@ module Wrapture
 
   class InvalidTemplateUsage < WraptureError
   end
+  class InvalidRuleCondition < WraptureError
+  end
 
   class InvalidSpecKey < WraptureError
     def initialize: (String message, ?valid_keys: Array[String]) -> void

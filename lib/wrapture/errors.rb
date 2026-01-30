@@ -35,6 +35,10 @@ module Wrapture
   class InvalidTemplateUsage < WraptureError
   end
 
+  # A rule condition was provided that was not recognized.
+  class InvalidRuleCondition < WraptureError
+  end
+
   # The spec has a key that is not valid.
   class InvalidSpecKey < WraptureError
     # Creates an InvalidSpecKey with the given message. A list of valid values
