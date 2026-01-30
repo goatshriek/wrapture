@@ -33,6 +33,7 @@ module Wrapture
         @return_type = Wrapture::CSource::CType.new('void')
         @static = false
         @tree = []
+        @virtual = false
       end
 
       # The accessibility of a method can be +:public+, +:private+, or
@@ -54,9 +55,17 @@ module Wrapture
       # The tree of the method body statements.
       attr_reader :tree
 
-      # True if this method is static.
+      # True if this method is virtual
+      attr_writer :virtual
+
+      # True if this function is static.
       def static?
         @static
+      end
+
+      # True if this function is virtual.
+      def virtual?
+        @virtual
       end
     end
   end

@@ -205,6 +205,8 @@ module Wrapture
     def self.format_member_function_declaration(func)
       src = []
 
+      src << 'virtual ' if func.virtual?
+
       src << 'static ' if func.static?
 
       src += format_declaration(CppDeclaration.new(func.return_type))

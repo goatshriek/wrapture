@@ -22,6 +22,7 @@ module Wrapture
       @return_type: CppType
       @static: bool
       @tree: Array[untyped]
+      @virtual: bool
 
       attr_accessor accessibility: Symbol
       attr_accessor attributes: Array[String]
@@ -30,9 +31,11 @@ module Wrapture
       attr_accessor return_type: CppType
       attr_writer static: bool
       attr_reader tree: Array[untyped]
+      attr_writer virtual: bool
 
       def initialize: (String) -> void
       def static?: () -> bool
+      def virtual?: () -> bool
     end
   end
 end

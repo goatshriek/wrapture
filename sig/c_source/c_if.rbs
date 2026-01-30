@@ -17,11 +17,11 @@
 module Wrapture
   module CSource
     class CIf
-      attr_reader condition: String
-      attr_reader if_block: CBlock
-      attr_reader else_block: CBlock | CIf | nil
+      attr_reader condition: CExpression
+      attr_accessor if_block: CBlock
+      attr_accessor else_block: CBlock | CIf | nil
 
-      def initialize: (String) { (CBlock) -> void } -> void
+      def initialize: (String | CExpression) { (CBlock) -> void } -> void
       def else: { (CBlock) -> void } -> CIf
       def else_if: (String) { (CBlock) -> void } -> CIf
     end

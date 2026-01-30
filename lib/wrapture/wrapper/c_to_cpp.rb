@@ -341,7 +341,7 @@ module Wrapture
         end
 
         unless spec.destructor.nil?
-          func = Wrapture::CppSource::CppFunction.new("~#{cls.name}")
+          func = CppSource::CppFunction.new("~#{cls.name}")
           func << wrapped_function_call(spec.destructor)
           func << ';'
           cls.destructor = func
@@ -349,6 +349,10 @@ module Wrapture
 
         spec.method_specs.each do |meth_spec|
           cls.member_functions << member_function_from_spec(meth_spec)
+        end
+
+        if C.factory?(spec, spec.scope)
+          cls.member_functions << factory_member_function(spec)
         end
 
         cls
@@ -370,7 +374,68 @@ module Wrapture
         inc = [declaration_filename(class_spec)]
         inc.concat(declaration_includes(class_spec))
         inc.concat(C.includes(class_spec))
+
+        if C.factory?(class_spec, class_spec.scope)
+          class_spec.scope.classes.each do |it|
+            inc << declaration_filename(it) if C.overload?(class_spec, it)
+          end
+        end
+
         inc.uniq
+      end
+
+      # A static function that generates an instance of an overloaded struct's
+      # class according to the rules that the struct fulfills.
+      def self.factory_member_function(class_spec)
+        factory_name = class_spec.upper_camel_case_name
+        func_name = "New#{factory_name}"
+        func = CppSource::CppFunction.new(func_name)
+        func.static = true
+        func.return_type = CppSource::CppType.new("#{factory_name} *")
+
+        equivalent_type = C.equivalent_type(class_spec)
+        func.params << CSource::CDeclaration.new(equivalent_type, 'equivalent')
+
+        overload_classes = class_spec.scope.select do |it|
+          C.overload?(class_spec, it)
+        end
+
+        blocks = overload_classes.map do |overload|
+          variable_access = if equivalent_type.is_a?(CSource::CPointer)
+                              'equivalent->'
+                            else
+                              'equivalent.'
+                            end
+
+          checks = C.equivalent_struct(overload).rules.map do |it|
+            new_vals = it.vals.dup
+            new_vals[0] = "#{variable_access}#{it.vals[0]}"
+
+            CSource::CExpression.new(new_vals, it.operator)
+          end
+
+          check_expression = CSource::CExpression.new(checks, :and)
+
+          CSource::CIf.new(check_expression) do |blk|
+            class_name = overload.upper_camel_case_name
+            blk.puts("return new #{class_name}( equivalent );")
+          end
+        end
+
+        # make the else-if chain
+        blocks.each_cons(2) do |pair|
+          pair[0].else_block = pair[1]
+        end
+
+        # add the fallback default case
+        blocks.last.else do |blk|
+          blk.puts("return new #{factory_name}( equivalent );")
+        end
+
+        # add the chain of rule checks
+        func << blocks[0]
+
+        func
       end
 
       # True if this instance's spec has separate definition and declaration
@@ -415,6 +480,7 @@ module Wrapture
         return_spec = spec.return_type
         func.return_type = Wrapture::CppSource::CppType.from_spec(return_spec)
         func.static = spec.static?
+        func.virtual = spec.virtual?
 
         spec.params.each do |param_spec|
           param_type = param_spec.type
@@ -433,6 +499,11 @@ module Wrapture
         func.puts("#{wrapped_function_call(spec)};")
 
         func.puts('va_end( variadic_args );') if spec.variadic?
+
+        if spec.return_overloaded?
+          overload = "New#{spec.return_type.name.chomp('*').strip}"
+          func.puts("return #{overload}( return_val );")
+        end
 
         func
       end

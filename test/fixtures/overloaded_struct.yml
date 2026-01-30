@@ -43,7 +43,7 @@ classes:
         name: "overloaded_struct"
         rules:
           - member_name: "code"
-            condition: "equals"
+            condition: "equal"
             value: "1"
   - name: "ChildTwo"
     namespace: "wrapture_test"
@@ -54,5 +54,5 @@ classes:
         name: "overloaded_struct"
         rules:
           - member_name: "code"
-            condition: "equals"
+            condition: "equal"
             value: "2"

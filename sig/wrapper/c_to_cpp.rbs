@@ -31,6 +31,7 @@ module Wrapture
       def self.define_enum: (Wrapture::ClassSpec) -> Wrapture::SourceFile
       def self.definition_filename: (Wrapture::ClassSpec) -> String
       def self.definition_includes: (Wrapture::ClassSpec) -> Array[String]
+      def self.factory_member_function: (Wrapture::ClassSpec) -> Wrapture::CppSource::CppFunction
       def self.forward_declared?: (untyped) -> String
       def self.generate_pointer_constructor?: (Wrapture::ClassSpec) -> bool
       def self.header_guard: (Wrapture::ClassSpec) -> String
