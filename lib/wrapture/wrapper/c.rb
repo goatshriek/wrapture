@@ -100,6 +100,8 @@ module Wrapture
       # TODO: can the child and no rules in the parent rules be relaxed?
       def self.factory?(class_spec, context)
         class_struct = equivalent_struct(class_spec)
+        return false if class_struct.nil?
+
         unless class_struct.rules.empty? && equivalent_member?(class_spec)
           return false
         end

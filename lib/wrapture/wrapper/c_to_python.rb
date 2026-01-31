@@ -135,11 +135,13 @@ module Wrapture
       # Returns a cast of the equivalent member of an instance of the given
       # class with the given name to the given type.
       def self.cast_equivalent(class_spec, var_name, to)
-        struct = "struct #{class_spec.struct.name}"
-        if [EQUIVALENT_STRUCT_KEYWORD, struct].include?(to)
-          "#{'*' if class_spec.pointer_wrapper?}#{var_name}->equivalent"
-        elsif [EQUIVALENT_POINTER_KEYWORD, "#{struct} *"].include?(to)
-          "#{'&' unless class_spec.pointer_wrapper?}#{var_name}->equivalent"
+        pointer_wrapper = C.equivalent_type(class_spec).is_a?(CSource::CPointer)
+        if [EQUIVALENT_STRUCT_KEYWORD,
+            C.equivalent_struct(class_spec)].include?(to)
+          "#{'*' if pointer_wrapper}#{var_name}->equivalent"
+        elsif [EQUIVALENT_POINTER_KEYWORD,
+               C.equivalent_pointer(class_spec)].include?(to)
+          "#{'&' unless pointer_wrapper}#{var_name}->equivalent"
         end
       end
 
@@ -989,7 +991,7 @@ module Wrapture
           'variadic_args'
         elsif param_uses_equivalent?(func_spec, param)
           param_class = func_spec.owner.type(used_param.type)
-          cast_equivalent(param_class, used_param.name, param.c_type.to_s)
+          cast_equivalent(param_class, used_param.name, param.c_type)
         else
           param.value
         end
