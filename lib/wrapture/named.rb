@@ -25,6 +25,7 @@ module Wrapture
   # up the name. These words are used to form the name forms that this module
   # provides.
   module Named
+    # The name in snake_case.
     def self.snake_case_name(name_words)
       name_words.map(&:downcase).join('_')
     end
