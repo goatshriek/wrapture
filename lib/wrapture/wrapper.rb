@@ -51,7 +51,7 @@ module Wrapture
     end
 
     # Generates a wrapper for a given spec.
-    def wrap(spec, scope: Scope.new)
+    def wrap(spec, scope: nil)
       case spec
       when ClassSpec
         wrap_class(spec, scope: scope)

@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-# Copyright 2025 Joel E. Anderson
+# Copyright 2025-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,13 +15,19 @@
 # limitations under the License.
 
 name: "BasicEnum"
-includes:
-  - "overall_1.h"
-  - "overall_2.h"
+wrapped:
+  c:
+    includes:
+      - "overall_1.h"
+      - "overall_2.h"
 elements:
   - name: "element_1"
-    value: 9
-    includes: "val_1.h"
+    wrapped:
+      c:
+        value: 9
+        includes: "val_1.h"
   - name: "element_2"
-    value: 3
+    wrapped:
+      c:
+        value: 3
   - name: "element_3"

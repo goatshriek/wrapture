@@ -39,6 +39,12 @@ module Wrapture
   class InvalidRuleCondition < WraptureError
   end
 
+  # A spec is not valid for the context it was used in. For example, if a
+  # method only accepts specs of a certain kind, this will be raised if an
+  # oncompatible spec is provided.
+  class InvalidSpec < WraptureError
+  end
+
   # The spec has a key that is not valid.
   class InvalidSpecKey < WraptureError
     # Creates an InvalidSpecKey with the given message. A list of valid values

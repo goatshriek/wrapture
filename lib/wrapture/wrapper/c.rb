@@ -146,11 +146,18 @@ module Wrapture
                 end
                 spec_includes + param_includes
               when EnumSpec
+                spec_includes = []
+
                 if spec.wrapped.key?(:c)
-                  spec.wrapped[:c][:includes]
-                else
-                  []
+                  spec_includes += spec.wrapped[:c][:includes]
                 end
+
+                spec.elements.each do |it|
+                  it_inc = it.dig(:wrapped, :c, :includes)
+                  spec_includes += it_inc unless it_inc.nil?
+                end
+
+                spec_includes
               when ConstantSpec, ParamSpec, TypeSpec
                 # TODO: this should be refactored to use a wrapped :c key
                 spec.includes

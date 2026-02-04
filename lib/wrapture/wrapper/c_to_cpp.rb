@@ -620,10 +620,15 @@ module Wrapture
         set
       end
 
-      # Generates a build for a C++ library wrapping the provided enum.
-      def self.wrap_enum(enum_spec, scope: Scope.new)
+      # Generates a build for a C++ library wrapping the provided EnumSpec.
+      def self.wrap_enum(enum_spec, scope: nil)
+        unless enum_spec.is_a?(EnumSpec)
+          raise InvalidSpec, 'only EnumSpec instances can be wrapped as enums'
+        end
+
         build = CppSource::CppSourceSet.new(enum_spec.name)
 
+        scope = enum_spec.scope if scope.nil?
         build.add_lib_header(define_enum(enum_spec, scope))
 
         build

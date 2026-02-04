@@ -62,10 +62,17 @@ module Wrapture
       spec[:elements].each do |it|
         element = { name: Wrapture.normalize_name(it, :name) }
         element[:doc] = Comment.new(it[:doc]) if it.key?(:doc)
-        if it.key?(:wrapped) &&
-           it[:wrapped].key?(:c) &&
-           it[:wrapped][:c].key?(:value)
-          element[:wrapped] = { c: { value: it[:wrapped][:c][:value] } }
+        if it.key?(:wrapped) && it[:wrapped].key?(:c)
+          element[:wrapped] = { c: {} }
+
+          if it[:wrapped][:c].key?(:value)
+            element[:wrapped][:c][:value] = it[:wrapped][:c][:value]
+          end
+
+          if it[:wrapped][:c].key?(:includes)
+            inc = Wrapture.normalize_array(it[:wrapped][:c][:includes])
+            element[:wrapped][:c][:includes] = inc
+          end
         end
 
         enum.elements << element

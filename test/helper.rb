@@ -169,6 +169,30 @@ def validate_cpp_build(spec, build)
   end
 end
 
+def validate_cpp_source_file_matches_enum_spec(source_file, spec_hash)
+  enum_name = spec_hash[:name]
+  expected_filename = "#{enum_name}.hpp"
+
+  assert(source_file.path.basename.fnmatch?(expected_filename))
+  assert(source_file_contains_match?(source_file, '#ifndef'),
+         'header guard is missing')
+
+  if spec_hash.key?(:namespace)
+    namespace = spec_hash[:namespace]
+
+    assert(source_file_contains_match?(source_file, namespace),
+           "the enum did not reference the namespace '#{namespace}'")
+  end
+
+  assert(source_file_contains_match?(source_file, enum_name),
+         "the enumeration name ('#{enum_name}') was not found in the file")
+
+  spec_hash[:elements].each do |element|
+    assert(source_file_contains_match?(source_file, element[:name]),
+           "enumeration did not have element '#{element[:name]}'")
+  end
+end
+
 def validate_declaration_file(spec)
   filename = "#{spec['name']}.hpp"
   class_includes = Wrapture::ClassSpec.normalize_spec_hash(spec)['includes']
