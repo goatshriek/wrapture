@@ -564,7 +564,7 @@ module Wrapture
         enum_spec.elements.each do |it|
           f.puts("element_name = PyUnicode_FromString( \"#{it[:name]}\" );")
 
-          val = it[:value]
+          val = it.dig(:wrapped, :c, :value)
           val = next_val if val.nil?
           f.puts("element_value = PyLong_FromLong( #{val} );")
 
@@ -582,7 +582,8 @@ module Wrapture
         end
 
         # building the positional arguments to enum.Enum'
-        f.puts("enum_name = PyUnicode_FromString( \"#{enum_spec.name}\" );")
+        enum_name = enum_spec.upper_camel_case_name
+        f.puts("enum_name = PyUnicode_FromString( \"#{enum_name}\" );")
         f.puts('call_args = PyTuple_Pack( 2, enum_name, element_dict );')
         f.puts('Py_DECREF( enum_name );')
         f.puts('Py_DECREF( element_dict );')
@@ -607,7 +608,7 @@ module Wrapture
         f.puts('Py_DECREF( call_kwargs );')
 
         # adding the new type to the module
-        add_params = "m, \"#{enum_spec.name}\", new_enum"
+        add_params = "m, \"#{enum_name}\", new_enum"
         f.puts("add_result = PyModule_AddObjectRef( #{add_params} );")
         f.puts('Py_DECREF( new_enum );')
         f.puts('return add_result;')
