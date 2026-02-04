@@ -22,6 +22,7 @@ module Wrapture
     def self.format_constructor_declaration: (Wrapture::CppSource::CppFunction) -> Enumerable[String]
     def self.format_constructor_definition: (Wrapture::CppSource::CppFunction) -> Enumerable[String]
     def self.format_declaration: (Wrapture::CppSource::CppDeclaration) -> Enumerable[String]
+    def self.format_enum: (Wrapture::CppSource::CppEnum) -> Enumerable[String]
     def self.format_function_definition_param: (Wrapture::CppSource::CppDeclaration) -> Enumerable[String]
     def self.format_destructor_definition: (String, Wrapture::CppSource::CppFunction) -> Enumerable[String]
     def self.format_initialization: (Wrapture::CppSource::CppDeclaration) -> Enumerable[String]

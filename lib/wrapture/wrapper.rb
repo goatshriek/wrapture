@@ -56,7 +56,7 @@ module Wrapture
       when ClassSpec
         wrap_class(spec, scope: scope)
       when EnumSpec
-        wrap_enum(spec)
+        wrap_enum(spec, scope: scope)
       when Scope
         wrap_scope(spec)
       end

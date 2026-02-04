@@ -129,7 +129,7 @@ module Wrapture
       end
 
       @spec[:enums].each do |enum_hash|
-        EnumSpec.new(enum_hash, scope: self)
+        EnumSpec.from_hash(enum_hash, scope: self)
       end
     end
 
@@ -153,7 +153,7 @@ module Wrapture
     # Adds an enumeration to the scope created from the given specification
     # hash.
     def add_enum_spec_hash(spec)
-      @enums << EnumSpec.new(spec)
+      @enums << EnumSpec.from_hash(spec)
     end
 
     # True if this scope's name should be decorated in wrappers.
@@ -235,7 +235,7 @@ module Wrapture
       end
 
       new_spec[:enums].each do |enum_hash|
-        EnumSpec.new(enum_hash, scope: self)
+        EnumSpec.from_hash(enum_hash, scope: self)
       end
 
       self
@@ -263,9 +263,9 @@ module Wrapture
       end
 
       if @classes.any?
-        [@classes.first.name_words]
+        @classes.first.name_words
       elsif @enums.any?
-        [@enums.first.name_words]
+        @enums.first.name_words
       else
         []
       end

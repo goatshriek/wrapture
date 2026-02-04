@@ -374,9 +374,9 @@ module Wrapture
       yield "#define #{header_guard}"
       yield ''
 
-      @spec.definition_includes.each do |include_file|
-        yield "#include <#{include_file}>"
-      end
+      # @spec.definition_includes.each do |include_file|
+      #   yield "#include <#{include_file}>"
+      # end
 
       if @spec.namespace?
         yield ''

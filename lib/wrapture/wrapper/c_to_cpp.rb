@@ -135,7 +135,7 @@ module Wrapture
         "#{spec.upper_camel_case_name}.hpp"
       end
 
-      # The headers needed to declare the given class. This does not necessarily
+      # The headers needed to declare a class. This does not necessarily
       # match the C includes for a spec. The includes for things like calling
       # wrapped functions and invoking error handling are not needed for the
       # declaration. Additional C++ includes may also be present to bring in
@@ -284,12 +284,6 @@ module Wrapture
 
         src << defined_class_from_spec(class_spec)
 
-        wrapper = CToCppWrapper.new(class_spec)
-        wrapper.define do |line|
-          # src.puts(line)
-          src.puts("// #{line}")
-        end
-
         src.puts
         src.puts("} /* namespace #{namespace} */")
 
@@ -297,13 +291,34 @@ module Wrapture
       end
 
       # Generate a source file with the definition of an enumeration.
-      def self.define_enum(enum_spec)
-        src = SourceFile.new("#{enum_spec.name}.hpp")
+      def self.define_enum(enum_spec, scope)
+        src = CppSource::CppSourceFile.new(definition_filename(enum_spec))
 
-        wrapper = CToCppWrapper.new(enum_spec)
-        wrapper.define do |line|
-          src.puts(line) unless line.nil?
+        guard = header_guard(enum_spec)
+        src.puts("#ifndef #{guard}")
+        src.puts("#define #{guard}")
+        src.puts
+
+        C.includes(enum_spec).sort.each do |inc|
+          src << CSource::CInclude.new(inc)
         end
+
+        namespace_words = if scope.decorate_wrapped_name?
+                            Cpp.decorate_name_words(scope.name_words)
+                          else
+                            scope.name_words
+                          end
+        namespace = Named.snake_case_name(namespace_words)
+
+        src.puts("namespace #{namespace} {")
+        src.puts
+
+        src << enum_from_spec(enum_spec)
+
+        src.puts
+        src.puts("} /* namespace #{namespace} */")
+        src.puts
+        src.puts("#endif /* #{guard} */")
 
         src
       end
@@ -382,6 +397,25 @@ module Wrapture
         end
 
         inc.uniq
+      end
+
+      # Creates a C++ enum class based on a spec.
+      def self.enum_from_spec(spec)
+        enum = CppSource::CppEnum.new(spec.upper_camel_case_name)
+
+        enum.doc = spec.doc unless spec.doc.nil?
+
+        spec.elements.each do |it|
+          element = { name: it[:name] }
+
+          element[:doc] = it[:doc] if it.key?(:doc)
+          val = it.dig(:wrapped, :c, :value)
+          element[:value] = val unless val.nil?
+
+          enum.elements << element
+        end
+
+        enum
       end
 
       # A static function that generates an instance of an overloaded struct's
@@ -587,10 +621,10 @@ module Wrapture
       end
 
       # Generates a build for a C++ library wrapping the provided enum.
-      def self.wrap_enum(enum_spec)
+      def self.wrap_enum(enum_spec, scope: Scope.new)
         build = CppSource::CppSourceSet.new(enum_spec.name)
 
-        build.add_lib_header(define_enum(enum_spec))
+        build.add_lib_header(define_enum(enum_spec, scope))
 
         build
       end

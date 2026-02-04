@@ -21,6 +21,7 @@
 require 'wrapture/cpp_source/cpp_block'
 require 'wrapture/cpp_source/cpp_class'
 require 'wrapture/cpp_source/cpp_declaration'
+require 'wrapture/cpp_source/cpp_enum'
 require 'wrapture/cpp_source/cpp_function'
 require 'wrapture/cpp_source/cpp_source_file'
 require 'wrapture/cpp_source/cpp_source_set'
@@ -183,6 +184,28 @@ module Wrapture
       src
     end
 
+    # Formats an enumeration class into a set of source file strings.
+    def self.format_enum(enum)
+      src = []
+
+      src += format_doxygen(enum.doc) unless enum.doc.nil?
+
+      src << "enum class #{enum.name} {\n"
+      elements = enum.elements.map do |it|
+        element_src = []
+
+        element_src += format_doxygen(it[:doc]) if it.key?(:doc)
+        element_src << it[:name]
+        element_src << " = #{it[:value]}" if it.key?(:value)
+
+        element_src.join
+      end
+      src += CSource.indent([elements.join(",\n")])
+      src << '};'
+
+      src
+    end
+
     # Formats a parameter in a function definition into a set of source file
     # strings. This is not quite the same as a normal declaration, as the value
     # will not be included even if it is defined.
@@ -266,6 +289,8 @@ module Wrapture
           format_class_definition(node)
         when CppBlock
           format_block(node)
+        when CppEnum
+          format_enum(node)
         else
           # fall back to the C source formatting for everything else
           CSource.format_block([node])
