@@ -406,7 +406,8 @@ module Wrapture
         enum.doc = spec.doc unless spec.doc.nil?
 
         spec.elements.each do |it|
-          element = { name: it[:name] }
+          element_name = Named.snake_case_name(it[:name])
+          element = { name: element_name }
 
           element[:doc] = it[:doc] if it.key?(:doc)
           val = it.dig(:wrapped, :c, :value)

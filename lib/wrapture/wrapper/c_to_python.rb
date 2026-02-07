@@ -562,7 +562,8 @@ module Wrapture
 
         next_val = 0
         enum_spec.elements.each do |it|
-          f.puts("element_name = PyUnicode_FromString( \"#{it[:name]}\" );")
+          element_name = Named.snake_case_name(it[:name])
+          f.puts("element_name = PyUnicode_FromString( \"#{element_name}\" );")
 
           val = it.dig(:wrapped, :c, :value)
           val = next_val if val.nil?
