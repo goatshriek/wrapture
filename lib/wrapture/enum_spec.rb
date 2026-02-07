@@ -32,6 +32,10 @@ module Wrapture
         raise UnsupportedSpecVersion
       end
 
+      unless spec.key?(:name)
+        raise MissingSpecKey, 'a name is required for enumerations'
+      end
+
       if spec.key?(:elements)
         unless spec[:elements].is_a?(Array)
           raise InvalidSpecKey, 'the elements key must be an array'

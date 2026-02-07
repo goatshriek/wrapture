@@ -25,7 +25,7 @@ require 'wrapture'
 class EnumSpecTest < Minitest::Test
   def test_documentation
     test_spec = fixture_hash('documented_enum')
-    spec = Wrapture::EnumSpec.new(test_spec)
+    spec = Wrapture::EnumSpec.from_hash(test_spec)
     build = Wrapture::Wrapper::CToCpp.wrap_enum(spec)
 
     source = build.sources.first
@@ -43,7 +43,7 @@ class EnumSpecTest < Minitest::Test
     test_spec = fixture_hash('invalid/enum_with_non_array_elements')
 
     error = assert_raises(Wrapture::InvalidSpecKey) do
-      Wrapture::EnumSpec.new(test_spec)
+      Wrapture::EnumSpec.from_hash(test_spec)
     end
 
     %w[elements array].each { |word| assert_includes(error.message, word) }
@@ -63,7 +63,7 @@ class EnumSpecTest < Minitest::Test
     test_spec = fixture_hash('invalid/enum_without_name')
 
     error = assert_raises(Wrapture::MissingSpecKey) do
-      Wrapture::EnumSpec.new(test_spec)
+      Wrapture::EnumSpec.from_hash(test_spec)
     end
 
     %w[name required].each { |word| assert_includes(error.message, word) }
