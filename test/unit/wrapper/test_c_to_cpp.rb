@@ -43,6 +43,18 @@ class CToCppTest < Minitest::Test
     assert_includes(includes, 'val_1.h')
   end
 
+  def test_class_pointer_to_struct_pointer
+    test_spec = fixture_hash('scope_with_pointer_param')
+    scope = Wrapture::Scope.new(test_spec)
+    build = Wrapture::Wrapper::CToCpp.wrap_scope(scope)
+
+    validate_cpp_build(scope, build)
+
+    assert(source_file_contains_match?(build['Rifle.cpp'],
+                                       /bullet->equivalent/),
+           'equivalent struct member was not referenced')
+  end
+
   def test_declaration_includes_with_no_c_details
     # we need a class spec where there isn't a :c key in wrapped
     class_spec = Wrapture::ClassSpec.new(fixture_hash('versioned_class'))
@@ -66,6 +78,18 @@ class CToCppTest < Minitest::Test
 
   def test_from_language
     assert_equal(:c, Wrapture::Wrapper::CToCpp.from_language)
+  end
+
+  def test_reference_to_pointer
+    test_spec = fixture_hash('scope_with_reference_param')
+    scope = Wrapture::Scope.new(test_spec)
+    build = Wrapture::Wrapper::CToCpp.wrap_scope(scope)
+
+    validate_cpp_build(scope, build)
+
+    assert(source_file_contains_match?(build['Rifle.cpp'],
+                                       /bullet\.equivalent/),
+           'equivalent struct member was not referenced')
   end
 
   def test_to_language

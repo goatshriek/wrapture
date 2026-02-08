@@ -92,7 +92,14 @@ module Wrapture
 
         if from.is_a?(TypeSpec)
           from_class = context_class.type(from)
-          from = type_class_from_spec(from_class) unless from_class.nil?
+          unless from_class.nil?
+            from = if from.pointer?
+                     CSource::CPointer.new(type_class_from_spec(from_class))
+                   else
+                     type_class_from_spec(from_class)
+                   end
+
+          end
         end
 
         if to == :equivalent_struct
@@ -122,6 +129,8 @@ module Wrapture
             return proc { |val| "#{val}->equivalent" }
           elsif to == CSource::CPointer.new(equivalent_c_type)
             return proc { |val| "&#{val}->equivalent" }
+          elsif CSource::CPointer.new(to) == equivalent_c_type
+            return proc { |val| "*(#{val}->equivalent)" }
           end
         end
 
