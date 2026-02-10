@@ -233,9 +233,9 @@ module Wrapture
 
       # Generate the definition for a constructor function.
       def self.define_constructor(class_spec, func_spec)
-        class_name = type_class_from_spec(class_spec)
+        class_name = type_class_from_spec(class_spec).name
 
-        # TODO: pick up here, add check for return type equality to wrapped type
+        # TODO: check for return type equality to wrapped type
         # raise InvalidConstructor if this happens
         # need to add a unit test for this condition as well
         return_type = func_spec[:c].return_type
@@ -372,7 +372,7 @@ module Wrapture
         end
 
         spec.method_specs.each do |meth_spec|
-          cls.member_functions << member_function_from_spec(meth_spec)
+          cls.member_functions << member_function_from_spec(meth_spec, spec)
         end
 
         if C.factory?(spec, spec.scope)
@@ -518,11 +518,15 @@ module Wrapture
       end
 
       # Define a member function based on a function spec.
-      def self.member_function_from_spec(spec)
+      def self.member_function_from_spec(spec, context)
         func_name = spec.upper_camel_case_name
         func = Wrapture::CppSource::CppFunction.new(func_name)
         return_spec = spec.return_type
-        func.return_type = Wrapture::CppSource::CppType.from_spec(return_spec)
+        func.return_type = if spec.return_type.self_reference?
+                             CppSource::CppReference.new(type_class_from_spec(context))
+                           else
+                             CppSource::CppType.from_spec(return_spec)
+                           end
         func.static = spec.static?
         func.virtual = spec.virtual?
 
@@ -547,6 +551,8 @@ module Wrapture
         if spec.return_overloaded?
           overload = "New#{spec.return_type.name.chomp('*').strip}"
           func.puts("return #{overload}( return_val );")
+        elsif return_spec.self_reference?
+          func.puts('return *this;')
         end
 
         func
@@ -596,6 +602,8 @@ module Wrapture
         func = Wrapture::CppSource::CppFunction.new(class_name)
         func.params << CSource::CDeclaration.new(class_spec[:c], 'equivalent')
         func << 'this->equivalent = equivalent;'
+
+        func
       end
 
       # Creates a CppClass instance from a ClassSpec, with enough information
@@ -679,7 +687,7 @@ module Wrapture
           "this->equivalent = #{wrapped_call}"
         elsif wrapper_captures_return?(func_spec)
           "return_val = #{wrapped_call}"
-        elsif !func_spec.void_return?
+        elsif !func_spec.void_return? && !func_spec.return_type.self_reference?
           "return #{wrapped_call}"
         else
           wrapped_call
@@ -691,7 +699,8 @@ module Wrapture
       def self.wrapper_captures_return?(func_spec)
         # true if the return value of the wrapped function must be converted
         # into a C++ type before it is returned
-        convert_return = !func_spec.void_return? &&
+        convert_return = !func_spec.return_type.self_reference? &&
+                         !func_spec.void_return? &&
                          func_spec.return_type != func_spec[:c].return_type
 
         func_spec[:c].error_rules.any?(&:use_return?) ||

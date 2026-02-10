@@ -131,11 +131,7 @@ def refute_keywords_found(filename)
 end
 
 def source_file_contains_match?(source_file, regex)
-  source_file.contents.each do |line|
-    return true if line.match(regex)
-  end
-
-  false
+  source_file.contents.join.match?(regex)
 end
 
 def validate_class_wrapper(spec, file_list)

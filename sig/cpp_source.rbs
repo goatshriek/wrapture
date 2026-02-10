@@ -28,6 +28,7 @@ module Wrapture
     def self.format_initialization: (Wrapture::CppSource::CppDeclaration) -> Enumerable[String]
     def self.format_member_function_declaration: (Wrapture::CppSource::CppFunction) -> Enumerable[String]
     def self.format_member_function_definition: (String, Wrapture::CppSource::CppFunction) -> Enumerable[String]
+    def self.format_reference: (Wrapture::CppSource::CppReference) -> Enumerable[String]
     def self.format_tree: (Enumerable[untyped]) -> Enumerable[String]
   end
 end

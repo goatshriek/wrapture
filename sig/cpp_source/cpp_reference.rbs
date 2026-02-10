@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-# Copyright 2025-2026 Joel E. Anderson
+# Copyright 2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,18 +14,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: "IMightFail"
-wrapped:
-  c:
-    name: "might_fail"
-    return:
-      type: "int"
-    error_check:
-      rules:
-        - left_expression: "return_value"
-          condition: "not_equal"
-          right_expression: "0"
-      error_action:
-        name: "throw_exception"
-        type: "CodeException"
-        value: "return_value"
+module Wrapture
+  module CppSource
+    class CppReference
+      @cpp_type: CppType | CppClass
+
+      attr_reader cpp_type: CppType | CppClass
+
+      def initialize: (CppType | CppClass | String) -> void
+      def ==: (CppReference) -> bool
+      alias eql? ==
+      def includes: () -> Enumerable[String]
+      def to_s: () -> String
+    end
+  end
+end

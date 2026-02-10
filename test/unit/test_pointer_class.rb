@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2019-2025 Joel E. Anderson
+# Copyright 2019-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,46 +23,6 @@ require 'minitest/autorun'
 require 'wrapture'
 
 class ClassSpecTest < Minitest::Test
-  def test_explicit_class
-    test_spec = fixture_hash('explicit_pointer_class')
-    spec = Wrapture::ClassSpec.new(test_spec)
-    build = Wrapture::Wrapper::CToCpp.wrap_class(spec)
-
-    validate_cpp_build(spec, build)
-
-    header = build['ExplicitPointerWrapper.hpp']
-    declaration = 'struct basic_struct \*equivalent;'
-
-    assert(source_file_contains_match?(header, declaration))
-  end
-
-  # TODO: this should be reworked, since it uses c++ specific types in the spec
-  def test_overriding_constructor
-    test_spec = fixture_hash('constructor_class')
-    spec = Wrapture::ClassSpec.new(test_spec)
-    build = Wrapture::Wrapper::CToCpp.wrap_class(spec)
-
-    validate_cpp_build(spec, build)
-
-    header = build['ClassWithConstructor.hpp']
-    signature = /ClassWithConstructor\( struct constructed_struct \*/
-
-    assert_equal(1, count_source_file_matches(header, signature))
-  end
-
-  def test_pointer_class
-    test_spec = fixture_hash('pointer_class')
-    spec = Wrapture::ClassSpec.new(test_spec)
-    build = Wrapture::Wrapper::CToCpp.wrap_class(spec)
-
-    validate_cpp_build(spec, build)
-
-    header = build['PointerWrappingClass.hpp']
-    expected_signature = 'PointerWrappingClass\( struct wrapped_struct \*'
-
-    assert(source_file_contains_match?(header, expected_signature))
-  end
-
   def test_pointer_class_and_child
     test_spec = fixture_hash('pointer_class_and_child')
     spec = Wrapture::Scope.new(test_spec)

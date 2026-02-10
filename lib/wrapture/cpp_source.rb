@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2025 Joel E. Anderson
+# Copyright 2025-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ require 'wrapture/cpp_source/cpp_class'
 require 'wrapture/cpp_source/cpp_declaration'
 require 'wrapture/cpp_source/cpp_enum'
 require 'wrapture/cpp_source/cpp_function'
+require 'wrapture/cpp_source/cpp_reference'
 require 'wrapture/cpp_source/cpp_source_file'
 require 'wrapture/cpp_source/cpp_source_set'
 require 'wrapture/cpp_source/cpp_type'
@@ -233,7 +234,11 @@ module Wrapture
 
       src << 'static ' if func.static?
 
-      src += format_declaration(CppDeclaration.new(func.return_type))
+      src += if func.return_type.is_a?(CppReference)
+               format_reference(func.return_type)
+             else
+               format_declaration(CppDeclaration.new(func.return_type))
+             end
       src += [' ', func.name, '(']
 
       if func.params.empty?
@@ -253,8 +258,15 @@ module Wrapture
 
     # Formats a member function definition into a set of source file strings.
     def self.format_member_function_definition(class_name, func)
-      src = format_declaration(CppDeclaration.new(func.return_type))
-      src += [' ', class_name, '::', func.name, '(']
+      src =  if func.return_type.is_a?(CppReference)
+               format_reference(func.return_type)
+             else
+               format_declaration(CppDeclaration.new(func.return_type))
+             end
+
+      src << ' ' unless src.last.end_with?('*')
+
+      src += [class_name, '::', func.name, '(']
 
       if func.params.empty?
         src << 'void'
@@ -271,6 +283,11 @@ module Wrapture
       src << "){\n"
       src += Wrapture::CSource.indent(format_block(func))
       src << '}'
+    end
+
+    # Formats a C++ reference into a set of source file strings.
+    def self.format_reference(ref)
+      ["#{ref.cpp_type}&"]
     end
 
     # Formats a syntax tree of C++ source elements into a set of source file
@@ -291,6 +308,8 @@ module Wrapture
           format_block(node)
         when CppEnum
           format_enum(node)
+        when CppReference
+          format_reference(node)
         else
           # fall back to the C source formatting for everything else
           CSource.format_block([node])
