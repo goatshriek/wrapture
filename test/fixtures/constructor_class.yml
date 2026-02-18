@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-# Copyright 2025 Joel E. Anderson
+# Copyright 2025-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,13 +18,12 @@ name: "ClassWithConstructor"
 namespace: "wrapture_test"
 wrapped:
   c:
-    pointer:
-      name: "constructed_struct"
-      members:
-        - name: "member_1"
-          type: "int"
-      includes:
-        - "constructed.h"
+    name: "constructed_struct"
+    members:
+      - name: "member_1"
+        type: "int"
+    includes:
+      - "constructed.h"
 constructors:
   - wrapped:
       c:
@@ -33,7 +32,7 @@ constructors:
           - name: "new_name"
             type: "const char *"
         return:
-          type: "equivalent_struct_pointer"
+          type: "equivalent_struct"
         includes: "constructed.h"
   - wrapped:
       c:
@@ -42,7 +41,7 @@ constructors:
           - name: "original_struct"
             type: "equivalent_struct"
         return:
-          type: "equivalent_struct_pointer"
+          type: "equivalent_struct"
         includes:
           - "constructed.h"
   - wrapped:
@@ -52,7 +51,7 @@ constructors:
           - name: "original_struct_pointer"
             type: "equivalent_struct_pointer"
         return:
-          type: "equivalent_struct_pointer"
+          type: "equivalent_struct"
 destructor:
   wrapped:
     c:

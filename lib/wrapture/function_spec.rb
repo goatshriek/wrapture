@@ -72,8 +72,12 @@ module Wrapture
         end
       end
 
-      if spec.key?(:wrapped) && spec[:wrapped].key?(:c)
-        func_spec[:c] = CSource::CFunction.from_hash(spec[:wrapped][:c])
+      if spec.key?(:wrapped)
+        if spec[:wrapped].key?(:alias)
+          func_spec[:alias] = spec[:wrapped][:alias]
+        elsif spec[:wrapped].key?(:c)
+          func_spec[:c] = CSource::CFunction.from_hash(spec[:wrapped][:c])
+        end
       end
 
       func_spec
@@ -272,7 +276,8 @@ module Wrapture
 
     # An array of libraries required for this function call.
     def libraries
-      if @wrapped.empty?
+      # TODO: there shouldn't be C-specific code here
+      if @wrapped.empty? || !@wrapped.key?(:c)
         []
       else
         @wrapped[:c].libraries

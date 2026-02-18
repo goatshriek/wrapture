@@ -69,9 +69,9 @@ module Wrapture
       to_s == other.to_s
     end
 
-    # The name of this type with all special characters removed.
+    # The name of this type with all special characters and keywords removed.
     def base
-      name.delete('*&').strip
+      name.delete('*&').delete_prefix('struct').strip
     end
 
     # True if this type is an equivalent struct pointer reference.

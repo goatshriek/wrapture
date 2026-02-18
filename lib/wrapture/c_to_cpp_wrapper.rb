@@ -557,7 +557,9 @@ module Wrapture
     def function_captures_return?(func_spec)
       !func_spec.wrapped.is_a?(CCodeSpec) &&
         !func_spec.constructor? &&
-        (func_spec.wrapped[:c].error_rules.any?(&:use_return?) ||
+        (func_spec.wrapped[:c].error_rules.any? do |it|
+          it.vals.include?(RETURN_VALUE_KEYWORD)
+        end ||
          function_returns_return_val?(func_spec))
     end
 

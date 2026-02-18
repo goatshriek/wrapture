@@ -21,7 +21,7 @@ module Wrapture
 
       attr_reader name: String
 
-      def self.from_type_spec: (Wrapture::TypeSpec) -> CppType
+      def self.from_type_spec: (Wrapture::TypeSpec) -> (CppType | Wrapture::CSource::CPointer)
 
       def initialize: (String) -> void
     end

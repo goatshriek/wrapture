@@ -32,6 +32,7 @@ module Wrapture
         @params = []
         @return_type = Wrapture::CSource::CType.new('void')
         @static = false
+        @initializers = []
         @tree = []
         @virtual = false
       end
@@ -39,6 +40,10 @@ module Wrapture
       # The accessibility of a method can be +:public+, +:private+, or
       # +:protected+.
       attr_accessor :accessibility
+
+      # Initializers for this function. These should only be present for
+      # constructors.
+      attr_reader :initializers
 
       # The name of the method.
       attr_reader :name

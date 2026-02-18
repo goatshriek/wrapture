@@ -64,6 +64,20 @@ class CToCppTest < Minitest::Test
                  'entry for c in the wrapped languages')
   end
 
+  def test_delegating_constructor
+    test_spec = fixture_hash('alias_constructor')
+    spec = Wrapture::ClassSpec.new(test_spec)
+    build = Wrapture::Wrapper::CToCpp.wrap_class(spec)
+
+    validate_cpp_build(spec, build)
+
+    source = build['AliasConstructorClass.cpp']
+    sig = "#{spec.name}\\(void\\) : #{spec.name}\\(3\\)"
+
+    assert(source_file_contains_match?(source, sig),
+           'delegating constructor not present')
+  end
+
   def test_enum_with_namespace
     test_spec = fixture_hash('enum_with_namespace')
     spec = Wrapture::EnumSpec.from_hash(test_spec)
@@ -125,7 +139,7 @@ class CToCppTest < Minitest::Test
     validate_cpp_build(spec, build)
 
     header = build['ClassWithConstructor.hpp']
-    signature = /ClassWithConstructor\(struct constructed_struct \*/
+    signature = /ClassWithConstructor\(const struct constructed_struct \*/
 
     assert_equal(1, count_source_file_matches(header, signature))
   end
@@ -141,6 +155,71 @@ class CToCppTest < Minitest::Test
     expected_signature = 'PointerWrappingClass\(struct wrapped_struct \*'
 
     assert(source_file_contains_match?(header, expected_signature))
+  end
+
+  def test_pointer_class_and_child
+    test_spec = fixture_hash('pointer_class_and_child')
+    spec = Wrapture::Scope.new(test_spec)
+    build = Wrapture::Wrapper::CToCpp.wrap_scope(spec)
+
+    validate_cpp_build(spec, build)
+
+    header = build['ChildPointer.hpp']
+    equivalent_signature = 'struct wrapped_struct \*equivalent;'
+
+    refute(source_file_contains_match?(header, equivalent_signature))
+
+    source = build['ChildPointer.cpp']
+    parent_initializer = 'equivalent\) : ParentPointer\('
+
+    assert(source_file_contains_match?(source, parent_initializer))
+  end
+
+  def test_pointer_class_and_child_with_different_struct
+    test_spec = fixture_hash('pointer_class_and_child_with_different_struct')
+    spec = Wrapture::Scope.new(test_spec)
+    build = Wrapture::Wrapper::CToCpp.wrap_scope(spec)
+
+    validate_cpp_build(spec, build)
+
+    header = build['ChildPointer.hpp']
+    equivalent_signature = 'struct wrapped_struct \*equivalent;'
+
+    refute(source_file_contains_match?(header, equivalent_signature))
+
+    source = build['ChildPointer.cpp']
+    parent_initializer = 'equivalent \) : ParentPointer\('
+
+    refute(source_file_contains_match?(source, parent_initializer))
+  end
+
+  def test_pointer_class_with_equivalent_pointer_constructor
+    spec_name = 'pointer_class_with_equivalent_pointer_constructor'
+    test_spec = fixture_hash(spec_name)
+    spec = Wrapture::ClassSpec.new(test_spec)
+    build = Wrapture::Wrapper::CToCpp.wrap_class(spec)
+
+    validate_cpp_build(spec, build)
+
+    source = build["#{spec.name}.hpp"]
+    constructor_sig = /#{spec.name}\(struct wrapped_struct \*\w+\)/
+    num_constructors = count_source_file_matches(source, constructor_sig)
+
+    assert_equal(1, num_constructors)
+  end
+
+  def test_pointer_class_with_explicit_pointer_constructor
+    test_spec = fixture_hash('pointer_class_with_explicit_pointer_constructor')
+    spec = Wrapture::ClassSpec.new(test_spec)
+    build = Wrapture::Wrapper::CToCpp.wrap_class(spec)
+
+    validate_cpp_build(spec, build)
+
+    source = build["#{spec.name}.hpp"]
+    constructor_sig = /#{spec.name}\(struct wrapped_struct \*\w+\)/
+    num_constructors = count_source_file_matches(source, constructor_sig)
+
+    assert_equal(1, num_constructors)
   end
 
   def test_reference_to_pointer

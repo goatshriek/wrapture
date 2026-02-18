@@ -24,7 +24,12 @@ module Wrapture
     class CppType
       # Get a C++ type that corresponds to a given TypeSpec.
       def self.from_spec(type_spec)
-        new(type_spec.name)
+        # TODO: pick up here, supporting pointer creation
+        if type_spec.pointer?
+          CSource::CPointer.new(type_spec.base)
+        else
+          new(type_spec.name)
+        end
       end
 
       # A C++ type is defined as a name.

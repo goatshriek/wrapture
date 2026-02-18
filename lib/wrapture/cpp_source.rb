@@ -142,7 +142,14 @@ module Wrapture
         src.pop
       end
 
-      src << "){\n"
+      src << ')'
+
+      unless func.initializers.empty?
+        inits = func.initializers.join(', ')
+        src << " : #{inits} "
+      end
+
+      src << "{\n"
       src += Wrapture::CSource.indent(format_block(func))
       src << '}'
     end
@@ -155,8 +162,15 @@ module Wrapture
 
       src = []
       src << "#{decl.attributes.join(' ')} " unless decl.attributes.empty?
-      src << decl.cpp_type.name
-      src += [' ', decl.name] unless decl.name.nil?
+      src << if decl.cpp_type.is_a?(CSource::CPointer)
+               "#{decl.cpp_type.c_type} *"
+             else
+               decl.cpp_type.name
+             end
+      unless decl.name.nil?
+        src << ' ' unless src.last.end_with?('*')
+        src << decl.name
+      end
       src += [' = '] + format_initialization(decl) if decl.initialized?
 
       src
@@ -213,12 +227,24 @@ module Wrapture
     def self.format_function_definition_param(decl)
       if decl.is_a?(CSource::CDeclaration)
         new_decl = CSource::CDeclaration.new(decl.c_type, decl.name)
+        new_decl.attributes.concat(decl.attributes)
         return format_declaration(new_decl)
       end
 
-      src = [decl.cpp_type.name]
-      src += [' ', decl.name] unless decl.name.nil?
-      src
+      src = if decl.attributes.empty?
+              []
+            else
+              ["#{decl.attributes.join(' ')} "]
+            end
+
+      if decl.cpp_type.is_a?(CSource::CPointer)
+        src += [decl.cpp_type.c_type.name, ' *']
+        src << decl.name unless decl.name.nil?
+        src
+      else
+        src << decl.cpp_type.name
+        src + [' ', decl.name] unless decl.name.nil?
+      end
     end
 
     # Formats the initialization of a declaration.

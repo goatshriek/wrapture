@@ -18,6 +18,7 @@ module Wrapture
   module CppSource
     class CppFunction
       @accessibility: Symbol
+      @initializers: Array[String]
       @name: String
       @return_type: CppType
       @static: bool
@@ -26,6 +27,7 @@ module Wrapture
 
       attr_accessor accessibility: Symbol
       attr_accessor attributes: Array[String]
+      attr_reader initializers: Array[String]
       attr_reader name: String
       attr_reader params: Array[untyped]
       attr_accessor return_type: CppType

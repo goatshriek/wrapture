@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2025 Joel E. Anderson
+# Copyright 2025-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -231,8 +231,43 @@ module Wrapture
         end
       end
 
+      # Generate the definition of a constructor that is an alias of another.
+      #
+      # In C++ an aliased constructor results in a delegating constructor.
+      def self.define_alias_constructor(class_spec, func_spec)
+        class_name = type_class_from_spec(class_spec).name
+
+        func = Wrapture::CppSource::CppFunction.new(class_name)
+        func_spec.params.each do |param_spec|
+          param_type = param_spec.type
+          param_name = param_spec.name
+
+          if param_type.name == EQUIVALENT_STRUCT_KEYWORD
+            param_type = C.equivalent_struct(class_spec)
+          elsif param_type.name == EQUIVALENT_POINTER_KEYWORD
+            param_type = C.equivalent_pointer(class_spec)
+          end
+
+          decl = CppSource::CppDeclaration.new(param_type,
+                                               name: param_name)
+
+          decl.value = param_spec.default_value if param_spec.default_value?
+
+          func.params << decl
+        end
+
+        init_args = func_spec[:alias][:args].join(', ')
+        func.initializers << "#{class_name}(#{init_args})"
+
+        func
+      end
+
       # Generate the definition for a constructor function.
       def self.define_constructor(class_spec, func_spec)
+        if func_spec.wrapped.key?(:alias)
+          return define_alias_constructor(class_spec, func_spec)
+        end
+
         class_name = type_class_from_spec(class_spec).name
 
         # TODO: check for return type equality to wrapped type
@@ -256,6 +291,13 @@ module Wrapture
         func_spec.params.each do |param_spec|
           param_type = param_spec.type
           param_name = param_spec.name
+
+          if param_type.name == EQUIVALENT_STRUCT_KEYWORD
+            param_type = C.equivalent_struct(class_spec)
+          elsif param_type.name == EQUIVALENT_POINTER_KEYWORD
+            param_type = C.equivalent_pointer(class_spec)
+          end
+
           decl = CppSource::CppDeclaration.new(param_type,
                                                name: param_name)
 
@@ -265,6 +307,39 @@ module Wrapture
         end
 
         func.puts("#{wrapped_function_call(func_spec)};")
+
+        # TODO: this needs to be a separate function
+        if func_spec[:c].error_check?
+          checks = func_spec[:c].error_rules.map do |rule|
+            resolved_vals = rule.vals.map do |it|
+              case it
+              when EQUIVALENT_STRUCT_KEYWORD
+                converter(:this, :equivalent_struct,
+                          func_spec).call('this')
+              when EQUIVALENT_POINTER_KEYWORD
+                converter(:this, :equivalent_pointer,
+                          func_spec).call('this')
+              when RETURN_VALUE_KEYWORD
+                'this->equivalent'
+              else
+                it
+              end
+            end
+
+            CSource::CExpression.new(resolved_vals, rule.operator)
+          end
+
+          check_expr = CSource::CExpression.new(checks, :or)
+          func << CSource::CIf.new(check_expr) do |blk|
+            action = func_spec[:c].error_action
+            value_variable = if action.value == RETURN_VALUE_KEYWORD
+                               'this->equivalent'
+                             else
+                               action.value
+                             end
+            blk.puts("throw #{action.type}( #{value_variable} );")
+          end
+        end
 
         func
       end
@@ -360,8 +435,12 @@ module Wrapture
 
         cls.constructors << member_constructor(spec) if C.wrapped_members?(spec)
 
-        if generate_pointer_constructor?(spec)
-          cls.constructors << pointer_constructor(spec)
+        if generate_pointer_copy_constructor?(spec)
+          cls.constructors << pointer_copy_constructor(spec)
+        end
+
+        if generate_pointer_move_constructor?(spec)
+          cls.constructors << pointer_move_constructor(spec)
         end
 
         unless spec.destructor.nil?
@@ -488,13 +567,40 @@ module Wrapture
         !spec.is_a?(EnumSpec)
       end
 
-      # True if a pointer constructor should be generated for the given class.
+      # True if a pointer move constructor should be generated for the given
+      # class.
       #
       # A pointer constructor is generated for a class where the wrapped struct
-      # is already a pointer. The pointer constructor sets the wrapped struct
+      # is already a pointer, and no constructor that takes a single pointer of
+      # this type is defined. The pointer constructor sets the wrapped struct
       # to the parameter, instead of calling any of the constructor functions.
-      def self.generate_pointer_constructor?(class_spec)
-        class_spec.wrapped.key?(:c) && class_spec[:c].is_a?(CSource::CPointer)
+      def self.generate_pointer_copy_constructor?(class_spec)
+        type = C.equivalent_type(class_spec)
+        return false if type.nil? || !type.is_a?(CSource::CStruct)
+
+        pointer_type = C.equivalent_pointer(class_spec)
+        class_spec.constructors.none? do |it|
+          # TODO: check for const
+          it.params.length == 1 &&
+            CppSource::CppType.from_spec(it.params.first.type) == pointer_type
+        end
+      end
+
+      # True if a pointer move constructor should be generated for the given
+      # class.
+      #
+      # A pointer constructor is generated for a class where the wrapped struct
+      # is already a pointer, and no constructor that takes a single pointer of
+      # this type is defined. The pointer constructor sets the wrapped struct
+      # to the parameter, instead of calling any of the constructor functions.
+      def self.generate_pointer_move_constructor?(class_spec)
+        type = C.equivalent_type(class_spec)
+        return false if type.nil? || !type.is_a?(CSource::CPointer)
+
+        class_spec.constructors.none? do |it|
+          it.params.length == 1 &&
+            CppSource::CppType.from_spec(it.params.first.type) == type
+        end
       end
 
       # The symbol to use for header guard checks.
@@ -533,6 +639,13 @@ module Wrapture
         spec.params.each do |param_spec|
           param_type = param_spec.type
           param_name = param_spec.name
+
+          if param_type.name == EQUIVALENT_STRUCT_KEYWORD
+            param_type = C.equivalent_struct(context)
+          elsif param_type.name == EQUIVALENT_POINTER_KEYWORD
+            param_type = C.equivalent_pointer(context)
+          end
+
           decl = Wrapture::CppSource::CppDeclaration.new(param_type,
                                                          name: param_name)
           func.params << decl
@@ -596,12 +709,66 @@ module Wrapture
         conversion.call(val)
       end
 
-      # The pointer constructor for a class spec.
-      def self.pointer_constructor(class_spec)
+      # The pointer copy constructor for a class spec, which copies all of the
+      # defined members into the new instance's struct.
+      #
+      # This is different from the pointer move constructor, which instead takes
+      # ownership of a pointer to an equivalent struct.
+      def self.pointer_copy_constructor(class_spec)
+        wrapped_type = C.equivalent_type(class_spec)
+        if wrapped_type.nil? || !wrapped_type.is_a?(CSource::CStruct)
+          msg = 'wrapped C type must be a struct for a copy constructor ' \
+                'based on a pointer to the equivalent struct'
+          raise InvalidConstructor, msg
+        end
+
         class_name = class_spec.upper_camel_case_name
         func = Wrapture::CppSource::CppFunction.new(class_name)
-        func.params << CSource::CDeclaration.new(class_spec[:c], 'equivalent')
-        func << 'this->equivalent = equivalent;'
+        pointer_type = C.equivalent_pointer(class_spec)
+        param_decl = CSource::CDeclaration.new(pointer_type, 'equivalent')
+        param_decl.attributes << 'const'
+        func.params << param_decl
+
+        if C.equivalent_ancestor?(class_spec)
+          # TODO: when equivalent ancestor changes to do more than just the
+          # direct parent, this will also need to change
+          parent_name = class_spec.parent_name
+          func.initializers << "#{parent_name}(equivalent)"
+        else
+          wrapped_type.members.each do |it|
+            func << "this->equivalent.#{it.name} = equivalent->#{it.name};\n"
+          end
+        end
+
+        func
+      end
+
+      # The pointer move constructor for a class spec, which takes ownership of
+      # the pointer it is given.
+      #
+      # This is different from the pointer copy constructor, which copies all of
+      # the defined members for the argument into a new struct.
+      def self.pointer_move_constructor(class_spec)
+        wrapped_type = C.equivalent_type(class_spec)
+        if wrapped_type.nil? || !wrapped_type.is_a?(CSource::CPointer)
+          msg = 'wrapped C type must be a pointer for a move constructor ' \
+                'based on a pointer to the equivalent struct'
+          raise InvalidConstructor, msg
+        end
+
+        class_name = class_spec.upper_camel_case_name
+        func = Wrapture::CppSource::CppFunction.new(class_name)
+        pointer_type = C.equivalent_pointer(class_spec)
+        func.params << CSource::CDeclaration.new(pointer_type, 'equivalent')
+
+        if C.equivalent_ancestor?(class_spec)
+          # TODO: when equivalent ancestor changes to do more than just the
+          # direct parent, this will also need to change
+          parent_name = class_spec.parent_name
+          func.initializers << "#{parent_name}(equivalent)"
+        else
+          func << 'this->equivalent = equivalent;'
+        end
 
         func
       end
@@ -703,8 +870,11 @@ module Wrapture
                          !func_spec.void_return? &&
                          func_spec.return_type != func_spec[:c].return_type
 
-        func_spec[:c].error_rules.any?(&:use_return?) ||
-          convert_return
+        error_return = func_spec[:c].error_rules.any? do |it|
+          it.vals.include?(RETURN_VALUE_KEYWORD)
+        end
+
+        error_return || convert_return
       end
     end
   end

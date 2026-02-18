@@ -33,29 +33,6 @@ class FunctionSpecTest < Minitest::Test
     refute_includes(code, 'return return_val;')
   end
 
-  def test_exception_throwing_function
-    test_spec = fixture_hash('exception_throwing_function')
-    spec = Wrapture::FunctionSpec.from_hash(test_spec)
-
-    throw_code = 'throw CodeException( return_val )'
-    Wrapture::CToCppWrapper.define_spec(spec) do |line|
-      next if line.nil?
-
-      code = line.strip
-
-      assert_includes(code, throw_code) if code.start_with?('throw')
-    end
-  end
-
-  def test_exception_without_return_val
-    test_spec = fixture_hash('exception_check_without_return_val')
-    spec = Wrapture::FunctionSpec.from_hash(test_spec)
-    lines = Wrapture::CToCppWrapper.define_spec(spec, &block_collector)
-
-    assert(lines.any? { |line| line.end_with?('int return_val;') })
-    assert(lines.any? { |line| line.end_with?('return return_val;') })
-  end
-
   def test_function_pointer_argument
     test_spec = fixture_hash('function_pointer_argument')
 
@@ -153,22 +130,6 @@ class FunctionSpecTest < Minitest::Test
     assert(lines.any? { |line| line.include?(expected_declaration) })
   end
 
-  def test_only_documented_params
-    test_spec = fixture_hash('documented_params')
-    spec = Wrapture::FunctionSpec.from_hash(test_spec)
-
-    comment = String.new
-    Wrapture::CToCppWrapper.declare_spec(spec) do |line|
-      next if line.nil? || !line.lstrip.start_with?('/**', '*')
-
-      refute_match(/^\s*\*\s*$/, line)
-      comment << line << "\n"
-    end
-
-    refute_empty(comment)
-    assert_includes(comment, 'ParamDocIdentifier')
-  end
-
   def test_only_variadic_param
     test_spec = fixture_hash('invalid/only_variadic_param')
 
@@ -177,17 +138,6 @@ class FunctionSpecTest < Minitest::Test
     end
 
     assert_includes(error.message, 'only param')
-  end
-
-  def test_undefinable
-    test_spec = fixture_hash('undefinable_function')
-    spec = Wrapture::FunctionSpec.from_hash(test_spec)
-
-    refute_predicate(spec, :definable?)
-
-    assert_raises(Wrapture::UndefinableSpec) do
-      Wrapture::CToCppWrapper.define_spec(spec) { flunk('unreachable') }
-    end
   end
 
   def test_variadic_functions

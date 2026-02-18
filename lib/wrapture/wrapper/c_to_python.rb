@@ -357,11 +357,10 @@ module Wrapture
           blk.declare('int', 'parse_result')
         end
 
-        error_return = func_spec[:c].error_rules.any?(&:use_return?)
+        error_return = func_spec[:c].error_rules.any? do |it|
+          it.vals.include?(RETURN_VALUE_KEYWORD)
+        end
         if !func_spec.void_return? || error_return
-          # return_type = TypeSpec.new(func_spec[:c].return_type.to_s)
-          # return_type = func_spec.return_type if return_type.name == 'void'
-          # return_type = func_spec.resolve_type(return_type)
           return_type = func_spec.wrapped[:c].return_type
           if return_type.to_s == EQUIVALENT_STRUCT_KEYWORD
             return_type = C.equivalent_struct(func_spec.owner)

@@ -31,7 +31,8 @@ module Wrapture
     def self.effective_type(spec)
       inferred_pointer_wrapper = spec[:constructors].any? do |func|
         # TODO: this should not have c-specific code
-        func[:wrapped][:c][:return][:type] == EQUIVALENT_POINTER_KEYWORD
+        func[:wrapped].key?(:c) &&
+          func[:wrapped][:c][:return][:type] == EQUIVALENT_POINTER_KEYWORD
       end
 
       if spec.key?(:type)
@@ -179,7 +180,10 @@ module Wrapture
       @functions = @spec[:constructors].map do |constructor_spec|
         full_spec = constructor_spec.dup
         full_spec[:name] = @spec[:name]
-        full_spec[:params] = constructor_spec[:wrapped][:c][:params]
+        # TODO: there shouldn't be C-specific code here
+        if constructor_spec[:wrapped].key?(:c)
+          full_spec[:params] = constructor_spec[:wrapped][:c][:params]
+        end
         full_spec[:constructor] = true
 
         func_spec = FunctionSpec.from_hash(full_spec)

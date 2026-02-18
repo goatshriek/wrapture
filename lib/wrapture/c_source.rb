@@ -73,6 +73,10 @@ module Wrapture
         format_expression(expr.vals[0]) +
           [' == '] +
           format_expression(expr.vals[1])
+      when :or
+        expr.vals.map do |it|
+          format_expression(it).join
+        end.join(' || ')
       else
         format_expression(expr.vals[0])
       end
