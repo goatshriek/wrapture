@@ -16,18 +16,19 @@
 
 name: "StructWrapperClass"
 namespace: "wrapture_test"
-equivalent_struct:
-  name: "struct_to_wrap"
-  includes:
-    - "struct_header.h"
-    - "another_struct_header.h"
-  members:
-    - name: "member_1"
-      type: "int"
-    - name: "member_2"
-      type: "const char *"
-    - name: "member_3"
-      type: "unsigned char"
+wrapped:
+  c:
+    name: "struct_to_wrap"
+    includes:
+      - "struct_header.h"
+      - "another_struct_header.h"
+    members:
+      - name: "member_1"
+        type: "int"
+      - name: "member_2"
+        type: "const char *"
+      - name: "member_3"
+        type: "unsigned char"
 functions:
   - name: "WrappedFunction"
     return:

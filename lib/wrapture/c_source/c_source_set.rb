@@ -50,7 +50,7 @@ module Wrapture
 
         if spec.key?(:lib_headers)
           spec[:lib_headers].each do |it|
-            build.add_lib_header(Wrapture::SourceFile.new(it))
+            build.add_lib_header(CSourceFile.new(it))
           end
         end
 
@@ -62,7 +62,7 @@ module Wrapture
 
         if spec.key?(:lib_sources)
           spec[:lib_sources].each do |it|
-            build.add_lib_source(Wrapture::SourceFile.new(it))
+            build.add_lib_source(CSourceFile.new(it))
           end
         end
 
@@ -112,14 +112,20 @@ module Wrapture
         @lib_links << lib unless @lib_links.include?(lib)
       end
 
+      # The includes used within this set of source files.
+      #
+      # Note that this is separate from the +lib_headers+ property, which
+      # lists the header files this source set defines. Rather, this list
+      # gives all header files that must be available when building this set
+      # of source files.
+      def includes
+        sources.flat_map(&:includes).uniq
+      end
+
       # All source files (including headers) in this project.
       def sources
         @lib_headers + @lib_sources
       end
     end
-
-    # For now this is equivalent to a C source set, but they may diverge in the
-    # future.
-    CppSourceSet = CSourceSet
   end
 end

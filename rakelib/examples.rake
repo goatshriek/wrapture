@@ -34,7 +34,7 @@ def run_cpp_example(name, lib, sources, build_dir)
 
       include_cmd = "include_directories(\".\" \"#{example_dir}\")"
       sh "echo \"#{include_cmd}\" >> CMakeLists.txt"
-      sh "cmake -DCMAKE_LIBRARY_PATH=#{example_dir} ."
+      sh 'cmake -DCMAKE_LIBRARY_PATH=. .'
       sh "cmake --build . --target #{scope.name}"
     end
 
@@ -66,7 +66,11 @@ def run_python_example(name, lib, sources, build_dir)
       # TODO: using --wheel directly on each cmd is brittle
       sh "CFLAGS=\"#{cflags}\" #{cmd} --wheel"
     end
+
     sh 'python3 -m venv usage-env'
+
+    # TODO: add uninstall commands and run them to clean things up
+
     python_build.install_commands(python: 'usage-env/bin/python3').each do |cmd|
       sh cmd
     end

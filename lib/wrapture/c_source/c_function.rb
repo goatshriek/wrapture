@@ -36,9 +36,9 @@ module Wrapture
           spec[:params].each do |param|
             type = case param[:type]
                    when String
-                     CType.new(param[:type])
+                     CType.from_hash({ name: param[:type] })
                    when Hash
-                     CType.new(param[:type][:name])
+                     CType.from_hash(param[:type])
                    end
             name = (param[:name] if param.key?(:name))
             value = if param.key?(:value)
@@ -61,8 +61,18 @@ module Wrapture
         if spec.key?(:error_check)
           check = spec[:error_check]
 
-          func.error_rules = check[:rules].map do |rule_spec|
-            RuleSpec.new(rule_spec)
+          check[:rules].each do |rule|
+            op = CExpression::OPERATORS.find do |op|
+              op.to_s == rule[:condition]
+            end
+
+            if rule.key?(:condition) && op.nil?
+              msg = "unrecognized rule condition #{rule[:condition]}"
+              raise InvalidRuleCondition, msg
+            end
+
+            exps = [rule[:left_expression], rule[:right_expression]]
+            func.error_rules << CExpression.new(exps, op)
           end
 
           unless func.error_rules.empty?
@@ -107,7 +117,7 @@ module Wrapture
       attr_accessor :error_action
 
       # Th rules to detect when an error has occurred.
-      attr_accessor :error_rules
+      attr_reader :error_rules
 
       # The list of failure labels of the function.
       attr_reader :fail_labels

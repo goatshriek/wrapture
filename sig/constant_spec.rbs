@@ -28,8 +28,7 @@ module Wrapture
     attr_reader type: Wrapture::TypeSpec
     def declaration_includes: -> Array[String]
     def definition_includes: -> Array[String]
-    def declaration: { (String) -> void } -> void
-    def definition: (String class_name) -> String
+    def includes: -> Array[String]
     def name_words: -> Array[String]
     def value: -> String
   end

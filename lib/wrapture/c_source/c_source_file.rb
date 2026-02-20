@@ -40,6 +40,11 @@ module Wrapture
       def contents
         CSource.format_block(@tree)
       end
+
+      # The includes used within this source file.
+      def includes
+        @tree.select { |it| it.is_a?(CInclude) }
+      end
     end
   end
 end

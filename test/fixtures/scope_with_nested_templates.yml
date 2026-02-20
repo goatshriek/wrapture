@@ -31,15 +31,17 @@ templates:
 classes:
   - name: "OneClass"
     namespace: "wrapture_test"
-    equivalent_struct:
-      name: "basic_struct_1"
-      includes: "one_class.h"
+    wrapped:
+      c:
+        name: "basic_struct_1"
+        includes: "one_class.h"
     functions:
       - use_template: "common-function"
   - name: "TwoClass"
     namespace: "wrapture_test"
-    equivalent_struct:
-      name: "basic_struct_1"
-      includes: "one_class.h"
+    wrapped:
+      c:
+        name: "basic_struct_1"
+        includes: "one_class.h"
     functions:
       - use_template: "common-function"

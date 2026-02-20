@@ -18,13 +18,14 @@ classes:
   - name: "Vcr"
     namespace: "mediacenter"
     libraries: "vcr"
-    equivalent_struct:
-      name: "vcr"
-      members:
-        - name: "channel"
-          type: "int"
-      includes:
-        - "vcr.h"
+    wrapped:
+      c:
+        name: "vcr"
+        members:
+          - name: "channel"
+            type: "int"
+        includes:
+          - "vcr.h"
     constants:
       - name: "PLAY_COMMAND"
         type: "int"

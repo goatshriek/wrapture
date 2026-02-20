@@ -19,8 +19,12 @@ classes:
   - name: "Stove"
     doc: "A humble stove."
     namespace: "kitchen"
-    includes: "stove.h"
     libraries: "stove"
+    wrapped:
+      c:
+        pointer:
+          name: "stove"
+          includes: "stove.h"
     equivalent_struct:
       name: "stove"
     constructors:

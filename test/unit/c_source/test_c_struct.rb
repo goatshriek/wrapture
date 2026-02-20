@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
+# frozen_string_literal: true
+
 # Copyright 2025 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,27 +16,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: "DelegatingConstructorClass"
-namespace: "wrapture_test"
-includes: "class_include.h"
-equivalent_struct:
-  name: "basic_struct"
-  includes: "folder/include_file_1.h"
-constructors:
-  - initializers:
-      - delegate: true
-        values:
-          - 3
-    wrapped:
-      c:
-        name: "default_constructor"
-        return:
-          type: "equivalent_struct_pointer"
-  - wrapped:
-      c:
-        name: "underlying_constructor"
-        params:
-          - name: "id"
-            type: "int"
-        return:
-          type: "equivalent_struct_pointer"
+require 'helper'
+
+require 'fixture'
+require 'minitest/autorun'
+require 'wrapture'
+
+class CStructTest < Minitest::Test
+  def test_includes_from_hash_string_entry
+    struct_hash = { name: 'my_struct', includes: 'my_inc.h' }
+    struct_instance = Wrapture::CSource::CStruct.from_hash(struct_hash)
+
+    assert_includes(struct_instance.includes, 'my_inc.h')
+  end
+end

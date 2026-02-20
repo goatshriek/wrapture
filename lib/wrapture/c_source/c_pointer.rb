@@ -37,11 +37,23 @@ module Wrapture
 
       # Compares with another pointer.
       def ==(other)
+        return false unless other.is_a?(CPointer)
+
         @c_type == other.c_type
       end
 
       # Alias to support Enumerable#uniq.
       alias eql? ==
+
+      # The includes needed to use this pointer type.
+      def includes
+        @c_type.includes.dup
+      end
+
+      # A String representation of this pointer.
+      def to_s
+        "pointer to #{@c_type}"
+      end
     end
   end
 end

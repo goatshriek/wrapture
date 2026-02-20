@@ -95,8 +95,8 @@ class ClassSpecTest < Minitest::Test
 
     class_name = test_spec[:name]
     header = build["#{class_name}.hpp"]
-    member_regex = /^\s*#{class_name}\( int member/
-    spec_regex = /^\s*#{class_name}\( struct/
+    member_regex = /^\s*#{class_name}\(int member/
+    spec_regex = /^\s*#{class_name}\(constructed_struct/
     destructor_regex = /^\s*~#{class_name}/
 
     assert(source_file_contains_match?(header, member_regex),
@@ -118,8 +118,8 @@ class ClassSpecTest < Minitest::Test
     refute(source_file_contains_match?(source, forbidden),
            'the source file contained a wrapture keyword')
 
-    member_regex = /^\s*#{class_name}::#{class_name}\( int member/
-    spec_regex = /^\s*#{class_name}::#{class_name}\( struct/
+    member_regex = /^\s*#{class_name}::#{class_name}\(int member/
+    spec_regex = /^\s*#{class_name}::#{class_name}\(constructed_struct/
     destructor_regex = /^\s*#{class_name}::~#{class_name}/
 
     assert(source_file_contains_match?(source, member_regex),
@@ -210,20 +210,6 @@ class ClassSpecTest < Minitest::Test
            'default value not present in signature')
   end
 
-  def test_delegating_constructor
-    test_spec = fixture_hash('delegating_constructor')
-    spec = Wrapture::ClassSpec.new(test_spec)
-    build = Wrapture::Wrapper::CToCpp.wrap_class(spec)
-
-    validate_cpp_build(spec, build)
-
-    source = build['DelegatingConstructorClass.cpp']
-    sig = "#{spec.name}\\( void \\) : #{spec.name}\\( 3 \\)"
-
-    assert(source_file_contains_match?(source, sig),
-           'delegating constructor not present')
-  end
-
   def test_versioned_class
     test_spec = fixture_hash('versioned_class')
     spec = Wrapture::ClassSpec.new(test_spec)
@@ -234,7 +220,7 @@ class ClassSpecTest < Minitest::Test
 
   def test_wrapper_class
     test_spec = fixture_hash('struct_wrapper_class')
-    spec = Wrapture::ClassSpec.new test_spec
+    spec = Wrapture::ClassSpec.new(test_spec)
     build = Wrapture::Wrapper::CToCpp.wrap_class(spec)
 
     validate_cpp_build(spec, build)

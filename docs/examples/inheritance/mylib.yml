@@ -18,16 +18,22 @@ classes:
   - name: "Item"
     namespace: "library"
     libraries: "mylib"
-    equivalent_struct:
-      name: "mylib_item"
-      includes: "mylib.h"
-      members:
-        - name: "name"
-          type: "const char *"
-          default_value: "NULL"
-        - name: "checked_out"
-          type: "bool"
-          default_value: false
+    wrapped:
+      c:
+        name: "mylib_item"
+        includes:
+          - "mylib.h"
+          - "stddef.h"
+        members:
+          - name: "name"
+            type: "const char *"
+            default_value: "NULL"
+          - name: "checked_out"
+            type: "bool"
+            default_value: "false"
+          - name: "page_count"
+            type: "int"
+            default_value: "0"
     functions:
       - name: CheckOut
         wrapped:
@@ -41,19 +47,22 @@ classes:
     libraries: "mylib"
     parent:
       name: "Item"
-    equivalent_struct:
-      name: "mylib_item"
-      includes: "mylib.h"
-      members:
-        - name: "name"
-          type: "const char *"
-          default_value: "NULL"
-        - name: "checked_out"
-          type: "bool"
-          default_value: false
-        - name: "page_count"
-          type: "int"
-          default_value: 0
+    wrapped:
+      c:
+        name: "mylib_item"
+        includes:
+          - "mylib.h"
+          - "stddef.h"
+        members:
+          - name: "name"
+            type: "const char *"
+            default_value: "NULL"
+          - name: "checked_out"
+            type: "bool"
+            default_value: "false"
+          - name: "page_count"
+            type: "int"
+            default_value: "0"
     functions:
       - name: GetPageCount
         return:

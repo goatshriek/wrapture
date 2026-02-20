@@ -45,7 +45,7 @@ module Wrapture
         build_info = if spec.key?(:c_sources)
                        CSource::CSourceSet.from_hash(spec[:c_sources])
                      else
-                       CSource::CppSourceSet.from_hash(spec[:cpp_sources])
+                       CppSource::CppSourceSet.from_hash(spec[:cpp_sources])
                      end
 
         new(build_info)
@@ -90,7 +90,8 @@ module Wrapture
                         ''
                       end
 
-        file.puts("set(#{@source_set.name.upcase}_HEADERS")
+        header_list = "#{@source_set.name.upcase}_HEADERS"
+        file.puts("set(#{header_list}")
         @source_set.lib_headers.each do |header|
           file.puts("  \"#{path_prefix}#{header.path}\"")
         end
@@ -109,10 +110,11 @@ module Wrapture
           lib_targets = []
           @source_set.lib_links.each do |lib|
             target_name = "#{@source_set.name}_#{lib}"
-            file.puts("find_library(LIB#{lib.upcase}_FOUND #{lib})")
+            find_var = "LIB#{lib.upcase}_LOCATION"
+            file.puts("find_library(#{find_var} #{lib} REQUIRED)")
             file.puts("add_library(#{target_name} SHARED IMPORTED)")
             file.puts("set_target_properties(#{target_name} PROPERTIES")
-            file.puts("  IMPORTED_LOCATION ${LIB#{lib.upcase}_FOUND}")
+            file.puts("  IMPORTED_LOCATION ${#{find_var}}")
             file.puts(')')
             file.puts
 
@@ -122,14 +124,29 @@ module Wrapture
           lib_deps = lib_targets.join(' ')
           file.puts("add_library(#{@source_set.name} ${#{source_list}})")
           file.puts("target_link_libraries(#{@source_set.name}")
-          file.puts("  PRIVATE #{lib_deps}")
+          file.puts("  PUBLIC #{lib_deps}")
+          file.puts(')')
+          file.puts("target_include_directories(#{@source_set.name}")
+          if @source_dir
+            file.puts("  PRIVATE ${#{@source_set.name.upcase}_DIR}")
+          else
+            file.puts('  PRIVATE ${PROJECT_SOURCE_DIR}')
+          end
           file.puts(')')
           file.puts
         end
 
-        file.puts('# todo add install command with headers (cmake_build)')
+        file.puts('include(GNUInstallDirs)')
+        file.puts("install(TARGETS #{@source_set.name})")
+        header_dest = 'DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}'
+        file.puts("install(FILES ${#{header_list}} #{header_dest})")
 
         file
+      end
+
+      # Invocations of CMake to configure and install this project.
+      def install_commands(install_dir: '.')
+        ['cmake .', "cmake --install . --prefix #{install_dir}"]
       end
 
       # All source files in this project.

@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2019-2025 Joel E. Anderson
+# Copyright 2019-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ require 'wrapture/action_spec'
 require 'wrapture/build'
 require 'wrapture/c_code_spec'
 require 'wrapture/c_source'
-require 'wrapture/c_to_cpp_wrapper'
 require 'wrapture/class_spec'
 require 'wrapture/cli'
 require 'wrapture/comment'

@@ -25,6 +25,7 @@ module Wrapture
 
       def initialize: (Pathname | String) -> void
       def contents: () -> Enumerable[String]
+      def includes: () -> Enumerable[CInclude]
     end
   end
 end

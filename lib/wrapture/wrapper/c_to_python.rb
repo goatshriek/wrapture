@@ -135,11 +135,13 @@ module Wrapture
       # Returns a cast of the equivalent member of an instance of the given
       # class with the given name to the given type.
       def self.cast_equivalent(class_spec, var_name, to)
-        struct = "struct #{class_spec.struct.name}"
-        if [EQUIVALENT_STRUCT_KEYWORD, struct].include?(to)
-          "#{'*' if class_spec.pointer_wrapper?}#{var_name}->equivalent"
-        elsif [EQUIVALENT_POINTER_KEYWORD, "#{struct} *"].include?(to)
-          "#{'&' unless class_spec.pointer_wrapper?}#{var_name}->equivalent"
+        pointer_wrapper = C.equivalent_type(class_spec).is_a?(CSource::CPointer)
+        if [EQUIVALENT_STRUCT_KEYWORD,
+            C.equivalent_struct(class_spec)].include?(to)
+          "#{'*' if pointer_wrapper}#{var_name}->equivalent"
+        elsif [EQUIVALENT_POINTER_KEYWORD,
+               C.equivalent_pointer(class_spec)].include?(to)
+          "#{'&' unless pointer_wrapper}#{var_name}->equivalent"
         end
       end
 
@@ -219,7 +221,8 @@ module Wrapture
                  "#{var_name}->equivalent"
                end
 
-        if class_spec.pointer_wrapper?
+        # TODO: refactor this when moving to the new conversion convention
+        if equivalent_member_declaration(class_spec).c_type.is_a?(CSource::CPointer)
           name
         else
           "&(#{name})"
@@ -273,7 +276,7 @@ module Wrapture
           members << "#{constant_spec.type} #{constant_spec.snake_case_name};"
         end
 
-        if class_spec.equivalent_member?
+        if C.equivalent_member?(class_spec)
           members << equivalent_member_declaration(class_spec)
         end
 
@@ -354,17 +357,25 @@ module Wrapture
           blk.declare('int', 'parse_result')
         end
 
-        error_return = func_spec.wrapped[:c].error_rules.any?(&:use_return?)
+        error_return = func_spec[:c].error_rules.any? do |it|
+          it.vals.include?(RETURN_VALUE_KEYWORD)
+        end
         if !func_spec.void_return? || error_return
-          return_type = TypeSpec.new(func_spec.wrapped[:c].return_type.to_s)
-          return_type = func_spec.return_type if return_type.name == 'void'
-          return_type = func_spec.resolve_type(return_type)
+          return_type = func_spec.wrapped[:c].return_type
+          if return_type.to_s == EQUIVALENT_STRUCT_KEYWORD
+            return_type = C.equivalent_struct(func_spec.owner)
+          end
+          if return_type.to_s == EQUIVALENT_POINTER_KEYWORD
+            return_type = C.equivalent_pointer(func_spec.owner)
+          end
 
-          return_type = 'long' if return_type.name == 'bool'
+          return_type = 'long' if return_type == CSource::CType.new('bool')
 
           blk.declare(return_type, 'return_val')
         end
 
+        # if the function is overloaded, then params are passed as args, rather
+        # than being parsed in this wrapper
         unless func_spec.overloaded?
           declare_wrapper_param_locals(blk,
                                        func_spec)
@@ -428,7 +439,7 @@ module Wrapture
           src.include('stddef.h', comment: 'for offsetof()')
         end
 
-        scope.definition_includes.each { |inc| src.include(inc) }
+        Wrapper::C.includes(scope).each { |inc| src.include(inc) }
 
         declare_module_struct(src, scope)
 
@@ -441,19 +452,21 @@ module Wrapture
           src.declare('PyTypeObject', type_object_name(class_spec),
                       attributes: ['static'])
 
-          next unless class_spec.factory?
+          # next unless class_spec.factory?
+          next unless C.factory?(class_spec, scope)
 
           # TODO: do we need this forward declaration?
           src << factory_constructor(class_spec).declaration
           src << ";\n"
         end
 
-        scope.classes.select(&:factory?).each do |class_spec|
-          src << factory_constructor(class_spec)
+        scope.classes.select do |it|
+          src << factory_constructor(it) if C.factory?(it, scope)
         end
 
         overload_groups = {}
         scope.classes.each do |class_spec|
+          # TODO: member constructors aren't implemented for Python!
           unless class_spec.functions.any?(&:constructor?)
             src << default_constructor(class_spec)
           end
@@ -548,9 +561,10 @@ module Wrapture
 
         next_val = 0
         enum_spec.elements.each do |it|
-          f.puts("element_name = PyUnicode_FromString( \"#{it[:name]}\" );")
+          element_name = Named.snake_case_name(it[:name])
+          f.puts("element_name = PyUnicode_FromString( \"#{element_name}\" );")
 
-          val = it[:value]
+          val = it.dig(:wrapped, :c, :value)
           val = next_val if val.nil?
           f.puts("element_value = PyLong_FromLong( #{val} );")
 
@@ -568,7 +582,8 @@ module Wrapture
         end
 
         # building the positional arguments to enum.Enum'
-        f.puts("enum_name = PyUnicode_FromString( \"#{enum_spec.name}\" );")
+        enum_name = enum_spec.upper_camel_case_name
+        f.puts("enum_name = PyUnicode_FromString( \"#{enum_name}\" );")
         f.puts('call_args = PyTuple_Pack( 2, enum_name, element_dict );')
         f.puts('Py_DECREF( enum_name );')
         f.puts('Py_DECREF( element_dict );')
@@ -593,7 +608,7 @@ module Wrapture
         f.puts('Py_DECREF( call_kwargs );')
 
         # adding the new type to the module
-        add_params = "m, \"#{enum_spec.name}\", new_enum"
+        add_params = "m, \"#{enum_name}\", new_enum"
         f.puts("add_result = PyModule_AddObjectRef( #{add_params} );")
         f.puts('Py_DECREF( new_enum );')
         f.puts('return add_result;')
@@ -603,20 +618,14 @@ module Wrapture
 
       # The declaration of the equivalent member of this class.
       def self.equivalent_member_declaration(class_spec)
-        type = Wrapture::CSource::CStruct.from_spec(class_spec.struct)
-        if class_spec.pointer_wrapper?
-          type = Wrapture::CSource::CPointer.new(type)
-        end
-
-        Wrapture::CSource::CDeclaration.new(type, 'equivalent')
+        Wrapture::CSource::CDeclaration.new(class_spec[:c], 'equivalent')
       end
 
       # The factory constructor for an overloaded struct.
       def self.factory_constructor(class_spec)
         name = "new_#{class_spec.name}"
-        struct_type = Wrapture::CSource::CStruct.from_spec(class_spec.struct)
-        pointer_type = Wrapture::CSource::CPointer.new(struct_type)
-        params = [Wrapture::CSource::CDeclaration.new(pointer_type,
+        equivalent_type = C.equivalent_type(class_spec)
+        params = [Wrapture::CSource::CDeclaration.new(equivalent_type,
                                                       'equivalent')]
         return_type = Wrapture::CSource::CPointer.new('PyObject')
         func = Wrapture::CSource::CFunction.new(name, params: params,
@@ -626,12 +635,29 @@ module Wrapture
         func.declare(type_object_type, 'type')
         func.declare(return_type, 'obj')
 
+        overload_classes = class_spec.scope.select do |it|
+          C.overload?(class_spec, it)
+        end
         cond = nil
-        class_spec.scope.overloads(class_spec).each do |overload|
+        overload_classes.each do |overload|
+          variable_access = if C.equivalent_type(overload).is_a?(CSource::CPointer)
+                              'equivalent->'
+                            else
+                              'equivalent.'
+                            end
+
+          checks = C.equivalent_struct(overload).rules.map do |it|
+            new_vals = it.vals.dup
+            new_vals[0] = "#{variable_access}#{it.vals[0]}"
+
+            CSource::CExpression.new(new_vals, it.operator)
+          end
+          check_expression = CSource::CExpression.new(checks, :and)
+
           cond = if cond.nil?
-                   func.if(overload.struct.rules_check('equivalent'))
+                   func.if(check_expression)
                  else
-                   cond.else_if(overload.struct.rules_check('equivalent'))
+                   cond.else_if(check_expression)
                  end
 
           blk = cond.if_block
@@ -966,7 +992,7 @@ module Wrapture
           'variadic_args'
         elsif param_uses_equivalent?(func_spec, param)
           param_class = func_spec.owner.type(used_param.type)
-          cast_equivalent(param_class, used_param.name, param.c_type.to_s)
+          cast_equivalent(param_class, used_param.name, param.c_type)
         else
           param.value
         end
@@ -1044,15 +1070,15 @@ module Wrapture
 
       # The expression containing the call to the underlying wrapped function.
       def self.wrapped_function_call(func_spec)
-        resolved_params = func_spec.wrapped[:c].params.map do |param|
+        resolved_params = func_spec[:c].params.map do |param|
           resolve_wrapped_param(func_spec, param)
         end
 
-        call = "#{func_spec.wrapped[:c].name}( #{resolved_params.join(', ')} )"
+        call = "#{func_spec[:c].name}( #{resolved_params.join(', ')} )"
 
         if func_spec.constructor?
           "#{class_struct_pointer(func_spec.owner)} = #{call}"
-        elsif func_spec.wrapped[:c].error_check? || !func_spec.void_return?
+        elsif func_spec[:c].error_check? || !func_spec.void_return?
           "return_val = #{call}"
         else
           call

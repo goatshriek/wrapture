@@ -23,12 +23,26 @@ module Wrapture
   class WraptureError < StandardError
   end
 
+  # A constructor is invalid.
+  class InvalidConstructor < WraptureError
+  end
+
   # A documentation string is invalid.
   class InvalidDoc < WraptureError
   end
 
   # A template has been invoked in an unsupported way.
   class InvalidTemplateUsage < WraptureError
+  end
+
+  # A rule condition was provided that was not recognized.
+  class InvalidRuleCondition < WraptureError
+  end
+
+  # A spec is not valid for the context it was used in. For example, if a
+  # method only accepts specs of a certain kind, this will be raised if an
+  # oncompatible spec is provided.
+  class InvalidSpec < WraptureError
   end
 
   # The spec has a key that is not valid.
@@ -59,6 +73,18 @@ module Wrapture
 
   # Missing a namespace in the class spec
   class MissingNamespace < WraptureError
+  end
+
+  # A wrapped component was used, but not defined.
+  class MissingWrapped < WraptureError
+    # A MissingWrapped exception is created with the spec that is missing the
+    # wrapped component to ease troubleshooting.
+    def initialize(wrapped)
+      # TODO: make this message more generic for source/destination languages
+      msg = "equivalent member referenced in #{wrapped.name}, " \
+            'but no wrapped struct defined'
+      super(msg)
+    end
   end
 
   # The spec cannot be defined due to missing information.

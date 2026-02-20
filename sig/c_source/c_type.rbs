@@ -17,6 +17,7 @@
 module Wrapture
   module CSource
     class CType
+      def self.from_hash: (spec_hash) -> CType
       def initialize: (String) -> void
       def ==: (CType) -> bool
       alias eql? ==

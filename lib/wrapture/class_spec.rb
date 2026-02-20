@@ -31,7 +31,8 @@ module Wrapture
     def self.effective_type(spec)
       inferred_pointer_wrapper = spec[:constructors].any? do |func|
         # TODO: this should not have c-specific code
-        func[:wrapped][:c][:return][:type] == EQUIVALENT_POINTER_KEYWORD
+        func[:wrapped].key?(:c) &&
+          func[:wrapped][:c][:return][:type] == EQUIVALENT_POINTER_KEYWORD
       end
 
       if spec.key?(:type)
@@ -47,6 +48,33 @@ module Wrapture
       else
         'struct'
       end
+    end
+
+    # Creates a new ClassSpec from hash +spec+.
+    def self.from_hash(spec)
+      if spec.key?(:constructors)
+        c_constructors = spec[:constructors].reject do |it|
+          it.dig(:wrapped, :c).nil?
+        end
+        if c_constructors.any? do |it|
+          it.dig(:wrapped, :c, :return, :type).nil?
+        end
+          raise InvalidConstructor, 'a constructor did not have a return type'
+        end
+      end
+
+      class_spec = new(spec)
+
+      if spec.key?(:wrapped) && spec[:wrapped].key?(:c)
+        if spec[:wrapped][:c].key?(:pointer)
+          struct_type = CSource::CStruct.from_hash(spec[:wrapped][:c][:pointer])
+          class_spec[:c] = CSource::CPointer.new(struct_type)
+        else
+          class_spec[:c] = CSource::CStruct.from_hash(spec[:wrapped][:c])
+        end
+      end
+
+      class_spec
     end
 
     # Returns a normalized copy of a hash specification of a class. See
@@ -120,6 +148,9 @@ module Wrapture
     # The underlying struct of this class.
     attr_reader :struct
 
+    # A map of language-specific wrapping details.
+    attr_accessor :wrapped
+
     # Creates a class spec based on the provided hash spec.
     #
     # The scope can be provided if available. Otherwise, a new Scope is created
@@ -149,7 +180,10 @@ module Wrapture
       @functions = @spec[:constructors].map do |constructor_spec|
         full_spec = constructor_spec.dup
         full_spec[:name] = @spec[:name]
-        full_spec[:params] = constructor_spec[:wrapped][:c][:params]
+        # TODO: there shouldn't be C-specific code here
+        if constructor_spec[:wrapped].key?(:c)
+          full_spec[:params] = constructor_spec[:wrapped][:c][:params]
+        end
         full_spec[:constructor] = true
 
         func_spec = FunctionSpec.from_hash(full_spec)
@@ -182,6 +216,28 @@ module Wrapture
 
       scope << self
       @scope = scope
+
+      @wrapped = {}
+      if @spec.key?(:wrapped) && @spec[:wrapped].key?(:c)
+        if @spec[:wrapped][:c].key?(:pointer)
+          struct_type = CSource::CStruct.from_hash(spec[:wrapped][:c][:pointer])
+          @wrapped[:c] = CSource::CPointer.new(struct_type)
+        else
+          @wrapped[:c] = CSource::CStruct.from_hash(spec[:wrapped][:c])
+        end
+      end
+    end
+
+    # Get the wrapping details for the given language. This is equivalent to
+    # +wrapped[lang]+.
+    def [](lang)
+      @wrapped[lang]
+    end
+
+    # Set the wrapping details for the given language. This is equivalent to
+    # +wrapped[lang]=+.
+    def []=(lang, wrapped_function)
+      @wrapped[lang] = wrapped_function
     end
 
     # True if the class has a parent.
@@ -216,6 +272,11 @@ module Wrapture
       includes.concat(@spec[:parent][:includes]) if child?
 
       includes.uniq
+    end
+
+    # True if this class can be defined.
+    def definable?
+      @functions.all?(&:definable?)
     end
 
     # A list of includes needed for the definition of the class.
@@ -270,6 +331,12 @@ module Wrapture
     # overloads.
     def factory?
       @scope.overloads?(self)
+    end
+
+    # The includes given for this class spec. This does not include those from
+    # items within this class such as functions or constants.
+    def includes
+      spec[:includes]
     end
 
     # An array of libraries needed for everything in this class.

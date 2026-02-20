@@ -20,12 +20,14 @@ module Wrapture
       include CBlock
 
       @attributes: Array[String]
+      @error_rules: Array[CExpression]
       @name: String
       @params: Enumerable[CDeclaration]
       @return_type: CType
       @tree: Array[untyped]
 
       attr_reader attributes: Enumerable[String]
+      attr_reader error_rules: Array[CExpression]
       attr_reader name: String
       attr_reader params: Enumerable[CDeclaration]
       attr_reader return_type: CType

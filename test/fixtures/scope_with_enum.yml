@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-# Copyright 2025 Joel E. Anderson
+# Copyright 2025-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,16 +18,17 @@ enums:
   - name: "BasicEnum"
     namespace: "wrapture_test"
     elements:
-      - name: "VALUE_1"
-      - name: "VALUE_2"
-      - name: "VALUE_3"
+      - name: "value_1"
+      - name: "value_2"
+      - name: "value_3"
 classes:
   - name: "BasicClass"
     namespace: "wrapture_test"
     type: "pointer"
-    equivalent_struct:
-      name: "basic_struct"
-      includes: "basic_struct.h"
+    wrapped:
+      c:
+        name: "basic_struct"
+        includes: "basic_struct.h"
     functions:
       - name: "do_stuff"
         return:

@@ -26,6 +26,13 @@ module Wrapture
     include Enumerable
     include Named
 
+    # Creates a new Scope from hash +spec+.
+    def self.from_hash(spec)
+      scope = new(spec)
+      scope.decorate_wrapped_name = spec.fetch(:decorate_wrapped_name, false)
+      scope
+    end
+
     # Creates a scope containing all of the specs in the given files.
     def self.load_files(*filenames)
       scope = Scope.new
@@ -86,6 +93,9 @@ module Wrapture
     # A list of classes currently in the scope.
     attr_reader :classes
 
+    # If true, then generated wrappers use a decorated version of the name.
+    attr_writer :decorate_wrapped_name
+
     # The documentation comment for this scope.
     attr_reader :doc
 
@@ -103,6 +113,7 @@ module Wrapture
     # name:: the explicit name of this scope
     def initialize(spec = {})
       @classes = []
+      @decorate_wrapped_name = false
       @enums = []
       @templates = []
 
@@ -118,7 +129,7 @@ module Wrapture
       end
 
       @spec[:enums].each do |enum_hash|
-        EnumSpec.new(enum_hash, scope: self)
+        EnumSpec.from_hash(enum_hash, scope: self)
       end
     end
 
@@ -142,12 +153,17 @@ module Wrapture
     # Adds an enumeration to the scope created from the given specification
     # hash.
     def add_enum_spec_hash(spec)
-      @enums << EnumSpec.new(spec)
+      @enums << EnumSpec.from_hash(spec)
+    end
+
+    # True if this scope's name should be decorated in wrappers.
+    def decorate_wrapped_name?
+      @decorate_wrapped_name
     end
 
     # True if this scope (and everything in it) can be defined.
     def definable?
-      @classes.all? { |it| it.functions.all?(&:definable?) }
+      @classes.all?(&:definable?)
     end
 
     # An array of includes needed to define everything in this scope.
@@ -219,7 +235,7 @@ module Wrapture
       end
 
       new_spec[:enums].each do |enum_hash|
-        EnumSpec.new(enum_hash, scope: self)
+        EnumSpec.from_hash(enum_hash, scope: self)
       end
 
       self
@@ -247,9 +263,9 @@ module Wrapture
       end
 
       if @classes.any?
-        [@classes.first.name_words]
+        @classes.first.name_words
       elsif @enums.any?
-        [@enums.first.name_words]
+        @enums.first.name_words
       else
         []
       end

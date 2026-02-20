@@ -16,8 +16,10 @@
 
 name: "PointerClassWithExplicitPointerConstructor"
 namespace: "wrapture_test"
-equivalent_struct:
-  name: "wrapped_struct"
+wrapped:
+  c:
+    pointer:
+      name: "wrapped_struct"
 constructors:
   - wrapped:
       c:

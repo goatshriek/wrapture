@@ -17,9 +17,10 @@
 name: "SelfReferenceClass"
 namespace: "wrapture_test"
 includes: "class_include.h"
-equivalent_struct:
-  name: "basic_struct"
-  includes: "folder/include_file_1.h"
+wrapped:
+  c:
+    name: "basic_struct"
+    includes: "folder/include_file_1.h"
 functions:
   - name: "SelfReferenceFunction"
     params:

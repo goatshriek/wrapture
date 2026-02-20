@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-# Copyright 2025 Joel E. Anderson
+# Copyright 2025-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,11 +18,12 @@ version: "0.6.0"
 classes:
   - name: "Parent"
     namespace: "wrapture_test"
-    equivalent_struct:
-      name: "overloaded_struct"
-      members:
-        - name: "code"
-          type: "int"
+    wrapped:
+      c:
+        name: "overloaded_struct"
+        members:
+          - name: "code"
+            type: "int"
     functions:
       - name: "OverloadedType"
         return:
@@ -35,21 +36,23 @@ classes:
               type: "equivalent_struct_pointer"
   - name: "ChildOne"
     namespace: "wrapture_test"
-    equivalent_struct:
-      name: "overloaded_struct"
-      rules:
-        - member_name: "code"
-          condition: "equals"
-          value: "1"
     parent:
       name: "Parent"
+    wrapped:
+      c:
+        name: "overloaded_struct"
+        rules:
+          - member_name: "code"
+            condition: "equal"
+            value: "1"
   - name: "ChildTwo"
     namespace: "wrapture_test"
-    equivalent_struct:
-      name: "overloaded_struct"
-      rules:
-        - member_name: "code"
-          condition: "equals"
-          value: "2"
     parent:
       name: "Parent"
+    wrapped:
+      c:
+        name: "overloaded_struct"
+        rules:
+          - member_name: "code"
+            condition: "equal"
+            value: "2"

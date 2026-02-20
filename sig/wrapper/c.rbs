@@ -1,0 +1,32 @@
+# SPDX-License-Identifier: Apache-2.0
+
+# Copyright 2025 Joel E. Anderson
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+module Wrapture
+  module Wrapper
+    module C
+      def self.decorate_name_words: (Array[String]) -> Array[String]
+      def self.equivalent_ancestor?: (Wrapture::ClassSpec) -> bool
+      def self.equivalent_member?: (Wrapture::ClassSpec) -> bool
+      def self.equivalent_pointer: (Wrapture::ClassSpec) -> Wrapture::CSource::CPointer?
+      def self.equivalent_struct: (Wrapture::ClassSpec) -> Wrapture::CSource::CStruct?
+      def self.equivalent_type: (Wrapture::ClassSpec) -> Wrapture::CSource::CType?
+      def self.factory?: (Wrapture::ClassSpec, Wrapture::Scope) -> bool
+      def self.includes: (Wrapture::Scope | Wrapture::ClassSpec | Wrapture::FunctionSpec | Wrapture::ParamSpec | Wrapture::ConstantSpec | Wrapture::TypeSpec) -> Array[String]
+      def self.overload?: (Wrapture::ClassSpec, Wrapture::ClassSpec) -> bool
+      def self.wrapped_members?: (Wrapture::ClassSpec) -> bool
+    end
+  end
+end

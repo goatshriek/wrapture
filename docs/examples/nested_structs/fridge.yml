@@ -19,8 +19,11 @@ classes:
     namespace: "kitchen"
     libraries: "fridge"
     includes: "fridge.h"
-    equivalent_struct:
-      name: "ice_maker"
+    wrapped:
+      c:
+        pointer:
+          name: "struct ice_maker"
+          includes: "fridge.h"
     constructors:
       - wrapped:
           c:
@@ -36,8 +39,11 @@ classes:
     namespace: "kitchen"
     libraries: "fridge"
     includes: "fridge.h"
-    equivalent_struct:
-      name: "water_filter"
+    wrapped:
+      c:
+        pointer:
+          name: "struct water_filter"
+          includes: "fridge.h"
     constructors:
       - wrapped:
           c:
@@ -50,9 +56,11 @@ classes:
   - name: "Freezer"
     namespace: "kitchen"
     libraries: "fridge"
-    includes: "fridge.h"
-    equivalent_struct:
-      name: "freezer"
+    wrapped:
+      c:
+        pointer:
+          name: "struct freezer"
+          includes: "fridge.h"
     constructors:
       - wrapped:
           c:
@@ -69,8 +77,11 @@ classes:
     libraries: "fridge"
     includes:
       - "fridge.h"
-    equivalent_struct:
-      name: "fridge"
+    wrapped:
+      c:
+        pointer:
+          name: "fridge"
+          includes: "fridge.h"
     constructors:
       - wrapped:
           c:

@@ -67,7 +67,7 @@ class ScopeTest < Minitest::Test
     no_template_build = Wrapture::Wrapper::CToCpp.wrap_scope(scope)
 
     with_template_build.sources.each do |with_src|
-      assert_includes(no_template_build.sources, with_src,
+      assert_includes(no_template_build, with_src,
                       "the build without templates is missing #{with_src}")
     end
   end

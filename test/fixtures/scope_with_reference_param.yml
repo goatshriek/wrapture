@@ -17,15 +17,17 @@
 classes:
   - name: "Bullet"
     namespace: "wrapture_test"
-    equivalent_struct:
-      name: "bullet_struct"
-      includes: "bullet_struct.h"
+    wrapped:
+      c:
+        name: "bullet_struct"
+        includes: "bullet_struct.h"
     type: "pointer"
   - name: "Rifle"
     namespace: "wrapture_test"
-    equivalent_struct:
-      name: "rifle_struct"
-      includes: "rifle_struct.h"
+    wrapped:
+      c:
+        name: "rifle_struct"
+        includes: "rifle_struct.h"
     functions:
       - name: "load"
         params:

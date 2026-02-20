@@ -19,9 +19,11 @@ classes:
   - name: "SecurityEvent"
     namespace: "home_automation"
     libraries: "security_system"
-    equivalent_struct:
-      name: "event"
-      includes: "security_system.h"
+    wrapped:
+      c:
+        pointer:
+          name: "event"
+          includes: "security_system.h"
     constructors:
       - wrapped:
           c:
@@ -69,13 +71,15 @@ classes:
     libraries: "security_system"
     parent:
       name: "SecurityEvent"
-    equivalent_struct:
-      name: "event"
-      includes: "security_system.h"
-      rules:
-        - member_name: "code"
-          condition: "equals"
-          value: "CAMERA_EVENT"
+    wrapped:
+      c:
+        pointer:
+          name: "event"
+          includes: "security_system.h"
+          rules:
+            - member_name: "code"
+              condition: "equal"
+              value: "CAMERA_EVENT"
     constructors:
       - wrapped:
           c:
@@ -98,13 +102,15 @@ classes:
     libraries: "security_system"
     parent:
       name: "SecurityEvent"
-    equivalent_struct:
-      name: "event"
-      includes: "security_system.h"
-      rules:
-        - member_name: "code"
-          condition: "equals"
-          value: "GLASS_BREAK_EVENT"
+    wrapped:
+      c:
+        pointer:
+          name: "event"
+          includes: "security_system.h"
+          rules:
+            - member_name: "code"
+              condition: "equal"
+              value: "GLASS_BREAK_EVENT"
     constructors:
       - wrapped:
           c:
@@ -127,13 +133,15 @@ classes:
     libraries: "security_system"
     parent:
       name: "SecurityEvent"
-    equivalent_struct:
-      name: "event"
-      includes: "security_system.h"
-      rules:
-        - member_name: "code"
-          condition: "equals"
-          value: "MOTION_EVENT"
+    wrapped:
+      c:
+        pointer:
+          name: "event"
+          includes: "security_system.h"
+          rules:
+            - member_name: "code"
+              condition: "equal"
+              value: "MOTION_EVENT"
     constructors:
       - wrapped:
           c:

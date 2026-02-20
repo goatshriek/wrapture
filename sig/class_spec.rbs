@@ -25,6 +25,7 @@ module Wrapture
     @scope: Wrapture::Scope
 
     def self.effective_type: (spec_hash spec) -> String
+    def self.from_hash: (spec_hash spec) -> Wrapture::ClassSpec
     def self.normalize_spec_hash: (spec_hash spec, *Wrapture::TemplateSpec templates) -> spec_hash
     def self.normalize_spec_hash!: (spec_hash spec, *Wrapture::TemplateSpec templates) -> spec_hash
     attr_reader constants: Array[Wrapture::ConstantSpec]
@@ -32,16 +33,19 @@ module Wrapture
     attr_reader functions: Array[Wrapture::FunctionSpec]
     attr_reader scope: Wrapture::Scope
     attr_reader struct: (Wrapture::StructSpec | nil)
+    attr_accessor wrapped: Hash[Symbol, untyped] | nil
     def initialize: (spec_hash spec, ?scope: Wrapture::Scope) -> void
     def child?: -> bool
     def constructors: -> Array[Wrapture::FunctionSpec]
     def declaration_includes: -> Array[String]
+    def definable?: () -> bool
     def definition_includes: -> Array[String]
     def destructor: -> Wrapture::FunctionSpec
     def documentation: { (String) -> void } -> void
     def equivalent_member?: -> bool
     def exception?: -> bool
     def factory?: -> bool
+    def includes: -> Array[String]
     def libraries: -> Array[String]
     def method_specs: -> Array[Wrapture::FunctionSpec]
     def name_words: -> Array[String]

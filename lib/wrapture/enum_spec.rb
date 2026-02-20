@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2020-2025 Joel E. Anderson
+# Copyright 2020-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,6 +24,66 @@ module Wrapture
   # A description of an enumeration.
   class EnumSpec
     include Named
+
+    # Creates a new EnumSpec from hash +spec+.
+    # TODO: remove scope argument, this should not be tracked by the enum
+    def self.from_hash(spec, scope: Scope.new)
+      if spec&.key?(:version) && !Wrapture.supports_version?(spec[:version])
+        raise UnsupportedSpecVersion
+      end
+
+      unless spec.key?(:name)
+        raise MissingSpecKey, 'a name is required for enumerations'
+      end
+
+      if spec.key?(:elements)
+        unless spec[:elements].is_a?(Array)
+          raise InvalidSpecKey, 'the elements key must be an array'
+        end
+      else
+        raise MissingSpecKey, 'elements are required for enumerations'
+      end
+
+      Comment.validate_doc(spec[:doc]) if spec.key?(:doc)
+
+      name = Wrapture.normalize_name(spec, :name)
+      enum = EnumSpec.new(name, scope: scope)
+
+      enum.doc = Comment.new(spec[:doc])
+
+      enum.namespace = spec[:namespace] if spec.key?(:namespace)
+
+      if spec.key?(:wrapped) && spec[:wrapped].key?(:c)
+        c_spec = spec[:wrapped][:c]
+        if c_spec.key?(:includes)
+          inc = Wrapture.normalize_array(c_spec[:includes])
+          enum.wrapped[:c] = { includes: inc }
+        else
+          enum.wrapped[:c] = { includes: [] }
+        end
+      end
+
+      spec[:elements].each do |it|
+        element = { name: Wrapture.normalize_name(it, :name) }
+        element[:doc] = Comment.new(it[:doc]) if it.key?(:doc)
+        if it.key?(:wrapped) && it[:wrapped].key?(:c)
+          element[:wrapped] = { c: {} }
+
+          if it[:wrapped][:c].key?(:value)
+            element[:wrapped][:c][:value] = it[:wrapped][:c][:value]
+          end
+
+          if it[:wrapped][:c].key?(:includes)
+            inc = Wrapture.normalize_array(it[:wrapped][:c][:includes])
+            element[:wrapped][:c][:includes] = inc
+          end
+        end
+
+        enum.elements << element
+      end
+
+      enum
+    end
 
     # Returns a normalized copy of a hash specification of an enumeration.
     # See normalize_spec_hash! for details.
@@ -67,6 +127,24 @@ module Wrapture
       spec
     end
 
+    # The documentation of the enumeration.
+    attr_accessor :doc
+
+    # An array of elements in this enumeration.
+    attr_reader :elements
+
+    # The name of the constant.
+    attr_reader :name_words
+
+    # The namespace of the enumeration.
+    attr_accessor :namespace
+
+    # The scope the enumeration is in.
+    attr_reader :scope
+
+    # A map of language-specific wrapping details.
+    attr_reader :wrapped
+
     # Creates an enumeration specification based on the provided hash spec.
     #
     # The scope can be provided if available. Otherwise, a new Scope is created
@@ -88,53 +166,28 @@ module Wrapture
     # to the wrapping language if possible, and chosen by wrapture if not. This
     # means that the same element may have different values in different
     # languages if it is not specified.
-    def initialize(spec, scope: Scope.new)
-      @spec = EnumSpec.normalize_spec_hash(spec)
-      @doc = Comment.new(@spec[:doc])
+    def initialize(name_words, scope: Scope.new)
+      @name_words = Wrapture.normalize_name_words(name_words)
+      @namespace = nil
 
       scope << self
       @scope = scope
-    end
 
-    # The documentation of the enumeration.
-    attr_reader :doc
+      # TODO: this should be an array of custom objects instead of hashes
+      @elements = []
 
-    # A list of the includes needed for the definition of the enumeration.
-    def definition_includes
-      includes = @spec[:includes].dup
-
-      @spec[:elements].each do |element|
-        includes.concat(element[:includes])
-      end
-
-      includes.uniq
-    end
-
-    # A list of elements in this enumeration.
-    # TODO: This should be redefined as a separate type of spec
-    # instead of being a raw array of hashes.
-    def elements
-      @spec[:elements]
+      @wrapped = {}
     end
 
     # An array of libraries needed for everything in this enum.
+    # TODO: can we remove this?
     def libraries
-      @spec[:libraries]
-    end
-
-    # The name of the constant.
-    def name_words
-      @spec[:name]
-    end
-
-    # The namespace of the enumeration, or nil if it does not have one.
-    def namespace
-      @spec.fetch(:namespace, nil)
+      []
     end
 
     # True if the enumeration has a namespace, false if not.
     def namespace?
-      @spec.key?(:namespace)
+      @namespace.nil?
     end
   end
 end

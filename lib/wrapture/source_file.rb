@@ -46,7 +46,7 @@ module Wrapture
 
     # Compares the filename and contents of a source file for equality.
     def ==(other)
-      @path == other.path && @contents == other.contents
+      path == other.path && contents == other.contents
     end
 
     # Alias to support usage as a Hash key.

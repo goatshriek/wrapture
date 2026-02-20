@@ -16,9 +16,10 @@
 
 name: "BaseClass"
 namespace: "wrapture_test"
-equivalent_struct:
-  name: "overloaded_struct"
-  includes: "allthethings.h"
+wrapped:
+  c:
+    name: "overloaded_struct"
+    includes: "allthethings.h"
 functions:
   - name: "VirtualFunction"
     virtual: true

@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-# Copyright 2025 Joel E. Anderson
+# Copyright 2025-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,20 +18,24 @@ module Wrapture
   class EnumSpec
     include Named
 
-    @spec: spec_hash
     @doc: Wrapture::Comment
+    @elements: Array[Hash[Symbol, untyped]]
+    @name_words: Array[String]
+    @namespace: String?
     @scope: Wrapture::Scope
+    @wrapped: Hash[Symbol, untyped] | nil
 
+    def self.from_hash: (spec_hash spec, ?scope: Wrapture::Scope) -> Wrapture::EnumSpec
     def self.normalize_spec_hash: (spec_hash spec) -> spec_hash
     def self.normalize_spec_hash!: (spec_hash spec) -> spec_hash
+    attr_accessor doc: Wrapture::Comment
+    attr_reader elements: Array[Hash[Symbol, untyped]]
+    attr_reader name_words: Array[String]
+    attr_accessor namespace: String?
+    attr_accessor scope: Wrapture::Scope
+    attr_reader wrapped: Hash[Symbol, untyped] | nil
     def initialize: (spec_hash spec, ?scope: Wrapture::Scope) -> void
-    attr_reader doc: Wrapture::Comment
-    def definition_includes: -> Array[String]
-    def elements: -> spec_hash
     def libraries: -> Array[String]
-    def name_words: -> Array[String]
-    def namespace: -> (String | nil)
     def namespace?: -> bool
-    def snake_case_name: -> String
   end
 end

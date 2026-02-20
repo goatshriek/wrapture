@@ -24,6 +24,18 @@ module Wrapture
     # features, such as struct or function types, have their own specialized
     # classes.
     class CType
+      # Creates a C type from a hash.
+      def self.from_hash(spec)
+        if spec[:name].end_with?('*')
+          base = from_hash({ name: spec[:name].chop.rstrip })
+          CPointer.new(base)
+        elsif spec[:name].start_with?('struct')
+          CStruct.from_hash(spec)
+        else
+          CType.new(spec[:name])
+        end
+      end
+
       # Creates a type for the base type given.
       def initialize(base)
         @base = base
@@ -37,7 +49,7 @@ module Wrapture
       # Alias to support Enumerable#uniq.
       alias eql? ==
 
-      # C source code representing the type.
+      # A string representation of the type.
       def to_s
         @base
       end

@@ -27,19 +27,23 @@ module Wrapture
       attr_reader :condition
 
       # The block executed when the if condition is true.
-      attr_reader :if_block
+      attr_accessor :if_block
 
       # The else block for when the if condition is not true. This may be nil
       # if there is no else block accompanying the if, or another if block to
       # create an else if structure.
-      attr_reader :else_block
+      attr_accessor :else_block
 
       # An if block takes a string condition, and provides a CBlock to the block
       # of the constructor that will be the body of the if statement when the
       # condition is met. If a block is not provided, then it will be empty
       # after creation.
       def initialize(condition, &block)
-        @condition = condition
+        @condition = if condition.is_a?(String)
+                       CExpression.new(condition)
+                     else
+                       condition
+                     end
         @if_block = PlainCBlock.new
         @else_block = nil
 

@@ -22,15 +22,67 @@ module Wrapture
   module CSource
     # A struct type used in C source code.
     class CStruct
+      # The includes needed to use this function.
+      attr_reader :includes
+
       # The name of the struct.
       attr_reader :name
 
       # The members of the struct.
       attr_reader :members
 
+      # An optional array of expressions that specify rules that the struct must
+      # meet. Specifically, any conditions that the members must meet, for
+      # example if a particular member must be a particular value.
+      attr_reader :rules
+
       # The typedef name of the struct. If this is empty, then there is no
       # typedef for this struct.
       attr_reader :typedef
+
+      # Creates a new C struct from a hash.
+      def self.from_hash(spec)
+        unless spec.key?(:name)
+          raise MissingSpecKey, 'a name is required for c structs'
+        end
+
+        name = spec[:name].delete_prefix('struct ')
+        c_struct = new(name: name)
+
+        if spec.key?(:includes)
+          c_struct.includes.concat(Wrapture.normalize_array(spec[:includes]))
+        end
+
+        if spec.key?(:members)
+          spec[:members].each do |member|
+            value = member.fetch(:default_value, nil)
+            member_decl = CDeclaration.new(member[:type], member[:name],
+                                           value: value)
+            c_struct.members << member_decl
+          end
+        end
+
+        if spec.key?(:rules)
+          spec[:rules].each do |rule|
+            next unless rule.key?(:member_name)
+
+            op = CExpression::OPERATORS.find do |op|
+              op.to_s == rule[:condition]
+            end
+
+            if rule.key?(:condition) && op.nil?
+              msg = "unrecognized rule condition #{rule[:condition]}"
+              raise InvalidRuleCondition, msg
+            end
+
+            c_struct.rules << CExpression.new(
+              [rule[:member_name], rule[:value]], op
+            )
+          end
+        end
+
+        c_struct
+      end
 
       # Creates a CStruct from a struct spec.
       def self.from_spec(struct_spec)
@@ -39,20 +91,38 @@ module Wrapture
 
       # Creates a type for the base type given.
       def initialize(name: '', members: [], typedef: '')
+        @includes = []
         @name = name
         @members = members
+        @rules = []
         @typedef = typedef
       end
 
-      # Compares with another struct.
+      # Compares with another struct. If the other is a CType, then only the
+      # type as a string is compared to the struct's name.
+      #
+      # TODO: this special handling of CType needs to be revisited.
       def ==(other)
-        @name == other.name &&
-          @members == other.members &&
-          @typedef == other.typedef
+        case other
+        when CType
+          @name == other.to_s
+        when CStruct
+          !other.nil? &&
+            @name == other.name &&
+            @members == other.members &&
+            @typedef == other.typedef
+        else
+          false
+        end
       end
 
       # Alias to support Enumerable#uniq.
       alias eql? ==
+
+      # String representation of this struct.
+      def to_s
+        @name
+      end
     end
   end
 end

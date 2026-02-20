@@ -2,10 +2,19 @@ module Wrapture
   class WraptureError < StandardError
   end
 
+  class InvalidConstructor < WraptureError
+  end
+
   class InvalidDoc < WraptureError
   end
 
   class InvalidTemplateUsage < WraptureError
+  end
+
+  class InvalidRuleCondition < WraptureError
+  end
+
+  class InvalidSpec < WraptureError
   end
 
   class InvalidSpecKey < WraptureError
@@ -19,6 +28,9 @@ module Wrapture
   end
 
   class MissingNamespace < WraptureError
+  end
+
+  class MissingWrapped < WraptureError
   end
 
   class UndefinableSpec < WraptureError

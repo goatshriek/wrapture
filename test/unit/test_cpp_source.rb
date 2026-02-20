@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2019-2025 Joel E. Anderson
+# Copyright 2025 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,24 +22,14 @@ require 'fixture'
 require 'minitest/autorun'
 require 'wrapture'
 
-class SelfReferenceTest < Minitest::Test
-  def test_self_reference_function
-    test_spec = fixture_hash('self_reference_class')
-    spec = Wrapture::ClassSpec.new(test_spec)
-    build = Wrapture::Wrapper::CToCpp.wrap_class(spec)
+# Tests for C++ source formatting.
+class CppSourceTest < Minitest::Test
+  def test_function_definition_param_of_c_declaration_of_pointer
+    base = Wrapture::CSource::CType.new('test_type')
+    pointer_type = Wrapture::CSource::CPointer.new(base)
+    decl = Wrapture::CSource::CDeclaration.new(pointer_type, 'test_val')
+    result = Wrapture::CppSource.format_function_definition_param(decl).join
 
-    validate_cpp_build(spec, build)
-
-    forbidden = Wrapture::SELF_REFERENCE_KEYWORD
-
-    build.sources.each do |src|
-      refute(source_file_contains_match?(src, forbidden),
-             "#{src.path} contains wrapture keyword #{forbidden}")
-    end
-
-    source = build["#{test_spec[:name]}.cpp"]
-
-    assert(source_file_contains_match?(source, /return \*this;/))
-    refute(source_file_contains_match?(source, 'return_val'))
+    assert_equal('test_type *test_val', result)
   end
 end
