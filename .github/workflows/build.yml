@@ -47,6 +47,8 @@ jobs:
         run: |
           bundle config set --local without 'development'
           bundle install
+      - name: Run C++ Integration Tests
+        run: bundle exec rake test:integration:cpp
       - name: Run C++ Examples
         run: bundle exec rake examples:cpp
   python:
@@ -66,7 +68,7 @@ jobs:
           python-version: '3.12'
       - name: Install Prereqs
         run: pip3 install build setuptools
-      - name: Run Python Tests
+      - name: Run Python Integration Tests
         run: bundle exec rake test:integration:python
       - name: Run Python Examples
         run: bundle exec rake examples:python

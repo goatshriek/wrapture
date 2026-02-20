@@ -23,111 +23,12 @@ require 'minitest/autorun'
 require 'wrapture'
 
 class FunctionSpecTest < Minitest::Test
-  def test_basic_new
-    test_spec = fixture_hash('basic_function')
-
-    spec = Wrapture::FunctionSpec.from_hash(test_spec)
-    code = Wrapture::CToCppWrapper.define_spec(spec, &block_collector)
-    code = code.map(&:lstrip)
-
-    refute_includes(code, 'return return_val;')
-  end
-
-  def test_function_pointer_argument
-    test_spec = fixture_hash('function_pointer_argument')
-
-    spec = Wrapture::FunctionSpec.from_hash(test_spec)
-
-    all_spec_includes(test_spec).each do |inc|
-      assert_includes(spec.declaration_includes, inc)
-      assert_includes(spec.definition_includes, inc)
-    end
-
-    arg_type = 'const char *( *my_func_ptr )( int, int, void * )'
-    lines = Wrapture::CToCppWrapper.declare_spec(spec, &block_collector)
-
-    assert(lines.any? { |line| line.include?(arg_type) })
-
-    lines = Wrapture::CToCppWrapper.define_spec(spec, &block_collector)
-
-    assert(lines.any? { |line| line.include?(arg_type) })
-  end
-
-  def test_function_pointer_return
-    test_spec = fixture_hash('function_pointer_return')
-    spec = Wrapture::FunctionSpec.from_hash(test_spec)
-
-    all_spec_includes(test_spec).each do |inc|
-      assert_includes(spec.declaration_includes, inc)
-      assert_includes(spec.definition_includes, inc)
-    end
-
-    expected_declaration = 'const char *( *FunctionPointerReturn( const ' \
-                           'char *my_string ) )( int, int, struct special * );'
-
-    lines = Wrapture::CToCppWrapper.declare_spec(spec, &block_collector)
-
-    assert(lines.any? { |line| line.include?(expected_declaration) })
-
-    expected_definition = 'const char *( *FunctionPointerReturn( const ' \
-                          'char *my_string ) )( int, int, struct special * ) {'
-
-    lines = Wrapture::CToCppWrapper.define_spec(spec, &block_collector)
-
-    assert(lines.any? { |line| line.include?(expected_definition) })
-    refute(lines.any? { |line| line.include?('=>') },
-           'a rocket operator was found in the output code')
-  end
-
   def test_future_spec_version
     test_spec = fixture_hash('future_version_function')
 
     assert_raises(Wrapture::UnsupportedSpecVersion) do
       Wrapture::FunctionSpec.from_hash(test_spec)
     end
-  end
-
-  def test_matching_return_types
-    test_spec = fixture_hash('no_cast_function')
-
-    spec = Wrapture::FunctionSpec.from_hash(test_spec)
-
-    call = test_spec[:wrapped][:c][:name]
-    Wrapture::CToCppWrapper.define_spec(spec) do |line|
-      code = line.strip
-      assert(code.start_with?("return #{call}")) if code.start_with?('return ')
-    end
-  end
-
-  def test_nested_function_pointer_argument
-    test_spec = fixture_hash('nested_function_pointer_argument')
-    spec = Wrapture::FunctionSpec.from_hash(test_spec)
-
-    expected_declaration = 'void NestedFunctionPointerArgument( const char ' \
-                           '*( *my_func_ptr )( int, int ( * )( struct ' \
-                           'special *, void * ), void * ) );'
-
-    lines = Wrapture::CToCppWrapper.declare_spec(spec, &block_collector)
-
-    assert(lines.any? { |line| line.include?(expected_declaration) })
-  end
-
-  def test_nested_function_pointer_return
-    test_spec = fixture_hash('nested_function_pointer_return')
-    spec = Wrapture::FunctionSpec.from_hash(test_spec)
-
-    all_spec_includes(test_spec).each do |inc|
-      assert_includes(spec.declaration_includes, inc)
-      assert_includes(spec.definition_includes, inc)
-    end
-
-    expected_declaration = 'int ( *( *NestedFunctionPointerReturn( const ' \
-                           'char *my_string ) )( int, int, void * ) )( ' \
-                           'struct special *, int );'
-
-    lines = Wrapture::CToCppWrapper.declare_spec(spec, &block_collector)
-
-    assert(lines.any? { |line| line.include?(expected_declaration) })
   end
 
   def test_only_variadic_param
@@ -138,28 +39,6 @@ class FunctionSpecTest < Minitest::Test
     end
 
     assert_includes(error.message, 'only param')
-  end
-
-  def test_variadic_functions
-    test_specs = fixture_hash('variadic_functions')
-
-    test_specs.each do |test_spec|
-      spec = Wrapture::FunctionSpec.from_hash(test_spec)
-
-      Wrapture::CToCppWrapper.declare_spec(spec) do |line|
-        assert_includes(line, '...')
-      end
-
-      # assert(spec.signature.end_with?('... )'))
-
-      assert_includes(spec.definition_includes, 'stdarg.h')
-
-      Wrapture::CToCppWrapper.define_spec(spec) do |line|
-        code = line.strip
-
-        assert_includes(code, 'variadic_args') if code.include?('underlying')
-      end
-    end
   end
 
   def test_versioned_function
