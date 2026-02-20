@@ -29,8 +29,6 @@ jobs:
         uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-        with:
-          files: coverage/coverage.xml
       - name: Build Gem
         run: gem build wrapture.gemspec
       - name: Install Gem
@@ -53,7 +51,7 @@ jobs:
         run: bundle exec rake examples:cpp
   python:
     runs-on: ubuntu-latest
-    name: python integration tests
+    name: python runtime tests
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
       - uses: ruby/setup-ruby@efbf473cab83af4468e8606cc33eca9281bb213f # v1.256.0
