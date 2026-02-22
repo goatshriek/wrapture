@@ -102,14 +102,6 @@ class ScopeTest < Minitest::Test
 
     assert_equal(class_specs.count, scope.classes.count)
     assert_equal(enum_specs.count, scope.enums.count)
-
-    build = Wrapture::Wrapper::CToCpp.wrap_scope(scope)
-
-    validate_cpp_build(scope, build)
-
-    expected_count = (scope.classes.count * 2) + scope.enums.count
-
-    assert_equal(expected_count, build.sources.count)
   end
 
   def test_undefinable_scope

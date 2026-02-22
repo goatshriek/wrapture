@@ -181,15 +181,7 @@ module Wrapture
 
       # Generate a source file with the declaration of a class.
       def self.declare_class(class_spec, scope)
-        class_name = class_spec.upper_camel_case_name
-        namespace_words = if scope.decorate_wrapped_name?
-                            Cpp.decorate_name_words(scope.name_words)
-                          else
-                            scope.name_words
-                          end
-        namespace = Named.snake_case_name(namespace_words)
-
-        src = CppSource::CppSourceFile.new("#{class_name}.hpp")
+        src = CppSource::CppSourceFile.new(header_name(class_spec))
 
         guard = header_guard(class_spec)
         src.puts("#ifndef #{guard}")
@@ -200,6 +192,12 @@ module Wrapture
           src << CSource::CInclude.new(inc)
         end
 
+        namespace_words = if scope.decorate_wrapped_name?
+                            Cpp.decorate_name_words(scope.name_words)
+                          else
+                            scope.name_words
+                          end
+        namespace = Named.snake_case_name(namespace_words)
         src.puts("namespace #{namespace} {")
         src.puts
 
@@ -468,7 +466,7 @@ module Wrapture
         if forward_declared?(spec)
           "#{spec.upper_camel_case_name}.cpp"
         else
-          "#{spec.upper_camel_case_name}.hpp"
+          header_name(spec)
         end
       end
 
@@ -604,8 +602,18 @@ module Wrapture
       end
 
       # The symbol to use for header guard checks.
-      def self.header_guard(class_spec)
-        "#{class_spec.screaming_snake_case_name}_HPP"
+      def self.header_guard(spec)
+        "#{spec.screaming_snake_case_name}_HPP"
+      end
+
+      # The name of the header file for a given item.
+      def self.header_name(spec)
+        case spec
+        when Scope
+          "#{spec.snake_case_name}.hpp"
+        when ClassSpec, EnumSpec
+          "#{spec.upper_camel_case_name}.hpp"
+        end
       end
 
       # The member constructor for a class spec.
@@ -681,34 +689,6 @@ module Wrapture
           func_spec.owner.type?(param.type)
       end
 
-      # Gives an expression for using a given parameter.
-      # Equivalent structs and pointers are resolved, as well as casts between
-      # types if they are known within the scope of this function.
-      def self.resolve_wrapped_param(func_spec, param)
-        val = param.value
-        conversion = if val == EQUIVALENT_STRUCT_KEYWORD
-                       val = 'this'
-                       converter(:this, :equivalent_struct, func_spec)
-                     elsif val == EQUIVALENT_POINTER_KEYWORD
-                       val = 'this'
-                       converter(:this, :equivalent_pointer, func_spec)
-                     elsif val == '...'
-                       converter(:variadic_args, :variadic_args, func_spec)
-                     # TODO: remove this predicate, and rely on the converter
-                     # to make this determination itself
-                     elsif param_uses_equivalent?(func_spec, param)
-                       used_param = func_spec.params.find do |p|
-                         p.name == param.value
-                       end
-                       converter(used_param.type, param.c_type, func_spec)
-                     else
-                       # use the plain param value and hope for the best
-                       proc { |val| val }
-                     end
-
-        conversion.call(val)
-      end
-
       # The pointer copy constructor for a class spec, which copies all of the
       # defined members into the new instance's struct.
       #
@@ -773,6 +753,58 @@ module Wrapture
         func
       end
 
+      # Gives an expression for using a given parameter.
+      # Equivalent structs and pointers are resolved, as well as casts between
+      # types if they are known within the scope of this function.
+      def self.resolve_wrapped_param(func_spec, param)
+        val = param.value
+        conversion = if val == EQUIVALENT_STRUCT_KEYWORD
+                       val = 'this'
+                       converter(:this, :equivalent_struct, func_spec)
+                     elsif val == EQUIVALENT_POINTER_KEYWORD
+                       val = 'this'
+                       converter(:this, :equivalent_pointer, func_spec)
+                     elsif val == '...'
+                       converter(:variadic_args, :variadic_args, func_spec)
+                     # TODO: remove this predicate, and rely on the converter
+                     # to make this determination itself
+                     elsif param_uses_equivalent?(func_spec, param)
+                       used_param = func_spec.params.find do |p|
+                         p.name == param.value
+                       end
+                       converter(used_param.type, param.c_type, func_spec)
+                     else
+                       # use the plain param value and hope for the best
+                       proc { |val| val }
+                     end
+
+        conversion.call(val)
+      end
+
+      # A header file for the given scope that includes all of its elements'
+      # headers.
+      def self.scope_header(scope)
+        header = Wrapture::CppSource::CppSourceFile.new(header_name(scope))
+
+        guard = header_guard(scope)
+        header.puts("#ifndef #{guard}")
+        header.puts("#define #{guard}")
+        header.puts
+
+        includes = (scope.classes + scope.enums).map do |it|
+          header_name(it)
+        end
+
+        includes.sort.each do |it|
+          header << CSource::CInclude.new(it)
+        end
+
+        header.puts
+        header.puts("#endif /* #{guard} */")
+
+        header
+      end
+
       # Creates a CppClass instance from a ClassSpec, with enough information
       # available to use the class for type conversions.
       def self.type_class_from_spec(spec)
@@ -823,6 +855,9 @@ module Wrapture
       #
       # +scope+ describes all of the classes and other entities that will be
       # wrapped. These will all be put into a namespace named after the scope.
+      # In addition to the headers for each class and enumeration in the scope,
+      # a header will be generated for this namespace, which includes all of
+      # the items in it.
       def self.wrap_scope(scope)
         name_words = if scope.decorate_wrapped_name?
                        Cpp.decorate_name_words(scope.name_words)
@@ -830,13 +865,15 @@ module Wrapture
                        scope.name_words
                      end
         name = name_words.map(&:downcase).join
-        build = CppSource::CppSourceSet.new(name)
+        source_set = CppSource::CppSourceSet.new(name)
 
         scope.each do |scope_member|
-          build << wrap(scope_member, scope: scope)
+          source_set << wrap(scope_member, scope: scope)
         end
 
-        build
+        source_set.add_lib_header(scope_header(scope))
+
+        source_set
       end
 
       # The expression containing the call to the underlying wrapped function.
