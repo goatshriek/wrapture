@@ -9,7 +9,7 @@ For a detailed look at the project's future, including planned features and bug
 fixes, check out the
 [roadmap](https://github.com/goatshriek/wrapture/blob/master/docs/roadmap.md).
 
-## [0.6.0 - 2025-03-09
+## [0.6.0] - 2026-02-22
 ### Added
  - Support for Ruby 3.2 through 3.4.
  - Ruby 2.6 is no longer supported.
@@ -20,6 +20,8 @@ fixes, check out the
  - Wrappers have been moved to their own modules, and generate build objects
    that describe both the generated sources and how they can be built.
  - Replaced single `wrapture` script with CLI tool with subcommands.
+ - C++ scopes have an additional rollup header generated for them that includes
+   all headers generated for them.
 
 ### Removed
  - Ruby 2.4 and 2.5 are no longer supported.

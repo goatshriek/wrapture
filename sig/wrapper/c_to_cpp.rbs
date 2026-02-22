@@ -37,12 +37,14 @@ module Wrapture
       def self.forward_declared?: (untyped) -> String
       def self.generate_pointer_copy_constructor?: (Wrapture::ClassSpec) -> bool
       def self.generate_pointer_move_constructor?: (Wrapture::ClassSpec) -> bool
-      def self.header_guard: (Wrapture::ClassSpec) -> String
+      def self.header_guard: (Wrapture::Named) -> String
+      def self.header_name: (Wrapture::Scope | Wrapture::ClassSpec | Wrapture::EnumSpec) -> String
       def self.member_constructor: (Wrapture::ClassSpec) -> Wrapture::CppSource::CppFunction
       def self.member_function_from_spec: (Wrapture::FunctionSpec) -> Wrapture::CppSource::CppFunction
       def self.pointer_copy_constructor: (Wrapture::ClassSpec) -> Wrapture::CppSource::CppFunction
       def self.pointer_move_constructor: (Wrapture::ClassSpec) -> Wrapture::CppSource::CppFunction
       def self.resolve_wrapped_param: (Wrapture::FunctionSpec, Wrapture::CSource::CDeclaration) -> String
+      def self.scope_headers: (Wrapture::Scope) -> Wrapture::CppSource::CppSourceFile
       def self.type_class_from_spec: (Wrapture::ClassSpec) -> Wrapture::CppSource::CppClass
       def self.wrap_class: (Wrapture::ClassSpec, ?Wrapture::Scope) -> Wrapture::CppSource::CppSourceSet
       def self.wrap_enum: (Wrapture::EnumSpec, ?Wrapture::Scope) -> Wrapture::CppSource::CppSourceSet

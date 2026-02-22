@@ -234,6 +234,22 @@ class CToCppTest < Minitest::Test
            'equivalent struct member was not referenced')
   end
 
+  def test_scope_header_with_class_and_enum
+    test_spec = fixture_hash('scope_with_enum')
+    scope = Wrapture::Scope.new(test_spec)
+    build = Wrapture::Wrapper::CToCpp.wrap_scope(scope)
+
+    validate_cpp_build(scope, build)
+
+    assert_includes(build, 'wrapture_test.hpp', 'rollup header missing')
+
+    header = build['wrapture_test.hpp']
+
+    assert_kind_of(Wrapture::CppSource::CppSourceFile, header)
+    assert(source_file_contains_match?(header, 'BasicClass.hpp'))
+    assert(source_file_contains_match?(header, 'BasicEnum.hpp'))
+  end
+
   def test_self_reference_function
     test_spec = fixture_hash('self_reference_class')
     spec = Wrapture::ClassSpec.from_hash(test_spec)
@@ -252,6 +268,29 @@ class CToCppTest < Minitest::Test
 
     assert(source_file_contains_match?(source, /return \*this;/))
     refute(source_file_contains_match?(source, 'return_val'))
+  end
+
+  def test_sequential_scope_load
+    class_specs = [fixture_hash('basic_class'),
+                   fixture_hash('child_class'),
+                   fixture_hash('constant_class'),
+                   fixture_hash('constructor_class')]
+    enum_specs = [fixture_hash('basic_enum')]
+    scope = Wrapture::Scope.new
+    class_specs.each { |spec| scope.add_class_spec_hash(spec) }
+    enum_specs.each { |spec| scope.add_enum_spec_hash(spec) }
+
+    assert_equal(class_specs.count, scope.classes.count)
+    assert_equal(enum_specs.count, scope.enums.count)
+
+    build = Wrapture::Wrapper::CToCpp.wrap_scope(scope)
+
+    validate_cpp_build(scope, build)
+
+    # 2 headers per class, one per enum, and the rollup header
+    expected_count = (scope.classes.count * 2) + scope.enums.count + 1
+
+    assert_equal(expected_count, build.sources.count)
   end
 
   def test_to_language
