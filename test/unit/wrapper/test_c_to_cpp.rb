@@ -244,7 +244,6 @@ class CToCppTest < Minitest::Test
     assert_includes(build, 'wrapture_test.hpp', 'rollup header missing')
 
     header = build['wrapture_test.hpp']
-    puts header.contents.join
 
     assert_kind_of(Wrapture::CppSource::CppSourceFile, header)
     assert(source_file_contains_match?(header, 'BasicClass.hpp'))
