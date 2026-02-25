@@ -15,6 +15,7 @@ fixes, check out the
  - Ruby 2.6 is no longer supported.
  - RBS signatures.
  - Python wrapper generation.
+ - CMake project generation.
 
 ### Changed
  - Wrappers have been moved to their own modules, and generate build objects

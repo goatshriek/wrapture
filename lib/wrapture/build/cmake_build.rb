@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2025 Joel E. Anderson
+# Copyright 2025-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -147,6 +147,39 @@ module Wrapture
       # Invocations of CMake to configure and install this project.
       def install_commands(install_dir: '.')
         ['cmake .', "cmake --install . --prefix #{install_dir}"]
+      end
+
+      # Writes all source files to the file system, returning an Array of the
+      # Pathnames created.
+      #
+      # +dir+ is the directory to write the files to. If not provided, files are
+      # written to the current directory.
+      #
+      # Header files for the project are written into a folder named 'include',
+      # which will be created if it does not exist. Other sources are written to
+      # a folder named 'src' which will also be created if it doesn't exist. The
+      # CMakeLists.txt file is written directly into +dir+.
+      def save(dir = '.')
+        dir = Pathname.new(dir) unless dir.is_a?(Pathname)
+        saved_build_sources = build_sources.map { |it| it.save(dir) }
+
+        unless @source_set.lib_headers.empty?
+          include_dir = dir.join('include')
+          Dir.mkdir(include_dir)
+          saved_headers = @source_set.lib_headers.map do |it|
+            it.save(include_dir)
+          end
+        end
+
+        unless @source_set.lib_sources.empty?
+          src_dir = dir.join('src')
+          Dir.mkdir(src_dir)
+          saved_srcs = @source_set.lib_sources.map do |it|
+            it.save(src_dir)
+          end
+        end
+
+        saved_build_sources + saved_headers + saved_srcs
       end
 
       # All source files in this project.

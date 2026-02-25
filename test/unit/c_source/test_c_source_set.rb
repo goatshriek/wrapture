@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2025 Joel E. Anderson
+# Copyright 2025-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -44,5 +44,33 @@ class CSourceSetTest < Minitest::Test
     build = Wrapture::CSource::CSourceSet.from_hash(build_hash)
 
     assert_instance_of(Wrapture::CSource::CSourceSet, build)
+  end
+
+  def test_c_source_set_save
+    set = Wrapture::CSource::CSourceSet.new('c_source_save_test')
+    src = Wrapture::CSource::CSourceFile.new('src.c')
+    src_comment = '// this is a test source file for saving c source sets'
+    src << src_comment
+    set.add_lib_source(src)
+    header = Wrapture::CSource::CSourceFile.new('src.h')
+    header_comment = '// this is a test header file for saving c source sets'
+    header << header_comment
+    set.add_lib_header(header)
+
+    Dir.mktmpdir do |dir|
+      base_path = Pathname.new(dir)
+      set.save(dir)
+      src_path = base_path.join('src.c')
+      header_path = base_path.join('src.h')
+
+      assert_path_exists(src_path)
+      assert_path_exists(header_path)
+
+      src_contents = File.read(src_path)
+      header_contents = File.read(header_path)
+
+      assert_equal(src_comment, src_contents)
+      assert_equal(header_comment, header_contents)
+    end
   end
 end
