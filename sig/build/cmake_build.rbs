@@ -22,6 +22,8 @@ module Wrapture
 
       @source_set: (Wrapture::CSource::CSourceSet | Wrapture::CppSource::CppSourceSet)
 
+      attr_accessor include_dir: String
+      attr_accessor source_dir: String
       attr_reader source_set: (Wrapture::CSource::CSourceSet | Wrapture::CppSource::CppSourceSet)
 
       def self.from_hash: (spec_hash) -> Wrapture::Build::CmakeBuild

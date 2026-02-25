@@ -53,6 +53,29 @@ class CmakeBuildTest < Minitest::Test
     end
   end
 
+  def test_cmake_c_build_save_include_dir_exists
+    set = Wrapture::CSource::CSourceSet.new('c_source_save_include_exists_test')
+    header = Wrapture::CSource::CSourceFile.new('src.h')
+    header_comment = '// this is a test header file for saving c source sets'
+    header << header_comment
+    set.add_lib_header(header)
+    build = Wrapture::Build::CmakeBuild.new(set)
+
+    Dir.mktmpdir do |dir|
+      base_path = Pathname.new(dir)
+      Dir.mkdir(base_path.join('include'))
+      build.save(dir)
+      header_path = base_path.join('include', 'src.h')
+
+      assert_path_exists(base_path.join('CMakeLists.txt'))
+      assert_path_exists(header_path)
+
+      header_contents = File.read(header_path)
+
+      assert_equal(header_comment, header_contents)
+    end
+  end
+
   def test_cmake_c_build_sources
     build_hash = fixture_hash('cmake_c_sources')
     build = Wrapture::Build::CmakeBuild.from_hash(build_hash)
