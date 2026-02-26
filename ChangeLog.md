@@ -9,7 +9,7 @@ For a detailed look at the project's future, including planned features and bug
 fixes, check out the
 [roadmap](https://github.com/goatshriek/wrapture/blob/master/docs/roadmap.md).
 
-## [0.6.0] - 2026-02-22
+## [0.6.0] - Unreleased
 ### Added
  - Support for Ruby 3.2 through 3.4.
  - Ruby 2.6 is no longer supported.
