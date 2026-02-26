@@ -24,7 +24,7 @@ def run_cpp_example(name, lib, sources, build_dir)
   Wrapture::Build::CmakeBuild.new(build).save(build_dir)
 
   Dir.chdir(build_dir) do
-    usage_opts = "-I. -I#{example_dir} -o #{lib}_usage_cpp"
+    usage_opts = "-Iinclude -I#{example_dir} -o #{lib}_usage_cpp"
 
     if sources
       source_opts = "-shared -o lib#{lib}.so -fPIC -I#{example_dir}"

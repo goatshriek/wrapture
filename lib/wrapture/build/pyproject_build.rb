@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2025 Joel E. Anderson
+# Copyright 2025-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -67,10 +67,6 @@ module Wrapture
       end
 
       # A pyproject.toml file that could be used to build this module.
-      #
-      # CMake is a common build system for C++ projects. It uses a file named
-      # CMakeLists.txt to describe how to build a project, including information
-      # about the source files and any dependencies required.
       def pyproject
         sources = @source_set.module_sources.map do |src|
           "\"#{src.path}\""

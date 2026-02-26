@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2019-2025 Joel E. Anderson
+# Copyright 2019-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ require 'yaml'
 # The build spec for the fixture corresponding to +name+.
 def fixture_build(name)
   build = Wrapture::Build.from_hash(fixture_build_hash(name))
+  build.include_dir = File.join(File.expand_path('fixtures', __dir__), name)
   build.source_dir = File.join(File.expand_path('fixtures', __dir__), name)
 
   build

@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2025 Joel E. Anderson
+# Copyright 2025-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -28,6 +28,9 @@ module Wrapture
     class CmakeBuild
       include Build
       include SourceSet
+
+      # The root path for include files.
+      attr_accessor :include_dir
 
       # The underlying sources for the project.
       attr_reader :source_set
@@ -54,7 +57,8 @@ module Wrapture
       # Create a CMake build for a set of source files.
       def initialize(source_set)
         @source_set = source_set
-        @source_dir = nil
+        @include_dir = '${PROJECT_SOURCE_DIR}/include/'
+        @source_dir = '${PROJECT_SOURCE_DIR}/src/'
       end
 
       # Invocations of CMake to configure and build this project.
@@ -74,26 +78,25 @@ module Wrapture
       # information about the source files and any dependencies required.
       def cmake_lists
         file = SourceFile.new('CMakeLists.txt')
-
         file.puts('cmake_minimum_required(VERSION 3.10)')
         file.puts("project(#{@source_set.name})")
         file.puts
+        file.puts("set(#{@source_set.name.upcase}_INCLUDE_DIR")
+        file.puts("  \"#{@include_dir}\"")
+        file.puts(')')
+        file.puts
+        file.puts("set(#{@source_set.name.upcase}_SOURCE_DIR")
+        file.puts("  \"#{@source_dir}\"")
+        file.puts(')')
+        file.puts
 
-        path_prefix = if @source_dir
-                        file.puts("set(#{@source_set.name.upcase}_DIR")
-                        file.puts("  \"#{@source_dir}\"")
-                        file.puts(')')
-                        file.puts
-
-                        "${#{@source_set.name.upcase}_DIR}/"
-                      else
-                        ''
-                      end
+        include_path_prefix = "${#{@source_set.name.upcase}_INCLUDE_DIR}/"
+        src_path_prefix = "${#{@source_set.name.upcase}_SOURCE_DIR}/"
 
         header_list = "#{@source_set.name.upcase}_HEADERS"
         file.puts("set(#{header_list}")
         @source_set.lib_headers.each do |header|
-          file.puts("  \"#{path_prefix}#{header.path}\"")
+          file.puts("  \"#{include_path_prefix}#{header.path}\"")
         end
         file.puts(')')
         file.puts
@@ -102,7 +105,7 @@ module Wrapture
           source_list = "#{@source_set.name.upcase}_SOURCES"
           file.puts("set(#{source_list}")
           @source_set.lib_sources.each do |source|
-            file.puts("  \"#{path_prefix}#{source.path}\"")
+            file.puts("  \"#{src_path_prefix}#{source.path}\"")
           end
           file.puts(')')
           file.puts
@@ -127,11 +130,7 @@ module Wrapture
           file.puts("  PUBLIC #{lib_deps}")
           file.puts(')')
           file.puts("target_include_directories(#{@source_set.name}")
-          if @source_dir
-            file.puts("  PRIVATE ${#{@source_set.name.upcase}_DIR}")
-          else
-            file.puts('  PRIVATE ${PROJECT_SOURCE_DIR}')
-          end
+          file.puts("  PRIVATE #{include_path_prefix}")
           file.puts(')')
           file.puts
         end
@@ -147,6 +146,39 @@ module Wrapture
       # Invocations of CMake to configure and install this project.
       def install_commands(install_dir: '.')
         ['cmake .', "cmake --install . --prefix #{install_dir}"]
+      end
+
+      # Writes all source files to the file system, returning an Array of the
+      # Pathnames created.
+      #
+      # +dir+ is the directory to write the files to. If not provided, files are
+      # written to the current directory.
+      #
+      # Header files for the project are written into a folder named 'include',
+      # which will be created if it does not exist. Other sources are written to
+      # a folder named 'src' which will also be created if it doesn't exist. The
+      # CMakeLists.txt file is written directly into +dir+.
+      def save(dir = '.')
+        dir = Pathname.new(dir) unless dir.is_a?(Pathname)
+        saved_sources = build_sources.map { |it| it.save(dir) }
+
+        unless @source_set.lib_headers.empty?
+          include_dir = dir.join('include')
+          FileUtils.mkdir_p(include_dir)
+          saved_sources += @source_set.lib_headers.map do |it|
+            it.save(include_dir)
+          end
+        end
+
+        unless @source_set.lib_sources.empty?
+          src_dir = dir.join('src')
+          FileUtils.mkdir_p(src_dir)
+          saved_sources += @source_set.lib_sources.map do |it|
+            it.save(src_dir)
+          end
+        end
+
+        saved_sources
       end
 
       # All source files in this project.
