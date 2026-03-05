@@ -287,8 +287,8 @@ class CToCppTest < Minitest::Test
 
     validate_cpp_build(scope, build)
 
-    # 2 headers per class, one per enum, and the rollup header
-    expected_count = (scope.classes.count * 2) + scope.enums.count + 1
+    # 2 headers per class, one per enum, and the rollup and export headers
+    expected_count = (scope.classes.count * 2) + scope.enums.count + 2
 
     assert_equal(expected_count, build.sources.count)
   end

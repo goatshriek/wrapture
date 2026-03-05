@@ -12,7 +12,6 @@ fixes, check out the
 ## [0.6.0] - Unreleased
 ### Added
  - Support for Ruby 3.2 through 3.4.
- - Ruby 2.6 is no longer supported.
  - RBS signatures.
  - Python wrapper generation.
  - CMake project generation.
@@ -25,7 +24,7 @@ fixes, check out the
    all headers generated for them.
 
 ### Removed
- - Ruby 2.4 and 2.5 are no longer supported.
+ - Ruby 2.4 through 2.6 are no longer supported.
 
 ## [0.5.0] - 2020-12-15
 ### Fixed

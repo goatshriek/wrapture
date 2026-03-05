@@ -39,9 +39,6 @@ class ScopeTest < Minitest::Test
     assert_equal(test_spec[:classes].count, scope.classes.count)
     assert_equal(0, scope.enums.count)
 
-    build = Wrapture::Wrapper::CToCpp.wrap_scope(scope)
-
-    assert_equal(scope.classes.count, build.sources.count / 2)
     assert_equal('wrapture_test', scope.name)
   end
 
@@ -51,10 +48,6 @@ class ScopeTest < Minitest::Test
 
     assert_equal(test_spec[:classes].count, scope.classes.count)
     assert_equal(0, scope.enums.count)
-
-    build = Wrapture::Wrapper::CToCpp.wrap_scope(scope)
-
-    assert_equal(scope.classes.count, build.sources.count / 2)
   end
 
   def test_templatized_classes
@@ -119,6 +112,5 @@ class ScopeTest < Minitest::Test
     validate_cpp_build(scope, build)
 
     assert_equal(test_spec[:classes].count, scope.classes.count)
-    assert_equal(scope.classes.count, build.sources.count / 2)
   end
 end

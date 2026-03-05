@@ -20,6 +20,7 @@
 
 require 'wrapture/c_source/c_block'
 require 'wrapture/c_source/c_declaration'
+require 'wrapture/c_source/c_export_header'
 require 'wrapture/c_source/c_expression'
 require 'wrapture/c_source/c_function'
 require 'wrapture/c_source/c_if'

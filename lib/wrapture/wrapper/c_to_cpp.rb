@@ -872,6 +872,7 @@ module Wrapture
         end
 
         source_set.add_lib_header(scope_header(scope))
+        source_set.add_lib_header(CSource::CExportHeader.from_spec(scope))
 
         source_set
       end
