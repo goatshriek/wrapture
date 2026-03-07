@@ -41,6 +41,9 @@ module Wrapture
       src = []
       src += format_doxygen(cls.doc) unless cls.doc.empty?
       src << 'class '
+      cls.attributes.each do |it|
+        src << "#{it} "
+      end
       src << cls.name
       src << " : public #{cls.parent_name}" unless cls.parent_name.nil?
       src << " {\npublic:\n"

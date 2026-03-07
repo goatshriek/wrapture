@@ -47,7 +47,11 @@ module Wrapture
 
       # An export header name derived from a +Named+ +spec+.
       def self.export_header_name(spec)
-        "#{spec.snake_case_name}_export.h"
+        if spec.name_words.empty?
+          'export.h'
+        else
+          "#{spec.snake_case_name}_export.h"
+        end
       end
 
       # A fully-defined export header for a +Named+ +spec+.
@@ -60,10 +64,14 @@ module Wrapture
       # used by the Microsoft C compiler: see
       # {the Microsoft Learn article}[https://learn.microsoft.com/en-us/cpp/build/importing-into-an-application-using-declspec-dllimport]
       # for more information.
-      def self.from_spec(spec)
-        header_name = export_header_name(spec)
+      def self.from_spec(spec, path: nil)
+        header_name = if path.nil?
+                        export_header_name(spec)
+                      else
+                        path
+                      end
         base_name = base_name(spec)
-        guard = "#{header_name.upcase.delete_suffix('.H')}_H"
+        guard = header_name.upcase.gsub('.', '_')
         header = new(header_name, base_name)
 
         content = <<~HEADER_CONTENT
@@ -73,7 +81,7 @@ module Wrapture
           #ifdef _WIN32
           #  ifdef #{base_name}_EXPORTING
           #    define #{base_name}_EXPORT __declspec(dllexport)
-          #  else')
+          #  else
           #    define #{base_name}_EXPORT __declspec(dllimport)
           #  endif
           #else

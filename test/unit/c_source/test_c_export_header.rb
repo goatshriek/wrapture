@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
+# frozen_string_literal: true
+
 # Copyright 2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,17 +16,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-module Wrapture
-  module CSource
-    class CExportHeader < CSourceFile
-      @base_name: String
+require 'helper'
 
-      def self.base_name: (Named) -> String
-      def self.export_header_name: (Named) -> String
-      def self.from_spec: (Named, ?path: (Pathname | String)) -> CExportHeader
+require 'fixture'
+require 'minitest/autorun'
+require 'wrapture'
 
-      def initialize: ((Pathname | String), String) -> void
-      attr_reader base_name: String
-    end
+class CExportHeaderTest < Minitest::Test
+  def test_export_header_name_with_empty_name
+    scope = Wrapture::Scope.new
+    name = Wrapture::CSource::CExportHeader.export_header_name(scope)
+
+    refute(name.start_with?('_'),
+           'export header name starts with underscore for an empty name')
   end
 end

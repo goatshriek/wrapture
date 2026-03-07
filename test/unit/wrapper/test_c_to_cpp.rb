@@ -58,10 +58,13 @@ class CToCppTest < Minitest::Test
   def test_declaration_includes_with_no_c_details
     # we need a class spec where there isn't a :c key in wrapped
     class_spec = Wrapture::ClassSpec.new(fixture_hash('versioned_class'))
+    scope = Wrapture::Scope.new({ name: ['test'] })
+    includes = Wrapture::Wrapper::CToCpp.declaration_includes(class_spec, scope)
 
-    assert_empty(Wrapture::Wrapper::CToCpp.declaration_includes(class_spec),
-                 'declaration includes not empty for a class spec with no ' \
-                 'entry for c in the wrapped languages')
+    assert_equal(1, includes.length,
+                 'declaration includes has more than export header for a  ' \
+                 'class spec with no entry for c in the wrapped languages')
+    assert(includes.first.end_with?('export.hpp'))
   end
 
   def test_delegating_constructor
