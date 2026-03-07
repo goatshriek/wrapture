@@ -70,8 +70,10 @@ end
 def count_matches(filename, regex)
   count = 0
 
-  File.open(filename).each do |line|
-    count += 1 if line.match(regex)
+  File.open(filename) do |file|
+    file.each do |line|
+      count += 1 if line.match(regex)
+    end
   end
 
   count
@@ -88,8 +90,10 @@ def count_source_file_matches(source_file, regex)
 end
 
 def file_contains_match?(filename, regex)
-  File.open(filename).each do |line|
-    return true if line.match(regex)
+  File.open(filename) do |file|
+    file.each do |line|
+      return true if line.match(regex)
+    end
   end
 
   false
@@ -97,9 +101,11 @@ end
 
 def get_include_list(filename)
   includes = []
-  File.open(filename).each do |line|
-    if (m = line.match(/#\s*include\s*["<](.*)[">]/))
-      includes << m[1]
+  File.open(filename) do |file|
+    file.each do |line|
+      if (m = line.match(/#\s*include\s*["<](.*)[">]/))
+        includes << m[1]
+      end
     end
   end
 
@@ -239,21 +245,23 @@ def validate_indentation(filename)
   line_number = 0
   indent_level = 0
 
-  File.open(filename).each do |line|
-    line_number += 1
+  File.open(filename) do |file|
+    file.each do |line|
+      line_number += 1
 
-    next if line.strip.empty?
+      next if line.strip.empty?
 
-    line.chomp!
+      line.chomp!
 
-    indent_level -= 1 if line.end_with?('}', '};') ||
-                         line.include?('} if') ||
-                         line.include?('} else')
+      indent_level -= 1 if line.end_with?('}', '};') ||
+                           line.include?('} if') ||
+                           line.include?('} else')
 
-    msg_prefix = "#{filename}: line #{line_number}"
-    validate_space_count(line, indent_level, msg_prefix)
+      msg_prefix = "#{filename}: line #{line_number}"
+      validate_space_count(line, indent_level, msg_prefix)
 
-    indent_level += 1 if line.end_with?('{')
+      indent_level += 1 if line.end_with?('{')
+    end
   end
 end
 

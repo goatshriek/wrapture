@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2025 Joel E. Anderson
+# Copyright 2025-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ module Wrapture
 
       # The includes used within this source file.
       def includes
-        @tree.select { |it| it.is_a?(CSource::CInclude) }
+        @tree.grep(CSource::CInclude)
       end
     end
   end

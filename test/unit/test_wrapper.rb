@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2019-2025 Joel E. Anderson
+# Copyright 2019-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ require 'helper'
 require 'minitest/autorun'
 require 'wrapture'
 
+# rubocop:disable Style/OneClassPerFile -- simple modules for testing
 module WToX
   extend Wrapture::Wrapper
 end
@@ -138,4 +139,6 @@ class WrapperTest < Minitest::Test
       end
     end
   end
+
+  # rubocop:enable Style/OneClassPerFile
 end
