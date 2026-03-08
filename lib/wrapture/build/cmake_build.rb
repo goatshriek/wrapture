@@ -24,7 +24,9 @@ module Wrapture
   module Build
     # A CMake project that builds a library.
     #
-    # This currently supports C and C++ libraries.
+    # CMake is a common build system for C and C++ projects. It uses a file
+    # named CMakeLists.txt to describe how to build a project, including
+    # information about the source files and any dependencies required.
     class CmakeBuild
       include Build
       include SourceSet
@@ -72,16 +74,12 @@ module Wrapture
       end
 
       # A CMakeLists.txt file that could be used to build this project.
-      #
-      # CMake is a common build system for C and C++ projects. It uses a file
-      # named CMakeLists.txt to describe how to build a project, including
-      # information about the source files and any dependencies required.
       def cmake_lists
         file = SourceFile.new('CMakeLists.txt')
         file.puts('cmake_minimum_required(VERSION 3.10)')
         file.puts("project(#{@source_set.name})")
         file.puts
-        file.puts("set(#{@source_set.name.upcase}_INCLUDE_DIR")
+        file.puts("set(#{include_dir_variable}")
         file.puts("  \"#{@include_dir}\"")
         file.puts(')')
         file.puts
@@ -90,16 +88,7 @@ module Wrapture
         file.puts(')')
         file.puts
 
-        include_path_prefix = "${#{@source_set.name.upcase}_INCLUDE_DIR}/"
         src_path_prefix = "${#{@source_set.name.upcase}_SOURCE_DIR}/"
-
-        header_list = "#{@source_set.name.upcase}_HEADERS"
-        file.puts("set(#{header_list}")
-        @source_set.lib_headers.each do |header|
-          file.puts("  \"#{include_path_prefix}#{header.path}\"")
-        end
-        file.puts(')')
-        file.puts
 
         unless @source_set.lib_sources.empty?
           source_list = "#{@source_set.name.upcase}_SOURCES"
@@ -130,17 +119,44 @@ module Wrapture
           file.puts("  PUBLIC #{lib_deps}")
           file.puts(')')
           file.puts("target_include_directories(#{@source_set.name}")
-          file.puts("  PRIVATE #{include_path_prefix}")
+          target_include_directories.each do |dir|
+            file.puts("  PRIVATE \"#{dir}\"")
+          end
           file.puts(')')
           file.puts
         end
 
+        exports = @source_set.lib_headers.grep(CSource::CExportHeader)
+        unless exports.empty?
+          file.puts('include(GenerateExportHeader)')
+          exports.each do |export|
+            export_path = "${PROJECT_BINARY_DIR}/include/#{export.path}"
+            file.puts("generate_export_header(#{@source_set.name}")
+            file.puts("  BASE_NAME \"#{export.base_name}\"")
+            file.puts("  EXPORT_FILE_NAME \"#{export_path}\"")
+            file.puts(')')
+          end
+        end
+
+        header_list = "#{@source_set.name.upcase}_HEADERS"
+        file.puts("set(#{header_list}")
+        target_headers.each do |header|
+          file.puts("  \"#{header}\"")
+        end
+        file.puts(')')
+        file.puts
+
         file.puts('include(GNUInstallDirs)')
         file.puts("install(TARGETS #{@source_set.name})")
-        header_dest = 'DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}'
+        header_dest = 'DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"'
         file.puts("install(FILES ${#{header_list}} #{header_dest})")
 
         file
+      end
+
+      # The CMake variable that holds the include directory for the project.
+      def include_dir_variable
+        "#{@source_set.name.upcase}_INCLUDE_DIR"
       end
 
       # Invocations of CMake to configure and install this project.
@@ -162,10 +178,11 @@ module Wrapture
         dir = Pathname.new(dir) unless dir.is_a?(Pathname)
         saved_sources = build_sources.map { |it| it.save(dir) }
 
-        unless @source_set.lib_headers.empty?
+        headers = @source_set.lib_headers.grep_v(CSource::CExportHeader)
+        unless headers.empty?
           include_dir = dir.join('include')
           FileUtils.mkdir_p(include_dir)
-          saved_sources += @source_set.lib_headers.map do |it|
+          saved_sources += headers.map do |it|
             it.save(include_dir)
           end
         end
@@ -187,6 +204,28 @@ module Wrapture
       # project.
       def sources
         build_sources + @source_set.sources
+      end
+
+      # The headers for the library target in this project.
+      def target_headers
+        @source_set.lib_headers.map do |header|
+          if header.is_a?(CSource::CExportHeader)
+            "${PROJECT_BINARY_DIR}/include/#{header.path}"
+          else
+            "${#{include_dir_variable}}/#{header.path}"
+          end
+        end
+      end
+
+      # The include directories for the library target in this project.
+      def target_include_directories
+        dirs = [include_dir_variable]
+
+        unless @source_set.lib_headers.grep(CSource::CExportHeader).empty?
+          dirs << '${PROJECT_BINARY_DIR}/include'
+        end
+
+        dirs
       end
     end
   end

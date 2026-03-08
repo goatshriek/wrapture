@@ -97,4 +97,19 @@ class CmakeBuildTest < Minitest::Test
     assert(cmake_lists.contents.any? { |it| it.include?('cmakeclib.c') })
     assert(cmake_lists.contents.any? { |it| it.include?('cmakeclib.h') })
   end
+
+  def test_cmakelists_for_export_header
+    export = Wrapture::CSource::CExportHeader.new('test_export.h',
+                                                  'TEST_BASE_NAME')
+    source_set = Wrapture::CSource::CSourceSet.new('test_export_lib')
+    source_set.add_lib_header(export)
+    build = Wrapture::Build::CmakeBuild.new(source_set)
+    cmake_lists = build.cmake_lists
+
+    assert_instance_of(Wrapture::SourceFile, cmake_lists)
+    assert(source_file_contains_match?(cmake_lists,
+                                       'include\(GenerateExportHeader\)'))
+    assert(source_file_contains_match?(cmake_lists,
+                                       'BASE_NAME "TEST_BASE_NAME"'))
+  end
 end
