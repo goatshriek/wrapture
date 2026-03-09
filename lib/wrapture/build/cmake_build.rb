@@ -75,6 +75,8 @@ module Wrapture
 
       # A CMakeLists.txt file that could be used to build this project.
       def cmake_lists
+        # TODO: pick up here, add definition of export macro to target build
+
         file = SourceFile.new('CMakeLists.txt')
         file.puts('cmake_minimum_required(VERSION 3.10)')
         file.puts("project(#{@source_set.name})")
@@ -89,6 +91,7 @@ module Wrapture
         file.puts
 
         src_path_prefix = "${#{@source_set.name.upcase}_SOURCE_DIR}/"
+        exports = @source_set.lib_headers.grep(CSource::CExportHeader)
 
         unless @source_set.lib_sources.empty?
           source_list = "#{@source_set.name.upcase}_SOURCES"
@@ -123,10 +126,18 @@ module Wrapture
             file.puts("  PRIVATE \"#{dir}\"")
           end
           file.puts(')')
+
+          unless exports.empty?
+            file.puts("target_compile_definitions(#{@source_set.name}")
+            exports.each do |export|
+              file.puts("  PRIVATE #{export.base_name}_EXPORTING=1")
+            end
+            file.puts(')')
+          end
+
           file.puts
         end
 
-        exports = @source_set.lib_headers.grep(CSource::CExportHeader)
         unless exports.empty?
           file.puts('include(GenerateExportHeader)')
           exports.each do |export|
