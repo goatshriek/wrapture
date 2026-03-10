@@ -78,6 +78,19 @@ module Wrapture
           #ifndef #{guard}
           #define #{guard}
 
+          /**
+           * @file #{header_name}
+           * @brief An export header for #{base_name}.
+           * This header defines the macro that is used in public headers that
+           * make their contents available for external use.
+           */
+
+          /**
+           * @def #{base_name}_EXPORT
+           * An attribute that designates that a class or function should be
+           * available to users of this library.
+           */
+
           #ifdef _WIN32
           #  ifdef #{base_name}_EXPORTING
           #    define #{base_name}_EXPORT __declspec(dllexport)
