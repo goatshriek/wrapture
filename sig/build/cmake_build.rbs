@@ -32,12 +32,18 @@ module Wrapture
       def build_commands: -> Array[String]
       def build_system_sources: -> Array[Wrapture::SourceFile]
       def cmake_lists: -> Wrapture::SourceFile
+      def headers_variable: -> String
       def include_dir_variable: -> String
       def install_commands: (?install_dir: String) -> Array[String]
       def save: (?(String | Pathname)) -> Array[Pathname]
       def sources: -> Enumerable[Wrapture::SourceFile]
       def target_headers: -> Array[String]
       def target_include_directories: -> Array[String]
+
+      private
+
+      def cmake_lists_generate_export_header_lines: -> Array[String]
+      def cmake_lists_target_install_lines: -> Array[String]
     end
   end
 end

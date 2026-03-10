@@ -75,8 +75,6 @@ module Wrapture
 
       # A CMakeLists.txt file that could be used to build this project.
       def cmake_lists
-        # TODO: pick up here, add definition of export macro to target build
-
         file = SourceFile.new('CMakeLists.txt')
         file.puts('cmake_minimum_required(VERSION 3.10)')
         file.puts("project(#{@source_set.name})")
@@ -138,31 +136,23 @@ module Wrapture
           file.puts
         end
 
-        unless exports.empty?
-          file.puts('include(GenerateExportHeader)')
-          exports.each do |export|
-            export_path = "${PROJECT_BINARY_DIR}/include/#{export.path}"
-            file.puts("generate_export_header(#{@source_set.name}")
-            file.puts("  BASE_NAME \"#{export.base_name}\"")
-            file.puts("  EXPORT_FILE_NAME \"#{export_path}\"")
-            file.puts(')')
-          end
-        end
+        cmake_lists_generate_export_header_lines.each { |it| file.puts(it) }
 
-        header_list = "#{@source_set.name.upcase}_HEADERS"
-        file.puts("set(#{header_list}")
+        file.puts("set(#{headers_variable}")
         target_headers.each do |header|
           file.puts("  \"#{header}\"")
         end
         file.puts(')')
         file.puts
 
-        file.puts('include(GNUInstallDirs)')
-        file.puts("install(TARGETS #{@source_set.name})")
-        header_dest = 'DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"'
-        file.puts("install(FILES ${#{header_list}} #{header_dest})")
+        cmake_lists_target_install_lines.each { |it| file.puts(it) }
 
         file
+      end
+
+      # The CMake variable that holds the public headers for the library.
+      def headers_variable
+        "#{@source_set.name.upcase}_HEADERS"
       end
 
       # The CMake variable that holds the include directory for the project.
@@ -237,6 +227,37 @@ module Wrapture
         end
 
         dirs
+      end
+
+      private
+
+      # Lines of CMake code to generate the export headers for the library,
+      # without line endings.
+      def cmake_lists_generate_export_header_lines
+        exports = @source_set.lib_headers.grep(CSource::CExportHeader)
+
+        return [] if exports.empty?
+
+        lines = ['include(GenerateExportHeader)']
+
+        exports.each do |export|
+          export_path = "${PROJECT_BINARY_DIR}/include/#{export.path}"
+          lines << "generate_export_header(#{@source_set.name}"
+          lines << "  BASE_NAME \"#{export.base_name}\""
+          lines << "  EXPORT_FILE_NAME \"#{export_path}\""
+          lines << ')'
+        end
+
+        lines
+      end
+
+      # Lines of CMake code to install the library target, without line endings.
+      def cmake_lists_target_install_lines
+        header_dest = 'DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"'
+
+        ['include(GNUInstallDirs)',
+         "install(TARGETS #{@source_set.name})",
+         "install(FILES ${#{headers_variable}} #{header_dest})"]
       end
     end
   end
