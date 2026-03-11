@@ -90,13 +90,13 @@ def count_source_file_matches(source_file, regex)
 end
 
 def file_contains_match?(filename, regex)
+  result = false
+
   File.open(filename) do |file|
-    file.each do |line|
-      return true if line.match(regex)
-    end
+    result = file.any? { |line| line.match(regex) }
   end
 
-  false
+  result
 end
 
 def get_include_list(filename)
