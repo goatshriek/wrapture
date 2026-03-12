@@ -25,7 +25,7 @@ module Wrapture
     # A CMake project that builds a library.
     #
     # CMake is a common build system for C and C++ projects. It uses a file
-    # named CMakeLists.txt to describe how to build a project, including
+    # named +CMakeLists.txt+ to describe how to build a project, including
     # information about the source files and any dependencies required.
     class CmakeBuild
       include Build
