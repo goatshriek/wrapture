@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
+# frozen_string_literal: true
+
 # Copyright 2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,9 +16,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: "MinimalClass"
-version: "0.6.0"
-namespace: "wrapture_test"
-wrapped:
-  c:
-    name: "minimal_struct"
+require 'helper'
+
+require 'fixture'
+require 'minitest/autorun'
+require 'wrapture'
+
+class CExportHeaderTest < Minitest::Test
+  def test_export_header_name_with_empty_name
+    scope = Wrapture::Scope.new
+    name = Wrapture::CSource::CExportHeader.export_header_name(scope)
+
+    refute(name.start_with?('_'),
+           'export header name starts with underscore for an empty name')
+  end
+end

@@ -149,8 +149,8 @@ module Wrapture
       # wrapped functions and invoking error handling are not needed for the
       # declaration. Additional C++ includes may also be present to bring in
       # type declarations for parameters declared by Wrapture.
-      def self.declaration_includes(class_spec)
-        includes = []
+      def self.declaration_includes(class_spec, scope)
+        includes = ["#{CSource::CExportHeader.export_header_name(scope)}pp"]
 
         includes.concat(class_spec[:c].includes) if class_spec.wrapped.key?(:c)
 
@@ -179,7 +179,8 @@ module Wrapture
         includes.uniq
       end
 
-      # Generate a source file with the declaration of a class.
+      # Generate a source file with the declaration of a class within a given
+      # context +scope+.
       def self.declare_class(class_spec, scope)
         src = CppSource::CppSourceFile.new(header_name(class_spec))
 
@@ -188,20 +189,15 @@ module Wrapture
         src.puts("#define #{guard}")
         src.puts
 
-        declaration_includes(class_spec).sort.each do |inc|
+        declaration_includes(class_spec, scope).sort.each do |inc|
           src << CSource::CInclude.new(inc)
         end
 
-        namespace_words = if scope.decorate_wrapped_name?
-                            Cpp.decorate_name_words(scope.name_words)
-                          else
-                            scope.name_words
-                          end
-        namespace = Named.snake_case_name(namespace_words)
+        namespace = scope_namespace(scope)
         src.puts("namespace #{namespace} {")
         src.puts
 
-        src.declare(defined_class_from_spec(class_spec))
+        src.declare(defined_class_from_spec(class_spec, scope))
 
         src.puts
         src.puts("} /* namespace #{namespace} */")
@@ -348,23 +344,17 @@ module Wrapture
           raise UndefinableSpec, "#{class_spec.name} is not definable"
         end
 
-        namespace_words = if scope.decorate_wrapped_name?
-                            Cpp.decorate_name_words(scope.name_words)
-                          else
-                            scope.name_words
-                          end
-        namespace = Named.snake_case_name(namespace_words)
-
+        namespace = scope_namespace(scope)
         src = CppSource::CppSourceFile.new("#{class_spec.name}.cpp")
 
-        definition_includes(class_spec).sort.each do |inc|
+        definition_includes(class_spec, scope).sort.each do |inc|
           src << CSource::CInclude.new(inc)
         end
 
         src.puts("namespace #{namespace} {")
         src.puts
 
-        src << defined_class_from_spec(class_spec)
+        src << defined_class_from_spec(class_spec, scope)
 
         src.puts
         src.puts("} /* namespace #{namespace} */")
@@ -385,12 +375,7 @@ module Wrapture
           src << CSource::CInclude.new(inc)
         end
 
-        namespace_words = if scope.decorate_wrapped_name?
-                            Cpp.decorate_name_words(scope.name_words)
-                          else
-                            scope.name_words
-                          end
-        namespace = Named.snake_case_name(namespace_words)
+        namespace = scope_namespace(scope)
 
         src.puts("namespace #{namespace} {")
         src.puts
@@ -406,8 +391,8 @@ module Wrapture
       end
 
       # Creates a CppClass instance from a ClassSpec, with all members and
-      # functions fully defined.
-      def self.defined_class_from_spec(spec)
+      # functions fully defined, in the given +scope+.
+      def self.defined_class_from_spec(spec, scope)
         # start with the type class, then build out the definitions
         cls = type_class_from_spec(spec)
         cls.doc = spec.doc
@@ -456,6 +441,8 @@ module Wrapture
           cls.member_functions << factory_member_function(spec)
         end
 
+        cls.attributes << "#{CSource::CExportHeader.base_name(scope)}_EXPORT"
+
         cls
       end
 
@@ -470,10 +457,11 @@ module Wrapture
         end
       end
 
-      # The includes needed in the definition file for the given class spec.
-      def self.definition_includes(class_spec)
+      # The includes needed in the definition file for the given +class_spec+ in
+      # the given +scope+.
+      def self.definition_includes(class_spec, scope)
         inc = [declaration_filename(class_spec)]
-        inc.concat(declaration_includes(class_spec))
+        inc.concat(declaration_includes(class_spec, scope))
         inc.concat(C.includes(class_spec))
 
         if C.factory?(class_spec, class_spec.scope)
@@ -805,6 +793,18 @@ module Wrapture
         header
       end
 
+      # The namespace words of a +scope+ that classes and enums within it are a
+      # part of.
+      def self.scope_namespace(scope)
+        words = if scope.decorate_wrapped_name?
+                  Cpp.decorate_name_words(scope.name_words)
+                else
+                  scope.name_words
+                end
+
+        Named.snake_case_name(words)
+      end
+
       # Creates a CppClass instance from a ClassSpec, with enough information
       # available to use the class for type conversions.
       def self.type_class_from_spec(spec)
@@ -872,6 +872,10 @@ module Wrapture
         end
 
         source_set.add_lib_header(scope_header(scope))
+
+        export_name = "#{CSource::CExportHeader.export_header_name(scope)}pp"
+        export = CSource::CExportHeader.from_spec(scope, path: export_name)
+        source_set.add_lib_header(export)
 
         source_set
       end

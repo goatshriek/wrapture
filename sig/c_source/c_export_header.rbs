@@ -14,9 +14,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: "MinimalClass"
-version: "0.6.0"
-namespace: "wrapture_test"
-wrapped:
-  c:
-    name: "minimal_struct"
+module Wrapture
+  module CSource
+    class CExportHeader < CSourceFile
+      @base_name: String
+
+      def self.base_name: (Named) -> String
+      def self.export_header_name: (Named) -> String
+      def self.from_spec: (Named, ?path: (Pathname | String)) -> CExportHeader
+
+      def initialize: ((Pathname | String), String) -> void
+      attr_reader base_name: String
+    end
+  end
+end
