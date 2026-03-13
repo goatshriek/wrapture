@@ -39,6 +39,8 @@ module Wrapture
                      CType.from_hash({ name: param[:type] })
                    when Hash
                      CType.from_hash(param[:type])
+                   else
+                     CType.new(param[:type])
                    end
             name = (param[:name] if param.key?(:name))
             value = if param.key?(:value)

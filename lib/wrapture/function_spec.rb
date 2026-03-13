@@ -292,14 +292,13 @@ module Wrapture
     # True if this function is overloaded in it's owning scope.
     def overloaded?
       case @owner
-      when Scope
-        false
       when ClassSpec
         @owner.functions.count do |f|
           f.name_words == name_words &&
             f.constructor? == constructor? &&
             f.destructor? == destructor?
         end > 1
+      else false
       end
     end
 

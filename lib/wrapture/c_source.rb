@@ -93,10 +93,7 @@ module Wrapture
         c_type = c_type.c_type
       end
 
-      case c_type
-      when CFunction
-        return format_function_declaration(c_type)
-      end
+      return format_function_declaration(c_type) if c_type.is_a?(CFunction)
 
       type_name = case c_type
                   when CStruct
