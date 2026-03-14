@@ -25,6 +25,8 @@ module Wrapture
       attr_reader vals: Array[String | CExpression]
       attr_reader operator: Symbol
 
+      def self.from_hash: (Hash[Symbol, untyped]) -> CExpression
+
       def initialize: (String | Array[String | CExpression], Symbol) -> void
     end
   end

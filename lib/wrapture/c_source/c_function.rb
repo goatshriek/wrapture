@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2025 Joel E. Anderson
+# Copyright 2025-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,7 +24,63 @@ module Wrapture
     class CFunction
       include CBlock
 
+      # The attributes of the function.
+      attr_reader :attributes
+
+      # The action taken when an error is encountered.
+      attr_accessor :error_action
+
+      # Th rules to detect when an error has occurred.
+      attr_reader :error_rules
+
+      # The list of failure labels of the function.
+      attr_reader :fail_labels
+
+      # The includes needed to use this function.
+      attr_reader :includes
+
+      # An array of libraries required for this function call.
+      attr_reader :libraries
+
+      # The name of the function.
+      attr_reader :name
+
+      # The parameters of the function.
+      attr_reader :params
+
+      # The return type of the function.
+      attr_accessor :return_type
+
+      # The tree of the function body.
+      attr_reader :tree
+
       # Creates a new C function from a hash.
+      #
+      # The only mandatory key of the hash is +:name+, which will be used as
+      # the name of the created CFunction.
+      #
+      # The remaining keys are optional.
+      #
+      # The +:params+ key must be an enumerable if it exists. Each entry in this
+      # enumerable must be a Hash, with a +:type+ key, and optionally +:name+
+      # and/or +:value+ keys.
+      #
+      # The +:includes+ key must be either a single +String+ or an +Enumerable+
+      # of +String+ instances, which are the includes needed to use this
+      # function.
+      #
+      # The +:libraries+ key must be either a single +String+ or an +Enumerable+
+      # of +String+ instances, which are the libraries that must be linked in
+      # order to use this function.
+      #
+      # The +:return+ key must be a +Hash+ with a +:type+ key, which is used to
+      # construct the +CType+ of the return value. It must either be a +String+
+      # or a +Hash+.
+      #
+      # The +:error_check+ key contains a +Hash+ that has a +:rules+ and
+      # +:error_action+ key which contain a +CExpression+ and +RuleSpec+ hash,
+      # respectively, that describe how errors are detected and what happens
+      # when they are.
       def self.from_hash(spec)
         unless spec.key?(:name)
           raise MissingSpecKey, 'a name is required for c functions'
@@ -32,6 +88,7 @@ module Wrapture
 
         func = CFunction.new(spec[:name])
 
+        # TODO: factor this out into a CParam class
         if spec.key?(:params)
           spec[:params].each do |param|
             type = case param[:type]
@@ -53,41 +110,33 @@ module Wrapture
         end
 
         if spec.key?(:includes)
-          func.includes = Wrapture.normalize_array(spec[:includes])
+          func.includes.concat(Wrapture.normalize_array(spec[:includes]))
+        end
+
+        if spec.key?(:libraries)
+          func.libraries.concat(Wrapture.normalize_array(spec[:libraries]))
         end
 
         if spec.key?(:return) && spec[:return].key?(:type)
-          func.return_type = CType.new(spec[:return][:type])
+          func.return_type = if spec[:return][:type].is_a?(String)
+                               CType.new(spec[:return][:type])
+                             else
+                               CType.from_hash(spec[:return][:type])
+                             end
         end
 
         if spec.key?(:error_check)
           check = spec[:error_check]
 
           check[:rules].each do |rule|
-            op = CExpression::OPERATORS.find do |op|
-              op.to_s == rule[:condition]
-            end
-
-            if rule.key?(:condition) && op.nil?
-              msg = "unrecognized rule condition #{rule[:condition]}"
-              raise InvalidRuleCondition, msg
-            end
-
-            exps = [rule[:left_expression], rule[:right_expression]]
-            func.error_rules << CExpression.new(exps, op)
+            rule_spec = { operator: rule[:condition],
+                          values: [rule[:left_expression],
+                                   rule[:right_expression]] }
+            func.error_rules << CExpression.from_hash(rule_spec)
           end
 
           unless func.error_rules.empty?
             func.error_action = ActionSpec.new(check[:error_action])
-          end
-        end
-
-        if spec.key?(:libraries)
-          case spec[:libraries]
-          when String
-            func.libraries << spec[:libraries]
-          else
-            func.libraries.concat(spec[:libraries]) if spec.key?(:libraries)
           end
         end
 
@@ -111,36 +160,6 @@ module Wrapture
         @error_rules = []
         @libraries = []
       end
-
-      # The attributes of the function.
-      attr_reader :attributes
-
-      # The action taken when an error is encountered.
-      attr_accessor :error_action
-
-      # Th rules to detect when an error has occurred.
-      attr_reader :error_rules
-
-      # The list of failure labels of the function.
-      attr_reader :fail_labels
-
-      # The includes needed to use this function.
-      attr_accessor :includes
-
-      # An array of libraries required for this function call.
-      attr_accessor :libraries
-
-      # The name of the function.
-      attr_reader :name
-
-      # The parameters of the function.
-      attr_reader :params
-
-      # The return type of the function.
-      attr_accessor :return_type
-
-      # The tree of the function body.
-      attr_reader :tree
 
       # Add a failure label to the function, along with code that is executed
       # when this label is used. New labels are added before existing ones, so

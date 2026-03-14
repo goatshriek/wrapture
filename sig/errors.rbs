@@ -2,6 +2,9 @@ module Wrapture
   class WraptureError < StandardError
   end
 
+  class InvalidCondition < WraptureError
+  end
+
   class InvalidConstructor < WraptureError
   end
 
@@ -9,9 +12,6 @@ module Wrapture
   end
 
   class InvalidTemplateUsage < WraptureError
-  end
-
-  class InvalidRuleCondition < WraptureError
   end
 
   class InvalidSpec < WraptureError

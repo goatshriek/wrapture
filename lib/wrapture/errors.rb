@@ -67,7 +67,7 @@ module Wrapture
   class KeyConflict < WraptureError
   end
 
-  # The spec is missing a key that is required.
+  # A spec hash is missing a key that is required.
   class MissingSpecKey < WraptureError
   end
 

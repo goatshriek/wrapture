@@ -34,6 +34,21 @@ module Wrapture
       # expression.
       attr_reader :operator
 
+      # Creates a new CExpression from a +Hash+.
+      def self.from_hash(expr_hash)
+        op = OPERATORS.find do |op|
+          op.to_s == expr_hash[:operator]
+        end
+
+        if op.nil?
+          raise InvalidSpecKey, "expression operator #{expr_hash[:operator]}"
+        end
+
+        vals = Wrapture.normalize_array(expr_hash[:values])
+
+        CExpression.new(vals, op)
+      end
+
       # An expression as at least one value, and optionally an operator that
       # defines what is done to the values.
       def initialize(vals, operator = nil)
