@@ -764,7 +764,9 @@ module Wrapture
           incs << CSource::CInclude.new('stddef.h', comment: 'for offsetof()')
         end
 
-        Wrapper::C.includes(scope).each { |it| incs << it }
+        Wrapper::C.includes(scope).each do |it|
+          incs << CSource::CInclude.new(it)
+        end
 
         incs
       end
