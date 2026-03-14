@@ -432,14 +432,8 @@ module Wrapture
         src = CSource::CSourceFile.new("#{scope.name}.c")
 
         src.puts('#define PY_SSIZE_T_CLEAN')
-        src.include('Python.h')
 
-        # offsetof is only needed for the member definition for constants
-        if scope.classes.any? { |class_spec| !class_spec.constants.empty? }
-          src.include('stddef.h', comment: 'for offsetof()')
-        end
-
-        Wrapper::C.includes(scope).each { |inc| src.include(inc) }
+        module_includes(scope).each { |it| src << it }
 
         declare_module_struct(src, scope)
 
@@ -451,20 +445,12 @@ module Wrapture
           src << class_type_struct(class_spec)
           src.declare('PyTypeObject', type_object_name(class_spec),
                       attributes: ['static'])
-
-          # next unless class_spec.factory?
-          next unless C.factory?(class_spec, scope)
-
-          # TODO: do we need this forward declaration?
-          src << factory_constructor(class_spec).declaration
-          src << ";\n"
         end
 
         scope.classes.select do |it|
           src << factory_constructor(it) if C.factory?(it, scope)
         end
 
-        overload_groups = {}
         scope.classes.each do |class_spec|
           # TODO: member constructors aren't implemented for Python!
           unless class_spec.functions.any?(&:constructor?)
@@ -477,19 +463,10 @@ module Wrapture
 
           class_spec.functions.each do |func_spec|
             src << function_wrapper(func_spec)
-
-            # collect the overloads to define the dispatcher later
-            if func_spec.overloaded?
-              if overload_groups.include?(func_spec.name)
-                overload_groups[func_spec.name] << func_spec
-              else
-                overload_groups[func_spec.name] = [func_spec]
-              end
-            end
           end
         end
 
-        overload_groups.each_value do |funcs|
+        overload_groups(scope).each_value do |funcs|
           src << overload_dispatcher(funcs)
         end
 
@@ -778,6 +755,20 @@ module Wrapture
         flags.join(' | ')
       end
 
+      # All includes needed to define a module for the given +scope+.
+      def self.module_includes(scope)
+        incs = [CSource::CInclude.new('Python.h')]
+
+        # offsetof is only needed for the member definition for constants
+        if scope.classes.any? { |it| !it.constants.empty? }
+          incs << CSource::CInclude.new('stddef.h', comment: 'for offsetof()')
+        end
+
+        Wrapper::C.includes(scope).each { |it| incs << it }
+
+        incs
+      end
+
       # A function wrapper for a function that does not have an parameters.
       def self.no_args_wrapper(func_spec)
         name = function_wrapper_name(func_spec)
@@ -875,6 +866,26 @@ module Wrapture
         f.puts('// we probably need to replace this with our own')
 
         f
+      end
+
+      # The function overload groups for a +scope+, provided as a +Hash+ that
+      # maps the function name to an +Array+ of +FunctionSpec+ instances that
+      # are overloaded under that name.
+      def self.overload_groups(scope)
+        overload_groups = {}
+        scope.classes.each do |class_spec|
+          class_spec.functions.each do |func_spec|
+            if func_spec.overloaded?
+              if overload_groups.include?(func_spec.name)
+                overload_groups[func_spec.name] << func_spec
+              else
+                overload_groups[func_spec.name] = [func_spec]
+              end
+            end
+          end
+        end
+
+        overload_groups
       end
 
       # A function wrapper for a function that is overloaded by others.
