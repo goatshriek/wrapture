@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2019-2025 Joel E. Anderson
+# Copyright 2019-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -68,68 +68,42 @@ module Wrapture
 
     # Creates a new FunctionSpec from hash +spec+.
     #
-    # The hash must have a 'name' key with the name of the function in
-    # CamelCase, unless it is a constructor or destructor in which case it
-    # will be automatically named according to its class.
+    # The hash must have a 'name' key with the name of the function, either as
+    # a +String+ or an +Array+ of name words. The remaining keys are optional.
     #
-    # The function may also specify what the underlying implementation will be
-    # via one of the following keys. If neither is specified, then the function
-    # will not be considered definable, but may still be declared. Both may not
-    # be specified in the same function.
-    # wrapped-function:: a hash describing a C function to be wrapped
+    # The +:params+ key is an +Array+ of parameters for the function. Each entry
+    # in this array must be a +Hash+ used to create a +ParamSpec+. Only one
+    # parameter may be named +...+ and it must be last in the +Array+.
     #
-    # The wrapped-code hash must have a 'lines' key with a list of lines of code
-    # that will replace the function. It may optionally include an 'includes'
-    # key with a list of includes that are needed for this function to compile,
-    # and/or a 'return' key with a type description of the return value
-    # variable. If this function has a return value, it must be stored in a
-    # variable named 'return_val' at the end of this code. The return statement
-    # itself will be auto-generated, and should _not_ be included in the code
-    # lines provided.
+    # The +:wrapped+ key contains a +Hash+ that describes the implementation
+    # of the function. This may either contain a +:c+ key containing a +Hash+
+    # used to create a +CFunction+, or an +:alias+ key with the name of another
+    # function (either a +String+ or an +Array+ of words) that this one is
+    # equivalent to.
     #
-    # The wrapped-function hash must have a 'name' key with the name of the
-    # function, and a 'params' key with a list of parameters (each a hash with a
-    # 'name' and 'type' key). Optionally, it may also include an 'includes' key
-    # with a list of includes that are needed for this function to compile,
-    # and/or a 'return' key with a type description of the wrapped function's
-    # return value.
+    # The +:return+ key has a Hash with a +:type+ key with the name of the
+    # type the function returns, and/or a +:doc+ key with documentation on the
+    # return value itself. If neither of these is needed, then the key may
+    # be omitted.
     #
-    # The following keys are optional:
-    # params:: a list of parameter specifications
-    # doc:: a string containing the documentation for this function
-    # return:: a specification of the return value for this function
-    # static:: set to true if this is a static function
-    # virtual:: set to true if this is a virtual function
-    # initializers:: a list of member initializers
-    #
-    # Each parameter specification must have a 'name' key with the name of the
-    # parameter and a 'type' key with its type. The type key may be ommitted
-    # if the name of the parameter is '...' in which case the generated function
-    # will be made variadic. It may optionally have an 'includes' key with
-    # includes that are required (for example to support the type) and/or a
-    # 'doc' key with documentation of the parameter.
-    #
-    # Only one parameter named '...' is allowed in a specification. If more than
-    # one is provided, then only the first encountered will be used. This
-    # parameter should also be last - if it is not, it will be moved to the end
-    # of the parameter list during normalization.
-    #
-    # The return specification may have either a 'type' key with the name of the
-    # type the function returns, and/or a 'doc' key with documentation on the
-    # return value itself. If neither of these is needed, then the return
-    # specification may simply be omitted.
-    #
-    # The 'type' key of the return spec may also be set to 'self_reference'
+    # The +:type+ key of the return spec may also be set to 'self_reference'
     # which will have the function return a reference to the instance it was
     # called on. Of course, this cannot be used from a function that is not a
     # class method.
     #
-    # The optional initializer list contains hashes each with a 'name' and
+    # The +initializers+ key  contains hashes each with a 'name' and
     # 'values' key designating the member to be initialized and the
     # expression(s) to use for initialization, respectively. Optionally, the
     # 'name' key may be omitted if the function is a constructor and a key named
     # 'delegate' is present and set to true. This will use the name of the class
     # the constructor belongs to as the name.
+    #
+    # Other optional keys (symbols with this name):
+    # constructor:: true if this function is a constructor
+    # destructor:: true if this function is a destructor
+    # doc:: a string containing the documentation for this function
+    # static:: true if this is a static function
+    # virtual:: true if this is a virtual function
     def self.from_hash(spec)
       unless Wrapture.supports_version?(spec.fetch(:version, Wrapture::VERSION))
         raise UnsupportedSpecVersion
@@ -154,6 +128,7 @@ module Wrapture
       func_spec.static = Wrapture.normalize_boolean(spec, :static)
       func_spec.virtual = Wrapture.normalize_boolean(spec, :virtual)
 
+      # TODO: pick up here, adding test case for initializers
       if spec.key?(:initializers)
         func_spec.initializers.concat(spec[:initializers])
       end
@@ -166,11 +141,10 @@ module Wrapture
       if spec.key?(:return)
         func_spec.return_overloaded = Wrapture.normalize_boolean(spec[:return],
                                                                  :overloaded)
-        func_spec.return_type = if spec[:return].key?(:type)
-                                  TypeSpec.new(spec[:return][:type])
-                                else
-                                  TypeSpec.new('void')
-                                end
+        if spec[:return].key?(:type)
+          func_spec.return_type = TypeSpec.new(spec[:return][:type])
+        end
+
         if spec[:return].key?(:doc)
           Comment.validate_doc(spec[:return][:doc])
           func_spec.return_doc = Comment.new(spec[:return][:doc])
@@ -182,6 +156,8 @@ module Wrapture
       func_spec
     end
 
+    # Sets the members of the +wrapped+ property of the +FunctionSpec+ +spec+
+    # based on the contents of +hash+.
     private_class_method def self.wrapped_from_hash(spec, hash)
       if hash.key?(:alias)
         spec[:alias] = hash[:alias]

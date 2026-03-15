@@ -31,6 +31,22 @@ class FunctionSpecTest < Minitest::Test
     end
   end
 
+  def test_from_hash_with_implicit_void_return
+    spec_hash = fixture_hash('function_with_implicit_void_return')
+    func_spec = Wrapture::FunctionSpec.from_hash(spec_hash)
+
+    assert_kind_of(Wrapture::TypeSpec, func_spec.return_type)
+    assert_equal('void', func_spec.return_type.base)
+  end
+
+  def test_from_hash_with_initializers
+    spec_hash = fixture_hash('function_with_initializers')
+    func_spec = Wrapture::FunctionSpec.from_hash(spec_hash)
+
+    assert_kind_of(Array, func_spec.initializers)
+    assert_equal(spec_hash[:initializers], func_spec.initializers)
+  end
+
   def test_only_variadic_param
     test_spec = fixture_hash('invalid/only_variadic_param')
 
