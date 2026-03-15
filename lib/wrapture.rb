@@ -20,7 +20,6 @@
 
 require 'wrapture/action_spec'
 require 'wrapture/build'
-require 'wrapture/c_code_spec'
 require 'wrapture/c_source'
 require 'wrapture/class_spec'
 require 'wrapture/cli'
