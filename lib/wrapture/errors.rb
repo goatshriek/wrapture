@@ -54,9 +54,7 @@ module Wrapture
       complete_message = message.dup
 
       unless valid_keys.empty?
-        complete_message << ' (valid values are \''
-        complete_message << valid_keys.join('\', \'')
-        complete_message << '\')'
+        complete_message << " (valid values are #{valid_keys})"
       end
 
       super(complete_message)

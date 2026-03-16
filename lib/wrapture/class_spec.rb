@@ -26,6 +26,24 @@ module Wrapture
   class ClassSpec
     include Named
 
+    # The list of constants in this class.
+    attr_reader :constants
+
+    # The documentation comment for this class.
+    attr_reader :doc
+
+    # The list of functions in this class.
+    attr_reader :functions
+
+    # The scope of this class.
+    attr_reader :scope
+
+    # The underlying struct of this class.
+    # attr_reader :struct
+
+    # A map of language-specific wrapping details.
+    attr_accessor :wrapped
+
     # Gives the effective type of the given class spec hash.
     # TODO: this should be refactored to use an object instead of a hash
     def self.effective_type(spec)
@@ -132,24 +150,6 @@ module Wrapture
 
       spec
     end
-
-    # The list of constants in this class.
-    attr_reader :constants
-
-    # The documentation comment for this class.
-    attr_reader :doc
-
-    # The list of functions in this class.
-    attr_reader :functions
-
-    # The scope of this class.
-    attr_reader :scope
-
-    # The underlying struct of this class.
-    attr_reader :struct
-
-    # A map of language-specific wrapping details.
-    attr_accessor :wrapped
 
     # Creates a class spec based on the provided hash spec.
     #

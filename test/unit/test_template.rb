@@ -165,7 +165,7 @@ class TemplateSpecTest < Minitest::Test
     temp.replace_uses(scope_spec[:classes].first)
     usage = scope_spec[:classes].first
 
-    include_list = usage[:equivalent_struct][:includes]
+    include_list = usage[:wrapped][:c][:includes]
     template_value = scope_spec[:templates].first[:value]
 
     assert_includes(include_list, template_value)

@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-# Copyright 2025 Joel E. Anderson
+# Copyright 2025-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,13 +19,15 @@ classes:
   - name: "ParentPointer"
     namespace: "wrapture_test"
     type: "pointer"
-    equivalent_struct:
-      name: "wrapped_struct"
+    wrapped:
+      c:
+        name: "wrapped_struct"
   - name: "ChildPointer"
     namespace: "wrapture_test"
     type: "pointer"
     parent:
       name: "ParentPointer"
       includes: "ParentPointer.hpp"
-    equivalent_struct:
-      name: "wrapped_struct_but_different"
+    wrapped:
+      c:
+        name: "wrapped_struct_but_different"

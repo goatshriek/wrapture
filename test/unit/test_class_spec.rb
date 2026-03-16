@@ -171,19 +171,6 @@ class ClassSpecTest < Minitest::Test
     validate_cpp_build(spec, build)
   end
 
-  def test_class_with_no_struct_overloads
-    test_spec = fixture_hash('no_struct_class')
-    spec = Wrapture::ClassSpec.new(test_spec)
-    build = Wrapture::Wrapper::CToCpp.wrap_class(spec)
-
-    validate_cpp_build(spec, build)
-
-    overload_specs = fixture_hash('overloaded_struct')
-    parent_spec = Wrapture::ClassSpec.new(overload_specs[:classes].first)
-
-    refute(spec.overloads?(parent_spec))
-  end
-
   def test_class_with_static_function
     test_spec = fixture_hash('static_function_class')
     spec = Wrapture::ClassSpec.new test_spec

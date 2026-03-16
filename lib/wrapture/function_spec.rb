@@ -128,7 +128,6 @@ module Wrapture
       func_spec.static = Wrapture.normalize_boolean(spec, :static)
       func_spec.virtual = Wrapture.normalize_boolean(spec, :virtual)
 
-      # TODO: pick up here, adding test case for initializers
       if spec.key?(:initializers)
         func_spec.initializers.concat(spec[:initializers])
       end

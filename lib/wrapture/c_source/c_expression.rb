@@ -41,7 +41,8 @@ module Wrapture
         end
 
         if op.nil?
-          raise InvalidSpecKey, "expression operator #{expr_hash[:operator]}"
+          msg = "invalid expression operator #{expr_hash[:operator]}"
+          raise InvalidSpecKey.new(msg, valid_keys: OPERATORS.map(&:to_s))
         end
 
         vals = Wrapture.normalize_array(expr_hash[:values])
