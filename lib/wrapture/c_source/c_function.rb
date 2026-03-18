@@ -78,7 +78,7 @@ module Wrapture
       # or a +Hash+.
       #
       # The +:error_check+ key contains a +Hash+ that has a +:rules+ and
-      # +:error_action+ key which contain a +CExpression+ and +RuleSpec+ hash,
+      # +:error_action+ key which contain a +CExpression+ and +ActionSpec+ hash,
       # respectively, that describe how errors are detected and what happens
       # when they are.
       def self.from_hash(spec)

@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-# Copyright 2025 Joel E. Anderson
+# Copyright 2025-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -32,7 +32,6 @@ module Wrapture
     attr_reader doc: Wrapture::Comment
     attr_reader functions: Array[Wrapture::FunctionSpec]
     attr_reader scope: Wrapture::Scope
-    attr_reader struct: (Wrapture::StructSpec | nil)
     attr_accessor wrapped: Hash[Symbol, untyped] | nil
     def initialize: (spec_hash spec, ?scope: Wrapture::Scope) -> void
     def child?: -> bool
@@ -50,13 +49,10 @@ module Wrapture
     def method_specs: -> Array[Wrapture::FunctionSpec]
     def name_words: -> Array[String]
     def namespace: -> String
-    def overloads?: (untyped parent_spec) -> bool
     def parent_name: -> (String | nil)
-    def parent_provides_initializer?: -> bool
     def parent_spec: -> ( Wrapture::ClassSpec | nil )
     def pointer_wrapper?: -> bool
     def snake_case_name: -> String
-    def struct_name: -> String
     def type: ( ( Wrapture::TypeSpec | String ) type ) -> ( Wrapture::ClassSpec | nil )
     def type?: ( ( Wrapture::TypeSpec | String ) type ) -> bool
   end

@@ -173,10 +173,6 @@ module Wrapture
     def initialize(spec, scope: Scope.new)
       @spec = ClassSpec.normalize_spec_hash(spec, *scope.templates)
 
-      @struct = if @spec.key?(:equivalent_struct)
-                  StructSpec.new(@spec[:equivalent_struct])
-                end
-
       @functions = @spec[:constructors].map do |constructor_spec|
         full_spec = constructor_spec.dup
         full_spec[:name] = @spec[:name]
@@ -256,8 +252,6 @@ module Wrapture
     def declaration_includes
       includes = @spec[:includes].dup
 
-      includes.concat(@struct.includes) if @struct
-
       @functions.each do |func|
         raise UndefinableSpec, 'not wrappable in c' unless func.wrapped.key?(:c)
 
@@ -283,8 +277,6 @@ module Wrapture
     def definition_includes
       includes = @spec[:includes].dup
 
-      includes.concat(@struct.includes) if @struct
-
       @functions.each do |func|
         includes.concat(func.definition_includes)
       end
@@ -304,22 +296,6 @@ module Wrapture
     # Calls the given block for each line of the class documentation.
     def documentation(&block)
       @doc&.format_as_doxygen(max_line_length: 78) { |line| block.call(line) }
-    end
-
-    # True if this class has an underlying equivalent struct member for itself.
-    #
-    # A class might not have an equivalent struct member even though it is
-    # based on a struct. One such example is if it is able to use its parent
-    # class member since the parent wraps the same struct.
-    def equivalent_member?
-      return false unless @struct
-      return true unless child?
-
-      parent = parent_spec
-
-      parent.nil? ||
-        parent.struct_name != struct_name ||
-        parent.pointer_wrapper? != pointer_wrapper?
     end
 
     # True if this class is an exception.
@@ -363,19 +339,6 @@ module Wrapture
       @spec[:namespace]
     end
 
-    # True if this class overloads the given one. A class is considered an
-    # overload of another if it has the same equivalent struct name and
-    # the equivalent struct has a set of rules. The overloaded class
-    # cannot have any rules in its equivalent struct or it will not be
-    # considered an overload.
-    def overloads?(class_spec)
-      return false unless class_spec.struct&.rules&.empty? && @struct
-
-      class_spec.struct.name == struct_name &&
-        class_spec.name == parent_name &&
-        !@struct.rules.empty?
-    end
-
     # True if this class is a parent of others.
     def parent?
       @scope.classes.any? do |class_spec|
@@ -389,18 +352,6 @@ module Wrapture
       @spec[:parent][:name] if child?
     end
 
-    # True if the parent of this class provides an initializer taking a pointer
-    # to the same equivalent struct type.
-    def parent_provides_initializer?
-      return false if !pointer_wrapper? || !child?
-
-      parent = parent_spec
-
-      !parent.nil? &&
-        parent.pointer_wrapper? &&
-        parent.struct_name == @struct.name
-    end
-
     # The class spec of the parent class, or nil if this cannot be resolved.
     def parent_spec
       type(TypeSpec.new(parent_name))
@@ -409,11 +360,6 @@ module Wrapture
     # Determines if this class is a wrapper for a struct pointer or not.
     def pointer_wrapper?
       @spec[:type] == 'pointer'
-    end
-
-    # The name of the equivalent struct of this class.
-    def struct_name
-      @struct.name
     end
 
     # Returns the ClassSpec for the given type in this class's scope.

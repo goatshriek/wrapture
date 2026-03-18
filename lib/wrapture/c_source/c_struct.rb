@@ -88,11 +88,6 @@ module Wrapture
         c_struct
       end
 
-      # Creates a CStruct from a struct spec.
-      def self.from_spec(struct_spec)
-        new(name: struct_spec.name)
-      end
-
       # Creates a type for the base type given.
       def initialize(name: '', members: [], typedef: '')
         @includes = []
