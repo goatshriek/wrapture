@@ -36,22 +36,16 @@ module Wrapture
     def initialize: (spec_hash spec, ?scope: Wrapture::Scope) -> void
     def child?: -> bool
     def constructors: -> Array[Wrapture::FunctionSpec]
-    def declaration_includes: -> Array[String]
     def definable?: () -> bool
-    def definition_includes: -> Array[String]
     def destructor: -> Wrapture::FunctionSpec
-    def documentation: { (String) -> void } -> void
     def equivalent_member?: -> bool
     def exception?: -> bool
-    def factory?: -> bool
-    def includes: -> Array[String]
     def libraries: -> Array[String]
     def method_specs: -> Array[Wrapture::FunctionSpec]
     def name_words: -> Array[String]
     def namespace: -> String
     def parent_name: -> (String | nil)
     def parent_spec: -> ( Wrapture::ClassSpec | nil )
-    def pointer_wrapper?: -> bool
     def snake_case_name: -> String
     def type: ( ( Wrapture::TypeSpec | String ) type ) -> ( Wrapture::ClassSpec | nil )
     def type?: ( ( Wrapture::TypeSpec | String ) type ) -> bool

@@ -246,46 +246,9 @@ module Wrapture
       @functions.select(&:constructor?)
     end
 
-    # A list of includes needed for the declaration of the class.
-    # TODO: includes should not be implemented in the class spec itself, only C
-    # wrappers
-    def declaration_includes
-      includes = @spec[:includes].dup
-
-      @functions.each do |func|
-        raise UndefinableSpec, 'not wrappable in c' unless func.wrapped.key?(:c)
-
-        includes.concat(func.definition_includes)
-        includes.concat(func.wrapped[:c].includes)
-      end
-
-      @constants.each do |const|
-        includes.concat(const.declaration_includes)
-      end
-
-      includes.concat(@spec[:parent][:includes]) if child?
-
-      includes.uniq
-    end
-
     # True if this class can be defined.
     def definable?
       @functions.all?(&:definable?)
-    end
-
-    # A list of includes needed for the definition of the class.
-    def definition_includes
-      includes = @spec[:includes].dup
-
-      @functions.each do |func|
-        includes.concat(func.definition_includes)
-      end
-
-      @constants.each do |const|
-        includes.concat(const.definition_includes)
-      end
-
-      includes.uniq
     end
 
     # The destructor function for the class, or nil if there isn't one.
@@ -293,26 +256,9 @@ module Wrapture
       @functions.select(&:destructor?).first
     end
 
-    # Calls the given block for each line of the class documentation.
-    def documentation(&block)
-      @doc&.format_as_doxygen(max_line_length: 78) { |line| block.call(line) }
-    end
-
     # True if this class is an exception.
     def exception?
       @spec[:exception]
-    end
-
-    # True if this class can be used as a factory for children classes that it
-    # overloads.
-    def factory?
-      @scope.overloads?(self)
-    end
-
-    # The includes given for this class spec. This does not include those from
-    # items within this class such as functions or constants.
-    def includes
-      spec[:includes]
     end
 
     # An array of libraries needed for everything in this class.
@@ -355,11 +301,6 @@ module Wrapture
     # The class spec of the parent class, or nil if this cannot be resolved.
     def parent_spec
       type(TypeSpec.new(parent_name))
-    end
-
-    # Determines if this class is a wrapper for a struct pointer or not.
-    def pointer_wrapper?
-      @spec[:type] == 'pointer'
     end
 
     # Returns the ClassSpec for the given type in this class's scope.
