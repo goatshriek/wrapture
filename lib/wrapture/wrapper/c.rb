@@ -168,14 +168,16 @@ module Wrapture
         inc.uniq
       end
 
-      # True if the overload ClassSpec is an overload of the factory ClassSpec.
-      # That is, if the wrapped struct of the overload class is the same as
-      # that of the factory class, with additional rules.
+      # True if the +ClassSpec+ overload is an overload of the +ClassSpec+
+      # factory. That is, if the wrapped struct of the overload class is the
+      # same as that of the factory class, with additional rules.
       def self.overload?(factory, overload)
         factory_struct = equivalent_struct(factory)
         overload_struct = equivalent_struct(overload)
 
-        factory_struct.rules.empty? &&
+        !factory_struct.nil? &&
+          !overload_struct.nil? &&
+          factory_struct.rules.empty? &&
           factory_struct.name == overload_struct.name &&
           factory.name == overload.parent_name &&
           !overload_struct.rules.empty?

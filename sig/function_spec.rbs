@@ -9,12 +9,14 @@ module Wrapture
     @constructor: bool
     @destructor: bool
 
-    def self.from_hash: (spec_hash spec) -> Wrapture::FunctionSpec
-
     attr_reader owner: Wrapture::ClassSpec | Wrapture::Scope
     attr_reader params: Array[Wrapture::ParamSpec]
     attr_reader return_type: Wrapture::TypeSpec
     attr_accessor wrapped: Hash[Symbol, untyped] | nil
+
+    def self.from_hash: (spec_hash spec) -> Wrapture::FunctionSpec
+
+    private def self.wrapped_from_hash: (Hash[Symbol, untyped]) -> void
 
     def initialize: (spec_hash spec, ?(Wrapture::ClassSpec | Wrapture::Scope) owner, ?constructor: bool, ?destructor: bool) -> void
     def constructor?: -> bool
@@ -41,8 +43,5 @@ module Wrapture
     def variadic?: -> bool
     def virtual?: -> bool
     def void_return?: -> bool
-
-    private
-    def returns_return_val?: -> bool
   end
 end

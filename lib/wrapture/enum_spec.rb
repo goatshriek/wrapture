@@ -25,6 +25,24 @@ module Wrapture
   class EnumSpec
     include Named
 
+    # The documentation of the enumeration.
+    attr_accessor :doc
+
+    # An array of elements in this enumeration.
+    attr_reader :elements
+
+    # The name of the constant.
+    attr_reader :name_words
+
+    # The namespace of the enumeration.
+    attr_accessor :namespace
+
+    # The scope the enumeration is in.
+    attr_reader :scope
+
+    # A map of language-specific wrapping details.
+    attr_reader :wrapped
+
     # Creates a new EnumSpec from hash +spec+.
     # TODO: remove scope argument, this should not be tracked by the enum
     def self.from_hash(spec, scope: Scope.new)
@@ -48,19 +66,13 @@ module Wrapture
 
       name = Wrapture.normalize_name(spec, :name)
       enum = EnumSpec.new(name, scope: scope)
-
       enum.doc = Comment.new(spec[:doc])
-
       enum.namespace = spec[:namespace] if spec.key?(:namespace)
 
       if spec.key?(:wrapped) && spec[:wrapped].key?(:c)
         c_spec = spec[:wrapped][:c]
-        if c_spec.key?(:includes)
-          inc = Wrapture.normalize_array(c_spec[:includes])
-          enum.wrapped[:c] = { includes: inc }
-        else
-          enum.wrapped[:c] = { includes: [] }
-        end
+        inc = Wrapture.normalize_array(c_spec.fetch(:includes, nil))
+        enum.wrapped[:c] = { includes: inc }
       end
 
       spec[:elements].each do |it|
@@ -73,10 +85,8 @@ module Wrapture
             element[:wrapped][:c][:value] = it[:wrapped][:c][:value]
           end
 
-          if it[:wrapped][:c].key?(:includes)
-            inc = Wrapture.normalize_array(it[:wrapped][:c][:includes])
-            element[:wrapped][:c][:includes] = inc
-          end
+          inc = Wrapture.normalize_array(it[:wrapped][:c].fetch(:includes, nil))
+          element[:wrapped][:c][:includes] = inc
         end
 
         enum.elements << element
@@ -126,24 +136,6 @@ module Wrapture
 
       spec
     end
-
-    # The documentation of the enumeration.
-    attr_accessor :doc
-
-    # An array of elements in this enumeration.
-    attr_reader :elements
-
-    # The name of the constant.
-    attr_reader :name_words
-
-    # The namespace of the enumeration.
-    attr_accessor :namespace
-
-    # The scope the enumeration is in.
-    attr_reader :scope
-
-    # A map of language-specific wrapping details.
-    attr_reader :wrapped
 
     # Creates an enumeration specification based on the provided hash spec.
     #

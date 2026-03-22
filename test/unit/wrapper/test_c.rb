@@ -32,6 +32,20 @@ class CWrapperTest < Minitest::Test
                  'entry for c in the wrapped languages')
   end
 
+  def test_class_with_no_struct_overloads
+    test_spec = fixture_hash('no_struct_class')
+    spec = Wrapture::ClassSpec.new(test_spec)
+    build = Wrapture::Wrapper::CToCpp.wrap_class(spec)
+
+    validate_cpp_build(spec, build)
+
+    overload_specs = fixture_hash('overloaded_struct')
+    parent_spec = Wrapture::ClassSpec.new(overload_specs[:classes].first)
+
+    refute(Wrapture::Wrapper::C.overload?(spec, parent_spec))
+    refute(Wrapture::Wrapper::C.overload?(parent_spec, spec))
+  end
+
   def test_factory
     scope_hash = fixture_hash('overloaded_struct')
     scope = Wrapture::Scope.new(scope_hash)

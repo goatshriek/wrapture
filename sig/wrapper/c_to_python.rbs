@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-# Copyright 2025 Joel E. Anderson
+# Copyright 2025-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -51,8 +51,10 @@ module Wrapture
       def self.initialize_optional_params: (Wrapture::CSource::CBlock, Wrapture::FunctionSpec) -> Wrapture::CSource::CBlock
       def self.member_type: (Wrapture::TypeSpec) -> String
       def self.method_flags: (Wrapture::FunctionSpec) -> String
+      def self.module_includes: (Wrapture::Scope) -> Array[CSource::CInclude]
       def self.no_args_wrapper: (Wrapture::FunctionSpec) -> Wrapture::CSource::CFunction
       def self.overload_dispatcher: (Enumerable[Wrapture::FunctionSpec]) -> Wrapture::CSource::CFunction
+      def self.overload_groups: (Wrapture::Scope) -> Hash[String, Array[FunctionSpec]]
       def self.overload_wrapper: (Wrapture::FunctionSpec) -> Wrapture::CSource::CFunction
       def self.overload_wrapper_call: (Wrapture::FunctionSpec) -> String
       def self.overload_wrapper_name: (Wrapture::FunctionSpec) -> String

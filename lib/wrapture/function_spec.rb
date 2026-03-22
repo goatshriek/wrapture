@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2019-2025 Joel E. Anderson
+# Copyright 2019-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -26,144 +26,6 @@ module Wrapture
   class FunctionSpec
     include Named
 
-    # Creates a new FunctionSpec from hash +spec+.
-    def self.from_hash(spec)
-      if spec&.key?(:version) && !Wrapture.supports_version?(spec[:version])
-        raise UnsupportedSpecVersion
-      end
-
-      if spec.key?(:initializers) && spec[:initializers].any? do |i|
-        !i.key?(:name) && !i[:delegate]
-      end
-        msg = 'initializers must either have a name or be delegating ' \
-              'constructors (have delegate set to true)'
-        raise MissingSpecKey, msg
-      end
-
-      Comment.validate_doc(spec[:doc]) if spec.key?(:doc)
-
-      name = Wrapture.normalize_name(spec, :name)
-
-      func_spec = new(name)
-      func_spec.doc = Comment.new(spec[:doc]) if spec.key?(:doc)
-      func_spec.constructor = Wrapture.normalize_boolean(spec, :constructor)
-      func_spec.destructor = Wrapture.normalize_boolean(spec, :destructor)
-      func_spec.static = Wrapture.normalize_boolean(spec, :static)
-      func_spec.virtual = Wrapture.normalize_boolean(spec, :virtual)
-
-      func_spec.initializers = spec[:initializers] if spec.key?(:initializers)
-
-      if spec.key?(:params)
-        param_specs = ParamSpec.normalize_param_list(spec[:params])
-        func_spec.params.concat(ParamSpec.new_list(param_specs))
-      end
-
-      if spec.key?(:return)
-        func_spec.return_overloaded = Wrapture.normalize_boolean(spec[:return],
-                                                                 :overloaded)
-        func_spec.return_type = if spec[:return].key?(:type)
-                                  TypeSpec.new(spec[:return][:type])
-                                else
-                                  TypeSpec.new('void')
-                                end
-        if spec[:return].key?(:doc)
-          Comment.validate_doc(spec[:return][:doc])
-          func_spec.return_doc = Comment.new(spec[:return][:doc])
-        end
-      end
-
-      if spec.key?(:wrapped)
-        if spec[:wrapped].key?(:alias)
-          func_spec[:alias] = spec[:wrapped][:alias]
-        elsif spec[:wrapped].key?(:c)
-          func_spec[:c] = CSource::CFunction.from_hash(spec[:wrapped][:c])
-        end
-      end
-
-      func_spec
-    end
-
-    # Creates a function spec based on the provided function spec.
-    #
-    # The hash must have a 'name' key with the name of the function in
-    # CamelCase, unless it is a constructor or destructor in which case it
-    # will be automatically named according to its class.
-    #
-    # The function may also specify what the underlying implementation will be
-    # via one of the following keys. If neither is specified, then the function
-    # will not be considered definable, but may still be declared. Both may not
-    # be specified in the same function.
-    # wrapped-code:: a hash describing raw C code to be wrapped
-    # wrapped-function:: a hash describing a C function to be wrapped
-    #
-    # The wrapped-code hash must have a 'lines' key with a list of lines of code
-    # that will replace the function. It may optionally include an 'includes'
-    # key with a list of includes that are needed for this function to compile,
-    # and/or a 'return' key with a type description of the return value
-    # variable. If this function has a return value, it must be stored in a
-    # variable named 'return_val' at the end of this code. The return statement
-    # itself will be auto-generated, and should _not_ be included in the code
-    # lines provided.
-    #
-    # The wrapped-function hash must have a 'name' key with the name of the
-    # function, and a 'params' key with a list of parameters (each a hash with a
-    # 'name' and 'type' key). Optionally, it may also include an 'includes' key
-    # with a list of includes that are needed for this function to compile,
-    # and/or a 'return' key with a type description of the wrapped function's
-    # return value.
-    #
-    # The following keys are optional:
-    # params:: a list of parameter specifications
-    # doc:: a string containing the documentation for this function
-    # return:: a specification of the return value for this function
-    # static:: set to true if this is a static function
-    # virtual:: set to true if this is a virtual function
-    # initializers:: a list of member initializers
-    #
-    # Each parameter specification must have a 'name' key with the name of the
-    # parameter and a 'type' key with its type. The type key may be ommitted
-    # if the name of the parameter is '...' in which case the generated function
-    # will be made variadic. It may optionally have an 'includes' key with
-    # includes that are required (for example to support the type) and/or a
-    # 'doc' key with documentation of the parameter.
-    #
-    # Only one parameter named '...' is allowed in a specification. If more than
-    # one is provided, then only the first encountered will be used. This
-    # parameter should also be last - if it is not, it will be moved to the end
-    # of the parameter list during normalization.
-    #
-    # The return specification may have either a 'type' key with the name of the
-    # type the function returns, and/or a 'doc' key with documentation on the
-    # return value itself. If neither of these is needed, then the return
-    # specification may simply be omitted.
-    #
-    # The 'type' key of the return spec may also be set to 'self_reference'
-    # which will have the function return a reference to the instance it was
-    # called on. Of course, this cannot be used from a function that is not a
-    # class method.
-    #
-    # The optional initializer list contains hashes each with a 'name' and
-    # 'values' key designating the member to be initialized and the
-    # expression(s) to use for initialization, respectively. Optionally, the
-    # 'name' key may be omitted if the function is a constructor and a key named
-    # 'delegate' is present and set to true. This will use the name of the class
-    # the constructor belongs to as the name.
-    def initialize(name_words)
-      @name_words = Wrapture.normalize_name_words(name_words)
-      @doc = nil
-      @owner = Scope.new
-      @wrapped = {}
-      @params = []
-      @return_doc = nil
-      @return_overloaded = false
-      @return_type = TypeSpec.new('void')
-      @constructor = false
-      @destructor = false
-      @static = false
-      @virtual = false
-      @initializers = []
-    end
-
     # Set whether this function is a constructor.
     attr_writer :constructor
 
@@ -174,7 +36,7 @@ module Wrapture
     attr_writer :doc
 
     # Initializers for the function.
-    attr_accessor :initializers
+    attr_reader :initializers
 
     # The words that make up the function name.
     attr_reader :name_words
@@ -203,6 +65,124 @@ module Wrapture
 
     # A map of language-specific functions this spec wraps.
     attr_accessor :wrapped
+
+    # Creates a new FunctionSpec from hash +spec+.
+    #
+    # The hash must have a 'name' key with the name of the function, either as
+    # a +String+ or an +Array+ of name words. The remaining keys are optional.
+    #
+    # The +:params+ key is an +Array+ of parameters for the function. Each entry
+    # in this array must be a +Hash+ used to create a +ParamSpec+. Only one
+    # parameter may be named +...+ and it must be last in the +Array+.
+    #
+    # The +:wrapped+ key contains a +Hash+ that describes the implementation
+    # of the function. This may either contain a +:c+ key containing a +Hash+
+    # used to create a +CFunction+, or an +:alias+ key with the name of another
+    # function (either a +String+ or an +Array+ of words) that this one is
+    # equivalent to.
+    #
+    # The +:return+ key has a Hash with a +:type+ key with the name of the
+    # type the function returns, and/or a +:doc+ key with documentation on the
+    # return value itself. If neither of these is needed, then the key may
+    # be omitted.
+    #
+    # The +:type+ key of the return spec may also be set to 'self_reference'
+    # which will have the function return a reference to the instance it was
+    # called on. Of course, this cannot be used from a function that is not a
+    # class method.
+    #
+    # The +initializers+ key  contains hashes each with a 'name' and
+    # 'values' key designating the member to be initialized and the
+    # expression(s) to use for initialization, respectively. Optionally, the
+    # 'name' key may be omitted if the function is a constructor and a key named
+    # 'delegate' is present and set to true. This will use the name of the class
+    # the constructor belongs to as the name.
+    #
+    # Other optional keys (symbols with this name):
+    # constructor:: true if this function is a constructor
+    # destructor:: true if this function is a destructor
+    # doc:: a string containing the documentation for this function
+    # static:: true if this is a static function
+    # virtual:: true if this is a virtual function
+    def self.from_hash(spec)
+      unless Wrapture.supports_version?(spec.fetch(:version, Wrapture::VERSION))
+        raise UnsupportedSpecVersion
+      end
+
+      if spec.key?(:initializers) && spec[:initializers].any? do |it|
+        !it.key?(:name) && !it[:delegate]
+      end
+        msg = 'initializers must either have a name or be delegating ' \
+              'constructors (have delegate set to true)'
+        raise MissingSpecKey, msg
+      end
+
+      Comment.validate_doc(spec[:doc]) if spec.key?(:doc)
+
+      name = Wrapture.normalize_name(spec, :name)
+
+      func_spec = new(name)
+      func_spec.doc = Comment.new(spec[:doc]) if spec.key?(:doc)
+      func_spec.constructor = Wrapture.normalize_boolean(spec, :constructor)
+      func_spec.destructor = Wrapture.normalize_boolean(spec, :destructor)
+      func_spec.static = Wrapture.normalize_boolean(spec, :static)
+      func_spec.virtual = Wrapture.normalize_boolean(spec, :virtual)
+
+      if spec.key?(:initializers)
+        func_spec.initializers.concat(spec[:initializers])
+      end
+
+      if spec.key?(:params)
+        param_specs = ParamSpec.normalize_param_list(spec[:params])
+        func_spec.params.concat(ParamSpec.new_list(param_specs))
+      end
+
+      if spec.key?(:return)
+        func_spec.return_overloaded = Wrapture.normalize_boolean(spec[:return],
+                                                                 :overloaded)
+        if spec[:return].key?(:type)
+          func_spec.return_type = TypeSpec.new(spec[:return][:type])
+        end
+
+        if spec[:return].key?(:doc)
+          Comment.validate_doc(spec[:return][:doc])
+          func_spec.return_doc = Comment.new(spec[:return][:doc])
+        end
+      end
+
+      wrapped_from_hash(func_spec, spec[:wrapped]) if spec.key?(:wrapped)
+
+      func_spec
+    end
+
+    # Sets the members of the +wrapped+ property of the +FunctionSpec+ +spec+
+    # based on the contents of +hash+.
+    private_class_method def self.wrapped_from_hash(spec, hash)
+      if hash.key?(:alias)
+        spec[:alias] = hash[:alias]
+      elsif hash.key?(:c)
+        spec[:c] = CSource::CFunction.from_hash(hash[:c])
+      end
+    end
+
+    # A new function must have a +name+, provided either as a +String+ or an
+    # +Enumerable+ of objects that are converted to words via their +to_s+
+    # method.
+    def initialize(name)
+      @name_words = Wrapture.normalize_name_words(name)
+      @doc = nil
+      @owner = Scope.new
+      @wrapped = {}
+      @params = []
+      @return_doc = nil
+      @return_overloaded = false
+      @return_type = TypeSpec.new('void')
+      @constructor = false
+      @destructor = false
+      @static = false
+      @virtual = false
+      @initializers = []
+    end
 
     # Get the wrapped function for the given language. This is equivalent to
     # +wrapped[lang]+.
@@ -292,14 +272,13 @@ module Wrapture
     # True if this function is overloaded in it's owning scope.
     def overloaded?
       case @owner
-      when Scope
-        false
       when ClassSpec
         @owner.functions.count do |f|
           f.name_words == name_words &&
             f.constructor? == constructor? &&
             f.destructor? == destructor?
         end > 1
+      else false
       end
     end
 

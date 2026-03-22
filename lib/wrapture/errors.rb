@@ -54,9 +54,7 @@ module Wrapture
       complete_message = message.dup
 
       unless valid_keys.empty?
-        complete_message << ' (valid values are \''
-        complete_message << valid_keys.join('\', \'')
-        complete_message << '\')'
+        complete_message << " (valid values are #{valid_keys})"
       end
 
       super(complete_message)
@@ -67,7 +65,7 @@ module Wrapture
   class KeyConflict < WraptureError
   end
 
-  # The spec is missing a key that is required.
+  # A spec hash is missing a key that is required.
   class MissingSpecKey < WraptureError
   end
 

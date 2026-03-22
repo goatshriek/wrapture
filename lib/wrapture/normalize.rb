@@ -76,6 +76,7 @@ module Wrapture
   end
 
   # Normalize name words, without performing any conversion on the name itself.
+  # The result will be an array of words that make up the name.
   def self.normalize_name_words(words)
     case words
     when String

@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-# Copyright 2025-2026 Joel E. Anderson
+# Copyright 2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,24 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-version: "0.6.0"
-classes:
-  - name: "Parent"
-    namespace: "wrapture_test"
-    wrapped:
-      c:
-        name: "overloaded_struct"
-        members:
-          - name: "code"
-            type: "int"
-  - name: "ChildOne"
-    namespace: "wrapture_test"
-    wrapped:
-      c:
-        name: "overloaded_struct"
-        rules:
-          - member_name: "code"
-            value: "1"
-            # a rule is invalid with a 'condition' key
-    parent:
-      name: "Parent"
+name: "ImplicitVoidReturnFunction"
+return:
+  doc: |
+    This function doesn't return anything, but there's still something you
+    should know about what happens when it returns...
+wrapped:
+  c:
+    name: "underlying_function"
+

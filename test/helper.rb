@@ -153,22 +153,21 @@ end
 
 # Check a C++ build for consistency with a spec.
 def validate_cpp_build(spec, build)
-  case spec
-  when Wrapture::ClassSpec
-    refute_nil(build)
-    refute_nil(build.sources)
-    refute_empty(build.sources)
+  return unless spec.is_a?(Wrapture::ClassSpec)
 
-    source_filenames = build.sources.map(&:path).map(&:to_s)
+  refute_nil(build)
+  refute_nil(build.sources)
+  refute_empty(build.sources)
 
-    assert_includes(source_filenames, "#{spec.name}.cpp",
-                    "no source file named after class #{spec.name}")
-    assert_includes(source_filenames, "#{spec.name}.hpp",
-                    "no header file named after class #{spec.name}")
+  source_filenames = build.sources.map(&:path).map(&:to_s)
 
-    # validate_declaration_file(spec)
-    # validate_definition_file(spec)
-  end
+  assert_includes(source_filenames, "#{spec.name}.cpp",
+                  "no source file named after class #{spec.name}")
+  assert_includes(source_filenames, "#{spec.name}.hpp",
+                  "no header file named after class #{spec.name}")
+
+  # validate_declaration_file(spec)
+  # validate_definition_file(spec)
 end
 
 def validate_cpp_source_file_matches_enum_spec(source_file, spec_hash)

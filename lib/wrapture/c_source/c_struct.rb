@@ -63,30 +63,29 @@ module Wrapture
         end
 
         if spec.key?(:rules)
+          rule_keys = %i[member_name condition value]
           spec[:rules].each do |rule|
-            next unless rule.key?(:member_name)
-
-            op = CExpression::OPERATORS.find do |op|
-              op.to_s == rule[:condition]
+            invalid_keys = rule.keys - rule_keys
+            unless invalid_keys.empty?
+              msg = "invalid rule keys #{invalid_keys} provided"
+              raise InvalidSpecKey.new(msg, valid_keys: rule_keys)
             end
 
-            if rule.key?(:condition) && op.nil?
-              msg = "unrecognized rule condition #{rule[:condition]}"
-              raise InvalidRuleCondition, msg
+            missing_keys = rule_keys - rule.keys
+            unless missing_keys.empty?
+              msg = "missing required rule keys #{missing_keys}"
+              raise MissingSpecKey, msg
             end
 
-            c_struct.rules << CExpression.new(
-              [rule[:member_name], rule[:value]], op
-            )
+            expr_hash = {
+              values: [rule[:member_name], rule[:value]],
+              operator: rule[:condition]
+            }
+            c_struct.rules << CExpression.from_hash(expr_hash)
           end
         end
 
         c_struct
-      end
-
-      # Creates a CStruct from a struct spec.
-      def self.from_spec(struct_spec)
-        new(name: struct_spec.name)
       end
 
       # Creates a type for the base type given.

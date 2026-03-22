@@ -39,10 +39,12 @@ module Wrapture
       def sources: -> Enumerable[Wrapture::SourceFile]
       def target_headers: -> Array[String]
       def target_include_directories: -> Array[String]
+      def target_link_libraries: -> Array[String]
 
       private
 
       def cmake_lists_generate_export_header_lines: -> Array[String]
+      def cmake_lists_library_target_lines: -> Array[String]
       def cmake_lists_target_install_lines: -> Array[String]
     end
   end

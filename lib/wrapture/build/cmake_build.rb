@@ -88,53 +88,8 @@ module Wrapture
         file.puts(')')
         file.puts
 
-        src_path_prefix = "${#{@source_set.name.upcase}_SOURCE_DIR}/"
-        exports = @source_set.lib_headers.grep(CSource::CExportHeader)
-
-        unless @source_set.lib_sources.empty?
-          source_list = "#{@source_set.name.upcase}_SOURCES"
-          file.puts("set(#{source_list}")
-          @source_set.lib_sources.each do |source|
-            file.puts("  \"#{src_path_prefix}#{source.path}\"")
-          end
-          file.puts(')')
-          file.puts
-
-          lib_targets = []
-          @source_set.lib_links.each do |lib|
-            target_name = "#{@source_set.name}_#{lib}"
-            find_var = "LIB#{lib.upcase}_LOCATION"
-            file.puts("find_library(#{find_var} #{lib} REQUIRED)")
-            file.puts("add_library(#{target_name} SHARED IMPORTED)")
-            file.puts("set_target_properties(#{target_name} PROPERTIES")
-            file.puts("  IMPORTED_LOCATION ${#{find_var}}")
-            file.puts(')')
-            file.puts
-
-            lib_targets.append(target_name)
-          end
-
-          lib_deps = lib_targets.join(' ')
-          file.puts("add_library(#{@source_set.name} ${#{source_list}})")
-          file.puts("target_link_libraries(#{@source_set.name}")
-          file.puts("  PUBLIC #{lib_deps}")
-          file.puts(')')
-          file.puts("target_include_directories(#{@source_set.name}")
-          target_include_directories.each do |dir|
-            file.puts("  PRIVATE \"#{dir}\"")
-          end
-          file.puts(')')
-
-          unless exports.empty?
-            file.puts("target_compile_definitions(#{@source_set.name}")
-            exports.each do |export|
-              file.puts("  PRIVATE #{export.base_name}_EXPORTING=1")
-            end
-            file.puts(')')
-          end
-
-          file.puts
-        end
+        cmake_lists_library_target_lines.each { |it| file.puts(it) }
+        file.puts unless @source_set.lib_sources.empty?
 
         cmake_lists_generate_export_header_lines.each { |it| file.puts(it) }
 
@@ -229,6 +184,13 @@ module Wrapture
         dirs
       end
 
+      # The link libraries for the library target in this project.
+      def target_link_libraries
+        @source_set.lib_links.map do |lib|
+          "#{@source_set.name}_#{lib}"
+        end
+      end
+
       private
 
       # Lines of CMake code to generate the export headers for the library,
@@ -249,6 +211,55 @@ module Wrapture
         end
 
         lines
+      end
+
+      # Lines of CMake code to create the library target, without line endings.
+      def cmake_lists_library_target_lines
+        src = []
+
+        return src if @source_set.lib_sources.empty?
+
+        src_path_prefix = "${#{@source_set.name.upcase}_SOURCE_DIR}/"
+        source_list = "#{@source_set.name.upcase}_SOURCES"
+
+        src << "set(#{source_list}"
+        @source_set.lib_sources.each do |source|
+          src << "  \"#{src_path_prefix}#{source.path}\""
+        end
+        src << ')'
+        src << ''
+
+        @source_set.lib_links.each do |lib|
+          target_name = "#{@source_set.name}_#{lib}"
+          find_var = "LIB#{lib.upcase}_LOCATION"
+          src << "find_library(#{find_var} #{lib} REQUIRED)"
+          src << "add_library(#{target_name} SHARED IMPORTED)"
+          src << "set_target_properties(#{target_name} PROPERTIES"
+          src << "  IMPORTED_LOCATION ${#{find_var}}"
+          src << ')'
+          src << ''
+        end
+
+        src << "add_library(#{@source_set.name} ${#{source_list}})"
+        src << "target_link_libraries(#{@source_set.name}"
+        src << "  PUBLIC #{target_link_libraries.join(' ')}"
+        src << ')'
+        src << "target_include_directories(#{@source_set.name}"
+        target_include_directories.each do |dir|
+          src << "  PRIVATE \"#{dir}\""
+        end
+        src << ')'
+
+        exports = @source_set.lib_headers.grep(CSource::CExportHeader)
+        unless exports.empty?
+          src << "target_compile_definitions(#{@source_set.name}"
+          exports.each do |export|
+            src << "  PRIVATE #{export.base_name}_EXPORTING=1"
+          end
+          src << ')'
+        end
+
+        src
       end
 
       # Lines of CMake code to install the library target, without line endings.

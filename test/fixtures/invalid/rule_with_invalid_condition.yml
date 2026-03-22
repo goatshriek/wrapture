@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-# Copyright 2025 Joel E. Anderson
+# Copyright 2025-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,21 +18,23 @@ version: "0.6.0"
 classes:
   - name: "Parent"
     namespace: "wrapture_test"
-    equivalent_struct:
-      name: "overloaded_struct"
-      members:
-        - name: "code"
-          type: "int"
+    wrapped:
+      c:
+        name: "overloaded_struct"
+        members:
+          - name: "code"
+            type: "int"
   - name: "ChildOne"
     namespace: "wrapture_test"
-    equivalent_struct:
-      name: "overloaded_struct"
-      rules:
-        - member_name: "code"
-          # this is not a supported condition
-          # check the array in Wrapture::RuleSpec::CONDITIONS for supported
-          # conditions
-          condition: "vegan"
-          value: "1"
+    wrapped:
+      c:
+        name: "overloaded_struct"
+        rules:
+          - member_name: "code"
+            # this is not a supported condition
+            # check the array in Wrapture::CSource::CExpression::OPERATORS for
+            # supported conditions
+            condition: "vegan"
+            value: "1"
     parent:
       name: "Parent"

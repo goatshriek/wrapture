@@ -50,7 +50,8 @@ module Wrapture
 
       # Compares with another declaration.
       def ==(other)
-        @name == other.name &&
+        other.is_a?(CDeclaration) &&
+          @name == other.name &&
           @value == other.value &&
           @attributes == other.attributes &&
           @c_type == other.c_type

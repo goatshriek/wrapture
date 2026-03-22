@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2019-2024 Joel E. Anderson
+# Copyright 2019-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ Gem::Specification.new do |spec|
   spec.homepage    =  'https://goatshriek.github.io/wrapture/'
   spec.license     =  'Apache-2.0'
 
-  spec.required_ruby_version = '>= 2.6'
+  spec.required_ruby_version = '>= 2.7'
   spec.add_dependency 'json', '~> 2.3'
   spec.add_dependency 'thor', '~> 1.4'
 

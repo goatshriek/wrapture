@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-# Copyright 2025 Joel E. Anderson
+# Copyright 2025-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,20 +18,22 @@ version: "0.6.0"
 classes:
   - name: "Parent"
     namespace: "wrapture_test"
-    equivalent_struct:
-      name: "overloaded_struct"
-      members:
-        - name: "code"
-          type: "int"
+    wrapped:
+      c:
+        name: "overloaded_struct"
+        members:
+          - name: "code"
+            type: "int"
   - name: "ChildOne"
     namespace: "wrapture_test"
-    equivalent_struct:
-      name: "overloaded_struct"
-      rules:
-        - member_name: "code"
-          condition: "equals"
-          value: "1"
-          # this is not a valid key
-          the-pretender: "what if I say I'm not like the others?"
+    wrapped:
+      c:
+        name: "overloaded_struct"
+        rules:
+          - member_name: "code"
+            condition: "equal"
+            value: "1"
+            # this is not a valid key
+            the-pretender: "what if I say I'm not like the others?"
     parent:
       name: "Parent"

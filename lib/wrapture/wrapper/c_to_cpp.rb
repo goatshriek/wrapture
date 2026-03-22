@@ -51,7 +51,7 @@ module Wrapture
                '&'
              end}#{var_name}#{member_access}equivalent"
         else
-          raise "uncaught cast case: struct: '#{struct}', to '#{to}'"
+          var_name
         end
       end
 
@@ -597,10 +597,10 @@ module Wrapture
       # The name of the header file for a given item.
       def self.header_name(spec)
         case spec
-        when Scope
-          "#{spec.snake_case_name}.hpp"
         when ClassSpec, EnumSpec
           "#{spec.upper_camel_case_name}.hpp"
+        else
+          "#{spec.snake_case_name}.hpp"
         end
       end
 

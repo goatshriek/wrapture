@@ -26,6 +26,24 @@ module Wrapture
   class ClassSpec
     include Named
 
+    # The list of constants in this class.
+    attr_reader :constants
+
+    # The documentation comment for this class.
+    attr_reader :doc
+
+    # The list of functions in this class.
+    attr_reader :functions
+
+    # The scope of this class.
+    attr_reader :scope
+
+    # The underlying struct of this class.
+    # attr_reader :struct
+
+    # A map of language-specific wrapping details.
+    attr_accessor :wrapped
+
     # Gives the effective type of the given class spec hash.
     # TODO: this should be refactored to use an object instead of a hash
     def self.effective_type(spec)
@@ -133,24 +151,6 @@ module Wrapture
       spec
     end
 
-    # The list of constants in this class.
-    attr_reader :constants
-
-    # The documentation comment for this class.
-    attr_reader :doc
-
-    # The list of functions in this class.
-    attr_reader :functions
-
-    # The scope of this class.
-    attr_reader :scope
-
-    # The underlying struct of this class.
-    attr_reader :struct
-
-    # A map of language-specific wrapping details.
-    attr_accessor :wrapped
-
     # Creates a class spec based on the provided hash spec.
     #
     # The scope can be provided if available. Otherwise, a new Scope is created
@@ -172,10 +172,6 @@ module Wrapture
     # libraries:: A list of libraries that must be linked to use this class.
     def initialize(spec, scope: Scope.new)
       @spec = ClassSpec.normalize_spec_hash(spec, *scope.templates)
-
-      @struct = if @spec.key?(:equivalent_struct)
-                  StructSpec.new(@spec[:equivalent_struct])
-                end
 
       @functions = @spec[:constructors].map do |constructor_spec|
         full_spec = constructor_spec.dup
@@ -250,50 +246,9 @@ module Wrapture
       @functions.select(&:constructor?)
     end
 
-    # A list of includes needed for the declaration of the class.
-    # TODO: includes should not be implemented in the class spec itself, only C
-    # wrappers
-    def declaration_includes
-      includes = @spec[:includes].dup
-
-      includes.concat(@struct.includes) if @struct
-
-      @functions.each do |func|
-        raise UndefinableSpec, 'not wrappable in c' unless func.wrapped.key?(:c)
-
-        includes.concat(func.definition_includes)
-        includes.concat(func.wrapped[:c].includes)
-      end
-
-      @constants.each do |const|
-        includes.concat(const.declaration_includes)
-      end
-
-      includes.concat(@spec[:parent][:includes]) if child?
-
-      includes.uniq
-    end
-
     # True if this class can be defined.
     def definable?
       @functions.all?(&:definable?)
-    end
-
-    # A list of includes needed for the definition of the class.
-    def definition_includes
-      includes = @spec[:includes].dup
-
-      includes.concat(@struct.includes) if @struct
-
-      @functions.each do |func|
-        includes.concat(func.definition_includes)
-      end
-
-      @constants.each do |const|
-        includes.concat(const.definition_includes)
-      end
-
-      includes.uniq
     end
 
     # The destructor function for the class, or nil if there isn't one.
@@ -301,42 +256,9 @@ module Wrapture
       @functions.select(&:destructor?).first
     end
 
-    # Calls the given block for each line of the class documentation.
-    def documentation(&block)
-      @doc&.format_as_doxygen(max_line_length: 78) { |line| block.call(line) }
-    end
-
-    # True if this class has an underlying equivalent struct member for itself.
-    #
-    # A class might not have an equivalent struct member even though it is
-    # based on a struct. One such example is if it is able to use its parent
-    # class member since the parent wraps the same struct.
-    def equivalent_member?
-      return false unless @struct
-      return true unless child?
-
-      parent = parent_spec
-
-      parent.nil? ||
-        parent.struct_name != struct_name ||
-        parent.pointer_wrapper? != pointer_wrapper?
-    end
-
     # True if this class is an exception.
     def exception?
       @spec[:exception]
-    end
-
-    # True if this class can be used as a factory for children classes that it
-    # overloads.
-    def factory?
-      @scope.overloads?(self)
-    end
-
-    # The includes given for this class spec. This does not include those from
-    # items within this class such as functions or constants.
-    def includes
-      spec[:includes]
     end
 
     # An array of libraries needed for everything in this class.
@@ -363,19 +285,6 @@ module Wrapture
       @spec[:namespace]
     end
 
-    # True if this class overloads the given one. A class is considered an
-    # overload of another if it has the same equivalent struct name and
-    # the equivalent struct has a set of rules. The overloaded class
-    # cannot have any rules in its equivalent struct or it will not be
-    # considered an overload.
-    def overloads?(class_spec)
-      return false unless class_spec.struct&.rules&.empty? && @struct
-
-      class_spec.struct.name == struct_name &&
-        class_spec.name == parent_name &&
-        !@struct.rules.empty?
-    end
-
     # True if this class is a parent of others.
     def parent?
       @scope.classes.any? do |class_spec|
@@ -389,31 +298,9 @@ module Wrapture
       @spec[:parent][:name] if child?
     end
 
-    # True if the parent of this class provides an initializer taking a pointer
-    # to the same equivalent struct type.
-    def parent_provides_initializer?
-      return false if !pointer_wrapper? || !child?
-
-      parent = parent_spec
-
-      !parent.nil? &&
-        parent.pointer_wrapper? &&
-        parent.struct_name == @struct.name
-    end
-
     # The class spec of the parent class, or nil if this cannot be resolved.
     def parent_spec
       type(TypeSpec.new(parent_name))
-    end
-
-    # Determines if this class is a wrapper for a struct pointer or not.
-    def pointer_wrapper?
-      @spec[:type] == 'pointer'
-    end
-
-    # The name of the equivalent struct of this class.
-    def struct_name
-      @struct.name
     end
 
     # Returns the ClassSpec for the given type in this class's scope.

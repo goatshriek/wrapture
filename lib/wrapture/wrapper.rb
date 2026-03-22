@@ -59,6 +59,9 @@ module Wrapture
         wrap_enum(spec, scope: scope)
       when Scope
         wrap_scope(spec)
+      else
+        wrap_name = 'Wrapture::Wrapper.wrap'
+        raise InvalidSpec, "#{spec.class} not supported by #{wrap_name}"
       end
     end
   end

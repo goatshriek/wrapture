@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-# Copyright 2025 Joel E. Anderson
+# Copyright 2025-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,9 +17,11 @@
 name: "DelegatingConstructorClass"
 namespace: "wrapture_test"
 includes: "class_include.h"
-equivalent_struct:
-  name: "basic_struct"
-  includes: "folder/include_file_1.h"
+wrapped:
+  c:
+    pointer:
+      name: "basic_struct"
+      includes: "folder/include_file_1.h"
 constructors:
   - wrapped:
       c:

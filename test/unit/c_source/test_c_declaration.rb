@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2019-2025 Joel E. Anderson
+# Copyright 2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,15 +22,11 @@ require 'fixture'
 require 'minitest/autorun'
 require 'wrapture'
 
-class RuleSpecTest < Minitest::Test
-  def test_not_equals
-    test_spec = fixture_hash('not_equals_rule')
+class CDeclarationTest < Minitest::Test
+  def test_equality_with_something_else
+    decl = Wrapture::CSource::CDeclaration.new('int', 'test_int')
 
-    spec = Wrapture::RuleSpec.new(test_spec)
-
-    left = test_spec[:left_expression]
-    right = test_spec[:right_expression]
-
-    assert_equal("#{left} != #{right}", spec.check)
+    refute_equal(decl, 'test_int')
+    refute_equal(decl, 'int')
   end
 end
