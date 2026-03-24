@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2023-2025 Joel E. Anderson
+# Copyright 2023-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -89,8 +89,7 @@ examples = [{ name: 'basic', lib: 'stove', sources: ['stove.c'] },
             { name: 'overloaded_struct',
               lib: 'security_system',
               sources: ['security_system.c'] },
-            { name: 'struct_wrapper', lib: 'stats', sources: ['stats.c'] },
-            { name: 'templates', lib: 'magic_math', sources: ['magic_math.c'] }]
+            { name: 'struct_wrapper', lib: 'stats', sources: ['stats.c'] }]
 
 namespace 'examples' do
   examples.each do |ex|

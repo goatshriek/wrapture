@@ -31,11 +31,14 @@ end
 def fixture_build_hash(name)
   # simplify this to just safe_load_file after Ruby 2.7 is dropped
   if YAML.respond_to?('safe_load_file')
-    YAML.safe_load_file(fixture_build_spec_path(name), symbolize_names: true)
+    YAML.safe_load_file(fixture_build_spec_path(name), aliases: true,
+                                                       symbolize_names: true)
   else
     filename = fixture_build_spec_path(name)
     File.open(filename, 'r:bom|utf-8') do |f|
-      YAML.safe_load(f, filename: filename, symbolize_names: true)
+      YAML.safe_load(f, filename: filename,
+                        aliases: true,
+                        symbolize_names: true)
     end
   end
 end
@@ -45,11 +48,14 @@ end
 def fixture_hash(name)
   # simplify this to just safe_load_file after Ruby 2.7 is dropped
   if YAML.respond_to?('safe_load_file')
-    YAML.safe_load_file(fixture_yaml_path(name), symbolize_names: true)
+    YAML.safe_load_file(fixture_yaml_path(name), aliases: true,
+                                                 symbolize_names: true)
   else
     filename = fixture_yaml_path(name)
     File.open(filename, 'r:bom|utf-8') do |f|
-      YAML.safe_load(f, filename: filename, symbolize_names: true)
+      YAML.safe_load(f, filename: filename,
+                        aliases: true,
+                        symbolize_names: true)
     end
   end
 end

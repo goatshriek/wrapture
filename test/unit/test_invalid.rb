@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2019-2025 Joel E. Anderson
+# Copyright 2019-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -47,14 +47,6 @@ class InvalidTest < Minitest::Test
     end
   end
 
-  def test_non_hash_template_in_hash
-    scope_spec = fixture_hash('invalid/non_hash_template_in_hash')
-
-    assert_raises(Wrapture::InvalidTemplateUsage) do
-      Wrapture::Scope.new(scope_spec)
-    end
-  end
-
   def test_rule_missing_condition
     test_spec = fixture_hash('invalid/rule_missing_condition')
 
@@ -76,24 +68,6 @@ class InvalidTest < Minitest::Test
 
     assert_raises(Wrapture::InvalidSpecKey) do
       Wrapture::Scope.new(test_spec)
-    end
-  end
-
-  def test_use_template_as_array
-    scope_spec = fixture_hash('invalid/use_template_as_array')
-
-    error = assert_raises(Wrapture::InvalidTemplateUsage) do
-      Wrapture::Scope.new(scope_spec)
-    end
-
-    assert_includes(error.message, 'use_template')
-  end
-
-  def test_use_template_with_no_name
-    scope_spec = fixture_hash('invalid/use_template_with_no_name')
-
-    assert_raises(Wrapture::InvalidTemplateUsage) do
-      Wrapture::Scope.new(scope_spec)
     end
   end
 end

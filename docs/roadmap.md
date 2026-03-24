@@ -53,7 +53,7 @@ or want to make a suggestion, please submit an issue on the project's
    Python wrapper generation.
  * [ADD] **Public repository of standard library specifications**
    It may be useful to have standard specifications readily available. These
-   could range from common templates for things like error handling, to simply
+   could range from common snippets for things like error handling, to simply
    wrapping standard library calls for use in the target language.
  * [ADD] **Ruby class generation**
    Allowing Ruby class generation will enable this project to make use of other
