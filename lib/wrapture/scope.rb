@@ -46,29 +46,17 @@ module Wrapture
 
     # Returns a normalized copy of a scope hash specification. See
     # normalize_spec_hash! for details.
-    def self.normalize_spec_hash(spec, *templates)
-      normalize_spec_hash!(Marshal.load(Marshal.dump(spec)), *templates)
+    def self.normalize_spec_hash(spec)
+      normalize_spec_hash!(Marshal.load(Marshal.dump(spec)))
     end
 
     # Normalizes a hash specification of a scope in place. Normalization
-    # will normalize the version of the spec and all templates, classes,
-    # and enumerations as well.
-    #
-    # A set of templates can optionally be supplied, which will be expanded in
-    # the spec before normalization is done.
+    # will normalize the version of the spec and all classes and enumerations
+    # as well.
     #
     # If the 'doc' key is present, it is validated using Comment::validate_doc.
     # If not, it is set to an empty string.
-    def self.normalize_spec_hash!(spec, *templates)
-      # the templates must be handled first, since they might add keys needed
-      # for the spec to be valid
-      TemplateSpec.replace_all_uses(spec, *templates)
-      spec[:templates] = [] unless spec.key?(:templates)
-      new_templates = spec[:templates].collect do |template_hash|
-        TemplateSpec.new(template_hash)
-      end
-      TemplateSpec.replace_all_uses(spec, *new_templates)
-
+    def self.normalize_spec_hash!(spec)
       if spec.key?(:doc)
         Comment.validate_doc(spec[:doc])
       else
@@ -102,9 +90,6 @@ module Wrapture
     # A list of enumerations currently in the scope.
     attr_reader :enums
 
-    # A list of the templates defined in the scope.
-    attr_reader :templates
-
     # Creates an empty scope, optionally with the provided specification.
     #
     # Since a scope can be completely empty, all of the following keys are
@@ -115,14 +100,9 @@ module Wrapture
       @classes = []
       @decorate_wrapped_name = false
       @enums = []
-      @templates = []
 
       @spec = self.class.normalize_spec_hash(spec)
       @doc = Comment.new(@spec[:doc])
-
-      @templates = @spec[:templates].collect do |template_hash|
-        TemplateSpec.new(template_hash)
-      end
 
       @spec[:classes].each do |class_hash|
         ClassSpec.new(class_hash, scope: self)
@@ -133,12 +113,11 @@ module Wrapture
       end
     end
 
-    # Adds a class or template specification to the scope.
+    # Adds a class or enum specification to the scope.
     #
     # This does not set the scope as the owner of the class for a ClassSpec,
     # which must be done during the construction of the class spec.
     def <<(spec)
-      @templates << spec if spec.is_a?(TemplateSpec)
       @classes << spec if spec.is_a?(ClassSpec)
       @enums << spec if spec.is_a?(EnumSpec)
 
@@ -206,7 +185,7 @@ module Wrapture
                                        symbolize_names: true)
                    end
                  end
-      self.class.normalize_spec_hash!(new_spec, *@templates)
+      self.class.normalize_spec_hash!(new_spec)
 
       both_named = @spec.key?(:name) && new_spec.key?(:name)
       if both_named && @spec[:name] != new_spec[:name]
@@ -224,10 +203,6 @@ module Wrapture
         else
           @doc << '\n\n' << new_doc
         end
-      end
-
-      new_spec[:templates].each do |template_hash|
-        @templates << TemplateSpec.new(template_hash)
       end
 
       new_spec[:classes].each do |class_hash|

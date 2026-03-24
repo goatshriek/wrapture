@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-# Copyright 2025 Joel E. Anderson
+# Copyright 2025-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,15 +21,14 @@ module Wrapture
 
     def self.from_hash: (spec_hash spec) -> Wrapture::Scope
     def self.load_files: (Array[String] filenames) -> Wrapture::Scope
-    def self.normalize_spec_hash: (spec_hash spec, *Wrapture::TemplateSpec templates) -> spec_hash
-    def self.normalize_spec_hash!: (spec_hash spec, *Wrapture::TemplateSpec templates) -> spec_hash
-    attr_reader classes: Array[bot]
+    def self.normalize_spec_hash: (spec_hash spec) -> spec_hash
+    def self.normalize_spec_hash!: (spec_hash spec) -> spec_hash
+    attr_reader classes: Array[ClassSpec]
     attr_writer decorate_wrapped_name: bool
     attr_reader doc: Wrapture::Comment
-    attr_reader enums: Array[bot]
-    attr_reader templates: Array[bot]
+    attr_reader enums: Array[EnumSpec]
     def initialize: (?spec_hash spec) -> nil
-    def <<: ( (Wrapture::TemplateSpec | Wrapture::ClassSpec | Wrapture::EnumSpec) spec) -> Wrapture::Scope
+    def <<: ( (Wrapture::ClassSpec | Wrapture::EnumSpec) spec) -> Wrapture::Scope
     def add_class_spec_hash: (spec_hash spec) -> Wrapture::ClassSpec
     def add_enum_spec_hash: (spec_hash spec) -> Wrapture::EnumSpec
     def decorate_wrapped_name?: -> bool

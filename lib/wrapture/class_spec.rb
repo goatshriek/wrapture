@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2019-2025 Joel E. Anderson
+# Copyright 2019-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -97,8 +97,8 @@ module Wrapture
 
     # Returns a normalized copy of a hash specification of a class. See
     # normalize_spec_hash! for details.
-    def self.normalize_spec_hash(spec, *templates)
-      normalize_spec_hash!(Marshal.load(Marshal.dump(spec)), *templates)
+    def self.normalize_spec_hash(spec)
+      normalize_spec_hash!(Marshal.load(Marshal.dump(spec)))
     end
 
     # Normalizes a hash specification of a class in place. Normalization checks
@@ -106,17 +106,12 @@ module Wrapture
     # keys to their default values (for example, an empty list if no includes
     # are given).
     #
-    # A set of templates can optionally be supplied, which will be expanded in
-    # the spec before normalization is done.
-    #
     # If this spec cannot be normalized, for example because it is invalid or
     # it uses an unsupported version type, then an exception is raised.
     #
     # If the 'doc' key is present, it is validated using Comment::validate_doc.
     # If not, it is set to an empty string.
-    def self.normalize_spec_hash!(spec, *templates)
-      TemplateSpec.replace_all_uses(spec, *templates)
-
+    def self.normalize_spec_hash!(spec)
       raise MissingNamespace unless spec.key?(:namespace)
       raise MissingSpecKey, 'name key is required' unless spec.key?(:name)
 
@@ -171,7 +166,7 @@ module Wrapture
     # includes:: A list of includes that are needed for this class.
     # libraries:: A list of libraries that must be linked to use this class.
     def initialize(spec, scope: Scope.new)
-      @spec = ClassSpec.normalize_spec_hash(spec, *scope.templates)
+      @spec = ClassSpec.normalize_spec_hash(spec)
 
       @functions = @spec[:constructors].map do |constructor_spec|
         full_spec = constructor_spec.dup

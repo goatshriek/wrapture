@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2019-2025 Joel E. Anderson
+# Copyright 2019-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -42,26 +42,13 @@ class ScopeTest < Minitest::Test
     assert_equal('wrapture_test', scope.name)
   end
 
-  def test_nested_templates
-    test_spec = fixture_hash('scope_with_nested_templates')
+  def test_scope_with_anchors
+    test_spec = fixture_hash('scope_with_anchors')
     scope = Wrapture::Scope.new(test_spec)
+    used_structs = %w[one_struct two_struct red_struct blue_struct]
 
-    assert_equal(test_spec[:classes].count, scope.classes.count)
-    assert_equal(0, scope.enums.count)
-  end
-
-  def test_templatized_classes
-    spec_with_template = fixture_hash('scope_with_template')
-    scope = Wrapture::Scope.new(spec_with_template)
-    with_template_build = Wrapture::Wrapper::CToCpp.wrap_scope(scope)
-
-    spec_without_template = fixture_hash('scope_without_template')
-    scope = Wrapture::Scope.new(spec_without_template)
-    no_template_build = Wrapture::Wrapper::CToCpp.wrap_scope(scope)
-
-    with_template_build.sources.each do |with_src|
-      assert_includes(no_template_build, with_src,
-                      "the build without templates is missing #{with_src}")
+    used_structs.each do |struct_name|
+      assert(scope.classes.any? { |it| it[:c].c_type.name == struct_name })
     end
   end
 

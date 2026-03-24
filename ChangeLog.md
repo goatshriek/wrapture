@@ -25,6 +25,8 @@ fixes, check out the
 
 ### Removed
  - Ruby 2.4 through 2.6 are no longer supported.
+ - Templates are no longer supported natively. Spec reuse must be performed
+   outside of wrapture, for example via YAML anchors or in Ruby code.
 
 ## [0.5.0] - 2020-12-15
 ### Fixed

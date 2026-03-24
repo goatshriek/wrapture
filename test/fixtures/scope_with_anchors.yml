@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-# Copyright 2025 Joel E. Anderson
+# Copyright 2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,62 +14,63 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
+to_string_common: &to_string_common
+  name: ["to", "string"]
+  return:
+    type: "const char *"
 classes:
   - name: "OneClass"
-    namespace: "wrapture_test"
+    namespace: &dr_seuss_namespace "wrapture_test"
     wrapped:
       c:
-        name: "one_struct"
-        includes: "one_struct.h"
+        pointer:
+          name: "one_struct"
+          includes: "one_struct.h"
     functions:
-      - name: "to_string"
-        return:
-          type: "const char *"
+      - <<: *to_string_common
         wrapped:
           c:
             name: "one_struct_to_string"
             params:
               - value: "equivalent_struct_pointer"
   - name: "TwoClass"
-    namespace: "wrapture_test"
+    namespace: *dr_seuss_namespace
     wrapped:
       c:
-        name: "two_struct"
-        includes: "two_struct.h"
+        pointer:
+          name: "two_struct"
+          includes: "two_struct.h"
     functions:
-      - name: "to_string"
-        return:
-          type: "const char *"
+      - <<: *to_string_common
         wrapped:
           c:
             name: "two_struct_to_string"
             params:
               - value: "equivalent_struct_pointer"
   - name: "RedClass"
-    namespace: "wrapture_test"
+    namespace: *dr_seuss_namespace
     wrapped:
       c:
-        name: "red_struct"
-        includes: "red_struct.h"
+        pointer:
+          name: "red_struct"
+          includes: "red_struct.h"
     functions:
-      - name: "to_string"
-        return:
-          type: "const char *"
+      - <<: *to_string_common
         wrapped:
           c:
             name: "red_struct_to_string"
             params:
               - value: "equivalent_struct_pointer"
   - name: "BlueClass"
-    namespace: "wrapture_test"
+    namespace: *dr_seuss_namespace
     wrapped:
       c:
-        name: "blue_struct"
-        includes: "blue_struct.h"
+        pointer:
+          name: "blue_struct"
+          includes: "blue_struct.h"
     functions:
-      - name: "to_string"
-        return:
-          type: "const char *"
+      - <<: *to_string_common
         wrapped:
           c:
             name: "blue_struct_to_string"
