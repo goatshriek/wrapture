@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2025 Joel E. Anderson
+# Copyright 2025-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -34,8 +34,14 @@ class PythonFixtureUsageIntegrationTest < Minitest::Test
     spec_hash = fixture_hash('cmake_c_library')
     scope = Wrapture::Scope.new(spec_hash)
     wrapper_sources = Wrapture::Wrapper::CToPython.wrap_scope(scope)
+    wrapper_build = Wrapture::Build::PyprojectBuild.new(wrapper_sources)
     python_build_dir = File.join(build_dir, 'python')
     FileUtils.mkdir_p(python_build_dir)
-    wrapper_sources.save(python_build_dir)
+    wrapper_build.save(python_build_dir)
+
+    env = { 'CFLAGS' => "-I#{build_dir}/include -L#{build_dir}/lib" }
+    wrapper_build.build_commands.each do |cmd|
+      system(env, cmd, chdir: python_build_dir, exception: true)
+    end
   end
 end
