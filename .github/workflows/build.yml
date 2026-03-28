@@ -33,9 +33,9 @@ jobs:
         run: gem build wrapture.gemspec
       - name: Install Gem
         run: gem install wrapture
-  cpp:
+  c-to-cpp:
     runs-on: ubuntu-latest
-    name: c++ runtime tests
+    name: c to c++ runtime tests
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
       - uses: ruby/setup-ruby@efbf473cab83af4468e8606cc33eca9281bb213f # v1.256.0
@@ -45,13 +45,13 @@ jobs:
         run: |
           bundle config set --local without 'development'
           bundle install
-      - name: Run C++ Integration Tests
-        run: bundle exec rake test:integration:cpp
+      - name: Run C to C++ Integration Tests
+        run: bundle exec rake test:integration:c_to_cpp
       - name: Run C++ Examples
-        run: bundle exec rake examples:cpp
-  python:
+        run: bundle exec rake examples:c_to_cpp
+  c-to-python:
     runs-on: ubuntu-latest
-    name: python runtime tests
+    name: c to python runtime tests
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
       - uses: ruby/setup-ruby@efbf473cab83af4468e8606cc33eca9281bb213f # v1.256.0
@@ -66,10 +66,10 @@ jobs:
           python-version: '3.12'
       - name: Install Prereqs
         run: pip3 install build setuptools
-      - name: Run Python Integration Tests
-        run: bundle exec rake test:integration:python
+      - name: Run C to Python Integration Tests
+        run: bundle exec rake test:integration:c_to_python
       - name: Run Python Examples
-        run: bundle exec rake examples:python
+        run: bundle exec rake examples:c_to_python
   docker:
     runs-on: ubuntu-latest
     name: docker build

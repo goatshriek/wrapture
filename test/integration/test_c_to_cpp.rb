@@ -22,7 +22,7 @@ require 'fixture'
 require 'minitest/autorun'
 require 'wrapture'
 
-class CppFixtureUsageIntegrationTest < Minitest::Test
+class CToCppIntegrationTest < Minitest::Test
   def test_cmake_c_lib_usage
     # build and install the c library that is being wrapped
     build_dir = fixture_build_dir('cmake_c_library')
