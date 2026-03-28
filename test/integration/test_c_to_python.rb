@@ -39,7 +39,7 @@ class CToPythonIntegrationTest < Minitest::Test
     FileUtils.mkdir_p(python_build_dir)
     wrapper_build.save(python_build_dir)
 
-    env = { 'CFLAGS' => "-I#{build_dir}/include -L#{build_dir}/lib" }
+    env = { 'CFLAGS' => "-I#{wrapped_build.include_dir} -L#{build_dir}" }
     wrapper_build.build_commands.each do |cmd|
       system(env, cmd, chdir: python_build_dir, exception: true)
     end
