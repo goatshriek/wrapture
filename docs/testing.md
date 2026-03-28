@@ -38,5 +38,9 @@ usage programs that exercise generated wrappers, for example `cpp_usage.cpp`.
 These fixtures may be used by any tests, but are primarily intended for
 integration tests.
 
-The `test/fixtures/invalid` folder holds specs that are not valid in some way,
-and will cause errors when loaded by Wrapture.
+The ysage programs in these subdirectories should not print output, and should
+instead exit with a non-zero value if something does not work properly.
+
+The `test/fixtures/invalid` directory does not have a project, but instead
+holds specs that are not valid in some way, and will cause errors when
+loaded by Wrapture.

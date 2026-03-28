@@ -1070,7 +1070,7 @@ module Wrapture
       # +scope+ describes all of the classes and other entities that will be
       # wrapped. These will all be put into a namespace named after the scope.
       def self.wrap_scope(scope)
-        set = PythonSource::PythonSourceSet.new(scope.name)
+        set = PythonSource::PythonSourceSet.new(scope.snake_case_name)
 
         set.add_module_source(define_module(scope))
 

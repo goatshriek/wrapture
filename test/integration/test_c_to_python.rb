@@ -46,5 +46,18 @@ class CToPythonIntegrationTest < Minitest::Test
     wrapper_build.build_commands.each do |cmd|
       system(env, cmd, chdir: python_build_dir, exception: true)
     end
+
+    FileUtils.rm_rf(File.join(python_build_dir, 'usage-env'))
+    venv_cmd = 'python3 -m venv usage-env'
+    system(venv_cmd, chdir: python_build_dir, exception: true)
+
+    wrapper_build.install_commands(python: 'usage-env/bin/python3').each do |cmd|
+      system(cmd, chdir: python_build_dir, exception: true)
+    end
+
+    python_usage = File.join(wrapped_build.source_dir, 'python_usage.py')
+    env = { 'LD_LIBRARY_PATH' => 'lib' }
+    cmd = "usage-env/bin/python3 #{python_usage}"
+    system(env, cmd, chdir: python_build_dir, exception: true)
   end
 end
