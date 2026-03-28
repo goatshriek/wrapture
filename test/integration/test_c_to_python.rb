@@ -51,13 +51,14 @@ class CToPythonIntegrationTest < Minitest::Test
     venv_cmd = 'python3 -m venv usage-env'
     system(venv_cmd, chdir: python_build_dir, exception: true)
 
-    wrapper_build.install_commands(python: 'usage-env/bin/python3').each do |cmd|
+    python_cmd = 'usage-env/bin/python3'
+    wrapper_build.install_commands(python: python_cmd).each do |cmd|
       system(cmd, chdir: python_build_dir, exception: true)
     end
 
     python_usage = File.join(wrapped_build.source_dir, 'python_usage.py')
     env = { 'LD_LIBRARY_PATH' => 'lib' }
-    cmd = "usage-env/bin/python3 #{python_usage}"
+    cmd = "#{python_cmd} #{python_usage}"
     system(env, cmd, chdir: python_build_dir, exception: true)
   end
 end
