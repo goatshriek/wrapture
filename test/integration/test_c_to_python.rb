@@ -30,6 +30,9 @@ class CToPythonIntegrationTest < Minitest::Test
     wrapped_build.build_commands.each do |cmd|
       system(cmd, chdir: build_dir, exception: true)
     end
+    wrapped_build.install_commands.each do |cmd|
+      system(cmd, chdir: build_dir, exception: true)
+    end
 
     spec_hash = fixture_hash('cmake_c_library')
     scope = Wrapture::Scope.new(spec_hash)
@@ -39,7 +42,7 @@ class CToPythonIntegrationTest < Minitest::Test
     FileUtils.mkdir_p(python_build_dir)
     wrapper_build.save(python_build_dir)
 
-    env = { 'CFLAGS' => "-I#{wrapped_build.include_dir} -L#{build_dir}" }
+    env = { 'CFLAGS' => "-I#{wrapped_build.include_dir} -L#{build_dir}/lib" }
     wrapper_build.build_commands.each do |cmd|
       system(env, cmd, chdir: python_build_dir, exception: true)
     end
