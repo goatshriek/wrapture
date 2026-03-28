@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /*
- * Copyright 2023 Joel E. Anderson
+ * Copyright 2023-2026 Joel E. Anderson
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,19 +23,41 @@
 using namespace std;
 using namespace kitchen;
 
+/**
+ * Demonstrates the usage of a simple C library which has been wrapped in C++
+ * by Wrapture.
+ */
 int main( int argc, char **argv ) {
   if( Stove::IsModelSupported( 4 ) ) {
     cout << "model 4 stoves are supported" << endl;
+  } else {
+    cerr << "model 4 stoves are not supported!" << endl;
+    return EXIT_FAILURE;
   }
 
   Stove my_stove (4);
-  cout << "burner count is: " << my_stove.GetBurnerCount() << endl;
+  int burner_count = my_stove.GetBurnerCount();
+  cout << "burner count is: " << burner_count << endl;
+  if( burner_count != 4 ){
+    cerr << "the burner count was not 4!" << endl;
+    return EXIT_FAILURE;
+  }
 
   my_stove.SetOvenTemp( 350 );
-  cout << "current oven temp is: " << my_stove.GetOvenTemp() << endl;
+  int oven_temp = my_stove.GetOvenTemp();
+  cout << "current oven temp is: " << oven_temp << endl;
+  if( oven_temp != 350 ){
+    cerr << "the oven temp was not 350!" << endl;
+    return EXIT_FAILURE;
+  }
 
   my_stove.SetBurnerLevel( 2, 9 );
-  cout << "burner 2 level is: " << my_stove.GetBurnerLevel( 2 ) << endl;
+  int burner_level = my_stove.GetBurnerLevel( 2 );
+  cout << "burner 2 level is: " << burner_level << endl;
+  if( burner_level != 9 ){
+    cerr << "the level of burner 2 was not 9!" << endl;
+    return EXIT_FAILURE;
+  }
 
   return EXIT_SUCCESS;
 }

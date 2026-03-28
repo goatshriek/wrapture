@@ -67,9 +67,8 @@ def run_python_example(name, lib, sources, build_dir)
       sh "CFLAGS=\"#{cflags}\" #{cmd} --wheel"
     end
 
+    FileUtils.rm_rf('usage-env')
     sh 'python3 -m venv usage-env'
-
-    # TODO: add uninstall commands and run them to clean things up
 
     python_build.install_commands(python: 'usage-env/bin/python3').each do |cmd|
       sh cmd

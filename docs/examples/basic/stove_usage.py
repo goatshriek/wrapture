@@ -2,7 +2,7 @@
 
 # SPDX-License-Identifier: Apache-2.0
 
-# Copyright 2023 Joel E. Anderson
+# Copyright 2023-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,12 +20,23 @@ import kitchen
 
 if kitchen.Stove.IsModelSupported(4):
   print('model 4 stoves are supported')
+else:
+  exit('model 4 stoves are not supported!')
 
 my_stove = kitchen.Stove(4)
-print('burner count is: %d' % my_stove.GetBurnerCount())
+burner_count = my_stove.GetBurnerCount()
+print(f'burner count is: {burner_count}')
+if burner_count != 4:
+  exit('the burner count was not 4!')
 
 my_stove.SetOvenTemp(350)
-print('current oven temp is: %d' % my_stove.GetOvenTemp())
+oven_temp = my_stove.GetOvenTemp()
+print(f'current oven temp is: {oven_temp}')
+if oven_temp != 350:
+  exit('the oven temp was not 350!')
 
 my_stove.SetBurnerLevel(2, 9);
-print('burner 2 level is: %d' % my_stove.GetBurnerLevel(2))
+burner_level = my_stove.GetBurnerLevel(2)
+print(f'burner 2 level is: {burner_level}')
+if burner_level != 9:
+  exit('the level of burner 2 was not 9!')
