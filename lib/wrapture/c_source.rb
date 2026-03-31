@@ -58,6 +58,8 @@ module Wrapture
         format_if(element)
       when CBlock
         format_block(element)
+      when CInclude
+        format_include(element)
       else
         [element.to_s]
       end
@@ -173,6 +175,24 @@ module Wrapture
         src + ["\n"]
       else
         src + [" else {\n"] + indent(format_block(else_block.tree)) + ["}\n"]
+      end
+    end
+
+    # Formats an include statement.
+    #
+    # This may include multiple lines if there is a sufficiently long comment
+    # associated with the include.
+    def self.format_include(inc)
+      suffix = if inc.comment.empty?
+                 ''
+               else
+                 " // #{inc.comment.text}"
+               end
+
+      if @quote
+        ["#include \"#{inc.file}\"#{suffix}\n"]
+      else
+        ["#include <#{inc.file}>#{suffix}\n"]
       end
     end
 

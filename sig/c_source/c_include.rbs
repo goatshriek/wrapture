@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-# Copyright 2025 Joel E. Anderson
+# Copyright 2025-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@ module Wrapture
       attr_reader quote: bool
 
       def initialize: (String, ?comment: Comment | String, ?quote: bool) -> void
-      def to_s: () -> String
     end
   end
 end

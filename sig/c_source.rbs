@@ -22,6 +22,7 @@ module Wrapture
     def self.format_function_declaration: (CFunction) -> Enumerable[String]
     def self.format_function_definition: (CFunction) -> Enumerable[String]
     def self.format_if: (CIf) -> Enumerable[String]
+    def self.format_include: (CInclude) -> Enumerable[String]
     def self.format_initialization: (CDeclaration) -> Enumerable[String]
     def self.format_struct: (CStruct) -> Enumerable[String]
     def self.indent: (untyped) -> Enumerable[String]
