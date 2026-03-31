@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /*
- * Copyright 2020 Joel E. Anderson
+ * Copyright 2020-2026 Joel E. Anderson
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,12 +30,18 @@ main( int argc, char **argv ){
   // note that static cast is needed to compare with an integer 
   if( static_cast<int>( store::Fruit::watermelon ) == DESIRE_WATERMELON ) {
     cout << "Fruit::watermelon is equal to DESIRE_WATERMELON" << endl;
+  } else {
+    cerr << "Fruit::watermelon is not equal to DESIRE_WATERMELON!" << endl;
+    return EXIT_FAILURE;
   }
 
   // instead of casting, you could also go the other way and create a Fruit
   // from the original value instead
   if( store::Fruit::lime == store::Fruit(MANGIAMO_LIME) ) {
     cout << "Fruit::lime is equal to MANGIAMO_LIME" << endl;
+  } else {
+    cerr << "Fruit::lime is not equal to MANGIAMO_LIME!" << endl;
+    return EXIT_FAILURE;
   }
 
   return EXIT_SUCCESS;

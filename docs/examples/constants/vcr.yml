@@ -52,9 +52,13 @@ classes:
         params:
           - name: "command"
             type: "int"
+        return:
+          type: "int"
         wrapped:
           c:
             name: "send_command"
             params:
               - name: "equivalent_struct_pointer"
               - name: "command"
+            return:
+              type: "int"

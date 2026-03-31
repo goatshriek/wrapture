@@ -35,6 +35,7 @@ module Wrapture
       def self.enum_from_spec: (Wrapture::EnumSpec) -> Wrapture::CppSource::CppEnum
       def self.factory_member_function: (Wrapture::ClassSpec) -> Wrapture::CppSource::CppFunction
       def self.forward_declared?: (untyped) -> String
+      def self.function_error_check: (Wrapture::FunctionSpec) -> Array[untyped]
       def self.generate_pointer_copy_constructor?: (Wrapture::ClassSpec) -> bool
       def self.generate_pointer_move_constructor?: (Wrapture::ClassSpec) -> bool
       def self.header_guard: (Wrapture::Named) -> String

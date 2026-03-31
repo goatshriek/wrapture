@@ -2,7 +2,7 @@
 
 # SPDX-License-Identifier: Apache-2.0
 
-# Copyright 2023-2025 Joel E. Anderson
+# Copyright 2023-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,5 +21,10 @@ import mediacenter
 living_room = mediacenter.Vcr(3)
 bedroom = mediacenter.Vcr(4)
 
-living_room.SendCommand(living_room.PAUSE_COMMAND)
-bedroom.SendCommand(bedroom.PLAY_COMMAND)
+sent = living_room.SendCommand(living_room.PAUSE_COMMAND)
+if sent !=living_room.PAUSE_COMMAND:
+  exit('the pause command wasn\'t sent!')
+
+sent = bedroom.SendCommand(bedroom.PLAY_COMMAND)
+if sent != bedroom.PLAY_COMMAND:
+  exit('the play command wasn\'t sent!')

@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2025 Joel E. Anderson
+# Copyright 2025-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,13 +22,13 @@ module Wrapture
   module CppSource
     # A block of C++ source code.
     #
-    # Blocks have an attribute named tree which is an array representing the
-    # syntax tree of the items in the block. The tree contents could be anything
-    # from Strings to other C source instances to other blocks.
+    # Blocks have a +tree+ attribute which is an array representing the syntax
+    # tree of the items in the block. The tree contents could be anything
+    # including Strings, C++ source objects, and other blocks.
     module CppBlock
-      # Adds an element directly to the source tree.
+      # Adds +element+ directly to the source tree. Nil elements are ignored.
       def <<(element)
-        tree << element
+        tree << element unless element.nil?
         self
       end
 

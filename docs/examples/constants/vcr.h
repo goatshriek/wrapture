@@ -16,7 +16,7 @@ struct vcr {
   int channel;
 };
 
-void send_command( struct vcr *target_vcr, int command );
+int send_command( struct vcr *target_vcr, int command );
 
 #  ifdef __cplusplus
 }

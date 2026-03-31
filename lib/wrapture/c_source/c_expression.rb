@@ -53,12 +53,12 @@ module Wrapture
       # An expression as at least one value, and optionally an operator that
       # defines what is done to the values.
       def initialize(vals, operator = nil)
-        @vals = @vals = case vals
-                        when String
-                          [vals]
-                        else
-                          vals.dup
-                        end
+        @vals = case vals
+                when String
+                  [vals]
+                else
+                  vals.dup
+                end
         @operator = operator
       end
     end

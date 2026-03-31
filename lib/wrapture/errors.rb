@@ -19,8 +19,13 @@
 #++
 
 module Wrapture
-  # An error from the Wrapture library
+  # An error originated by Wrapture. All errors raised by Wrapture are
+  # subclasses of this one.
   class WraptureError < StandardError
+  end
+
+  # A source tree could not be formatted into code.
+  class FormatError < WraptureError
   end
 
   # A constructor is invalid.
@@ -65,18 +70,17 @@ module Wrapture
   class MissingSpecKey < WraptureError
   end
 
-  # Missing a namespace in the class spec
+  # Missing a namespace in a class spec.
   class MissingNamespace < WraptureError
   end
 
   # A wrapped component was used, but not defined.
   class MissingWrapped < WraptureError
-    # A MissingWrapped exception is created with the spec that is missing the
+    # A MissingWrapped exception is created with the +spec+ that is missing the
     # wrapped component to ease troubleshooting.
-    def initialize(wrapped)
-      # TODO: make this message more generic for source/destination languages
-      msg = "equivalent member referenced in #{wrapped.name}, " \
-            'but no wrapped struct defined'
+    def initialize(spec)
+      msg = "a wrapped component was reference in #{spec.name}, " \
+            'but was not defined by the spec'
       super(msg)
     end
   end

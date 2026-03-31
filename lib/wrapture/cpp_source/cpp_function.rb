@@ -24,19 +24,6 @@ module Wrapture
     class CppFunction
       include CppBlock
 
-      # A new method is public, non-static, has no parameters, a void return,
-      # and an empty body.
-      def initialize(name)
-        @accessibility = :public
-        @name = name
-        @params = []
-        @return_type = Wrapture::CSource::CType.new('void')
-        @static = false
-        @initializers = []
-        @tree = []
-        @virtual = false
-      end
-
       # The accessibility of a method can be +:public+, +:private+, or
       # +:protected+.
       attr_accessor :accessibility
@@ -62,6 +49,19 @@ module Wrapture
 
       # True if this method is virtual
       attr_writer :virtual
+
+      # A new method is public, non-static, non-virtual, has no parameters, no
+      # initializers, a void return, and an empty body.
+      def initialize(name)
+        @accessibility = :public
+        @name = name
+        @params = []
+        @return_type = Wrapture::CSource::CType.new('void')
+        @static = false
+        @initializers = []
+        @tree = []
+        @virtual = false
+      end
 
       # True if this function is static.
       def static?

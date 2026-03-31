@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /*
- * Copyright 2020-2024 Joel E. Anderson
+ * Copyright 2020-2026 Joel E. Anderson
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,8 @@ int main( int argc, char **argv ) {
     for( int i = 0; i < 15; i++ ) {
       blaster.Fire();
     }
+    cerr << "fired 15 shots without jamming!" << endl;
+    return EXIT_FAILURE;
   } catch( TurretException &e ) {
     cout << e.Message() << endl;
   }
@@ -53,6 +55,8 @@ int main( int argc, char **argv ) {
 
   try {
     blaster.Aim( -6, -6, 6 );
+    cerr << "aimed at an invalid location without error!" << endl;
+    return EXIT_FAILURE;
   } catch( TargetingException &e ) {
     cout << e.Message() << endl;
   }
