@@ -439,6 +439,16 @@ module Wrapture
           end
         end
 
+        class_spec.functions.each do |func_spec|
+          next unless func_spec.wrapped.key?(:c)
+
+          action = func_spec[:c].error_action
+          next if action.nil?
+
+          type = scope.type(action.type)
+          inc << header_name(type) unless type.nil?
+        end
+
         inc.uniq
       end
 

@@ -20,6 +20,7 @@ module Wrapture
       include CBlock
 
       @attributes: Array[String]
+      @error_action: ActionSpec | nil
       @error_rules: Array[CExpression]
       @name: String
       @params: Enumerable[CDeclaration]
@@ -27,6 +28,7 @@ module Wrapture
       @tree: Array[untyped]
 
       attr_reader attributes: Enumerable[String]
+      attr_accessor error_action: ActionSpec | nil
       attr_reader error_rules: Array[CExpression]
       attr_reader name: String
       attr_reader params: Enumerable[CDeclaration]

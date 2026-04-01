@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2025 Joel E. Anderson
+# Copyright 2025-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -65,6 +65,18 @@ class CToCppTest < Minitest::Test
                  'declaration includes has more than export header for a  ' \
                  'class spec with no entry for c in the wrapped languages')
     assert(includes.first.end_with?('export.hpp'))
+  end
+
+  def test_definition_includes_with_exception_error_action
+    scope_hash = fixture_hash('scope_with_exceptions')
+    scope = Wrapture::Scope.new(scope_hash)
+    cls = scope.classes.find { |it| it.name == 'ExceptionThrower' }
+
+    refute_nil(cls)
+
+    incs = Wrapture::Wrapper::CToCpp.definition_includes(cls, scope)
+
+    assert_includes(incs, 'CodeException.hpp')
   end
 
   def test_delegating_constructor
