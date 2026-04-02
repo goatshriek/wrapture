@@ -538,22 +538,7 @@ module Wrapture
 
         checks = func_spec[:c].error_rules.map do |rule|
           resolved_vals = rule.vals.map do |it|
-            case it
-            when EQUIVALENT_STRUCT_KEYWORD
-              converter(:this, :equivalent_struct,
-                        func_spec).call('this')
-            when EQUIVALENT_POINTER_KEYWORD
-              converter(:this, :equivalent_pointer,
-                        func_spec).call('this')
-            when RETURN_VALUE_KEYWORD
-              if func_spec.constructor?
-                'this->equivalent'
-              else
-                'return_val'
-              end
-            else
-              it
-            end
+            resolve_action_value(func_spec, it)
           end
 
           CSource::CExpression.new(resolved_vals, rule.operator)
@@ -562,11 +547,7 @@ module Wrapture
         check_expr = CSource::CExpression.new(checks, :or)
         check_blk = CSource::CIf.new(check_expr) do |blk|
           action = func_spec[:c].error_action
-          value_variable = if action.value == RETURN_VALUE_KEYWORD
-                             'this->equivalent'
-                           else
-                             action.value
-                           end
+          value_variable = resolve_action_value(func_spec, action.value)
           blk.puts("throw #{action.type}( #{value_variable} );")
         end
 
@@ -761,6 +742,26 @@ module Wrapture
         end
 
         func
+      end
+
+      # The expression to use for a value in an ActionSpec.
+      def self.resolve_action_value(func_spec, val)
+        case val
+        when EQUIVALENT_STRUCT_KEYWORD
+          converter(:this, :equivalent_struct,
+                    func_spec).call('this')
+        when EQUIVALENT_POINTER_KEYWORD
+          converter(:this, :equivalent_pointer,
+                    func_spec).call('this')
+        when RETURN_VALUE_KEYWORD
+          if func_spec.constructor?
+            'this->equivalent'
+          else
+            'return_val'
+          end
+        else
+          val
+        end
       end
 
       # Gives an expression for using a given parameter.

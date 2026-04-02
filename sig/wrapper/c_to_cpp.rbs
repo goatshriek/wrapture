@@ -44,6 +44,7 @@ module Wrapture
       def self.member_function_from_spec: (Wrapture::FunctionSpec) -> Wrapture::CppSource::CppFunction
       def self.pointer_copy_constructor: (Wrapture::ClassSpec) -> Wrapture::CppSource::CppFunction
       def self.pointer_move_constructor: (Wrapture::ClassSpec) -> Wrapture::CppSource::CppFunction
+      def self.resolve_action_value: (Wrapture::FunctionSpec, String) -> String
       def self.resolve_wrapped_param: (Wrapture::FunctionSpec, Wrapture::CSource::CDeclaration) -> String
       def self.scope_headers: (Wrapture::Scope) -> Wrapture::CppSource::CppSourceFile
       def self.scope_namespace: (Wrapture::Scope) -> String

@@ -17,6 +17,7 @@
 classes:
   - name: "CodeException"
     namespace: 'wrapture_test'
+    exception: true
   - name: "ExceptionThrower"
     namespace: 'wrapture_test'
     functions:

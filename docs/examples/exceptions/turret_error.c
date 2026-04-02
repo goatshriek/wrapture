@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /*
- * Copyright 2020 Joel E. Anderson
+ * Copyright 2020-2026 Joel E. Anderson
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@
 
 static struct turret_error jammed_instance = {
   .code = JAMMED,
-  .message = "ah crap, the turret jammed!"
+  .message = "oh no, the turret jammed!"
 };
 
 static struct turret_error out_of_ammo_instance = {

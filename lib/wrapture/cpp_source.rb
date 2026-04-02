@@ -76,9 +76,7 @@ module Wrapture
         src += Wrapture::CSource.indent(decl)
       end
 
-      src << '} /* class '
-      src << cls.name
-      src << ' */'
+      src << '}'
 
       src
     end
