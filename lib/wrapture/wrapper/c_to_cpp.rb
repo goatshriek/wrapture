@@ -302,7 +302,7 @@ module Wrapture
 
         func.puts("#{wrapped_function_call(func_spec)};")
 
-        function_error_check(func_spec).each { |it| func << it }
+        wrapped_error_check(func_spec).each { |it| func << it }
 
         func
       end
@@ -532,28 +532,6 @@ module Wrapture
         !spec.is_a?(EnumSpec)
       end
 
-      # An +Array+ holding C++ source for the error check for a given function.
-      def self.function_error_check(func_spec)
-        return [] unless func_spec[:c].error_check?
-
-        checks = func_spec[:c].error_rules.map do |rule|
-          resolved_vals = rule.vals.map do |it|
-            resolve_action_value(func_spec, it)
-          end
-
-          CSource::CExpression.new(resolved_vals, rule.operator)
-        end
-
-        check_expr = CSource::CExpression.new(checks, :or)
-        check_blk = CSource::CIf.new(check_expr) do |blk|
-          action = func_spec[:c].error_action
-          value_variable = resolve_action_value(func_spec, action.value)
-          blk.puts("throw #{action.type}( #{value_variable} );")
-        end
-
-        [check_blk]
-      end
-
       # True if a pointer move constructor should be generated for the given
       # class.
       #
@@ -656,7 +634,7 @@ module Wrapture
 
         func.puts("#{wrapped_function_call(spec)};")
 
-        function_error_check(spec).each { |it| func << it }
+        wrapped_error_check(spec).each { |it| func << it }
 
         func.puts('va_end( variadic_args );') if spec.variadic?
 
@@ -901,6 +879,28 @@ module Wrapture
         source_set.add_lib_header(export)
 
         source_set
+      end
+
+      # An +Array+ holding C++ source for the error check for a given function.
+      def self.wrapped_error_check(func_spec)
+        return [] unless func_spec[:c].error_check?
+
+        checks = func_spec[:c].error_rules.map do |rule|
+          resolved_vals = rule.vals.map do |it|
+            resolve_action_value(func_spec, it)
+          end
+
+          CSource::CExpression.new(resolved_vals, rule.operator)
+        end
+
+        check_expr = CSource::CExpression.new(checks, :or)
+        check_blk = CSource::CIf.new(check_expr) do |blk|
+          action = func_spec[:c].error_action
+          value_variable = resolve_action_value(func_spec, action.value)
+          blk.puts("throw #{action.type}( #{value_variable} );")
+        end
+
+        [check_blk]
       end
 
       # The expression containing the call to the underlying wrapped function.

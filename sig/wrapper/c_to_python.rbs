@@ -39,6 +39,7 @@ module Wrapture
       def self.declare_wrapper_param_locals: (Wrapture::CSource::CBlock, Wrapture::FunctionSpec) -> Wrapture::CSource::CBlock
       def self.default_constructor: (Wrapture::ClassSpec) -> Wrapture::CSource::CFunction
       def self.default_destructor: (Wrapture::ClassSpec) -> Wrapture::CSource::CFunction
+      def self.define_class_functions: (Wrapture::CSource::CBlock, Wrapture::Scope) -> Wrapture::CSource::CBlock
       def self.define_module: (Wrapture::Scope) -> Wrapture::SourceFile
       def self.define_module_init: (Wrapture::SourceFile, Wrapture::Scope) -> Wrapture::SourceFile
       def self.destructor_wrapper: (Wrapture::FunctionSpec) -> Wrapture::CSource::CFunction
@@ -71,6 +72,7 @@ module Wrapture
       def self.type_object_pointer: (Wrapture::ClassSpec class_spec) -> (String | nil)
       def self.type_struct_name: (Wrapture::Named class_spec) -> String
       def self.wrap_scope: (Wrapture::Scope) -> Wrapture::PythonSource::PythonSourceSet
+      def self.wrapped_error_check: (Wrapture::FunctionSpec) -> Array[untyped]
       def self.wrapped_function_call: (Wrapture::FunctionSpec) -> String
       def self.wrapper_param_locals: (Wrapture::FunctionSpec) -> Enumerable[Wrapture::CSource::CDeclaration]
     end

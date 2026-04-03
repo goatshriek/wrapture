@@ -423,6 +423,39 @@ module Wrapture
         f
       end
 
+      # Adds definitions for functions needed for all classes in +scope+ to the
+      # C source block +src+.
+      def self.define_class_functions(src, scope)
+        factory_classes = scope.classes.select { |it| C.factory?(it, scope) }
+        factory_classes.each do |it|
+          src << factory_constructor(it)
+          src.puts
+        end
+
+        scope.classes.each do |class_spec|
+          # TODO: member constructors aren't implemented for Python!
+          unless class_spec.functions.any?(&:constructor?)
+            src << default_constructor(class_spec)
+            src.puts
+          end
+
+          unless class_spec.functions.any?(&:destructor?)
+            src << default_destructor(class_spec)
+            src.puts
+          end
+
+          class_spec.functions.each do |func_spec|
+            src << function_wrapper(func_spec)
+            src.puts
+          end
+        end
+
+        overload_groups(scope).each_value do |funcs|
+          src << overload_dispatcher(funcs)
+          src.puts
+        end
+      end
+
       # Generates a source file with the definition of a module for a scope.
       def self.define_module(scope)
         unless scope.definable?
@@ -432,51 +465,35 @@ module Wrapture
         src = CSource::CSourceFile.new("#{scope.name}.c")
 
         src.puts('#define PY_SSIZE_T_CLEAN')
+        src.puts
 
         module_includes(scope).each { |it| src << it }
+        src.puts
 
         declare_module_struct(src, scope)
+        src.puts
 
         scope.enums.each do |enum_spec|
           src << enum_constructor(enum_spec)
+          src.puts
         end
 
         scope.classes.each do |class_spec|
           src << class_type_struct(class_spec)
           src.declare('PyTypeObject', type_object_name(class_spec),
                       attributes: ['static'])
+          src.puts
         end
 
-        scope.classes.select do |it|
-          src << factory_constructor(it) if C.factory?(it, scope)
-        end
-
-        scope.classes.each do |class_spec|
-          # TODO: member constructors aren't implemented for Python!
-          unless class_spec.functions.any?(&:constructor?)
-            src << default_constructor(class_spec)
-          end
-
-          unless class_spec.functions.any?(&:destructor?)
-            src << default_destructor(class_spec)
-          end
-
-          class_spec.functions.each do |func_spec|
-            src << function_wrapper(func_spec)
-          end
-        end
-
-        overload_groups(scope).each_value do |funcs|
-          src << overload_dispatcher(funcs)
-        end
+        define_class_functions(src, scope)
 
         scope.classes.each do |class_spec|
           src << class_methods_declaration(class_spec)
-          src << ";\n"
+          src << ";\n\n"
           src << class_members_declaration(class_spec)
-          src << ";\n"
+          src << ";\n\n"
           src << class_type_object_declaration(class_spec)
-          src << ";\n"
+          src << ";\n\n"
         end
 
         define_module_init(src, scope)
@@ -1079,6 +1096,12 @@ module Wrapture
         end
 
         set
+      end
+
+      # An +Array+ of C source to check for errors after the wrapped call in
+      # a function.
+      def self.wrapped_error_check(func_spec)
+        []
       end
 
       # The expression containing the call to the underlying wrapped function.
