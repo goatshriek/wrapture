@@ -22,6 +22,7 @@ module Wrapture
       def self.add_class_object: (Wrapture::SourceFile, Wrapture::ClassSpec) -> Wrapture::SourceFile
       def self.add_enum_object: (Wrapture::SourceFile, Wrapture::EnumSpec) -> Wrapture::SourceFile
       def self.add_module_objects: (Wrapture::SourceFile, Wrapture::Scope) -> Wrapture::SourceFile
+      def self.allocator_params: () -> Enumerable[Wrapture::CSource::CDeclaration]
       def self.arg_parse_format: (Wrapture::FunctionSpec) -> String
       def self.base_type_object: (Wrapture::ClassSpec) -> String?
       def self.cast_equivalent: (Wrapture::ClassSpec, String, String) -> String
@@ -37,7 +38,7 @@ module Wrapture
       def self.declare_module_struct: (Wrapture::SourceFile, Wrapture::Scope) -> Wrapture::SourceFile
       def self.declare_wrapper_locals: (Wrapture::CSource::CBlock, Wrapture::FunctionSpec) -> Wrapture::CSource::CBlock
       def self.declare_wrapper_param_locals: (Wrapture::CSource::CBlock, Wrapture::FunctionSpec) -> Wrapture::CSource::CBlock
-      def self.default_constructor: (Wrapture::ClassSpec) -> Wrapture::CSource::CFunction
+      def self.default_allocator: (Wrapture::ClassSpec) -> Wrapture::CSource::CFunction
       def self.default_destructor: (Wrapture::ClassSpec) -> Wrapture::CSource::CFunction
       def self.define_class_functions: (Wrapture::CSource::CBlock, Wrapture::Scope) -> Wrapture::CSource::CBlock
       def self.define_module: (Wrapture::Scope) -> Wrapture::SourceFile
@@ -63,8 +64,10 @@ module Wrapture
       def self.param_uses_equivalent?: (Wrapture::FunctionSpec, spec_hash) -> bool
       def self.parse_tuple_call: (Wrapture::FunctionSpec) -> String
       def self.parsing_wrapper: (Wrapture::FunctionSpec) -> Wrapture::CSource::CFunction
+      def self.resolve_action_value: (Wrapture::FunctionSpec, String) -> String
       def self.resolve_wrapped_param: (Wrapture::FunctionSpec, Wrapture::ParamSpec) -> String
       def self.return_statement: (Wrapture::FunctionSpec) -> String
+      def self.runtime_base_size: (Wrapture::ClassSpec) -> String
       def self.runtime_class?: (Wrapture::ClassSpec) -> bool
       def self.runtime_type_cast: (Wrapture::ClassSpec, String) -> String
       def self.self_declaration: (Wrapture::ClassSpec) -> Wrapture::CSource::CDeclaration
@@ -72,7 +75,7 @@ module Wrapture
       def self.type_object_pointer: (Wrapture::ClassSpec class_spec) -> (String | nil)
       def self.type_struct_name: (Wrapture::Named class_spec) -> String
       def self.wrap_scope: (Wrapture::Scope) -> Wrapture::PythonSource::PythonSourceSet
-      def self.wrapped_error_check: (Wrapture::FunctionSpec) -> Array[untyped]
+      def self.wrapped_error_check: (Wrapture::FunctionSpec, Wrapture::Scope) -> Array[untyped]
       def self.wrapped_function_call: (Wrapture::FunctionSpec) -> String
       def self.wrapper_param_locals: (Wrapture::FunctionSpec) -> Enumerable[Wrapture::CSource::CDeclaration]
     end

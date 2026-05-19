@@ -106,6 +106,19 @@ module Wrapture
         src
       end
 
+      # The parameters used for a type allocator.
+      #
+      # This matches the signature of the +tp_new+ member of PyTypeObject, which
+      # has type +newfunc+.
+      def self.allocator_params
+        type_object_ptr = CSource::CPointer.new('PyTypeObject')
+        pyobject_ptr = CSource::CPointer.new('PyObject')
+
+        [CSource::CDeclaration.new(type_object_ptr, 'subtype'),
+         CSource::CDeclaration.new(pyobject_ptr, 'args'),
+         CSource::CDeclaration.new(pyobject_ptr, 'kwds')]
+      end
+
       # The format string to use for argument parsing functions, such as
       # +PyArg_ParseTuple+.
       def self.arg_parse_format(func_spec)
@@ -195,10 +208,8 @@ module Wrapture
       # Gives a code snippet that accesses the equivalent struct from
       # within the class using the given variable name.
       def self.class_struct(class_spec, var_name: 'self')
-        # TODO: handle if parent struct isn't used
-        parent_in_scope = class_spec.scope.type?(class_spec.parent_name)
-        name = if class_spec.child? && parent_in_scope
-                 "#{var_name}->super.equivalent"
+        name = if C.equivalent_ancestor?(class_spec)
+                 'super->equivalent'
                else
                  "#{var_name}->equivalent"
                end
@@ -213,10 +224,8 @@ module Wrapture
       # Gives a code snippet that accesses the equivalent struct pointer from
       # within the class using the given variable name.
       def self.class_struct_pointer(class_spec, var_name: 'self')
-        # TODO: handle if parent struct isn't used
-        parent_in_scope = class_spec.scope.type?(class_spec.parent_name)
-        name = if class_spec.child? && parent_in_scope
-                 "#{var_name}->super.equivalent"
+        name = if C.equivalent_ancestor?(class_spec)
+                 'super->equivalent'
                else
                  "#{var_name}->equivalent"
                end
@@ -243,14 +252,22 @@ module Wrapture
           ".tp_basicsize = sizeof( #{type_struct_name(class_spec)} )",
           '.tp_itemsize = 0',
           ".tp_flags = #{flags}",
-          ".tp_new = #{snake_name}_new",
           ".tp_dealloc = ( destructor ) #{snake_name}_dealloc",
           ".tp_methods = #{snake_name}_methods",
           ".tp_members = #{snake_name}_members"
         ]
 
-        if base_type_object(class_spec) && !runtime_class?(class_spec)
-          members << ".tp_base = #{base_type_object(class_spec)}"
+        if class_spec.functions.any?(&:constructor?)
+          members << ".tp_init = #{snake_name}_init"
+        end
+
+        base_type_object = base_type_object(class_spec)
+        if base_type_object.nil?
+          members << ".tp_new = #{snake_name}_new"
+        else
+          unless runtime_class?(class_spec)
+            members << ".tp_base = #{base_type_object}"
+          end
         end
 
         Wrapture::CSource::CDeclaration.new('PyTypeObject',
@@ -263,13 +280,18 @@ module Wrapture
       def self.class_type_struct(class_spec)
         members = []
 
-        if class_spec.child?
-          parent_spec = class_spec.parent_spec
-          unless parent_spec.nil?
-            members << "#{type_struct_name(parent_spec)} super"
+        # since the first portion of the PyObject structure is unknown at
+        # compile time, we don't have it in the struct at all
+        # see runtime_type_cast for how to recover the type struct from these
+        unless runtime_class?(class_spec)
+          if class_spec.child?
+            parent_spec = class_spec.parent_spec
+            unless parent_spec.nil?
+              members << "#{type_struct_name(parent_spec)} super"
+            end
+          else
+            members << 'PyObject_HEAD'
           end
-        else
-          members << 'PyObject_HEAD'
         end
 
         class_spec.constants.each do |constant_spec|
@@ -285,11 +307,13 @@ module Wrapture
       end
 
       # The parameters used for a constructor wrapper.
+      #
+      # This matches the signature of the tp_init member of PyTypeObject, which
+      # has type +initproc+.
       def self.constructor_params
-        type_object_ptr = CSource::CPointer.new('PyTypeObject')
         pyobject_ptr = CSource::CPointer.new('PyObject')
 
-        [CSource::CDeclaration.new(type_object_ptr, 'type'),
+        [CSource::CDeclaration.new(pyobject_ptr, 'self_obj'),
          CSource::CDeclaration.new(pyobject_ptr, 'args'),
          CSource::CDeclaration.new(pyobject_ptr, 'kwds')]
       end
@@ -315,10 +339,10 @@ module Wrapture
       # class.
       #
       # This is useful for constructors that need to construct the self instance
-      # before calling the wrapped function with the instance.
+      # before calling a wrapped function with the instance.
       def self.create_self(blk, class_spec)
         self_type = "#{type_struct_name(class_spec)} *"
-        blk.puts("self = ( #{self_type} ) type->tp_alloc( type, 0 );")
+        blk.puts("self = ( #{self_type} ) subtype->tp_alloc( subtype, 0 );")
         blk.if('!self') do |if_blk|
           if_blk.puts('return NULL;')
         end
@@ -347,10 +371,21 @@ module Wrapture
       # Declares the local variables used in the wrapper for the given function
       # in the given block.
       def self.declare_wrapper_locals(blk, func_spec)
+        class_spec = func_spec.owner
+
         if !func_spec.overloaded? &&
-           (func_spec.constructor? || runtime_class?(func_spec.owner))
-          blk << self_declaration(func_spec.owner)
+           (func_spec.constructor? || runtime_class?(class_spec))
+          blk << self_declaration(class_spec)
           blk.puts(';')
+        end
+
+        # if we need an equivalent struct from a parent and this is a runtime
+        # class, we'll need a super struct to reference
+        if C.equivalent_ancestor?(class_spec) && runtime_class?(class_spec)
+          # TODO: we may not need super if this function doesn't use the
+          # equivalent struct anywhere
+          type_name = type_struct_name(class_spec.parent_spec)
+          blk.declare(CSource::CPointer.new(type_name), 'super')
         end
 
         if func_spec.params? && !func_spec.overloaded?
@@ -377,9 +412,10 @@ module Wrapture
         # if the function is overloaded, then params are passed as args, rather
         # than being parsed in this wrapper
         unless func_spec.overloaded?
-          declare_wrapper_param_locals(blk,
-                                       func_spec)
+          declare_wrapper_param_locals(blk, func_spec)
         end
+
+        blk.puts
       end
 
       # Declares the local variables used to pass parameters to the wrapped
@@ -393,10 +429,14 @@ module Wrapture
         blk
       end
 
-      # The default constructor for a class that does not have one defined.
-      def self.default_constructor(class_spec)
+      # The default type allocator for classes without a base type.
+      #
+      # We need an allocator for our types because they are static and therefore
+      # do not have a default, as described in the Python C API documentation:
+      # https://docs.python.org/3/c-api/typeobj.html#c.PyTypeObject.tp_new
+      def self.default_allocator(class_spec)
         name = "#{class_spec.snake_case_name}_new"
-        params = constructor_params
+        params = allocator_params
         return_type = Wrapture::CSource::CPointer.new('PyObject')
 
         f = CSource::CFunction.new(name, params: params,
@@ -433,11 +473,12 @@ module Wrapture
         end
 
         scope.classes.each do |class_spec|
-          # TODO: member constructors aren't implemented for Python!
-          unless class_spec.functions.any?(&:constructor?)
-            src << default_constructor(class_spec)
+          if base_type_object(class_spec).nil?
+            src << default_allocator(class_spec)
             src.puts
           end
+
+          # TODO: member constructors aren't implemented for Python!
 
           unless class_spec.functions.any?(&:destructor?)
             src << default_destructor(class_spec)
@@ -524,6 +565,7 @@ module Wrapture
         f = CSource::CFunction.new(name, params: params,
                                          attributes: ['static'])
         f.puts("#{wrapped_function_call(func_spec)};")
+
         f.puts('Py_TYPE( self )->tp_free( ( PyObject * ) self );')
 
         f
@@ -628,6 +670,7 @@ module Wrapture
         type_object_type = Wrapture::CSource::CPointer.new('PyTypeObject')
         func.declare(type_object_type, 'type')
         func.declare(return_type, 'obj')
+        func.puts
 
         overload_classes = class_spec.scope.select do |it|
           C.overload?(class_spec, it)
@@ -659,8 +702,18 @@ module Wrapture
           struct_type = type_struct_name(overload)
           blk.puts("#{struct_type} *new_#{struct_type};")
           struct_name = "new_#{struct_type}"
+          # TODO: this probably shouldn't be using tp_alloc directly
+          # see the exception action handler for a todo of the same issue
           alloc_call = "(#{struct_type} *) type->tp_alloc( type, 0 )"
           blk.puts("#{struct_name} = #{alloc_call};")
+
+          if C.equivalent_ancestor?(overload) && runtime_class?(overload)
+            parent = overload.parent_spec
+            super_type = CSource::CPointer.new(type_struct_name(parent))
+            super_value = runtime_type_cast(parent, struct_name)
+            blk.declare(super_type, 'super', value: super_value)
+          end
+
           equiv = class_struct_pointer(overload, var_name: struct_name)
           blk.puts("#{equiv} = equivalent;")
           blk.puts("obj = (PyObject *) new_#{struct_type};")
@@ -687,9 +740,8 @@ module Wrapture
 
           if runtime_class?(cls)
             blk.puts("#{py_type}.tp_base = #{base_type_object(cls)};")
-            base_size = "#{base_type_object(cls)}->tp_basicsize"
             self_size = "sizeof( #{type_struct_name(cls)}"
-            basic_size = "#{base_size} + #{self_size}"
+            basic_size = "#{runtime_base_size(cls)} + #{self_size}"
             blk.puts("#{py_type}.tp_basicsize = #{basic_size} );")
           end
 
@@ -728,7 +780,7 @@ module Wrapture
       def self.function_wrapper_name(func_spec)
         base = func_spec.owner.snake_case_name
         method_name = if func_spec.constructor?
-                        'new'
+                        'init'
                       elsif func_spec.destructor?
                         'dealloc'
                       else
@@ -789,6 +841,10 @@ module Wrapture
       end
 
       # A function wrapper for a function that does not have an parameters.
+      #
+      # TODO: there is so much constructor-specific code here that this (and
+      # probably other wrappers) should probably be refactored into their own
+      # wrapper methods.
       def self.no_args_wrapper(func_spec)
         name = function_wrapper_name(func_spec)
         runtime_class = runtime_class?(func_spec.owner)
@@ -798,25 +854,46 @@ module Wrapture
         params = if func_spec.constructor?
                    constructor_params
                  elsif runtime_class
-                   [CSource::CDeclaration.new('void *', 'runtime_self'),
+                   [CSource::CDeclaration.new(pyobject_ptr, 'self_obj'),
                     unused_args]
                  else
                    [self_declaration(func_spec.owner), unused_args]
                  end
 
+        return_type = if func_spec.constructor?
+                        'int'
+                      else
+                        pyobject_ptr
+                      end
+
         f = CSource::CFunction.new(name, params: params,
-                                         return_type: pyobject_ptr,
+                                         return_type: return_type,
                                          attributes: ['static'])
         declare_wrapper_locals(f, func_spec)
 
+        # TODO: in some cases (the exception example being one) the self pointer
+        # is not actually used, but instead the super pointer is. This can be
+        # collapsed to remove unused code and only do that cast if the self
+        # pointer isnt' needed.
         if func_spec.constructor?
-          create_self(f, func_spec.owner)
+          f.puts("self = (#{type_struct_name(func_spec.owner)} *) self_obj;")
         elsif runtime_class
-          self_cast = runtime_type_cast(func_spec.owner, 'runtime_self')
+          self_cast = runtime_type_cast(func_spec.owner, 'self_obj')
           f.puts("self = #{self_cast};")
         end
 
+        if C.equivalent_ancestor?(func_spec.owner) && runtime_class
+          # TODO: this should also be omitted if the equivalent struct isn't
+          # actually used in the function
+          parent = func_spec.owner.parent_spec
+          f.puts("super = #{runtime_type_cast(parent, 'self_obj')};")
+        end
+
         f.puts("#{wrapped_function_call(func_spec)};")
+
+        scope = func_spec.owner.scope
+        wrapped_error_check(func_spec, scope).each { |it| f.puts(it) }
+
         f.puts(return_statement(func_spec))
 
         f
@@ -1000,12 +1077,47 @@ module Wrapture
           if_blk.puts('return NULL;')
         end
 
-        create_self(f, func_spec.owner) if func_spec.constructor?
+        # TODO: in some cases (the exception example being one) the self pointer
+        # is not actually used, but instead the super pointer is. This can be
+        # collapsed to remove unused code and only do that cast if the self
+        # pointer isnt' needed.
+        runtime_class = runtime_class?(func_spec.owner)
+        if func_spec.constructor?
+          f.puts("self = (#{type_struct_name(func_spec.owner)} *) self_obj;")
+        elsif runtime_class
+          self_cast = runtime_type_cast(func_spec.owner, 'self_obj')
+          f.puts("self = #{self_cast};")
+        end
+
+        if C.equivalent_ancestor?(func_spec.owner) && runtime_class
+          # TODO: this should also be omitted if the equivalent struct isn't
+          # actually used in the function
+          parent = func_spec.owner.parent_spec
+          f.puts("super = #{runtime_type_cast(parent, 'self_obj')};")
+        end
 
         f.puts("#{wrapped_function_call(func_spec)};")
+
+        scope = func_spec.owner.scope
+        wrapped_error_check(func_spec, scope).each { |it| f.puts(it) }
+
         f.puts(return_statement(func_spec))
 
         f
+      end
+
+      # The expression to use for a value in an ActionSpec.
+      def self.resolve_action_value(func_spec, val)
+        case val
+        when EQUIVALENT_STRUCT_KEYWORD
+          class_struct(func_spec.owner)
+        when EQUIVALENT_POINTER_KEYWORD
+          class_struct_pointer(func_spec.owner)
+        when RETURN_VALUE_KEYWORD
+          'return_val'
+        else
+          val
+        end
       end
 
       # Gives an expression for using a given parameter.
@@ -1031,7 +1143,7 @@ module Wrapture
       # The return statement used in this function's definition.
       def self.return_statement(func_spec)
         if func_spec.constructor?
-          'return ( PyObject * ) self;'
+          'return 0;'
         elsif func_spec.return_type.self_reference?
           'return self;'
         elsif func_spec.void_return?
@@ -1050,6 +1162,11 @@ module Wrapture
         end
       end
 
+      # An expression with the size of the base type for +class_spec+.
+      def self.runtime_base_size(class_spec)
+        "#{base_type_object(class_spec)}->tp_basicsize"
+      end
+
       # True if some aspects of the class need to be defined at runtime.
       #
       # Exception classes are one example of this case, as the Exception class
@@ -1062,11 +1179,11 @@ module Wrapture
       def self.runtime_type_cast(class_spec, var_name)
         type_struct_name = type_struct_name(class_spec)
         type_object = base_type_object(class_spec)
-        real_self = "((intptr_t)#{var_name}) + #{type_object}->tp_basicsize"
+        real_self = "((intptr_t) #{var_name}) + #{type_object}->tp_basicsize"
         "( #{type_struct_name} * )( #{real_self} )"
       end
 
-      # A declaration of the self pointer for a class.
+      # A declaration of a pointer to an instance of +class_spec+ named self.
       def self.self_declaration(class_spec)
         pointer_type = CSource::CPointer.new(type_struct_name(class_spec))
         CSource::CDeclaration.new(pointer_type, 'self')
@@ -1100,8 +1217,47 @@ module Wrapture
 
       # An +Array+ of C source to check for errors after the wrapped call in
       # a function.
-      def self.wrapped_error_check(func_spec)
-        []
+      def self.wrapped_error_check(func_spec, scope)
+        return [] unless func_spec[:c].error_check?
+
+        action = func_spec[:c].error_action
+        exception_class = scope.type(action.type)
+        type_object = "(PyObject *) &#{type_object_name(exception_class)}"
+
+        checks = func_spec[:c].error_rules.map do |rule|
+          resolved_vals = rule.vals.map do |it|
+            resolve_action_value(func_spec, it)
+          end
+
+          CSource::CExpression.new(resolved_vals, rule.operator)
+        end
+
+        check_expr = CSource::CExpression.new(checks, :or)
+        check_blk = CSource::CIf.new(check_expr) do |blk|
+          # TODO: this all assumes that this constructor will work on the type,
+          # which probably shouldn't always be the case. Instead, a way to
+          # create they object from the equivalent struct should probable be
+          # added and invoked here instead.
+          call_type = "PyObject_CallNoArgs(#{type_object})"
+          blk.puts("PyObject *exception_obj = #{call_type};")
+
+          equiv_class = if C.equivalent_ancestor?(exception_class)
+                          exception_class.parent_spec
+                        else
+                          exception_class
+                        end
+          cast = runtime_type_cast(equiv_class, 'exception_obj')
+          blk.puts("#{type_struct_name(equiv_class)} *subtype = #{cast};")
+
+          value_variable = resolve_action_value(func_spec, action.value)
+          blk.puts("subtype->equivalent = #{value_variable};")
+          blk.puts("PyErr_SetObject(#{type_object}, exception_obj );")
+          # TODO: need to detect whether a different error return is needed,
+          # for example -1
+          blk.puts('return NULL;')
+        end
+
+        [check_blk]
       end
 
       # The expression containing the call to the underlying wrapped function.

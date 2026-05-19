@@ -881,7 +881,7 @@ module Wrapture
         source_set
       end
 
-      # An +Array+ holding C++ source for the error check for a given function.
+      # An +Array+ of C++ source for the error check for a given function.
       def self.wrapped_error_check(func_spec)
         return [] unless func_spec[:c].error_check?
 
@@ -897,6 +897,8 @@ module Wrapture
         check_blk = CSource::CIf.new(check_expr) do |blk|
           action = func_spec[:c].error_action
           value_variable = resolve_action_value(func_spec, action.value)
+          # TODO: need to resolve this type
+          # right now we just assume the type name is qualified enough
           blk.puts("throw #{action.type}( #{value_variable} );")
         end
 
