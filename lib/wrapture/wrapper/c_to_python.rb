@@ -209,12 +209,17 @@ module Wrapture
       # within the class using the given variable name.
       def self.class_struct(class_spec, var_name: 'self')
         name = if C.equivalent_ancestor?(class_spec)
-                 'super->equivalent'
+                 if runtime_class?(class_spec)
+                   'super->equivalent'
+                 else
+                   "#{var_name}->super.equivalent"
+                 end
                else
                  "#{var_name}->equivalent"
                end
 
-        if class_spec.pointer_wrapper?
+        # TODO: refactor this when moving to the new conversion convention
+        if equivalent_member_declaration(class_spec).c_type.is_a?(CSource::CPointer)
           "*(#{name})"
         else
           name
@@ -225,7 +230,11 @@ module Wrapture
       # within the class using the given variable name.
       def self.class_struct_pointer(class_spec, var_name: 'self')
         name = if C.equivalent_ancestor?(class_spec)
-                 'super->equivalent'
+                 if runtime_class?(class_spec)
+                   'super->equivalent'
+                 else
+                   "#{var_name}->super.equivalent"
+                 end
                else
                  "#{var_name}->equivalent"
                end
@@ -259,6 +268,8 @@ module Wrapture
 
         if class_spec.functions.any?(&:constructor?)
           members << ".tp_init = #{snake_name}_init"
+        elsif member_constructor?(class_spec)
+          members << ".tp_init = #{member_constructor_name(class_spec)}"
         end
 
         base_type_object = base_type_object(class_spec)
@@ -316,6 +327,12 @@ module Wrapture
         [CSource::CDeclaration.new(pyobject_ptr, 'self_obj'),
          CSource::CDeclaration.new(pyobject_ptr, 'args'),
          CSource::CDeclaration.new(pyobject_ptr, 'kwds')]
+      end
+
+      # True if the constructors for +class_spec+ are overloaded, and need
+      # to be dynamically dispatched.
+      def self.constructors_overloaded?(class_spec)
+        C.wrapped_members?(class_spec) && !class_spec.constructors.empty?
       end
 
       # Creates a Python object using a variable with the given name and type.
@@ -422,8 +439,7 @@ module Wrapture
       # function for the given function spec.
       def self.declare_wrapper_param_locals(blk, func_spec)
         wrapper_param_locals(func_spec).each do |decl|
-          blk << decl
-          blk.puts(';')
+          blk.statement(decl)
         end
 
         blk
@@ -478,7 +494,10 @@ module Wrapture
             src.puts
           end
 
-          # TODO: member constructors aren't implemented for Python!
+          if C.wrapped_members?(class_spec)
+            src << member_constructor(class_spec)
+            src.puts
+          end
 
           unless class_spec.functions.any?(&:destructor?)
             src << default_destructor(class_spec)
@@ -801,8 +820,130 @@ module Wrapture
                         else
                           param_spec.default_value.to_s
                         end
-          blk.puts("#{assignment};")
+          blk.statement(assignment)
         end
+      end
+
+      # A member constructor uses the wrapped struct's members to fill in an
+      # allocated instance of the struct.
+      def self.member_constructor(class_spec)
+        if constructors_overloaded?(class_spec)
+          member_constructor_overload_wrapper(class_spec)
+        else
+          member_constructor_parsing_wrapper(class_spec)
+        end
+      end
+
+      # True if +class_spec+ will generate a member constructor from the wrapped
+      # struct.
+      def self.member_constructor?(class_spec)
+        C.wrapped_members?(class_spec)
+      end
+
+      # The format string to use for the arguments for the member constructor
+      # for +class_spec+.
+      def self.member_constructor_arg_parse_format(class_spec)
+        required_members = class_spec[:c].members.select do |member|
+          member.value.nil?
+        end
+        required_formats = required_members.map do |member|
+          TYPE_FORMAT_UNIT_MAP.fetch(member.c_type.to_s, 'O')
+        end
+
+        optional_members = class_spec[:c].members.reject do |member|
+          member.value.nil?
+        end
+        optional_formats = optional_members.map do |member|
+          TYPE_FORMAT_UNIT_MAP.fetch(member.c_type.to_s, 'O')
+        end
+
+        "#{required_formats.join}|#{optional_formats.join}"
+      end
+
+      # The name of the member constructor for +class_spec+.
+      def self.member_constructor_name(class_spec)
+        "#{class_spec.snake_case_name}_member_constructor"
+      end
+
+      # A call to the member constructor for +class_spec+.
+      def self.member_constructor_call(class_spec)
+        name = member_constructor_name(class_spec)
+        args = class_spec[:c].members.map(&:name)
+        "#{name}( self, #{args.join(', ')} )"
+      end
+
+      # A member constructor for +class_spec+ that performs the parsing of
+      # arguments as supplied by Python.
+      def self.member_constructor_overload_wrapper(class_spec)
+        name = member_constructor_name(class_spec)
+        params = [self_declaration(class_spec)] + class_spec[:c].members
+        return_type = Wrapture::CSource::CPointer.new('PyObject')
+
+        f = CSource::CFunction.new(name, params: params,
+                                         return_type: return_type,
+                                         attributes: ['static'])
+
+        class_struct = class_struct(class_spec)
+        class_spec[:c].members.each do |member|
+          f.statement("#{class_struct}.#{member.name} = #{member.name}")
+        end
+
+        f.puts
+        f.return('self')
+
+        f
+      end
+
+      # A call to PyArg_ParseTuple for the member constructor of +class_spec+.
+      def self.member_constructor_parse_tuple_call(class_spec)
+        format_str = "\"#{member_constructor_arg_parse_format(class_spec)}\""
+
+        arg_vars = class_spec[:c].members.map do |member|
+          "&#{member.name}"
+        end
+
+        "PyArg_ParseTuple( args, #{format_str}, #{arg_vars.join(', ')})"
+      end
+
+      # A member constructor for +class_spec+ that performs the parsing of
+      # arguments as supplied by Python.
+      def self.member_constructor_parsing_wrapper(class_spec)
+        name = member_constructor_name(class_spec)
+        f = CSource::CFunction.new(name, params: constructor_params,
+                                         return_type: 'int',
+                                         attributes: ['static'])
+
+        class_spec[:c].members.each do |member|
+          f.statement(member)
+        end
+        f.declare('int', 'parse_result')
+        f.statement(self_declaration(class_spec))
+
+        # TODO: ideally we would instead pass in the address of the equivalent
+        # struct members instead of creating locals and copying them over
+        # for now we're doing things this way to resue the parse tuple call
+        tuple_call = member_constructor_parse_tuple_call(class_spec)
+        f.statement("parse_result = #{tuple_call}")
+        f.if('!parse_result') do |if_blk|
+          if_blk.return('-1')
+        end
+
+        runtime_class = runtime_class?(class_spec)
+        if runtime_class
+          self_cast = runtime_type_cast(class_spec, 'self_obj')
+          f.puts("self = #{self_cast};")
+        else
+          f.puts("self = (#{type_struct_name(class_spec)} *) self_obj;")
+        end
+
+        class_struct = class_struct(class_spec)
+        class_spec[:c].members.each do |member|
+          f.statement("#{class_struct}.#{member.name} = #{member.name}")
+        end
+
+        f.return('0')
+
+        f
       end
 
       # The Python member type symbol to use for this type, suitable for use
@@ -905,19 +1046,23 @@ module Wrapture
         # use the first function spec to determine things that are assumed to be
         # the same across all functions
         spec = funcs.first
+        class_spec = spec.owner
 
         name = function_wrapper_name(spec)
         params = if spec.constructor?
-                   type = CSource::CPointer.new('PyTypeObject')
-                   [CSource::CDeclaration.new(type, 'type')]
+                   constructor_params
                  else
-                   [self_declaration(spec.owner)]
+                   pyobject_ptr = CSource::CPointer.new('PyObject')
+                   [self_declaration(class_spec),
+                    CSource::CDeclaration.new(pyobject_ptr, 'args'),
+                    CSource::CDeclaration.new(pyobject_ptr, 'kwds')]
                  end
 
-        pyobject_ptr = CSource::CPointer.new('PyObject')
-        params << CSource::CDeclaration.new(pyobject_ptr, 'args')
-        params << CSource::CDeclaration.new(pyobject_ptr, 'kwds')
-        return_type = CSource::CPointer.new('PyObject')
+        return_type = if spec.constructor?
+                        'int'
+                      else
+                        CSource::CPointer.new('PyObject')
+                      end
 
         f = CSource::CFunction.new(name, params: params, attributes: ['static'],
                                          return_type: return_type)
@@ -927,17 +1072,13 @@ module Wrapture
         end
 
         param_locals.uniq.each do |param_decl|
-          f << param_decl
-          f.puts(';')
+          f.statement(param_decl)
         end
 
         f.declare('int', 'parse_result')
-        if spec.constructor? || runtime_class?(spec.owner)
-          f << self_declaration(spec.owner)
-          f.puts(';')
+        if spec.constructor? || runtime_class?(class_spec)
+          f.statement(self_declaration(spec.owner))
         end
-
-        create_self(f, spec.owner) if spec.constructor?
 
         funcs.select(&:params?).each do |func_spec|
           # TODO: there may be a more efficient way to do this than repeatedly
@@ -949,17 +1090,27 @@ module Wrapture
           end
         end
 
+        # the member constructor must be handled separately since there isn't a
+        # FunctionSpec for it
+        if member_constructor?(class_spec)
+          parse_call = member_constructor_parse_tuple_call(class_spec)
+          f.puts("parse_result = #{parse_call};")
+          f.if('parse_result') do |if_blk|
+            if_blk.puts("return #{member_constructor_call(class_spec)};")
+          end
+        end
+
         unless funcs.all?(&:params?)
-          f.puts('// TODO need to handle no arg case cleaner')
-          f.puts('// preferably, check if args are empty up front')
-          f.puts('// for now, it is the fallback case')
+          # TODO: need to handle no arg case cleaner
+          # preferably, check if args are empty up front
+          # for now, it is the fallback case
           no_args = funcs.find { |func_spec| !func_spec.params? }
           f.puts("return #{overload_wrapper_call(no_args)};")
         end
 
-        f.puts('// TODO need to throw an error if no overload matched')
-        f.puts('// PyArg_ParseTuple will raise an exception on failure:')
-        f.puts('// we probably need to replace this with our own')
+        # TODO: need to throw an error if no overload matched
+        # PyArg_ParseTuple will raise an exception on failure:
+        # we probably need to replace this with our own
 
         f
       end
@@ -970,8 +1121,11 @@ module Wrapture
       def self.overload_groups(scope)
         overload_groups = {}
         scope.classes.each do |class_spec|
+          wrapped_members = C.wrapped_members?(class_spec)
+
           class_spec.functions.each do |func_spec|
-            if func_spec.overloaded?
+            overloaded_constructor = func_spec.constructor? && wrapped_members
+            if func_spec.overloaded? || overloaded_constructor
               if overload_groups.include?(func_spec.name)
                 overload_groups[func_spec.name] << func_spec
               else
@@ -1065,8 +1219,14 @@ module Wrapture
                     CSource::CDeclaration.new(pyobject_ptr, 'kwds')]
                  end
 
+        return_type = if func_spec.constructor?
+                        'int'
+                      else
+                        pyobject_ptr
+                      end
+
         f = CSource::CFunction.new(name, params: params,
-                                         return_type: pyobject_ptr,
+                                         return_type: return_type,
                                          attributes: ['static'])
 
         declare_wrapper_locals(f, func_spec)
@@ -1074,7 +1234,11 @@ module Wrapture
 
         f.puts("parse_result = #{parse_tuple_call(func_spec)};")
         f.if('!parse_result') do |if_blk|
-          if_blk.puts('return NULL;')
+          if func_spec.constructor?
+            if_blk.return('-1')
+          else
+            if_blk.return('NULL')
+          end
         end
 
         # TODO: in some cases (the exception example being one) the self pointer
@@ -1082,11 +1246,11 @@ module Wrapture
         # collapsed to remove unused code and only do that cast if the self
         # pointer isnt' needed.
         runtime_class = runtime_class?(func_spec.owner)
-        if func_spec.constructor?
-          f.puts("self = (#{type_struct_name(func_spec.owner)} *) self_obj;")
-        elsif runtime_class
+        if runtime_class
           self_cast = runtime_type_cast(func_spec.owner, 'self_obj')
           f.puts("self = #{self_cast};")
+        elsif func_spec.constructor?
+          f.puts("self = (#{type_struct_name(func_spec.owner)} *) self_obj;")
         end
 
         if C.equivalent_ancestor?(func_spec.owner) && runtime_class

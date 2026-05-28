@@ -33,6 +33,7 @@ module Wrapture
       def self.class_type_object_declaration: (Wrapture::ClassSpec) -> Wrapture::CSource::CDeclaration
       def self.class_type_struct: (Wrapture::ClassSpec) -> Wrapture::CSource::CStruct
       def self.constructor_params: () -> Enumerable[Wrapture::CSource::CDeclaration]
+      def self.constructors_overloaded?: (Wrapture::ClassSpec) -> bool
       def self.create_python_object: (Wrapture::TypeSpec, String) -> String
       def self.create_self: (Wrapture::CSource::CBlock, Wrapture::ClassSpec) -> Wrapture::CSource::CBlock
       def self.declare_module_struct: (Wrapture::SourceFile, Wrapture::Scope) -> Wrapture::SourceFile
@@ -51,6 +52,12 @@ module Wrapture
       def self.function_wrapper: (Wrapture::FunctionSpec) -> Wrapture::CSource::CFunction
       def self.function_wrapper_name: (Wrapture::FunctionSpec) -> String
       def self.initialize_optional_params: (Wrapture::CSource::CBlock, Wrapture::FunctionSpec) -> Wrapture::CSource::CBlock
+      def self.member_constructor: (Wrapture::ClassSpec) -> Wrapture::CSource::CFunction
+      def self.member_constructor?: (Wrapture::ClassSpec) -> bool
+      def self.member_constructor_call: (Wrapture::ClassSpec) -> String
+      def self.member_constructor_overload_wrapper: (Wrapture::ClassSpec) -> Wrapture::CSource::CFunction
+      def self.member_constructor_parse_tuple_call: (Wrapture::ClassSpec) -> String
+      def self.member_constructor_parsing_wrapper: (Wrapture::ClassSpec) -> Wrapture::CSource::CFunction
       def self.member_type: (Wrapture::TypeSpec) -> String
       def self.method_flags: (Wrapture::FunctionSpec) -> String
       def self.module_includes: (Wrapture::Scope) -> Array[CSource::CInclude]

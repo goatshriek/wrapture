@@ -57,7 +57,7 @@ module Wrapture
         !equivalent_ancestor?(class_spec)
       end
 
-      # The equivalents truct pointer type for a class spec if an underlying
+      # The equivalent struct pointer type for a class spec if an underlying
       # struct exists, nil if not. If the class wraps a struct directly, this
       # type will be a pointer to the struct type, not the struct type itself.
       def self.equivalent_pointer(class_spec)
