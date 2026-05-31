@@ -78,6 +78,8 @@ module Wrapture
           tree << element
           tree << ";\n"
         end
+
+        self
       end
 
       # Adds the given element to the block as a statement. This is

@@ -121,16 +121,20 @@ module Wrapture
 
       # The format string to use for argument parsing functions, such as
       # +PyArg_ParseTuple+.
-      def self.arg_parse_format(func_spec)
-        required_formats = func_spec.required_params.map do |param_spec|
-          param_format(func_spec, param_spec)
+      def self.arg_parse_format(required_args, optional_args = [])
+        required_formats = required_args.map do |key|
+          TYPE_FORMAT_UNIT_MAP.fetch(key, 'O')
         end
 
-        optional_formats = func_spec.optional_params.map do |param_spec|
-          param_format(func_spec, param_spec)
+        optional_formats = optional_args.map do |key|
+          TYPE_FORMAT_UNIT_MAP.fetch(key, 'O')
         end
 
-        "#{required_formats.join}|#{optional_formats.join}"
+        if optional_formats.empty?
+          required_formats.join
+        else
+          "#{required_formats.join}|#{optional_formats.join}"
+        end
       end
 
       # Get the name of the type object for the given class's base, if one
@@ -332,7 +336,7 @@ module Wrapture
       # True if the constructors for +class_spec+ are overloaded, and need
       # to be dynamically dispatched.
       def self.constructors_overloaded?(class_spec)
-        C.wrapped_members?(class_spec) && !class_spec.constructors.empty?
+        member_constructor?(class_spec) && !class_spec.constructors.empty?
       end
 
       # Creates a Python object using a variable with the given name and type.
@@ -459,12 +463,9 @@ module Wrapture
                                          return_type: return_type,
                                          attributes: ['static'])
 
-        f << self_declaration(class_spec)
-        f.puts(';')
+        f.statement(self_declaration(class_spec))
         create_self(f, class_spec)
-        f.puts('return ( PyObject * ) self;')
-
-        f
+        f.return('( PyObject * ) self')
       end
 
       # The default destructor for a class that does not have one defined.
@@ -474,9 +475,7 @@ module Wrapture
 
         f = CSource::CFunction.new(name, params: params,
                                          attributes: ['static'])
-        f.puts('Py_TYPE( self )->tp_free( ( PyObject * ) self );')
-
-        f
+        f.statement('Py_TYPE( self )->tp_free( ( PyObject * ) self )')
       end
 
       # Adds definitions for functions needed for all classes in +scope+ to the
@@ -494,7 +493,7 @@ module Wrapture
             src.puts
           end
 
-          if C.wrapped_members?(class_spec)
+          if member_constructor?(class_spec)
             src << member_constructor(class_spec)
             src.puts
           end
@@ -548,12 +547,9 @@ module Wrapture
         define_class_functions(src, scope)
 
         scope.classes.each do |class_spec|
-          src << class_methods_declaration(class_spec)
-          src << ";\n\n"
-          src << class_members_declaration(class_spec)
-          src << ";\n\n"
-          src << class_type_object_declaration(class_spec)
-          src << ";\n\n"
+          src.statement(class_methods_declaration(class_spec))
+          src.statement(class_members_declaration(class_spec))
+          src.statement(class_type_object_declaration(class_spec))
         end
 
         define_module_init(src, scope)
@@ -583,11 +579,8 @@ module Wrapture
         name = function_wrapper_name(func_spec)
         f = CSource::CFunction.new(name, params: params,
                                          attributes: ['static'])
-        f.puts("#{wrapped_function_call(func_spec)};")
-
-        f.puts('Py_TYPE( self )->tp_free( ( PyObject * ) self );')
-
-        f
+        f.statement(wrapped_function_call(func_spec))
+        f.statement('Py_TYPE( self )->tp_free( ( PyObject * ) self )')
       end
 
       # A C function which creates the given enum and adds it to the module
@@ -666,9 +659,7 @@ module Wrapture
         add_params = "m, \"#{enum_name}\", new_enum"
         f.puts("add_result = PyModule_AddObjectRef( #{add_params} );")
         f.puts('Py_DECREF( new_enum );')
-        f.puts('return add_result;')
-
-        f
+        f.return('add_result')
       end
 
       # The declaration of the equivalent member of this class.
@@ -770,6 +761,17 @@ module Wrapture
         end
       end
 
+      # The format string to use for +func_spec+.
+      def self.function_arg_parse_format(func_spec)
+        required_args = func_spec.required_params.map do |param_spec|
+          func_spec.resolve_type(param_spec.type).to_s
+        end
+        optional_args = func_spec.optional_params.map do |param_spec|
+          func_spec.resolve_type(param_spec.type).to_s
+        end
+        arg_parse_format(required_args, optional_args)
+      end
+
       # The function wrapper for a given function.
       #
       # For destructors, this function is equivalent to calling
@@ -843,21 +845,18 @@ module Wrapture
       # The format string to use for the arguments for the member constructor
       # for +class_spec+.
       def self.member_constructor_arg_parse_format(class_spec)
-        required_members = class_spec[:c].members.select do |member|
-          member.value.nil?
-        end
-        required_formats = required_members.map do |member|
-          TYPE_FORMAT_UNIT_MAP.fetch(member.c_type.to_s, 'O')
+        required_args = []
+        optional_args = []
+
+        class_spec[:c].members.each do |member|
+          if member.value.nil?
+            required_args << member.c_type.to_s
+          else
+            optional_args << member.c_type.to_s
+          end
         end
 
-        optional_members = class_spec[:c].members.reject do |member|
-          member.value.nil?
-        end
-        optional_formats = optional_members.map do |member|
-          TYPE_FORMAT_UNIT_MAP.fetch(member.c_type.to_s, 'O')
-        end
-
-        "#{required_formats.join}|#{optional_formats.join}"
+        arg_parse_format(required_args, optional_args)
       end
 
       # The name of the member constructor for +class_spec+.
@@ -896,13 +895,13 @@ module Wrapture
 
       # A call to PyArg_ParseTuple for the member constructor of +class_spec+.
       def self.member_constructor_parse_tuple_call(class_spec)
-        format_str = "\"#{member_constructor_arg_parse_format(class_spec)}\""
+        format_str = member_constructor_arg_parse_format(class_spec)
 
         arg_vars = class_spec[:c].members.map do |member|
           "&#{member.name}"
         end
 
-        "PyArg_ParseTuple( args, #{format_str}, #{arg_vars.join(', ')})"
+        "PyArg_ParseTuple( args, \"#{format_str}\", #{arg_vars.join(', ')})"
       end
 
       # A member constructor for +class_spec+ that performs the parsing of
@@ -1001,11 +1000,7 @@ module Wrapture
                    [self_declaration(func_spec.owner), unused_args]
                  end
 
-        return_type = if func_spec.constructor?
-                        'int'
-                      else
-                        pyobject_ptr
-                      end
+        return_type = wrapper_return_type(func_spec)
 
         f = CSource::CFunction.new(name, params: params,
                                          return_type: return_type,
@@ -1145,7 +1140,7 @@ module Wrapture
       def self.overload_wrapper(func_spec)
         params = [self_declaration(func_spec.owner)]
         params += wrapper_param_locals(func_spec)
-        return_type = CSource::CPointer.new('PyObject')
+        return_type = wrapper_return_type(func_spec)
 
         f = CSource::CFunction.new(overload_wrapper_name(func_spec),
                                    return_type: return_type,
@@ -1180,12 +1175,6 @@ module Wrapture
         "#{base}_#{types}"
       end
 
-      # The format string for PyArg_ParseTuple for the given function parameter.
-      def self.param_format(func_spec, param_spec)
-        key = func_spec.resolve_type(param_spec.type).to_s
-        TYPE_FORMAT_UNIT_MAP.fetch(key, 'O')
-      end
-
       # True if the provided wrapped param spec can be cast to when used in this
       # function.
       def self.param_uses_equivalent?(func_spec, wrapped_param)
@@ -1198,11 +1187,11 @@ module Wrapture
 
       # The expression containing the call to the PyArg_ParseTuple.
       def self.parse_tuple_call(func_spec)
-        format_str = "\"#{arg_parse_format(func_spec)}\""
+        format_str = function_arg_parse_format(func_spec)
         arg_vars = wrapper_param_locals(func_spec).map do |decl|
           "&#{decl.name}"
         end
-        "PyArg_ParseTuple( args, #{format_str}, #{arg_vars.join(', ')} )"
+        "PyArg_ParseTuple( args, \"#{format_str}\", #{arg_vars.join(', ')} )"
       end
 
       # A function wrapper for a function that parses its parameters from Python
@@ -1219,11 +1208,7 @@ module Wrapture
                     CSource::CDeclaration.new(pyobject_ptr, 'kwds')]
                  end
 
-        return_type = if func_spec.constructor?
-                        'int'
-                      else
-                        pyobject_ptr
-                      end
+        return_type = wrapper_return_type(func_spec)
 
         f = CSource::CFunction.new(name, params: params,
                                          return_type: return_type,
@@ -1452,6 +1437,15 @@ module Wrapture
           end
 
           CSource::CDeclaration.new(param_type, param_spec.name)
+        end
+      end
+
+      # The return type of the wrapper for +func_spec+.
+      def self.wrapper_return_type(func_spec)
+        if func_spec.constructor?
+          'int'
+        else
+          CSource::CPointer.new('PyObject')
         end
       end
     end
