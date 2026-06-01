@@ -15,7 +15,7 @@
 # limitations under the License.
 
 name: "NoNamespace"
-wrapped:
+source:
   c:
     name: "struct_name"
     includes: "struct_file.h"

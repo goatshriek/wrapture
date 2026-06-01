@@ -18,7 +18,7 @@ version: "0.6.0"
 classes:
   - name: "Parent"
     namespace: "wrapture_test"
-    wrapped:
+    source:
       c:
         name: "overloaded_struct"
         members:
@@ -29,7 +29,7 @@ classes:
         return:
           type: "Parent *"
           overloaded: true
-        wrapped:
+        source:
           c:
             name: "overloaded_type"
             return:
@@ -38,7 +38,7 @@ classes:
     namespace: "wrapture_test"
     parent:
       name: "Parent"
-    wrapped:
+    source:
       c:
         name: "overloaded_struct"
         rules:
@@ -49,7 +49,7 @@ classes:
     namespace: "wrapture_test"
     parent:
       name: "Parent"
-    wrapped:
+    source:
       c:
         name: "overloaded_struct"
         rules:

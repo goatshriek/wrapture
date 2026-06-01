@@ -18,22 +18,27 @@ module Wrapture
   class ClassSpec
     include Named
 
-    @spec: spec_hash
     @constants: Array[Wrapture::ConstantSpec]
-    @functions: Array[Wrapture::FunctionSpec]
     @doc: Wrapture::Comment
+    @functions: Array[Wrapture::FunctionSpec]
     @scope: Wrapture::Scope
+    @source: Hash[Symbol, CSource::CStruct]
+    @spec: spec_hash
+
+    attr_reader constants: Array[Wrapture::ConstantSpec]
+    attr_reader doc: Wrapture::Comment
+    attr_reader functions: Array[Wrapture::FunctionSpec]
+    attr_reader scope: Wrapture::Scope
+    attr_accessor source: Hash[Symbol, CSource::CStruct] | nil
 
     def self.effective_type: (spec_hash spec) -> String
     def self.from_hash: (spec_hash spec) -> Wrapture::ClassSpec
     def self.normalize_spec_hash: (spec_hash spec) -> spec_hash
     def self.normalize_spec_hash!: (spec_hash spec) -> spec_hash
-    attr_reader constants: Array[Wrapture::ConstantSpec]
-    attr_reader doc: Wrapture::Comment
-    attr_reader functions: Array[Wrapture::FunctionSpec]
-    attr_reader scope: Wrapture::Scope
-    attr_accessor wrapped: Hash[Symbol, untyped] | nil
+
     def initialize: (spec_hash spec, ?scope: Wrapture::Scope) -> void
+    def []: (Symbol) -> CSource::CStruct
+    def []=: (Symbol, CSource::CStruct) -> CSource::CStruct
     def child?: -> bool
     def constructors: -> Array[Wrapture::FunctionSpec]
     def definable?: () -> bool

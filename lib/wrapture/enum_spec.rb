@@ -41,7 +41,7 @@ module Wrapture
     attr_reader :scope
 
     # A map of language-specific wrapping details.
-    attr_reader :wrapped
+    attr_reader :source
 
     # Creates a new EnumSpec from hash +spec+.
     # TODO: remove scope argument, this should not be tracked by the enum
@@ -69,24 +69,24 @@ module Wrapture
       enum.doc = Comment.new(spec[:doc])
       enum.namespace = spec[:namespace] if spec.key?(:namespace)
 
-      if spec.key?(:wrapped) && spec[:wrapped].key?(:c)
-        c_spec = spec[:wrapped][:c]
+      if spec.key?(:source) && spec[:source].key?(:c)
+        c_spec = spec[:source][:c]
         inc = Wrapture.normalize_array(c_spec.fetch(:includes, nil))
-        enum.wrapped[:c] = { includes: inc }
+        enum[:c] = { includes: inc }
       end
 
       spec[:elements].each do |it|
         element = { name: Wrapture.normalize_name(it, :name) }
         element[:doc] = Comment.new(it[:doc]) if it.key?(:doc)
-        if it.key?(:wrapped) && it[:wrapped].key?(:c)
-          element[:wrapped] = { c: {} }
+        if it.key?(:source) && it[:source].key?(:c)
+          element[:source] = { c: {} }
 
-          if it[:wrapped][:c].key?(:value)
-            element[:wrapped][:c][:value] = it[:wrapped][:c][:value]
+          if it[:source][:c].key?(:value)
+            element[:source][:c][:value] = it[:source][:c][:value]
           end
 
-          inc = Wrapture.normalize_array(it[:wrapped][:c].fetch(:includes, nil))
-          element[:wrapped][:c][:includes] = inc
+          inc = Wrapture.normalize_array(it[:source][:c].fetch(:includes, nil))
+          element[:source][:c][:includes] = inc
         end
 
         enum.elements << element
@@ -168,7 +168,19 @@ module Wrapture
       # TODO: this should be an array of custom objects instead of hashes
       @elements = []
 
-      @wrapped = {}
+      @source = {}
+    end
+
+    # Get the source details for the given language. This is equivalent to
+    # +source[lang]+.
+    def [](lang)
+      @source[lang]
+    end
+
+    # Set the source details for the given language. This is equivalent to
+    # +source[lang]=+.
+    def []=(lang, source_details)
+      @source[lang] = source_details
     end
 
     # An array of libraries needed for everything in this enum.

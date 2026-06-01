@@ -19,7 +19,7 @@ classes:
   - name: "ParentPointer"
     namespace: "wrapture_test"
     type: "pointer"
-    wrapped:
+    source:
       c:
         name: "wrapped_struct"
   - name: "ChildPointer"
@@ -28,6 +28,6 @@ classes:
     parent:
       name: "ParentPointer"
       includes: "ParentPointer.hpp"
-    wrapped:
+    source:
       c:
         name: "wrapped_struct_but_different"

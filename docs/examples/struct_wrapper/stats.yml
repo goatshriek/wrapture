@@ -18,7 +18,7 @@ classes:
   - name: "PlayerStats"
     namespace: "soccer"
     libraries: "stats"
-    wrapped:
+    source:
       c:
         name: "player_stats"
         includes: "stats.h"
@@ -39,7 +39,7 @@ classes:
       - name: "GetGoalsScored"
         return:
           type: "int"
-        wrapped:
+        source:
           c:
             name: "get_goals_scored"
             params:
@@ -49,7 +49,7 @@ classes:
       - name: "GetRedCards"
         return:
           type: "int"
-        wrapped:
+        source:
           c:
             name: "get_red_cards"
             params:
@@ -59,7 +59,7 @@ classes:
       - name: "GetYellowCards"
         return:
           type: "int"
-        wrapped:
+        source:
           c:
             name: "get_yellow_cards"
             params:
@@ -67,7 +67,7 @@ classes:
             return:
               type: "int"
       - name: "Print"
-        wrapped:
+        source:
           c:
             name: "print_player_stats"
             params:

@@ -18,7 +18,7 @@ enums:
   - name: "Fruit"
     doc: "fruits sold by our fine establishment"
     namespace: "store"
-    wrapped:
+    source:
       c:
         includes:
           - "citrus_mangiamo.h"
@@ -30,41 +30,41 @@ enums:
         doc: "both dried and fresh!"
       - name: "banana"
         doc: "the peel is useful in car chases"
-        wrapped:
+        source:
           c:
             value: "DESIRE_BANANA"
       - name: "grape"
         doc: "you have to buy more than one though"
-        wrapped:
+        source:
           c:
             value: "DESIRE_GRAPE"
       - name: "grapefruit"
         doc: "most people don't seem to like them"
-        wrapped:
+        source:
           c:
             value: "MANGIAMO_GRAPEFRUIT"
       - name: "lemon"
         doc: "not the variety that will burn your house down"
-        wrapped:
+        source:
           c:
             value: "MANGIAMO_LEMON"
       - name: "lime"
         doc: "good in blue moon and tequila!"
-        wrapped:
+        source:
           c:
             value: "MANGIAMO_LIME"
       - name: "orange"
         doc: "the fruit or the color? answer: yes"
-        wrapped:
+        source:
           c:
             value: "MANGIAMO_ORANGE"
       - name: "tangelo"
         doc: "sometimes called the Ugli fruit. ouch."
-        wrapped:
+        source:
           c:
             value: "MANGIAMO_TANGELO"
       - name: "watermelon"
         doc: "seedless? what will I spit at my sibling?"
-        wrapped:
+        source:
           c:
             value: "DESIRE_WATERMELON"

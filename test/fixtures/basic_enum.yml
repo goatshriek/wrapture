@@ -15,19 +15,19 @@
 # limitations under the License.
 
 name: "BasicEnum"
-wrapped:
+source:
   c:
     includes:
       - "overall_1.h"
       - "overall_2.h"
 elements:
   - name: "element_1"
-    wrapped:
+    source:
       c:
         value: 9
         includes: "val_1.h"
   - name: "element_2"
-    wrapped:
+    source:
       c:
         value: 3
   - name: "element_3"

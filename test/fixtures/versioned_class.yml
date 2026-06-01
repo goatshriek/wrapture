@@ -17,6 +17,6 @@
 name: "MinimalClass"
 version: "0.6.0"
 namespace: "wrapture_test"
-wrapped:
+source:
   c:
     name: "minimal_struct"

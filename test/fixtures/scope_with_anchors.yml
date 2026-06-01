@@ -22,56 +22,56 @@ to_string_common: &to_string_common
 classes:
   - name: "OneClass"
     namespace: &dr_seuss_namespace "wrapture_test"
-    wrapped:
+    source:
       c:
         pointer:
           name: "one_struct"
           includes: "one_struct.h"
     functions:
       - <<: *to_string_common
-        wrapped:
+        source:
           c:
             name: "one_struct_to_string"
             params:
               - value: "equivalent_struct_pointer"
   - name: "TwoClass"
     namespace: *dr_seuss_namespace
-    wrapped:
+    source:
       c:
         pointer:
           name: "two_struct"
           includes: "two_struct.h"
     functions:
       - <<: *to_string_common
-        wrapped:
+        source:
           c:
             name: "two_struct_to_string"
             params:
               - value: "equivalent_struct_pointer"
   - name: "RedClass"
     namespace: *dr_seuss_namespace
-    wrapped:
+    source:
       c:
         pointer:
           name: "red_struct"
           includes: "red_struct.h"
     functions:
       - <<: *to_string_common
-        wrapped:
+        source:
           c:
             name: "red_struct_to_string"
             params:
               - value: "equivalent_struct_pointer"
   - name: "BlueClass"
     namespace: *dr_seuss_namespace
-    wrapped:
+    source:
       c:
         pointer:
           name: "blue_struct"
           includes: "blue_struct.h"
     functions:
       - <<: *to_string_common
-        wrapped:
+        source:
           c:
             name: "blue_struct_to_string"
             params:

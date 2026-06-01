@@ -22,7 +22,7 @@ classes:
     namespace: 'wrapture_test'
     functions:
       - name: "IMightFail"
-        wrapped:
+        source:
           c:
             name: "might_fail"
             return:

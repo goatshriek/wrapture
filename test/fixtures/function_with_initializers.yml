@@ -25,7 +25,7 @@ initializers:
     value: "param_1"
   - name: "init_param_2"
     value: "param_2"
-wrapped:
+source:
   c:
     name: "underlying_function"
     params:

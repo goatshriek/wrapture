@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-# Copyright 2025 Joel E. Anderson
+# Copyright 2025-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 classes:
   - name: "Gym"
     namespace: "wrapture_test"
-    wrapped:
+    source:
       c:
         name: "gym"
     functions:
@@ -27,7 +27,7 @@ classes:
             type:
               name: "Pool"
               includes: "Pool.hpp"
-        wrapped:
+        source:
           c:
             name: "add_pool_to_gym"
             params:
@@ -43,7 +43,7 @@ classes:
             type:
               name: "Pool"
               includes: "Pool.hpp"
-        wrapped:
+        source:
           c:
             name: "copy_pool_to_gym"
             params:
@@ -59,7 +59,7 @@ classes:
             type:
               name: "Track"
               includes: "Track.hpp"
-        wrapped:
+        source:
           c:
             name: "add_track_to_gym"
             params:
@@ -75,7 +75,7 @@ classes:
             type:
               name: "Track"
               includes: "Track.hpp"
-        wrapped:
+        source:
           c:
             name: "copy_track_to_gym"
             params:
@@ -87,12 +87,12 @@ classes:
                   includes: "gym.h"
   - name: "Pool"
     namespace: "wrapture_test"
-    wrapped:
+    source:
       c:
         pointer:
           name: "gym_pool"
     constructors:
-      - wrapped:
+      - source:
             c:
               name: "new_pool"
               params:
@@ -102,12 +102,12 @@ classes:
                 type: "equivalent_struct_pointer"
   - name: "Track"
     namespace: "wrapture_test"
-    wrapped:
+    source:
       c:
         pointer:
           name: "gym_track"
     constructors:
-      - wrapped:
+      - source:
           c:
             name: "new_track"
             params:

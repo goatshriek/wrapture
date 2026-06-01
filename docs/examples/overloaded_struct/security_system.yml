@@ -19,18 +19,18 @@ classes:
   - name: "SecurityEvent"
     namespace: "home_automation"
     libraries: "security_system"
-    wrapped:
+    source:
       c:
         pointer:
           name: "event"
           includes: "security_system.h"
     constructors:
-      - wrapped:
+      - source:
           c:
             name: "new_default_event"
             return:
               type: "equivalent_struct_pointer"
-      - wrapped:
+      - source:
           c:
             name: "new_event"
             params:
@@ -41,7 +41,7 @@ classes:
             return:
               type: "equivalent_struct_pointer"
     destructor:
-      wrapped:
+      source:
         c:
           name: "destroy_event"
           params:
@@ -51,7 +51,7 @@ classes:
         virtual: true
         return:
           type: "int"
-        wrapped:
+        source:
           c:
             name: "get_event_code"
             includes: "security_system.h"
@@ -64,7 +64,7 @@ classes:
         return:
           type: "SecurityEvent *"
           overloaded: true
-        wrapped:
+        source:
           c:
             name: "get_next_event"
             includes: "security_system.h"
@@ -72,7 +72,7 @@ classes:
               type: "equivalent_struct_pointer"
       - name: "Print"
         virtual: true
-        wrapped:
+        source:
           c:
             name: "print_event"
             includes: "security_system.h"
@@ -83,7 +83,7 @@ classes:
     libraries: "security_system"
     parent:
       name: "SecurityEvent"
-    wrapped:
+    source:
       c:
         pointer:
           name: "event"
@@ -93,7 +93,7 @@ classes:
               condition: "equal"
               value: "CAMERA_EVENT"
     constructors:
-      - wrapped:
+      - source:
           c:
             name: "new_camera_event"
             params:
@@ -105,14 +105,14 @@ classes:
       - name: "GetCode"
         return:
           type: "int"
-        wrapped:
+        source:
           c:
             name: "get_camera_event_code"
             includes: "security_system.h"
             return:
               type: "int"
       - name: "Print"
-        wrapped:
+        source:
           c:
             name: "print_camera_event"
             includes: "security_system.h"
@@ -123,7 +123,7 @@ classes:
     libraries: "security_system"
     parent:
       name: "SecurityEvent"
-    wrapped:
+    source:
       c:
         pointer:
           name: "event"
@@ -133,7 +133,7 @@ classes:
               condition: "equal"
               value: "GLASS_BREAK_EVENT"
     constructors:
-      - wrapped:
+      - source:
           c:
             name: "new_glass_break_event"
             params:
@@ -145,14 +145,14 @@ classes:
       - name: "GetCode"
         return:
           type: "int"
-        wrapped:
+        source:
           c:
             name: "get_glass_break_event_code"
             includes: "security_system.h"
             return:
               type: "int"
       - name: "Print"
-        wrapped:
+        source:
           c:
             name: "print_glass_break_event"
             includes: "security_system.h"
@@ -163,7 +163,7 @@ classes:
     libraries: "security_system"
     parent:
       name: "SecurityEvent"
-    wrapped:
+    source:
       c:
         pointer:
           name: "event"
@@ -173,7 +173,7 @@ classes:
               condition: "equal"
               value: "MOTION_EVENT"
     constructors:
-      - wrapped:
+      - source:
           c:
             name: "new_motion_event"
             params:
@@ -185,14 +185,14 @@ classes:
       - name: "GetCode"
         return:
           type: "int"
-        wrapped:
+        source:
           c:
             name: "get_motion_event_code"
             includes: "security_system.h"
             return:
               type: "int"
       - name: "Print"
-        wrapped:
+        source:
           c:
             name: "print_motion_event"
             includes: "security_system.h"

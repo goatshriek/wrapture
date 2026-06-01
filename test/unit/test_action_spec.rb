@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2020-2025 Joel E. Anderson
+# Copyright 2020-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -26,9 +26,9 @@ class ActionSpecTest < Minitest::Test
   def test_basic
     test_spec = fixture_hash('basic_action')
     spec = Wrapture::ActionSpec.new(test_spec)
-    common_includes = spec.includes & test_spec[:wrapped][:c][:includes]
+    common_includes = spec.includes & test_spec[:source][:c][:includes]
 
-    assert_equal(common_includes, test_spec[:wrapped][:c][:includes])
+    assert_equal(common_includes, test_spec[:source][:c][:includes])
   end
 
   def test_exception_without_params

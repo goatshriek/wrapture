@@ -17,17 +17,17 @@
 name: "AliasConstructorClass"
 namespace: "wrapture_test"
 includes: "class_include.h"
-wrapped:
+source:
   c:
     pointer:
       name: "basic_struct"
       includes: "folder/include_file_1.h"
 constructors:
-  - wrapped:
+  - source:
       alias:
         args:
           - 3
-  - wrapped:
+  - source:
       c:
         name: "underlying_constructor"
         params:

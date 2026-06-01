@@ -40,7 +40,7 @@ module Wrapture
 
         parent = class_spec.parent_spec
         !parent.nil? &&
-          parent.wrapped.key?(:c) &&
+          parent.source.key?(:c) &&
           parent[:c] == class_spec[:c]
       end
 
@@ -51,7 +51,7 @@ module Wrapture
       # ancestor's members if it wraps the same struct.
       def self.equivalent_member?(class_spec)
         # there's no equivalent member if there's no wrapped struct
-        return false unless class_spec.wrapped.key?(:c)
+        return false unless class_spec.source.key?(:c)
 
         # let's see if we can re-use an ancestor's struct
         !equivalent_ancestor?(class_spec)
@@ -61,7 +61,7 @@ module Wrapture
       # struct exists, nil if not. If the class wraps a struct directly, this
       # type will be a pointer to the struct type, not the struct type itself.
       def self.equivalent_pointer(class_spec)
-        if class_spec.wrapped.key?(:c)
+        if class_spec.source.key?(:c)
           if class_spec[:c].instance_of?(CSource::CStruct)
             CSource::CPointer.new(class_spec[:c])
           else
@@ -74,7 +74,7 @@ module Wrapture
       # If the class wraps a pointer to a struct, this type will be the struct
       # type, not the pointer type.
       def self.equivalent_struct(class_spec)
-        if class_spec.wrapped.key?(:c)
+        if class_spec.source.key?(:c)
           if class_spec[:c].instance_of?(CSource::CPointer)
             class_spec[:c].c_type
           else
@@ -86,7 +86,7 @@ module Wrapture
       # The type of the equivalent struct for a class spec if one exists, nil
       # if not.
       def self.equivalent_type(class_spec)
-        class_spec[:c] if class_spec.wrapped.key?(:c)
+        class_spec[:c] if class_spec.source.key?(:c)
       end
 
       # True if the given ClassSpec is a factory in the given context. A factory
@@ -123,7 +123,7 @@ module Wrapture
               when Scope
                 spec.flat_map { |it| includes(it) }
               when ClassSpec
-                spec_includes = if spec.wrapped.key?(:c)
+                spec_includes = if spec.source.key?(:c)
                                   spec[:c].includes
                                 else
                                   []
@@ -136,7 +136,7 @@ module Wrapture
                 end
                 spec_includes + constant_includes + function_includes
               when FunctionSpec
-                spec_includes = if spec.wrapped.key?(:c)
+                spec_includes = if spec.source.key?(:c)
                                   spec[:c].includes
                                 else
                                   []
@@ -148,12 +148,10 @@ module Wrapture
               when EnumSpec
                 spec_includes = []
 
-                if spec.wrapped.key?(:c)
-                  spec_includes += spec.wrapped[:c][:includes]
-                end
+                spec_includes += spec[:c][:includes] if spec.source.key?(:c)
 
                 spec.elements.each do |it|
-                  it_inc = it.dig(:wrapped, :c, :includes)
+                  it_inc = it.dig(:source, :c, :includes)
                   spec_includes += it_inc unless it_inc.nil?
                 end
 
@@ -187,7 +185,7 @@ module Wrapture
       # defined in it. This is useful for determing if a constructor or
       # accessors can be generated based on the fields.
       def self.wrapped_members?(class_spec)
-        class_spec.wrapped.key?(:c) &&
+        class_spec.source.key?(:c) &&
           class_spec[:c].is_a?(CSource::CStruct) &&
           !class_spec[:c].members.empty?
       end

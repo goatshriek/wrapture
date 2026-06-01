@@ -57,14 +57,14 @@ module Wrapture
     # A TypeSpec describing the return type of this function.
     attr_accessor :return_type
 
+    # A map of source language functions this spec wraps.
+    attr_accessor :source
+
     # Set whether this function is static.
     attr_writer :static
 
     # Set whether this function is virtual.
     attr_writer :virtual
-
-    # A map of language-specific functions this spec wraps.
-    attr_accessor :wrapped
 
     # Creates a new FunctionSpec from hash +spec+.
     #
@@ -75,7 +75,7 @@ module Wrapture
     # in this array must be a +Hash+ used to create a +ParamSpec+. Only one
     # parameter may be named +...+ and it must be last in the +Array+.
     #
-    # The +:wrapped+ key contains a +Hash+ that describes the implementation
+    # The +:source+ key contains a +Hash+ that describes the implementation
     # of the function. This may either contain a +:c+ key containing a +Hash+
     # used to create a +CFunction+, or an +:alias+ key with the name of another
     # function (either a +String+ or an +Array+ of words) that this one is
@@ -150,14 +150,14 @@ module Wrapture
         end
       end
 
-      wrapped_from_hash(func_spec, spec[:wrapped]) if spec.key?(:wrapped)
+      set_source_from_hash(func_spec, spec[:source]) if spec.key?(:source)
 
       func_spec
     end
 
-    # Sets the members of the +wrapped+ property of the +FunctionSpec+ +spec+
+    # Sets the members of the +source+ property of the +FunctionSpec+ +spec+
     # based on the contents of +hash+.
-    private_class_method def self.wrapped_from_hash(spec, hash)
+    private_class_method def self.set_source_from_hash(spec, hash)
       if hash.key?(:alias)
         spec[:alias] = hash[:alias]
       elsif hash.key?(:c)
@@ -172,7 +172,7 @@ module Wrapture
       @name_words = Wrapture.normalize_name_words(name)
       @doc = nil
       @owner = Scope.new
-      @wrapped = {}
+      @source = {}
       @params = []
       @return_doc = nil
       @return_overloaded = false
@@ -184,16 +184,16 @@ module Wrapture
       @initializers = []
     end
 
-    # Get the wrapped function for the given language. This is equivalent to
-    # +wrapped[lang]+.
+    # Get the source function for the given language. This is equivalent to
+    # +source[lang]+.
     def [](lang)
-      @wrapped[lang]
+      @source[lang]
     end
 
-    # Set the wrapped function for the given language. This is equivalent to
-    # +wrapped[lang]=+.
-    def []=(lang, wrapped_function)
-      @wrapped[lang] = wrapped_function
+    # Set the source function for the given language. This is equivalent to
+    # +source[lang]=+.
+    def []=(lang, source_function)
+      @source[lang] = source_function
     end
 
     # True if the function is a constructor, false otherwise.
@@ -219,15 +219,15 @@ module Wrapture
     # "wrappable?" and added to ClassSpec and/or Scope.
     def definable?(lang: nil)
       if lang.nil?
-        !@wrapped.empty?
+        !@source.empty?
       else
-        @wrapped.key?(lang)
+        @source.key?(lang)
       end
     end
 
     # A list of includes needed for the definition of the function.
     def definition_includes
-      includes = @wrapped[:c].includes
+      includes = @source[:c].includes
       includes.concat(@return_type.includes)
       @params.each { |param| includes.concat(param.includes) }
       includes.concat(@return_type.includes)
@@ -257,10 +257,10 @@ module Wrapture
     # An array of libraries required for this function call.
     def libraries
       # TODO: there shouldn't be C-specific code here
-      if @wrapped.empty? || !@wrapped.key?(:c)
+      if @source.empty? || !@source.key?(:c)
         []
       else
-        @wrapped[:c].libraries
+        @source[:c].libraries
       end
     end
 

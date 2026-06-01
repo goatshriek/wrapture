@@ -601,7 +601,7 @@ module Wrapture
           element_name = Named.snake_case_name(it[:name])
           f.puts("element_name = PyUnicode_FromString( \"#{element_name}\" );")
 
-          val = it.dig(:wrapped, :c, :value)
+          val = it.dig(:source, :c, :value)
           val = next_val if val.nil?
           f.puts("element_value = PyLong_FromLong( #{val} );")
 
@@ -1327,9 +1327,9 @@ module Wrapture
         CSource::CDeclaration.new(pointer_type, 'self')
       end
 
-      # The type of the wrapped source function.
+      # The type of the source function.
       def self.source_return_type(func_spec)
-        return_type = func_spec.wrapped[:c].return_type
+        return_type = func_spec[:c].return_type
 
         if return_type.to_s == EQUIVALENT_STRUCT_KEYWORD
           C.equivalent_struct(func_spec.owner)

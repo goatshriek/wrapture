@@ -20,7 +20,7 @@ classes:
     doc: "A humble stove."
     namespace: "kitchen"
     libraries: "stove"
-    wrapped:
+    source:
       c:
         pointer:
           name: "stove"
@@ -29,7 +29,7 @@ classes:
       name: "stove"
     constructors:
       - doc: "Creates a new stove."
-        wrapped:
+        source:
           c:
             name: "new_stove"
             params:
@@ -38,7 +38,7 @@ classes:
             return:
               type: "equivalent_struct_pointer"
     destructor:
-      wrapped:
+      source:
         c:
           name: "destroy_stove"
           params:
@@ -48,7 +48,7 @@ classes:
         doc: "Returns the number of burners on this stove."
         return:
           type: "int"
-        wrapped:
+        source:
           c:
             name: "get_burner_count"
             params:
@@ -58,7 +58,7 @@ classes:
       - name: "GetOvenTemp"
         return:
           type: "int"
-        wrapped:
+        source:
           c:
             name: "get_oven_temp"
             params:
@@ -69,7 +69,7 @@ classes:
         params:
           - name: "new_temp"
             type: "int"
-        wrapped:
+        source:
           c:
             name: "set_oven_temp"
             params:
@@ -81,7 +81,7 @@ classes:
             type: "int"
         return:
           type: "int"
-        wrapped:
+        source:
           c:
             name: "get_burner_level"
             params:
@@ -95,7 +95,7 @@ classes:
             type: "int"
           - name: "new_level"
             type: "int"
-        wrapped:
+        source:
           c:
             name: "set_burner_level"
             params:
@@ -109,7 +109,7 @@ classes:
         params:
           - name: "model"
             type: "int"
-        wrapped:
+        source:
           c:
             name: "is_model_supported"
             params:

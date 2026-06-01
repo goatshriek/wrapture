@@ -19,7 +19,7 @@ return:
   doc: |
     This function doesn't return anything, but there's still something you
     should know about what happens when it returns...
-wrapped:
+source:
   c:
     name: "underlying_function"
 
