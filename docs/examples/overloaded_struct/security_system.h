@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /*
- * Copyright 2019-2024 Joel E. Anderson
+ * Copyright 2019-2026 Joel E. Anderson
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,18 @@ struct event {
 
 void
 destroy_event( struct event *ev );
+
+int
+get_camera_event_code( void );
+
+int
+get_event_code( const struct event *ev );
+
+int
+get_glass_break_event_code( void );
+
+int
+get_motion_event_code( void );
 
 struct event *
 get_next_event( void );
