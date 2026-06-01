@@ -38,19 +38,16 @@ module Wrapture
     # The scope of this class.
     attr_reader :scope
 
-    # The underlying struct of this class.
-    # attr_reader :struct
-
     # A map of language-specific wrapping details.
-    attr_accessor :wrapped
+    attr_accessor :source
 
     # Gives the effective type of the given class spec hash.
     # TODO: this should be refactored to use an object instead of a hash
     def self.effective_type(spec)
       inferred_pointer_wrapper = spec[:constructors].any? do |func|
         # TODO: this should not have c-specific code
-        func[:wrapped].key?(:c) &&
-          func[:wrapped][:c][:return][:type] == EQUIVALENT_POINTER_KEYWORD
+        func[:source].key?(:c) &&
+          func[:source][:c][:return][:type] == EQUIVALENT_POINTER_KEYWORD
       end
 
       if spec.key?(:type)
@@ -72,10 +69,10 @@ module Wrapture
     def self.from_hash(spec)
       if spec.key?(:constructors)
         c_constructors = spec[:constructors].reject do |it|
-          it.dig(:wrapped, :c).nil?
+          it.dig(:source, :c).nil?
         end
         if c_constructors.any? do |it|
-          it.dig(:wrapped, :c, :return, :type).nil?
+          it.dig(:source, :c, :return, :type).nil?
         end
           raise InvalidConstructor, 'a constructor did not have a return type'
         end
@@ -83,12 +80,12 @@ module Wrapture
 
       class_spec = new(spec)
 
-      if spec.key?(:wrapped) && spec[:wrapped].key?(:c)
-        if spec[:wrapped][:c].key?(:pointer)
-          struct_type = CSource::CStruct.from_hash(spec[:wrapped][:c][:pointer])
+      if spec.key?(:source) && spec[:source].key?(:c)
+        if spec[:source][:c].key?(:pointer)
+          struct_type = CSource::CStruct.from_hash(spec[:source][:c][:pointer])
           class_spec[:c] = CSource::CPointer.new(struct_type)
         else
-          class_spec[:c] = CSource::CStruct.from_hash(spec[:wrapped][:c])
+          class_spec[:c] = CSource::CStruct.from_hash(spec[:source][:c])
         end
       end
 
@@ -172,8 +169,8 @@ module Wrapture
         full_spec = constructor_spec.dup
         full_spec[:name] = @spec[:name]
         # TODO: there shouldn't be C-specific code here
-        if constructor_spec[:wrapped].key?(:c)
-          full_spec[:params] = constructor_spec[:wrapped][:c][:params]
+        if constructor_spec[:source].key?(:c)
+          full_spec[:params] = constructor_spec[:source][:c][:params]
         end
         full_spec[:constructor] = true
 
@@ -208,27 +205,27 @@ module Wrapture
       scope << self
       @scope = scope
 
-      @wrapped = {}
-      if @spec.key?(:wrapped) && @spec[:wrapped].key?(:c)
-        if @spec[:wrapped][:c].key?(:pointer)
-          struct_type = CSource::CStruct.from_hash(spec[:wrapped][:c][:pointer])
-          @wrapped[:c] = CSource::CPointer.new(struct_type)
+      @source = {}
+      if @spec.key?(:source) && @spec[:source].key?(:c)
+        if @spec[:source][:c].key?(:pointer)
+          struct_type = CSource::CStruct.from_hash(spec[:source][:c][:pointer])
+          @source[:c] = CSource::CPointer.new(struct_type)
         else
-          @wrapped[:c] = CSource::CStruct.from_hash(spec[:wrapped][:c])
+          @source[:c] = CSource::CStruct.from_hash(spec[:source][:c])
         end
       end
     end
 
     # Get the wrapping details for the given language. This is equivalent to
-    # +wrapped[lang]+.
+    # +source[lang]+.
     def [](lang)
-      @wrapped[lang]
+      @source[lang]
     end
 
     # Set the wrapping details for the given language. This is equivalent to
-    # +wrapped[lang]=+.
-    def []=(lang, wrapped_function)
-      @wrapped[lang] = wrapped_function
+    # +source[lang]=+.
+    def []=(lang, source_struct)
+      @source[lang] = source_struct
     end
 
     # True if the class has a parent.

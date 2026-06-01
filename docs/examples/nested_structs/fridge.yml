@@ -19,13 +19,13 @@ classes:
     namespace: "kitchen"
     libraries: "fridge"
     includes: "fridge.h"
-    wrapped:
+    source:
       c:
         pointer:
           name: "struct ice_maker"
           includes: "fridge.h"
     constructors:
-      - wrapped:
+      - source:
           c:
             name: "new_ice_maker"
             params:
@@ -39,13 +39,13 @@ classes:
     namespace: "kitchen"
     libraries: "fridge"
     includes: "fridge.h"
-    wrapped:
+    source:
       c:
         pointer:
           name: "struct water_filter"
           includes: "fridge.h"
     constructors:
-      - wrapped:
+      - source:
           c:
             name: "new_water_filter"
             params:
@@ -56,13 +56,13 @@ classes:
   - name: "Freezer"
     namespace: "kitchen"
     libraries: "fridge"
-    wrapped:
+    source:
       c:
         pointer:
           name: "struct freezer"
           includes: "fridge.h"
     constructors:
-      - wrapped:
+      - source:
           c:
             name: "new_freezer"
             params:
@@ -77,13 +77,13 @@ classes:
     libraries: "fridge"
     includes:
       - "fridge.h"
-    wrapped:
+    source:
       c:
         pointer:
           name: "fridge"
           includes: "fridge.h"
     constructors:
-      - wrapped:
+      - source:
           c:
             name: "new_fridge"
             params:
@@ -96,7 +96,7 @@ classes:
         params:
           - name: "new_ice_maker"
             type: "IceMaker"
-        wrapped:
+        source:
           c:
             name: "add_ice_maker_to_fridge"
             params:
@@ -107,7 +107,7 @@ classes:
         params:
           - name: "new_filter"
             type: "WaterFilter"
-        wrapped:
+        source:
           c:
             name: "add_water_filter_to_fridge"
             params:
@@ -118,7 +118,7 @@ classes:
         params:
           - name: "new_freezer"
             type: "Freezer"
-        wrapped:
+        source:
           c:
             name: "add_freezer_to_fridge"
             params:
@@ -128,7 +128,7 @@ classes:
       - name: "GetFreezerMinimumTemp"
         return:
           type: "int"
-        wrapped:
+        source:
           c:
             name: "get_freezer_minimum_temp"
             params:
@@ -136,7 +136,7 @@ classes:
             return:
               type: "int"
       - name: "Print"
-        wrapped:
+        source:
           c:
             name: "print_fridge"
             params:

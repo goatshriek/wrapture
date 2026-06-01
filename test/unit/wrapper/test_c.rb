@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2025 Joel E. Anderson
+# Copyright 2025-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,12 +24,12 @@ require 'wrapture'
 
 class CWrapperTest < Minitest::Test
   def test_class_includes_with_no_c_details
-    # we need a class spec where there isn't a :c key in wrapped
+    # we need a class spec where there isn't a :c key in source
     class_spec = Wrapture::ClassSpec.new(fixture_hash('versioned_class'))
 
     assert_empty(Wrapture::Wrapper::C.includes(class_spec),
                  'includes not empty for a class spec with no ' \
-                 'entry for c in the wrapped languages')
+                 'entry for c in the source languages')
   end
 
   def test_class_with_no_struct_overloads
@@ -55,12 +55,12 @@ class CWrapperTest < Minitest::Test
   end
 
   def test_function_includes_with_no_c_details
-    # we need a function spec where there isn't a :c key in wrapped
+    # we need a function spec where there isn't a :c key in source
     func_spec = Wrapture::FunctionSpec.new(%w[func without c])
 
     assert_empty(Wrapture::Wrapper::C.includes(func_spec),
                  'includes not empty for a func spec with no ' \
-                 'entry for c in the wrapped languages')
+                 'entry for c in the source languages')
   end
 
   def test_overload

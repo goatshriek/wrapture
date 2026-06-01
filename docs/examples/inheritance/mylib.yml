@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-# Copyright 2025 Joel E. Anderson
+# Copyright 2025-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ classes:
   - name: "Item"
     namespace: "library"
     libraries: "mylib"
-    wrapped:
+    source:
       c:
         name: "mylib_item"
         includes:
@@ -36,7 +36,7 @@ classes:
             default_value: "0"
     functions:
       - name: CheckOut
-        wrapped:
+        source:
           c:
             name: "check_out_item"
             params:
@@ -47,7 +47,7 @@ classes:
     libraries: "mylib"
     parent:
       name: "Item"
-    wrapped:
+    source:
       c:
         name: "mylib_item"
         includes:
@@ -67,7 +67,7 @@ classes:
       - name: GetPageCount
         return:
           type: "int"
-        wrapped:
+        source:
           c:
             name: "get_page_count"
             params:

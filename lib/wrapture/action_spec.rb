@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2020-2025 Joel E. Anderson
+# Copyright 2020-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ module Wrapture
       normalized = spec.dup
 
       required_keys = %i[name type]
-      optional_keys = %i[value wrapped]
+      optional_keys = %i[value source]
 
       extra_keys = spec.keys - required_keys - optional_keys
       unless extra_keys.empty?
@@ -68,8 +68,8 @@ module Wrapture
 
     # A list of includes needed for the action.
     def includes
-      if @spec.key?(:wrapped) && @spec[:wrapped].key?(:c)
-        @spec[:wrapped][:c][:includes].dup
+      if @spec.key?(:source) && @spec[:source].key?(:c)
+        @spec[:source][:c][:includes].dup
       else
         []
       end

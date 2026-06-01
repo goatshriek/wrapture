@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-# Copyright 2025 Joel E. Anderson
+# Copyright 2025-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,14 +17,14 @@
 classes:
   - name: "Bullet"
     namespace: "wrapture_test"
-    wrapped:
+    source:
       c:
         name: "bullet_struct"
         includes: "bullet_struct.h"
     type: "pointer"
   - name: "Rifle"
     namespace: "wrapture_test"
-    wrapped:
+    source:
       c:
         name: "rifle_struct"
         includes: "rifle_struct.h"
@@ -35,7 +35,7 @@ classes:
             type: "Bullet&"
         return:
           type: "self-reference"
-        wrapped:
+        source:
           c:
             name: "load_rifle_with_bullet"
             params:

@@ -17,7 +17,7 @@
 classes:
   - name: "Bullet"
     namespace: "wrapture_test"
-    wrapped:
+    source:
       c:
         pointer:
           name: "bullet_struct"
@@ -25,7 +25,7 @@ classes:
     type: "pointer"
   - name: "Rifle"
     namespace: "wrapture_test"
-    wrapped:
+    source:
       c:
         pointer:
           name: "rifle_struct"
@@ -38,7 +38,7 @@ classes:
             includes: "Bullet.hpp"
         return:
           type: "self_reference"
-        wrapped:
+        source:
           c:
             name: "load_rifle_with_bullet"
             params:
@@ -52,7 +52,7 @@ classes:
             includes: "Bullet.hpp"
         return:
           type: "self_reference"
-        wrapped:
+        source:
           c:
             name: "fire_bullet_from_rifle"
             params:

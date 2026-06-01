@@ -16,7 +16,7 @@
 
 name: "ClassWithConstructor"
 namespace: "wrapture_test"
-wrapped:
+source:
   c:
     name: "constructed_struct"
     members:
@@ -25,7 +25,7 @@ wrapped:
     includes:
       - "constructed.h"
 constructors:
-  - wrapped:
+  - source:
       c:
         name: "build_a_struct"
         params:
@@ -34,7 +34,7 @@ constructors:
         return:
           type: "equivalent_struct"
         includes: "constructed.h"
-  - wrapped:
+  - source:
       c:
         name: "copy_struct"
         params:
@@ -44,7 +44,7 @@ constructors:
           type: "equivalent_struct"
         includes:
           - "constructed.h"
-  - wrapped:
+  - source:
       c:
         name: "copy_struct_pointer"
         params:
@@ -53,7 +53,7 @@ constructors:
         return:
           type: "equivalent_struct"
 destructor:
-  wrapped:
+  source:
     c:
       name: "destroy_a_struct"
       params:
@@ -67,7 +67,7 @@ functions:
         type: "equivalent_struct"
     return:
       type: "int"
-    wrapped:
+    source:
       c:
         name: "compare_structs"
         params:

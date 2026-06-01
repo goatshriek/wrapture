@@ -16,12 +16,12 @@
 
 name: "ClassWithReturnActionInConstructor"
 namespace: "wrapture_test"
-wrapped:
+source:
   c:
     pointer:
       name: "irrelevant"
 constructors:
-  - wrapped:
+  - source:
       c:
         name: "wrapped_constructor"
         params:
@@ -39,7 +39,7 @@ constructors:
             type: "throwMyException"
             value: "name"
 destructor:
-  wrapped:
+  source:
     c:
       name: "wrapped_destructor"
       params:

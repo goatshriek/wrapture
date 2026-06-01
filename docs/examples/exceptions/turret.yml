@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-# Copyright 2020-2025 Joel E. Anderson
+# Copyright 2020-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,19 +21,19 @@ classes:
   - name: "Turret"
     namespace: "defense_turret"
     libraries: "turret"
-    wrapped:
+    source:
       c:
         pointer:
           name: "turret"
           includes: "turret.h"
     constructors:
-      - wrapped:
+      - source:
           c:
             name: "new_turret"
             return:
               type: "equivalent_struct_pointer"
     destructor:
-      wrapped:
+      source:
         c:
           name: "destroy_turret"
           params:
@@ -47,7 +47,7 @@ classes:
             type: "int"
           - name: "z"
             type: "int"
-        wrapped:
+        source:
           c:
             name: "aim"
             params:
@@ -69,7 +69,7 @@ classes:
       - name: "AmmoCount"
         return:
           type: "int"
-        wrapped:
+        source:
           c:
             name: "ammo_count"
             params:
@@ -77,7 +77,7 @@ classes:
             return:
               type: "int"
       - name: "Fire"
-        wrapped:
+        source:
           c:
             name: "fire"
             params:
@@ -94,7 +94,7 @@ classes:
                 type: "TurretException"
                 value: "return_value"
       - name: "Reload"
-        wrapped:
+        source:
           c:
             name: "reload"
             params:
@@ -102,13 +102,13 @@ classes:
   - name: "TurretException"
     namespace: "defense_turret"
     exception: true
-    wrapped:
+    source:
       c:
         pointer:
           name: "turret_error"
           includes: "turret_error.h"
     constructors:
-      - wrapped:
+      - source:
           c:
             name: "null_error"
             return:
@@ -118,7 +118,7 @@ classes:
         virtual: true
         return:
           type: "const char *"
-        wrapped:
+        source:
           c:
             name: "get_error_message"
             includes: "turret_error.h"
@@ -132,7 +132,7 @@ classes:
     parent:
       name: "TurretException"
     exception: true
-    wrapped:
+    source:
       c:
         pointer:
           name: "turret_error"
@@ -145,7 +145,7 @@ classes:
       - name: "message"
         return:
           type: "const char *"
-        wrapped:
+        source:
           c:
             name: "get_error_message"
             includes: "turret_error.h"
@@ -159,7 +159,7 @@ classes:
     parent:
       name: "TurretException"
     exception: true
-    wrapped:
+    source:
       c:
         pointer:
           name: "turret_error"
@@ -172,7 +172,7 @@ classes:
       - name: "message"
         return:
           type: "const char *"
-        wrapped:
+        source:
           c:
             name: "get_error_message"
             includes: "turret_error.h"
@@ -186,7 +186,7 @@ classes:
     parent:
       name: "TurretException"
     exception: true
-    wrapped:
+    source:
       c:
         pointer:
           name: "turret_error"
@@ -199,7 +199,7 @@ classes:
       - name: "message"
         return:
           type: "const char *"
-        wrapped:
+        source:
           c:
             name: "get_error_message"
             includes: "turret_error.h"

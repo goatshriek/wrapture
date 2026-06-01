@@ -15,7 +15,7 @@
 # limitations under the License.
 
 name: "IMightFail"
-wrapped:
+source:
   c:
     name: "might_fail"
     return:

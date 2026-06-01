@@ -152,7 +152,7 @@ module Wrapture
       def self.declaration_includes(class_spec, scope)
         includes = ["#{CSource::CExportHeader.export_header_name(scope)}pp"]
 
-        includes.concat(class_spec[:c].includes) if class_spec.wrapped.key?(:c)
+        includes.concat(class_spec[:c].includes) if class_spec.source.key?(:c)
 
         class_spec.functions.each do |func|
           func.params.each do |param|
@@ -213,7 +213,7 @@ module Wrapture
         blk << 'va_list variadic_args;' if func_spec.variadic?
 
         if wrapper_captures_return?(func_spec)
-          return_type = func_spec.wrapped[:c].return_type
+          return_type = func_spec[:c].return_type
           if return_type.to_s == EQUIVALENT_STRUCT_KEYWORD
             return_type = C.equivalent_struct(func_spec.owner)
           end
@@ -258,7 +258,7 @@ module Wrapture
 
       # Generate the definition for a constructor function.
       def self.define_constructor(class_spec, func_spec)
-        if func_spec.wrapped.key?(:alias)
+        if func_spec.source.key?(:alias)
           return define_alias_constructor(class_spec, func_spec)
         end
 
@@ -440,7 +440,7 @@ module Wrapture
         end
 
         class_spec.functions.each do |func_spec|
-          next unless func_spec.wrapped.key?(:c)
+          next unless func_spec.source.key?(:c)
 
           action = func_spec[:c].error_action
           next if action.nil?
@@ -463,7 +463,7 @@ module Wrapture
           element = { name: element_name }
 
           element[:doc] = it[:doc] if it.key?(:doc)
-          val = it.dig(:wrapped, :c, :value)
+          val = it.dig(:source, :c, :value)
           element[:value] = val unless val.nil?
 
           enum.elements << element
@@ -907,7 +907,7 @@ module Wrapture
 
       # The expression containing the call to the underlying wrapped function.
       def self.wrapped_function_call(func_spec)
-        wrapped = func_spec.wrapped[:c]
+        wrapped = func_spec[:c]
         params = wrapped.params.map do |it|
           resolve_wrapped_param(func_spec, it)
         end

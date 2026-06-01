@@ -1,24 +1,44 @@
+# SPDX-License-Identifier: Apache-2.0
+
+# Copyright 2026 Joel E. Anderson
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 module Wrapture
   class FunctionSpec
     include Named
 
-    @owner: Wrapture::ClassSpec | Wrapture::Scope
-    @spec: spec_hash
-    @wrapped: Hash[Symbol, untyped] | nil
-    @params: Array[Wrapture::ParamSpec]
     @constructor: bool
     @destructor: bool
+    @owner: Wrapture::ClassSpec | Wrapture::Scope
+    @params: Array[Wrapture::ParamSpec]
+    @spec: spec_hash
+    @source: Hash[Symbol, CSource::CFunction] | nil
 
     attr_reader owner: Wrapture::ClassSpec | Wrapture::Scope
     attr_reader params: Array[Wrapture::ParamSpec]
     attr_reader return_type: Wrapture::TypeSpec
-    attr_accessor wrapped: Hash[Symbol, untyped] | nil
+    attr_accessor source: Hash[Symbol, CSource::CFunction] | nil
+    attr_writer static: bool
+    attr_writer virtual: bool
 
     def self.from_hash: (spec_hash spec) -> Wrapture::FunctionSpec
 
-    private def self.wrapped_from_hash: (Hash[Symbol, untyped]) -> void
+    private def self.set_source_from_hash: (FunctionSpec, Hash[Symbol, untyped]) -> void
 
     def initialize: (spec_hash spec, ?(Wrapture::ClassSpec | Wrapture::Scope) owner, ?constructor: bool, ?destructor: bool) -> void
+    def []: (Symbol) -> CSource::CFunction
+    def []=: (Symbol, CSource::CFunction) -> CSource::CFunction
     def constructor?: -> bool
     def declaration_includes: -> Array[String]
     def definable?: (?lang: Symbol) -> bool

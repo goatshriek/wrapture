@@ -23,18 +23,22 @@ module Wrapture
     @name_words: Array[String]
     @namespace: String?
     @scope: Wrapture::Scope
-    @wrapped: Hash[Symbol, untyped] | nil
+    @source: Hash[Symbol, untyped] | nil
 
-    def self.from_hash: (spec_hash spec, ?scope: Wrapture::Scope) -> Wrapture::EnumSpec
-    def self.normalize_spec_hash: (spec_hash spec) -> spec_hash
-    def self.normalize_spec_hash!: (spec_hash spec) -> spec_hash
     attr_accessor doc: Wrapture::Comment
     attr_reader elements: Array[Hash[Symbol, untyped]]
     attr_reader name_words: Array[String]
     attr_accessor namespace: String?
     attr_accessor scope: Wrapture::Scope
-    attr_reader wrapped: Hash[Symbol, untyped] | nil
+    attr_reader source: Hash[Symbol, untyped] | nil
+
+    def self.from_hash: (spec_hash spec, ?scope: Wrapture::Scope) -> Wrapture::EnumSpec
+    def self.normalize_spec_hash: (spec_hash spec) -> spec_hash
+    def self.normalize_spec_hash!: (spec_hash spec) -> spec_hash
+
     def initialize: (spec_hash spec, ?scope: Wrapture::Scope) -> void
+    def []: (Symbol) -> untyped
+    def []=: (Symbol, untyped) -> untyped
     def libraries: -> Array[String]
     def namespace?: -> bool
   end
