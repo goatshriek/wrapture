@@ -125,6 +125,16 @@ classes:
               - name: "equivalent_struct_pointer"
               - name: "new_freezer"
                 type: "struct freezer *"
+      - name: "GetFreezerMinimumTemp"
+        return:
+          type: "int"
+        wrapped:
+          c:
+            name: "get_freezer_minimum_temp"
+            params:
+              - name: "equivalent_struct_pointer"
+            return:
+              type: "int"
       - name: "Print"
         wrapped:
           c:

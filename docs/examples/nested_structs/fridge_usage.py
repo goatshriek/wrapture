@@ -2,7 +2,7 @@
 
 # SPDX-License-Identifier: Apache-2.0
 
-# Copyright 2024 Joel E. Anderson
+# Copyright 2024-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,6 +24,9 @@ ice_maker = IceMaker( 10, 1 )
 freezer = Freezer( -10, 4 )
 
 kitchen_fridge.AddFreezer( freezer )
+if kitchen_fridge.GetFreezerMinimumTemp() != -10:
+    exit("the freezer minimum temperature was not correct!")
+
 kitchen_fridge.AddIceMaker( ice_maker )
 kitchen_fridge.AddWaterFilter( filter )
 
