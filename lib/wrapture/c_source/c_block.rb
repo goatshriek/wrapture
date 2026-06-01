@@ -68,6 +68,28 @@ module Wrapture
 
         self
       end
+
+      # Adds a return statement, with +element+ as the value if it is not nil.
+      def return(element = nil)
+        if element.nil?
+          tree << "return;\n"
+        else
+          tree << 'return '
+          tree << element
+          tree << ";\n"
+        end
+
+        self
+      end
+
+      # Adds the given element to the block as a statement. This is
+      # equivalent to calling +<<+ followed by +puts(";")+.
+      def statement(element)
+        tree << element
+        tree << ";\n"
+
+        self
+      end
     end
   end
 end

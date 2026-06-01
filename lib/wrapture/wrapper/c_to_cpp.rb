@@ -302,38 +302,7 @@ module Wrapture
 
         func.puts("#{wrapped_function_call(func_spec)};")
 
-        # TODO: this needs to be a separate function
-        if func_spec[:c].error_check?
-          checks = func_spec[:c].error_rules.map do |rule|
-            resolved_vals = rule.vals.map do |it|
-              case it
-              when EQUIVALENT_STRUCT_KEYWORD
-                converter(:this, :equivalent_struct,
-                          func_spec).call('this')
-              when EQUIVALENT_POINTER_KEYWORD
-                converter(:this, :equivalent_pointer,
-                          func_spec).call('this')
-              when RETURN_VALUE_KEYWORD
-                'this->equivalent'
-              else
-                it
-              end
-            end
-
-            CSource::CExpression.new(resolved_vals, rule.operator)
-          end
-
-          check_expr = CSource::CExpression.new(checks, :or)
-          func << CSource::CIf.new(check_expr) do |blk|
-            action = func_spec[:c].error_action
-            value_variable = if action.value == RETURN_VALUE_KEYWORD
-                               'this->equivalent'
-                             else
-                               action.value
-                             end
-            blk.puts("throw #{action.type}( #{value_variable} );")
-          end
-        end
+        wrapped_error_check(func_spec).each { |it| func << it }
 
         func
       end
@@ -468,6 +437,16 @@ module Wrapture
           class_spec.scope.classes.each do |it|
             inc << declaration_filename(it) if C.overload?(class_spec, it)
           end
+        end
+
+        class_spec.functions.each do |func_spec|
+          next unless func_spec.wrapped.key?(:c)
+
+          action = func_spec[:c].error_action
+          next if action.nil?
+
+          type = scope.type(action.type)
+          inc << header_name(type) unless type.nil?
         end
 
         inc.uniq
@@ -655,6 +634,8 @@ module Wrapture
 
         func.puts("#{wrapped_function_call(spec)};")
 
+        wrapped_error_check(spec).each { |it| func << it }
+
         func.puts('va_end( variadic_args );') if spec.variadic?
 
         if spec.return_overloaded?
@@ -739,6 +720,26 @@ module Wrapture
         end
 
         func
+      end
+
+      # The expression to use for a value in an ActionSpec.
+      def self.resolve_action_value(func_spec, val)
+        case val
+        when EQUIVALENT_STRUCT_KEYWORD
+          converter(:this, :equivalent_struct,
+                    func_spec).call('this')
+        when EQUIVALENT_POINTER_KEYWORD
+          converter(:this, :equivalent_pointer,
+                    func_spec).call('this')
+        when RETURN_VALUE_KEYWORD
+          if func_spec.constructor?
+            'this->equivalent'
+          else
+            'return_val'
+          end
+        else
+          val
+        end
       end
 
       # Gives an expression for using a given parameter.
@@ -878,6 +879,30 @@ module Wrapture
         source_set.add_lib_header(export)
 
         source_set
+      end
+
+      # An +Array+ of C++ source for the error check for a given function.
+      def self.wrapped_error_check(func_spec)
+        return [] unless func_spec[:c].error_check?
+
+        checks = func_spec[:c].error_rules.map do |rule|
+          resolved_vals = rule.vals.map do |it|
+            resolve_action_value(func_spec, it)
+          end
+
+          CSource::CExpression.new(resolved_vals, rule.operator)
+        end
+
+        check_expr = CSource::CExpression.new(checks, :or)
+        check_blk = CSource::CIf.new(check_expr) do |blk|
+          action = func_spec[:c].error_action
+          value_variable = resolve_action_value(func_spec, action.value)
+          # TODO: need to resolve this type
+          # right now we just assume the type name is qualified enough
+          blk.puts("throw #{action.type}( #{value_variable} );")
+        end
+
+        [check_blk]
       end
 
       # The expression containing the call to the underlying wrapped function.

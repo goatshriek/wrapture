@@ -2,7 +2,7 @@
 
 # SPDX-License-Identifier: Apache-2.0
 
-# Copyright 2024 Joel E. Anderson
+# Copyright 2024-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ blaster.Aim(-1, 2, 5 )
 try:
     for _ in range(15):
         blaster.Fire()
+    exit('fired 15 shots without jamming!')
 except defense_turret.TurretException as e:
     print(e.message())
 
@@ -38,5 +39,6 @@ except defense_turret.TurretException as e:
 
 try:
     blaster.Aim( -6, -6, -6)
+    exit('aimed at an invalid location without error!')
 except defense_turret.TargetingException as e:
     print(e.message())

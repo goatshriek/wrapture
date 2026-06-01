@@ -37,21 +37,22 @@ namespace 'test' do
   end
 
   namespace 'integration' do
-    Rake::TestTask.new(:cpp) do |task|
-      task.description = 'Run C++ integration tests'
+    Rake::TestTask.new(:c_to_cpp) do |task|
+      task.description = 'Run C to C++ integration tests'
       task.libs << 'test'
-      task.pattern = 'test/integration/cpp/**/test_*.rb'
+      task.pattern = 'test/integration/test_c_to_cpp*.rb'
     end
 
-    Rake::TestTask.new(:python) do |task|
-      task.description = 'Run Python integration tests'
+    Rake::TestTask.new(:c_to_python) do |task|
+      task.description = 'Run C to Python integration tests'
       task.libs << 'test'
-      task.pattern = 'test/integration/python/**/test_*.rb'
+      task.pattern = 'test/integration/test_c_to_python*.rb'
     end
   end
 
   desc 'Run all integration tests'
-  task integration: ['test:integration:cpp', 'test:integration:python']
+  task integration: ['test:integration:c_to_cpp',
+                     'test:integration:c_to_python']
 end
 
 desc 'Run all tests'
@@ -90,13 +91,13 @@ def run_matching_tasks(task_regex)
 end
 
 namespace 'examples' do
-  desc 'Build and run all examples with C++'
-  task :cpp do
+  desc 'Build and run all examples wrapping C with C++'
+  task :c_to_cpp do
     run_matching_tasks(lang_examples_regex('cpp'))
   end
 
-  desc 'Build and run all examples with Python'
-  task :python do
+  desc 'Build and run all examples wrapping C with Python'
+  task :c_to_python do
     run_matching_tasks(lang_examples_regex('python'))
   end
 end

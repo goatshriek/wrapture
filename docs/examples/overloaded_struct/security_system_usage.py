@@ -2,7 +2,7 @@
 
 # SPDX-License-Identifier: Apache-2.0
 
-# Copyright 2024 Joel E. Anderson
+# Copyright 2024-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,4 +19,9 @@
 import home_automation
 
 for i in range(5):
-    home_automation.SecurityEvent.NextEvent().Print()
+    ev = home_automation.SecurityEvent.NextEvent()
+
+    if ev.GetCode() < 0:
+        exit("the derived class code was not used!")
+
+    ev.Print()

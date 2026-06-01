@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2025 Joel E. Anderson
+# Copyright 2025-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ require 'fixture'
 require 'minitest/autorun'
 require 'wrapture'
 
-class CppFixtureUsageIntegrationTest < Minitest::Test
+class CToCppIntegrationTest < Minitest::Test
   def test_cmake_c_lib_usage
     # build and install the c library that is being wrapped
     build_dir = fixture_build_dir('cmake_c_library')
@@ -64,7 +64,11 @@ class CppFixtureUsageIntegrationTest < Minitest::Test
     wrapped_link = wrapped_build.source_set.name
     links = "-l#{wrapper_link} -l#{wrapped_link}"
     build_cmd = "g++ -L lib -I include #{cpp_usage} #{links} -o cpp_usage"
-    system(build_cmd, chdir: build_dir, exception: true)
-    system('./cpp_usage', chdir: build_dir, exception: true)
+    build_success = system(build_cmd, chdir: build_dir, exception: true)
+
+    assert(build_success)
+    usage_success = system('./cpp_usage', chdir: build_dir, exception: true)
+
+    assert(usage_success)
   end
 end

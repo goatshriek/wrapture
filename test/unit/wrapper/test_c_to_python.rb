@@ -46,6 +46,13 @@ class CToPythonTest < Minitest::Test
     assert(struct_included, 'the equivalent struct header was not included')
   end
 
+  def test_multipart_scope_name
+    scope = Wrapture::Scope.new({ name: %w[lots of parts] })
+    wrapped_set = Wrapture::Wrapper::CToPython.wrap_scope(scope)
+
+    assert_equal('lots_of_parts', wrapped_set.name)
+  end
+
   def test_to_language
     assert_equal(:python, Wrapture::Wrapper::CToPython.to_language)
   end

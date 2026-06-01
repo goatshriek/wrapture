@@ -30,12 +30,24 @@ int main( int argc, char **argv ) {
 
   cout << "default player's stats:" << endl;
   default_player.Print();
+  if( default_player.GetGoalsScored() != 0 ) {
+    cerr << "the default player had goals scored!" << endl;
+    return EXIT_FAILURE;
+  }
 
   cout << endl << "my player's stats:" << endl;
   my_player.Print();
+  if( my_player.GetYellowCards() != 5 ) {
+    cerr << "wait, my player has way more yellow cards than that!" << endl;
+    return EXIT_FAILURE;
+  }
 
   cout << endl << "their player's stats:" << endl;
   their_player.Print();
+  if( their_player.GetRedCards() != 4 ) {
+    cerr << "their player has more red cards than that!" << endl;
+    return EXIT_FAILURE;
+  }
 
   return EXIT_SUCCESS;
 }

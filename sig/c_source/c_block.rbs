@@ -22,6 +22,8 @@ module Wrapture
       def if: (String) { (CBlock) -> void } -> CIf
       def include: (String, ?comment: Comment | String, ?quote: bool) -> CBlock
       def puts: (*String) -> CBlock
+      def return: (?untyped) -> CBlock
+      def statement: (untyped) -> CBlock
     end
   end
 end

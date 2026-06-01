@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2025 Joel E. Anderson
+# Copyright 2025-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -41,24 +41,6 @@ module Wrapture
                    end
         @file = file
         @quote = quote
-      end
-
-      # C source of this include directive.
-      #
-      # This may include multiple lines if there is a sufficiently long comment
-      # associated with the include.
-      def to_s
-        suffix = if @comment.empty?
-                   ''
-                 else
-                   " // #{comment.text}"
-                 end
-
-        if @quote
-          "#include \"#{@file}\"#{suffix}"
-        else
-          "#include <#{@file}>#{suffix}"
-        end
       end
     end
   end

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /*
- * Copyright 2019-2024 Joel E. Anderson
+ * Copyright 2019-2026 Joel E. Anderson
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,17 +17,24 @@
  */
 
 #include <cstdlib>
+#include <iostream>
 #include <SecurityEvent.hpp>
 
 using namespace home_automation;
+using namespace std;
 
 int
 main( int argc, char **argv ) {
   for( int i = 0; i < 5; i++ ) {
-
     // calling the static function to get a pointer to the base class
     // the returned pointer will be to the appropriate derived class
     SecurityEvent *ev = SecurityEvent::NextEvent();
+
+    // the code of the derived class
+    if( ev->GetCode() < 0 ) {
+      cerr << "the derived class code was not used!" << endl;
+      return EXIT_FAILURE;
+    }
 
     // this will call the Print function in the derived class
     ev->Print();

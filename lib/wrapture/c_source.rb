@@ -38,48 +38,56 @@ module Wrapture
     # Formats a syntax tree of C source elements into a set of source file
     # strings.
     def self.format_block(tree)
-      tree.flat_map do |node|
-        case node
-        when String
-          node
-        when CDeclaration
-          format_declaration(node)
-        when CExpression
-          format_expression(node)
-        when CStruct
-          format_struct(node)
-        when CFunction
-          format_function_definition(node)
-        when CIf
-          format_if(node)
-        when CBlock
-          format_block(node)
-        else
-          "#{node}\n"
-        end
+      tree.flat_map do |element|
+        format_element(element)
       end
     end
 
-    # Formats an expression into a set of source code strings. This method also
-    # accepts a string, which is simply returned.
-    def self.format_expression(expr)
-      return [expr] if expr.is_a?(String)
+    # Formats a single C source element into a set of source code strings.
+    def self.format_element(element)
+      case element
+      when CDeclaration
+        format_declaration(element)
+      when CExpression
+        format_expression(element)
+      when CStruct
+        format_struct(element)
+      when CFunction
+        format_function_definition(element)
+      when CIf
+        format_if(element)
+      when CBlock
+        format_block(element)
+      when CInclude
+        format_include(element)
+      else
+        [element.to_s]
+      end
+    end
 
+    # Formats a CExpression into a set of source code strings.
+    def self.format_expression(expr)
       case expr.operator
       when :and
         expr.vals.map do |it|
-          format_expression(it).join
+          format_element(it).join
         end.join(' && ')
       when :equal
-        format_expression(expr.vals[0]) +
+        format_element(expr.vals[0]) +
           [' == '] +
-          format_expression(expr.vals[1])
+          format_element(expr.vals[1])
+      when :not_equal
+        format_element(expr.vals[0]) +
+          [' != '] +
+          format_element(expr.vals[1])
       when :or
         expr.vals.map do |it|
-          format_expression(it).join
+          format_element(it).join
         end.join(' || ')
+      when nil
+        format_element(expr.vals.first)
       else
-        format_expression(expr.vals[0])
+        raise FormatError, "unrecognized C expression operator #{expr.operator}"
       end
     end
 
@@ -167,6 +175,24 @@ module Wrapture
         src + ["\n"]
       else
         src + [" else {\n"] + indent(format_block(else_block.tree)) + ["}\n"]
+      end
+    end
+
+    # Formats an include statement.
+    #
+    # This may include multiple lines if there is a sufficiently long comment
+    # associated with the include.
+    def self.format_include(inc)
+      suffix = if inc.comment.empty?
+                 ''
+               else
+                 " // #{inc.comment.text}"
+               end
+
+      if @quote
+        ["#include \"#{inc.file}\"#{suffix}\n"]
+      else
+        ["#include <#{inc.file}>#{suffix}\n"]
       end
     end
 

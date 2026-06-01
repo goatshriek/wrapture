@@ -2,7 +2,7 @@
 
 # SPDX-License-Identifier: Apache-2.0
 
-# Copyright 2023 Joel E. Anderson
+# Copyright 2023-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,4 +19,10 @@
 import store
 
 for fruit in store.Fruit:
-    print(f'{fruit.name} has the value {fruit.value}')
+  print(f'{fruit.name} has the value {fruit.value}')
+
+if store.Fruit.watermelon.value != 33:
+  exit('The value of watermelon was not 33!')
+
+if store.Fruit.lime.value != 42:
+  exit('The value of lime was not 42!')

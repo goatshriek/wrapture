@@ -16,12 +16,15 @@
  * limitations under the License.
  */
 
+#include <cstdlib>
 #include <Freezer.hpp>
 #include <Fridge.hpp>
 #include <IceMaker.hpp>
+#include <iostream>
 #include <WaterFilter.hpp>
 
 using namespace kitchen;
+using namespace std;
 
 int main( int argc, char **argv ){
     Fridge kitchen_fridge( 34 );
@@ -30,6 +33,11 @@ int main( int argc, char **argv ){
     Freezer freezer( -10, 4 );
 
     kitchen_fridge.AddFreezer( freezer );
+    if( kitchen_fridge.GetFreezerMinimumTemp() != -10 ){
+        cerr << "the freezer minimum temperature was not correct!" << endl;
+        return EXIT_FAILURE;
+    }
+
     kitchen_fridge.AddIceMaker( ice_maker );
     kitchen_fridge.AddWaterFilter( filter );
 
