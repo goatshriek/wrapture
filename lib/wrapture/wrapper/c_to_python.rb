@@ -396,8 +396,7 @@ module Wrapture
 
         if !func_spec.overloaded? &&
            (func_spec.constructor? || runtime_class?(class_spec))
-          blk << self_declaration(class_spec)
-          blk.puts(';')
+          blk.statement(self_declaration(class_spec))
         end
 
         # if we need an equivalent struct from a parent and this is a runtime
@@ -417,17 +416,7 @@ module Wrapture
           it.vals.include?(RETURN_VALUE_KEYWORD)
         end
         if !func_spec.void_return? || error_return
-          return_type = func_spec.wrapped[:c].return_type
-          if return_type.to_s == EQUIVALENT_STRUCT_KEYWORD
-            return_type = C.equivalent_struct(func_spec.owner)
-          end
-          if return_type.to_s == EQUIVALENT_POINTER_KEYWORD
-            return_type = C.equivalent_pointer(func_spec.owner)
-          end
-
-          return_type = 'long' if return_type == CSource::CType.new('bool')
-
-          blk.declare(return_type, 'return_val')
+          blk.declare(source_return_type(func_spec), 'return_val')
         end
 
         # if the function is overloaded, then params are passed as args, rather
@@ -1336,6 +1325,21 @@ module Wrapture
       def self.self_declaration(class_spec)
         pointer_type = CSource::CPointer.new(type_struct_name(class_spec))
         CSource::CDeclaration.new(pointer_type, 'self')
+      end
+
+      # The type of the wrapped source function.
+      def self.source_return_type(func_spec)
+        return_type = func_spec.wrapped[:c].return_type
+
+        if return_type.to_s == EQUIVALENT_STRUCT_KEYWORD
+          C.equivalent_struct(func_spec.owner)
+        elsif return_type.to_s == EQUIVALENT_POINTER_KEYWORD
+          C.equivalent_pointer(func_spec.owner)
+        elsif return_type == CSource::CType.new('bool')
+          'long'
+        else
+          return_type
+        end
       end
 
       # Gives the name of the type object instance for a given class.

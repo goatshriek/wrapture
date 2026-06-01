@@ -80,6 +80,7 @@ module Wrapture
       def self.runtime_class?: (Wrapture::ClassSpec) -> bool
       def self.runtime_type_cast: (Wrapture::ClassSpec, String) -> String
       def self.self_declaration: (Wrapture::ClassSpec) -> Wrapture::CSource::CDeclaration
+      def self.source_return_type: (Wrapture::FunctionSpec) -> untyped
       def self.type_object_name: (Wrapture::Named class_spec) -> String
       def self.type_object_pointer: (Wrapture::ClassSpec class_spec) -> (String | nil)
       def self.type_struct_name: (Wrapture::Named class_spec) -> String
