@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Apache-2.0
+/* SPDX-License-Identifier: Apache-2.0 */
 
 /*
  * Copyright 2019-2026 Joel E. Anderson

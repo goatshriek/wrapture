@@ -35,24 +35,37 @@ classes:
             type: "int"
             # players start without any red cards
             default_value: 0
-    wrapped:
-      c:
-        name: "player_stats"
-        includes: "stats.h"
-        members:
-          - name: "goals_scored"
-            type: "int"
-            # games start with no goals scored
-            default_value: 0
-          - name: "yellow_cards"
-            type: "int"
-            # players start without any yellow cards
-            default_value: 0
-          - name: "red_cards"
-            type: "int"
-            # players start without any red cards
-            default_value: 0
     functions:
+      - name: "GetGoalsScored"
+        return:
+          type: "int"
+        wrapped:
+          c:
+            name: "get_goals_scored"
+            params:
+              - name: "equivalent_struct_pointer"
+            return:
+              type: "int"
+      - name: "GetRedCards"
+        return:
+          type: "int"
+        wrapped:
+          c:
+            name: "get_red_cards"
+            params:
+              - name: "equivalent_struct_pointer"
+            return:
+              type: "int"
+      - name: "GetYellowCards"
+        return:
+          type: "int"
+        wrapped:
+          c:
+            name: "get_yellow_cards"
+            params:
+              - name: "equivalent_struct_pointer"
+            return:
+              type: "int"
       - name: "Print"
         wrapped:
           c:

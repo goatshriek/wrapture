@@ -21,11 +21,17 @@ import soccer
 default_player = soccer.PlayerStats()
 print("default player's stats:")
 default_player.Print()
+if default_player.GetGoalsScored() != 0:
+    exit("the default player had goals scored!")
 
 my_player = soccer.PlayerStats(3, 5, 1)
 print("\nmy player's stats:")
 my_player.Print()
+if my_player.GetYellowCards() != 5:
+    exit("wait, my player has way more yellow cards than that!")
 
 their_player = soccer.PlayerStats(0, 4, 4)
 print("\ntheir player's stats:")
 their_player.Print()
+if their_player.GetRedCards() != 4:
+    exit("their player has more red cards than that!")

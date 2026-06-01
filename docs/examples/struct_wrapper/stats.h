@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
 /*
- * Copyright 2024 Joel E. Anderson
+ * Copyright 2024-2026 Joel E. Anderson
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,9 @@ struct player_stats {
   int red_cards;
 };
 
+int get_goals_scored( const struct player_stats *stats );
+int get_yellow_cards( const struct player_stats *stats );
+int get_red_cards( const struct player_stats *stats );
 void print_player_stats( struct player_stats *stats );
 
 #  ifdef __cplusplus

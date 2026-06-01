@@ -91,6 +91,8 @@ module Wrapture
         # TODO: factor this out into a CParam class
         if spec.key?(:params)
           spec[:params].each do |param|
+            raise InvalidSpec, 'params must be a Hash' unless param.is_a?(Hash)
+
             type = case param[:type]
                    when String
                      CType.from_hash({ name: param[:type] })
