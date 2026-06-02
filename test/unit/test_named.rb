@@ -1,6 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
-# Copyright 2025-2026 Joel E. Anderson
+# frozen_string_literal: true
+
+# Copyright 2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,14 +16,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-module Wrapture
-  module Named
-    def self.snake_case_name: (Enumerable[String]) -> String
-    def self.words_from_name: (String) -> Enumerable[String]
+require 'helper'
 
-    def raw_name: () -> String
-    alias name raw_name
-    def snake_case_name: () -> String
-    def upper_camel_case_name: () -> String
+require 'fixture'
+require 'minitest/autorun'
+require 'wrapture'
+
+class NamedTest < Minitest::Test
+  def test_words_from_upper_camel_case
+    name = 'UpperCamelCaseName'
+    words = Wrapture::Named.words_from_name(name)
+
+    assert_equal(%w[upper camel case name], words)
   end
 end

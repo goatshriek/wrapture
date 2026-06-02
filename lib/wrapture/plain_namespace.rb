@@ -2,7 +2,8 @@
 
 # frozen_string_literal: true
 
-# Copyright 2025-2026 Joel E. Anderson
+#--
+# Copyright 2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,19 +16,28 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+#++
 
-require 'helper'
+module Wrapture
+  # A simple namespace that only contains named elements.
+  class PlainNamespace
+    include Named
+    include Namespace
 
-require 'fixture'
-require 'minitest/autorun'
-require 'wrapture'
+    # The pieces of the namespace name.
+    attr_reader :name_words
 
-class PlainCBlockTest < Minitest::Test
-  def test_declaration
-    blk = Wrapture::CSource::PlainCBlock.new
-    blk.declare('int', 'variable_name')
-    fmt = Wrapture::CSource.format_block(blk.tree).join
+    # The contents of this namespace.
+    attr_reader :named_contents
 
-    assert_includes(fmt, 'int variable_name;')
+    # A plain namespace is created with a name and empty contents.
+    def initialize(name)
+      @name_words = if name_words.is_a?(String)
+                      Named.words_from_name(name_words)
+                    else
+                      name
+                    end
+      @named_contents = []
+    end
   end
 end

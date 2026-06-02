@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-# Copyright 2025-2026 Joel E. Anderson
+# Copyright 2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,13 +15,16 @@
 # limitations under the License.
 
 module Wrapture
-  module Named
-    def self.snake_case_name: (Enumerable[String]) -> String
-    def self.words_from_name: (String) -> Enumerable[String]
+  class PlainNamespace
+    include Named
+    include Namespace
 
-    def raw_name: () -> String
-    alias name raw_name
-    def snake_case_name: () -> String
-    def upper_camel_case_name: () -> String
+    @name_words: Enumerable[String]
+    @named_contents: Array[Named]
+
+    attr_reader name_words: Enumerable[String]
+    attr_reader named_contents: Array[Named]
+
+    def initialize: (String | Enumerable[String]) -> void
   end
 end

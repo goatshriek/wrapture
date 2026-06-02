@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2021-2025 Joel E. Anderson
+# Copyright 2021-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,12 +22,17 @@ module Wrapture
   # Methods useful for named items such as specs.
   #
   # This module expects that +name_words+ gives an enumerable of parts that make
-  # up the name. These words are used to form the name forms that this module
+  # up the name. These words are used to make the name forms that this module
   # provides.
   module Named
     # The name in snake_case.
     def self.snake_case_name(name_words)
       name_words.map(&:downcase).join('_')
+    end
+
+    # Attempts to split a given name into its words.
+    def self.words_from_name(name)
+      [name]
     end
 
     # The raw name, obtained by joining all parts.
