@@ -23,6 +23,43 @@ require 'minitest/autorun'
 require 'wrapture'
 
 class NamedTest < Minitest::Test
+  def test_words_from_lower_camel_case
+    name = 'lowerCamelCaseName'
+    words = Wrapture::Named.words_from_name(name)
+
+    assert_equal(%w[lower camel case name], words)
+  end
+
+  def test_words_from_nil
+    assert_equal([], Wrapture::Named.words_from_name(nil))
+  end
+
+  def test_words_from_screaming_snake_case
+    name = 'SCREAMING_SNAKE_CASE_NAME'
+    words = Wrapture::Named.words_from_name(name)
+
+    assert_equal(%w[screaming snake case name], words)
+  end
+
+  def test_words_from_single_lower_case_word
+    words = Wrapture::Named.words_from_name('name')
+
+    assert_equal(%w[name], words)
+  end
+
+  def test_words_from_single_screaming_case_word
+    words = Wrapture::Named.words_from_name('NAME')
+
+    assert_equal(%w[name], words)
+  end
+
+  def test_words_from_snake_case
+    name = 'snake_case_name'
+    words = Wrapture::Named.words_from_name(name)
+
+    assert_equal(%w[snake case name], words)
+  end
+
   def test_words_from_upper_camel_case
     name = 'UpperCamelCaseName'
     words = Wrapture::Named.words_from_name(name)

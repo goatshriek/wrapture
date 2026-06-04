@@ -32,7 +32,23 @@ module Wrapture
 
     # Attempts to split a given name into its words.
     def self.words_from_name(name)
-      [name]
+      case name
+      when nil
+        []
+      when /^[a-z0-9]+$/
+        [name]
+      when /^[A-Z0-9]+$/
+        [name.downcase]
+      when /[a-zA-Z0-9]+(_[a-zA-Z0-9]+)+/
+        name.split('_').map(&:downcase)
+      else
+        # match all CamelCase strings, including preceding capital letters
+        # if the start is a lowercase word, this will be the first part
+        name.scan(/[A-Z]*[^A-Z]*/).flat_map do |s|
+          # next, split out the preceding capital letters, if any
+          s.partition(/[A-Z][^A-Z]*$/)
+        end.reject(&:empty?).map(&:downcase) # and finally, remove empty strings
+      end
     end
 
     # The raw name, obtained by joining all parts.
