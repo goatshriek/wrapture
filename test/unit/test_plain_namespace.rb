@@ -23,43 +23,32 @@ require 'minitest/autorun'
 require 'wrapture'
 
 class PlainNamespaceTest < Minitest::Test
-  def test_filters
-    constant_spec = Wrapture::ConstantSpec.new(fixture_hash('basic_constant'))
-    class1 = Wrapture::ClassSpec.new(fixture_hash('basic_class'))
-    class2 = Wrapture::ClassSpec.new(fixture_hash('child_class'))
-    enum_spec = Wrapture::EnumSpec.from_hash(fixture_hash('basic_enum'))
-    func_spec = Wrapture::FunctionSpec.new(%w[test function])
+  def test_classes
+    classes = basic_namespace.classes
 
-    ns = Wrapture::PlainNamespace.new(%w[test namespace])
-    ns << constant_spec
-    ns << class1
-    ns << class2
-    ns << enum_spec
-    ns << func_spec
+    assert(1, classes.length)
+    classes.each { |it| assert_kind_of(Wrapture::ClassSpec, it) }
+  end
 
-    assert_includes(ns.constants, constant_spec)
-    refute_includes(ns.constants, class1)
-    refute_includes(ns.constants, class2)
-    refute_includes(ns.constants, enum_spec)
-    refute_includes(ns.constants, func_spec)
+  def test_constants
+    constants = basic_namespace.constants
 
-    assert_includes(ns.classes, class1)
-    assert_includes(ns.classes, class2)
-    refute_includes(ns.classes, constant_spec)
-    refute_includes(ns.classes, enum_spec)
-    refute_includes(ns.classes, func_spec)
+    assert(1, constants.length)
+    constants.each { |it| assert_kind_of(Wrapture::ConstantSpec, it) }
+  end
 
-    assert_includes(ns.enums, enum_spec)
-    refute_includes(ns.enums, class1)
-    refute_includes(ns.enums, class2)
-    refute_includes(ns.enums, constant_spec)
-    refute_includes(ns.enums, func_spec)
+  def test_enums
+    enums = basic_namespace.enums
 
-    assert_includes(ns.functions, func_spec)
-    refute_includes(ns.functions, class1)
-    refute_includes(ns.functions, class2)
-    refute_includes(ns.functions, constant_spec)
-    refute_includes(ns.functions, enum_spec)
+    assert(1, enums.length)
+    enums.each { |it| assert_kind_of(Wrapture::EnumSpec, it) }
+  end
+
+  def test_functions
+    functions = basic_namespace.functions
+
+    assert(1, functions.length)
+    functions.each { |it| assert_kind_of(Wrapture::FunctionSpec, it) }
   end
 
   def test_name

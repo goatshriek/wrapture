@@ -18,6 +18,20 @@
 
 require 'yaml'
 
+# A namespace that contains a basic class, constant, enum, and function.
+def basic_namespace
+  class_hash = fixture_hash('basic_class')
+  constant_hash = fixture_hash('basic_constant')
+  enum_hash = fixture_hash('basic_enum')
+  func_hash = fixture_hash('basic_function')
+
+  ns = Wrapture::PlainNamespace.new(%w[basic namespace])
+  ns << Wrapture::ClassSpec.new(class_hash)
+  ns << Wrapture::ConstantSpec.new(constant_hash)
+  ns << Wrapture::EnumSpec.from_hash(enum_hash)
+  ns << Wrapture::FunctionSpec.from_hash(func_hash)
+end
+
 # The build spec for the fixture corresponding to +name+.
 def fixture_build(name)
   build = Wrapture::Build.from_hash(fixture_build_hash(name))

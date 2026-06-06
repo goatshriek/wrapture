@@ -31,6 +31,8 @@ module Wrapture
     # Appends Named +item+ to the namespace.
     def <<(item)
       named_contents << item
+
+      self
     end
 
     # All classes in the namespace.
