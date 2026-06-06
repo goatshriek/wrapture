@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-# Copyright 2025 Joel E. Anderson
+# Copyright 2025-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,18 +20,18 @@ module Wrapture
       @classes: Array[Wrapture::ClassSpec]
       @enums: Array[Wrapture::EnumSpec]
       @functions: Array[Wrapture::FunctionSpec]
+      @namespaces: Array[Wrapture::Namespace]
       @output: Pathname
       @paths: Array[Wrapture::Path]
-      @scopes: Array[Wrapture::Scope]
 
       def initialize: -> void
 
       attr_accessor classes: Array[Wrapture::ClassSpec]
       attr_accessor enums: Array[Wrapture::EnumSpec]
       attr_accessor functions: Array[Wrapture::FunctionSpec]
+      attr_accessor namespaces: Array[Wrapture::Namespace]
       attr_accessor output: Pathname
       attr_accessor paths: Array[Wrapture::Path]
-      attr_accessor scopes: Array[Wrapture::Scope]
     end
   end
 end

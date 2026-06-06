@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2025 Joel E. Anderson
+# Copyright 2025-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,17 +23,17 @@ module Wrapture
   module Config
     # Configuration information for a single wrap command.
     class WrapConfig
-      # A WrapConfig instance describes the scopes, classes, enumerations, and
-      # functions that should be wrapped by an invocation, as well as the input
-      # and output language paths. Other details include parallelization,
+      # A WrapConfig instance describes the namespaces, classes, enumerations,
+      # and functions that should be wrapped by an invocation, as well as the
+      # input and output language paths. Other details include parallelization,
       # how to report progress, and output details.
       def initialize
         @classes = []
         @enums = []
         @functions = []
+        @namespaces = []
         @output = Pathname.pwd
         @paths = []
-        @scopes = []
       end
 
       # A list of ClassSpec instances with class hashes to wrap.
@@ -45,14 +45,14 @@ module Wrapture
       # A list of FunctionSpec instances to wrap.
       attr_accessor :functions
 
+      # A list of Namespace instances with specs to wrap.
+      attr_accessor :namespaces
+
       # A Pathname for the output directory for generated wrappers.
       attr_accessor :output
 
       # A list of Path instances with the wrapping paths to follow.
       attr_accessor :paths
-
-      # A list of Scope instances with scope hashes to wrap.
-      attr_accessor :scopes
     end
   end
 end

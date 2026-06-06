@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2025 Joel E. Anderson
+# Copyright 2025-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -90,14 +90,14 @@ module Wrapture
       # option :log, aliases: 'l',
       #              desc: 'file to write log output to'
       # output may change to be a filename when different formats are supported
+      option :namespace, aliases: 'n',
+                         desc: 'file with a namespace spec',
+                         repeatable: true
       option :output, aliases: 'o',
                       desc: 'output directory'
       option :path, aliases: 'p',
                     desc: 'sequence of wrappers to call',
                     repeatable: true
-      option :scope, aliases: 's',
-                     desc: 'file with a scope spec',
-                     repeatable: true
       option :to, desc: 'language to generate wrappers for'
       exclusive :path, :to
       exclusive :path, :from
@@ -119,9 +119,13 @@ module Wrapture
                                         to: options[:to]&.to_sym)
                        end
 
-        s = Scope.load_files(*specs)
-        options[:scope]&.each { |it| s.merge_file(it) }
-        config.scopes << s
+        options[:namespaces]&.each do |it|
+          config.namespaces << PlainNamespace.from_yaml_file(it)
+        end
+
+        specs.each do |it|
+          config.namespaces << PlainNamespace.from_yaml_file(it)
+        end
 
         config.output = options[:output] if options[:output]
 

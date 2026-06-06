@@ -24,6 +24,11 @@ module Wrapture
     include Named
     include Namespace
 
+    # Creates a new PlainNamespace from the YAML loaded from +file_name+.
+    def self.from_yaml_file(file_name)
+      # TODO: pick up here
+    end
+
     # The pieces of the namespace name.
     attr_reader :name_words
 

@@ -23,6 +23,15 @@ require 'minitest/autorun'
 require 'wrapture'
 
 class PlainNamespaceTest < Minitest::Test
+  def test_append
+    ns = Wrapture::PlainNamespace.new(%w[test namespace])
+    class_spec = Wrapture::ClassSpec.new(fixture_hash('basic_class'))
+    result = ns << class_spec
+
+    assert_equal(ns, result)
+    assert_includes(ns.classes, class_spec)
+  end
+
   def test_classes
     classes = basic_namespace.classes
 

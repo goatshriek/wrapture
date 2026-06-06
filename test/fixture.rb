@@ -18,7 +18,7 @@
 
 require 'yaml'
 
-# A namespace that contains a basic class, constant, enum, and function.
+# A PlainNamespace that contains a basic class, constant, enum, and function.
 def basic_namespace
   class_hash = fixture_hash('basic_class')
   constant_hash = fixture_hash('basic_constant')
