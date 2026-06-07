@@ -56,7 +56,7 @@ class CliTest < Minitest::Test
   end
 
   def test_wrap_with_from
-    scope_file = fixture_yaml_path('minimal_scope')
+    ns_file = fixture_yaml_path('minimal_namespace')
 
     Dir.mktmpdir do |dir|
       out, _err = capture_io do
@@ -65,15 +65,16 @@ class CliTest < Minitest::Test
                                       'c',
                                       '--output',
                                       dir,
-                                      '--scope',
-                                      scope_file])
+                                      '--namespace',
+                                      ns_file])
       end
 
       assert_empty(out)
-      scope = Wrapture::Scope.load_files(scope_file)
 
-      scope.classes.each do |it|
-        assert_includes(Dir.children(dir), "#{it.name}.cpp")
+      ns = Wrapture::PlainNamespace.from_yaml_file(ns_file)
+
+      ns.classes.each do |it|
+        assert_includes(Dir.children(dir), "#{it.camel_case_name}.cpp")
       end
     end
   end

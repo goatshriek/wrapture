@@ -32,7 +32,11 @@ module Wrapture
 
     # Creates a new PlainNamespaces from +hash+.
     def self.from_hash(hash)
-      new([])
+      unless hash.key?(:name)
+        raise MissingSpecKey, 'namespace hashes must have a :name key'
+      end
+
+      new(hash[:name])
     end
 
     # Creates a new PlainNamespace from the YAML loaded from +filename+.

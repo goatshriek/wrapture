@@ -30,6 +30,7 @@ def basic_namespace
   ns << Wrapture::ConstantSpec.new(constant_hash)
   ns << Wrapture::EnumSpec.from_hash(enum_hash)
   ns << Wrapture::FunctionSpec.from_hash(func_hash)
+  ns << Wrapture::PlainNamespace.new(%w[nested namespace])
 end
 
 # The build spec for the fixture corresponding to +name+.

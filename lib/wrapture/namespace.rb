@@ -57,5 +57,10 @@ module Wrapture
     def functions
       named_contents.grep(FunctionSpec)
     end
+
+    # All namespaces in this namespace.
+    def namespaces
+      named_contents.grep(Namespace)
+    end
   end
 end

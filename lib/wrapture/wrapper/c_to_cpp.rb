@@ -852,6 +852,25 @@ module Wrapture
         build
       end
 
+      # Generates a build for a C++ library wrapping +namespace+.
+      def self.wrap_namespace(namespace)
+        # TODO: handle name decoration
+
+        source_set = CppSource::CppSourceSet.new(namespace.name_words)
+
+        namespace.classes.each do |class_spec|
+          source_set << wrap_class(class_spec)
+        end
+
+        namespace.enums.each do |enum_spec|
+          source_set << wrap_enum(enum_spec)
+        end
+
+        # TODO: constants and functions
+
+        source_set
+      end
+
       # Generates a build for a C++ library wrapping the provided scope.
       #
       # +scope+ describes all of the classes and other entities that will be

@@ -60,9 +60,21 @@ class PlainNamespaceTest < Minitest::Test
     functions.each { |it| assert_kind_of(Wrapture::FunctionSpec, it) }
   end
 
+  def test_hash_without_name
+    assert_raises(Wrapture::MissingSpecKey) do
+      Wrapture::PlainNamespace.from_hash({})
+    end
+  end
+
   def test_name
     ns = Wrapture::PlainNamespace.new(%w[test namespace])
 
     assert_equal('TestNamespace', ns.upper_camel_case_name)
+  end
+
+  def test_namespaces
+    spaces = basic_namespace.namespaces
+
+    assert(1, spaces.length)
   end
 end

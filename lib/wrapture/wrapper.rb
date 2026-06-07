@@ -35,8 +35,10 @@ module Wrapture
   #
   # This module expects the following functions to be implemented:
   # +self.wrap_class+
+  # +self.wrap_constant+
   # +self.wrap_enum+
-  # +self.wrap_scope+
+  # +self.wrap_function+
+  # +self.wrap_namespace+
   module Wrapper
     # The symbol of the programming language this module's wrappers use as
     # input.
@@ -59,6 +61,8 @@ module Wrapture
         wrap_enum(spec, scope: scope)
       when Scope
         wrap_scope(spec)
+      when Namespace
+        wrap_namespace(spec)
       else
         wrap_name = 'Wrapture::Wrapper.wrap'
         raise InvalidSpec, "#{spec.class} not supported by #{wrap_name}"

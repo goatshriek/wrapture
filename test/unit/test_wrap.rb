@@ -25,17 +25,17 @@ require 'wrapture'
 class WrapTest < Minitest::Test
   def test_wrap
     config = Wrapture::Config::WrapConfig.new
-    scope_file = fixture_yaml_path('minimal_scope')
-    scope = Wrapture::Scope.load_files(scope_file)
-    config.scopes << scope
+    ns_file = fixture_yaml_path('minimal_namespace')
+    ns = Wrapture::PlainNamespace.from_yaml_file(ns_file)
+    config.namespaces << ns
     config.paths << Wrapture::Path.new('c,cpp')
 
     Dir.mktmpdir do |dir|
       config.output = dir
       Wrapture.wrap(config)
 
-      scope.classes.each do |it|
-        assert_includes(Dir.children(dir), "#{it.name}.cpp")
+      ns.classes.each do |it|
+        assert_includes(Dir.children(dir), "#{it.upper_camel_case_name}.cpp")
       end
     end
   end

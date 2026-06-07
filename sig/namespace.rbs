@@ -20,5 +20,6 @@ module Wrapture
     def constants: -> Enumerable[ConstantSpec]
     def enums: -> Enumerable[EnumSpec]
     def functions: -> Enumerable[FunctionSpec]
+    def namespace: -> Enumerable[Namespace]
   end
 end
