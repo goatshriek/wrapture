@@ -24,16 +24,31 @@ module Wrapture
     include Named
     include Namespace
 
-    # Creates a new PlainNamespace from the YAML loaded from +file_name+.
-    def self.from_yaml_file(file_name)
-      # TODO: pick up here
-    end
-
     # The pieces of the namespace name.
     attr_reader :name_words
 
     # The contents of this namespace.
     attr_reader :named_contents
+
+    # Creates a new PlainNamespaces from +hash+.
+    def self.from_hash(hash)
+      new([])
+    end
+
+    # Creates a new PlainNamespace from the YAML loaded from +filename+.
+    def self.from_yaml_file(filename)
+      # simplify this to just safe_load_file after Ruby 2.7 is dropped
+      ns_hash = if YAML.respond_to?('safe_load_file')
+                  YAML.safe_load_file(filename, symbolize_names: true)
+                else
+                  File.open(filename, 'r:bom|utf-8') do |f|
+                    YAML.safe_load(f, filename: filename,
+                                      symbolize_names: true)
+                  end
+                end
+
+      from_hash(ns_hash)
+    end
 
     # A plain namespace is created with a name and empty contents.
     def initialize(name)

@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-# Copyright 2026 Joel E. Anderson
+# Copyright 2025-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,20 +14,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-module Wrapture
-  class PlainNamespace
-    include Named
-    include Namespace
-
-    @name_words: Enumerable[String]
-    @named_contents: Array[Named]
-
-    attr_reader name_words: Enumerable[String]
-    attr_reader named_contents: Array[Named]
-
-    def self.from_hash: (spec_hash) -> PlainNamespace
-    def self.from_yaml_file: (String) -> PlainNamespace
-
-    def initialize: (String | Enumerable[String]) -> void
-  end
-end
+name: "MinimalNamespace"
+classes:
+  - name: "MinimalClassOne"
+    source:
+      c:
+        name: "minimal_struct_one"
+  - name: "MinimalClassTwo"
+    source:
+      c:
+        name: "minimal_struct_two"
