@@ -53,12 +53,14 @@ module Wrapture
     end
 
     # Generates a wrapper for a given spec.
-    def wrap(spec, scope: nil)
+    def wrap(spec, scope: nil, context: nil)
       case spec
       when ClassSpec
         wrap_class(spec, scope: scope)
       when EnumSpec
         wrap_enum(spec, scope: scope)
+      when FunctionSpec
+        wrap_function(spec, context: context)
       when Scope
         wrap_scope(spec)
       when Namespace
