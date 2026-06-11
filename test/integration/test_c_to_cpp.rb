@@ -63,7 +63,8 @@ class CToCppIntegrationTest < Minitest::Test
     wrapper_link = wrapper_build.source_set.name
     wrapped_link = wrapped_build.source_set.name
     links = "-l#{wrapper_link} -l#{wrapped_link}"
-    build_cmd = "g++ -L lib -I include #{cpp_usage} #{links} -o cpp_usage"
+    lib_dirs = '-L lib -L lib64'
+    build_cmd = "g++ #{lib_dirs} -I include #{cpp_usage} #{links} -o cpp_usage"
     build_success = system(build_cmd, chdir: build_dir, exception: true)
 
     assert(build_success)
