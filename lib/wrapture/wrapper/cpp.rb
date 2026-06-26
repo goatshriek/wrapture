@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2025 Joel E. Anderson
+# Copyright 2025-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,11 +22,50 @@ module Wrapture
   module Wrapper
     # Utilities for wrappers that use C++ as either a from or to language.
     module Cpp
+      # The fully qualified namespace for given context.
+      def self.context_namespace(context)
+        base_name = case context.root
+                    when Namespace
+                      namespace_name(context.root)
+                    else
+                      ''
+                    end
+
+        if context.parent?
+          base_name.prepend('::').prepend(context_namespace(context.parent))
+        else
+          base_name
+        end
+      end
+
       # Makes a decorated version of the given name so that it is unique among
       # other names based on the C++ language. This is done by prepending "cpp"
       # to the name: for example "MyLib" will become "CppMyLib".
       def self.decorate_name_words(name_words)
         ['cpp'] + name_words
+      end
+
+      # Gives the decorate name words for a Named instance.
+      def self.decorated_name(named)
+        decorate_name_words(named.name_words)
+      end
+
+      # The effective C++ name for +namespace+.
+      def self.namespace_name(namespace)
+        if namespace.source.key?(:cpp)
+          if namespace.source[:cpp].key?(:name)
+            return namespace.source[:cpp][:name]
+          elsif namespace.source[:cpp].key?(:decorate_name) &&
+                namespace.source[:cpp][:decorate_name]
+            return Named.snake_case_name(decorated_name(namespace))
+          end
+        end
+
+        if namespace.base?(:decorate_name)
+          Named.snake_case_name(decorated_name(namespace))
+        else
+          Named.snake_case_name(namespace.name_words)
+        end
       end
     end
   end

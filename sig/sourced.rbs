@@ -15,18 +15,7 @@
 # limitations under the License.
 
 module Wrapture
-  class Context
-    include Named
-
-    @contents: Set[Named]
-    @parent: Context | nil
-    @root: Named
-
-    attr_reader contents: Set[Named]
-    attr_reader parent: Context | nil
-    attr_reader root: Named
-
-    def initialize: (from: Named, ?parent: Context) -> void
-    def parent?: () -> bool
+  module Sourced
+    def base?: (Symbol) -> bool
   end
 end

@@ -48,8 +48,11 @@ module Wrapture
       def self.scope_headers: (Wrapture::Scope) -> Wrapture::CppSource::CppSourceFile
       def self.scope_namespace: (Wrapture::Scope) -> String
       def self.type_class_from_spec: (Wrapture::ClassSpec) -> Wrapture::CppSource::CppClass
-      def self.wrap_class: (Wrapture::ClassSpec, ?Wrapture::Scope) -> Wrapture::CppSource::CppSourceSet
-      def self.wrap_enum: (Wrapture::EnumSpec, ?Wrapture::Scope) -> Wrapture::CppSource::CppSourceSet
+      def self.wrap_class: (ClassSpec, ?context: Namespace) -> CppSource::CppSourceSet
+      def self.wrap_constant: (ConstantSpec, ?context: Namespace) -> CppSource::CppSourceSet
+      def self.wrap_enum: (EnumSpec, ?context: Namespace) -> CppSource::CppSourceSet
+      def self.wrap_function: (FunctionSpec, ?context: Namespace) -> CppSource::CppSourceSet
+      def self.wrap_namespace: (Namespace, ?context: Namespace) -> CppSource::CppSourceSet
       def self.wrap_scope: (Wrapture::Scope) -> Wrapture::CppSource::CppSourceSet
       def self.wrapped_error_check: (Wrapture::FunctionSpec) -> Array[untyped]
       def self.wrapped_function_call: (Wrapture::FunctionSpec) -> String

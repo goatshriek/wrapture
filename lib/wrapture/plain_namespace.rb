@@ -18,11 +18,14 @@
 # limitations under the License.
 #++
 
+require 'wrapture/sourced'
+
 module Wrapture
   # A simple namespace that only contains named elements.
   class PlainNamespace
     include Named
     include Namespace
+    include Sourced
 
     # The pieces of the namespace name.
     attr_reader :name_words
@@ -30,13 +33,52 @@ module Wrapture
     # The contents of this namespace.
     attr_reader :named_contents
 
+    # A Hash of language-specific wrapping details.
+    #
+    # Details for the C++ language are stored in the +:cpp+ key. This may have
+    # the following keys (as symbols):
+    # name:: A String of the namespace name. This will override the namespace
+    # name automatically generated from +name_words+.
+    attr_reader :source
+
     # Creates a new PlainNamespaces from +hash+.
+    #
+    # +hash+ must have a +:name+ key with either a String or an array of
+    # strings.
+    #
+    # +hash+ may have a +:source+ key, which is used to populate the +source+
+    # hash of the resulting namespace.
     def self.from_hash(hash)
       unless hash.key?(:name)
         raise MissingSpecKey, 'namespace hashes must have a :name key'
       end
 
-      new(hash[:name])
+      if hash.key?(:source)
+        unless hash[:source].is_a?(Hash)
+          raise InvalidSpec, 'the source key must contain a hash'
+        end
+
+        hash[:source].each_key.each do |it|
+          unless hash[:source][it].is_a?(Hash)
+            raise InvalidSpec, "source key #{it} must contain a hash"
+          end
+
+          if hash[:source][it].key?(:name) &&
+             !hash[:source][it][:name].is_a?(String)
+            raise InvalidSpec, "source key #{it} name must be a string"
+          end
+        end
+      end
+
+      ns = new(hash[:name])
+
+      if hash.key?(:source)
+        hash[:source].each_key do |it|
+          ns.source[it] = hash[:source][it]
+        end
+      end
+
+      ns
     end
 
     # Creates a new PlainNamespace from the YAML loaded from +filename+.
@@ -56,12 +98,13 @@ module Wrapture
 
     # A plain namespace is created with a name and empty contents.
     def initialize(name)
-      @name_words = if name_words.is_a?(String)
-                      Named.words_from_name(name_words)
+      @name_words = if name.is_a?(String)
+                      Named.words_from_name(name)
                     else
                       name
                     end
       @named_contents = []
+      @source = {}
     end
   end
 end

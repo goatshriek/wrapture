@@ -25,26 +25,43 @@ module Wrapture
   # in a class will resolve the type of the self/this instance using the
   # context.
   #
-  # A Context has two attributes: a set of Named elements called contents, and
-  # a Context instance named parent. Note that while a Context is aware of the
-  # Context which contains it, it is not aware of any Contexts that it might
-  # contain. This is to ensure that the context chain is always walked in a
-  # specific to general direction.
+  # A Context has three attributes: an Enumerable of name words, a set of
+  # Named elements called contents, and a Context instance named parent. Note
+  # that while a Context is aware of the Context which contains it, it is not
+  # aware of any Contexts that it might contain. This is to ensure that the
+  # context chain is always walked in a specific to general direction.
   #
   # When a context resolves a name, it starts by searching its own contents,
   # and if nothing is found then it defers to the parent Context.
   class Context
+    include Named
+
     # A Set of Named elements that this Context directly contains.
     attr_reader :contents
 
-    # A Context that contains this one. If this is nil, then this Context is
-    # the root.
+    # A Context that contains this one. If this is nil, then this Context is at
+    # the top of the tree.
     attr_reader :parent
 
-    # A new Context has no contents, but may have a +parent+ Context.
-    def initialize(parent: nil)
+    # The root of this context.
+    attr_reader :root
+
+    # A new Context is created from a source element, and may have a +parent+
+    # Context.
+    def initialize(root, parent: nil)
       @contents = Set.new
       @parent = parent
+      @root = root
+    end
+
+    # The name words for this context.
+    def name_words
+      @root.name_words
+    end
+
+    # True if this context has a parent.
+    def parent?
+      !@parent.nil?
     end
   end
 end

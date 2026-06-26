@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2025 Joel E. Anderson
+# Copyright 2025-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -56,15 +56,17 @@ module Wrapture
     def wrap(spec, scope: nil, context: nil)
       case spec
       when ClassSpec
-        wrap_class(spec, scope: scope)
+        wrap_class(spec, scope: scope, context: context)
+      when ConstantSpec
+        wrap_constant(spec, context: context)
       when EnumSpec
-        wrap_enum(spec, scope: scope)
+        wrap_enum(spec, scope: scope, context: context)
       when FunctionSpec
         wrap_function(spec, context: context)
       when Scope
         wrap_scope(spec)
       when Namespace
-        wrap_namespace(spec)
+        wrap_namespace(spec, context: context)
       else
         wrap_name = 'Wrapture::Wrapper.wrap'
         raise InvalidSpec, "#{spec.class} not supported by #{wrap_name}"

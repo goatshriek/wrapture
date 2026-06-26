@@ -39,7 +39,7 @@ module Wrapture
     attr_reader :scope
 
     # A map of language-specific wrapping details.
-    attr_accessor :source
+    attr_reader :source
 
     # Gives the effective type of the given class spec hash.
     # TODO: this should be refactored to use an object instead of a hash

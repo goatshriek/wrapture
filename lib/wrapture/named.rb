@@ -30,6 +30,11 @@ module Wrapture
       name_words.map(&:downcase).join('_')
     end
 
+    # The name in UpperCamelCase.
+    def self.upper_camel_case_name(name_words)
+      name_words.map(&:capitalize).join
+    end
+
     # Attempts to split a given name into its words.
     def self.words_from_name(name)
       case name
@@ -71,7 +76,7 @@ module Wrapture
 
     # The name in UpperCamelCase.
     def upper_camel_case_name
-      name_words.map(&:capitalize).join
+      Named.upper_camel_case_name(name_words)
     end
   end
 end

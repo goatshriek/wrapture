@@ -53,17 +53,58 @@ class PlainNamespaceTest < Minitest::Test
     enums.each { |it| assert_kind_of(Wrapture::EnumSpec, it) }
   end
 
+  def test_from_hash_with_array_source_key
+    invalid_hash = { name: 'InvalidNamespace', source: { c: [] } }
+
+    assert_raises(Wrapture::InvalidSpec) do
+      Wrapture::PlainNamespace.from_hash(invalid_hash)
+    end
+  end
+
+  def test_from_hash_with_array_source_value
+    invalid_hash = { name: 'InvalidNamespace', source: [] }
+
+    assert_raises(Wrapture::InvalidSpec) do
+      Wrapture::PlainNamespace.from_hash(invalid_hash)
+    end
+  end
+
+  def test_from_hash_with_array_cpp_name
+    invalid_hash = { name: 'InvalidNamespace', source: { cpp: { name: [] } } }
+
+    assert_raises(Wrapture::InvalidSpec) do
+      Wrapture::PlainNamespace.from_hash(invalid_hash)
+    end
+  end
+
+  def test_from_hash_with_only_upper_camel_case_name
+    ns = Wrapture::PlainNamespace.from_hash({ name: 'MinimalNamespace' })
+
+    assert_kind_of(Wrapture::PlainNamespace, ns)
+    assert_equal(%w[minimal namespace], ns.name_words)
+  end
+
+  def test_from_hash_without_name
+    assert_raises(Wrapture::MissingSpecKey) do
+      Wrapture::PlainNamespace.from_hash({})
+    end
+  end
+
+  def test_from_yaml
+    ns_file = fixture_yaml_path('minimal_namespace')
+    ns = Wrapture::PlainNamespace.from_yaml_file(ns_file)
+
+    assert_kind_of(Array, ns.name_words)
+    ns.name_words.each do |it|
+      assert_kind_of(String, it)
+    end
+  end
+
   def test_functions
     functions = basic_namespace.functions
 
     assert(1, functions.length)
     functions.each { |it| assert_kind_of(Wrapture::FunctionSpec, it) }
-  end
-
-  def test_hash_without_name
-    assert_raises(Wrapture::MissingSpecKey) do
-      Wrapture::PlainNamespace.from_hash({})
-    end
   end
 
   def test_name

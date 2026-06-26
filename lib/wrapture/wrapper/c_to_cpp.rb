@@ -824,8 +824,9 @@ module Wrapture
         cls
       end
 
-      # Generates a build for a C++ library wrapping a class.
-      def self.wrap_class(class_spec, scope: Scope.new)
+      # Generates a build for a C++ library wrapping a class, within +context+
+      # if it is provided.
+      def self.wrap_class(class_spec, scope: Scope.new, context: nil)
         set = CppSource::CppSourceSet.new(class_spec.name)
 
         set.add_lib_header(declare_class(class_spec, scope))
@@ -838,8 +839,9 @@ module Wrapture
         set
       end
 
-      # Generates a build for a C++ library wrapping the provided EnumSpec.
-      def self.wrap_enum(enum_spec, scope: nil)
+      # Generates a build for a C++ library wrapping the provided +enum_spec+,
+      # within +context+ if it is provided.
+      def self.wrap_enum(enum_spec, scope: nil, context: nil)
         unless enum_spec.is_a?(EnumSpec)
           raise InvalidSpec, 'only EnumSpec instances can be wrapped as enums'
         end
@@ -852,21 +854,28 @@ module Wrapture
         build
       end
 
-      # Generates a build for a C++ library wrapping +namespace+.
-      def self.wrap_namespace(namespace)
-        # TODO: handle name decoration
+      # Generates a build for a C++ library wrapping +namespace+. If +context+
+      # is provided then the wrapping is done within it.
+      def self.wrap_namespace(namespace, context: nil)
+        ns_context = Context.new(namespace, parent: context)
+        source_set_name = Cpp.namespace_name(namespace)
+        source_set = CppSource::CppSourceSet.new(source_set_name)
 
-        source_set = CppSource::CppSourceSet.new(namespace.name_words)
-
-        namespace.classes.each do |class_spec|
-          source_set << wrap_class(class_spec)
+        namespace.classes.each do |it|
+          source_set << wrap_class(it, context: ns_context)
         end
 
-        namespace.enums.each do |enum_spec|
-          source_set << wrap_enum(enum_spec)
+        namespace.constants.each do |it|
+          source_set << wrap_constant(it, context: ns_context)
         end
 
-        # TODO: constants and functions
+        namespace.enums.each do |it|
+          source_set << wrap_enum(it, context: ns_context)
+        end
+
+        namespace.functions.each do |it|
+          source_set << wrap_function(it, context: ns_context)
+        end
 
         source_set
       end

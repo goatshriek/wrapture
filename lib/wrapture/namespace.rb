@@ -22,7 +22,8 @@ module Wrapture
   # Namespaces represent elements that contain elements within them. This may be
   # a purely logical construct as in PlainNamespace, or may be some other type
   # that contains elements, such as ClassSpec. Anything contained within a
-  # Namespace must be Named.
+  # Namespace must be Named. Namespaces themselves must also be Named and
+  # Sourced.
   #
   # Namespaces must have an attribute named +named_contents+ which is an Array
   # holding the contents of the namespace. Note that this array could include
