@@ -60,7 +60,7 @@ module Wrapture
       when ConstantSpec
         wrap_constant(spec, context: context)
       when EnumSpec
-        wrap_enum(spec, scope: scope, context: context)
+        wrap_enum(spec, context: context)
       when FunctionSpec
         wrap_function(spec, context: context)
       when Scope

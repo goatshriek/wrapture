@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-# Copyright 2025 Joel E. Anderson
+# Copyright 2025-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,10 +23,10 @@ module Wrapture
       def self.converter: (untyped, untyped, untyped) -> Proc
       def self.declaration_filename: (untyped) -> String
       def self.declaration_includes: (Wrapture::ClassSpec) -> Array[String]
-      def self.declare_class: (Wrapture::ClassSpec, Wrapture::Scope) -> Wrapture::SourceFile
+      def self.declare_class: (Wrapture::ClassSpec, Wrapture::Context) -> Wrapture::SourceFile
       def self.declare_member_function_locals: (Wrapture::CppSource::CppBlock, Wrapture::FunctionSpec) -> Wrapture::CppSource::CppBlock
       def self.define_alias_constructor: (Wrapture::ClassSpec, Wrapture::FunctionSpec) -> Wrapture::CppSource::CppFunction
-      def self.define_class: (Wrapture::ClassSpec, Wrapture::Scope) -> Wrapture::SourceFile
+      def self.define_class: (Wrapture::ClassSpec, Wrapture::Context) -> Wrapture::SourceFile
       def self.define_constructor: (Wrapture::ClassSpec, Wrapture::FunctionSpec) -> Wrapture::CppSource::CppFunction
       def self.define_enum: (Wrapture::ClassSpec, Wrapture::Scope) -> Wrapture::SourceFile
       def self.defined_class_from_spec: (Wrapture::ClassSpec, Wrapture::Scope) -> Wrapture::CppSource::CppClass
@@ -46,13 +46,12 @@ module Wrapture
       def self.resolve_action_value: (Wrapture::FunctionSpec, String) -> String
       def self.resolve_wrapped_param: (Wrapture::FunctionSpec, Wrapture::CSource::CDeclaration) -> String
       def self.scope_headers: (Wrapture::Scope) -> Wrapture::CppSource::CppSourceFile
-      def self.scope_namespace: (Wrapture::Scope) -> String
       def self.type_class_from_spec: (Wrapture::ClassSpec) -> Wrapture::CppSource::CppClass
       def self.wrap_class: (ClassSpec, ?context: Namespace) -> CppSource::CppSourceSet
-      def self.wrap_constant: (ConstantSpec, ?context: Namespace) -> CppSource::CppSourceSet
-      def self.wrap_enum: (EnumSpec, ?context: Namespace) -> CppSource::CppSourceSet
-      def self.wrap_function: (FunctionSpec, ?context: Namespace) -> CppSource::CppSourceSet
-      def self.wrap_namespace: (Namespace, ?context: Namespace) -> CppSource::CppSourceSet
+      def self.wrap_constant: (ConstantSpec, ?context: Context) -> CppSource::CppSourceSet
+      def self.wrap_enum: (EnumSpec, ?context: Context) -> CppSource::CppSourceSet
+      def self.wrap_function: (FunctionSpec, ?context: Context) -> CppSource::CppSourceSet
+      def self.wrap_namespace: (Namespace, ?context: Context) -> CppSource::CppSourceSet
       def self.wrap_scope: (Wrapture::Scope) -> Wrapture::CppSource::CppSourceSet
       def self.wrapped_error_check: (Wrapture::FunctionSpec) -> Array[untyped]
       def self.wrapped_function_call: (Wrapture::FunctionSpec) -> String

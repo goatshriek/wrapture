@@ -179,9 +179,8 @@ module Wrapture
         includes.uniq
       end
 
-      # Generate a source file with the declaration of a class within a given
-      # context +scope+.
-      def self.declare_class(class_spec, scope)
+      # Generate a source file with the declaration of a class within +context+.
+      def self.declare_class(class_spec, scope, context)
         src = CppSource::CppSourceFile.new(header_name(class_spec))
 
         guard = header_guard(class_spec)
@@ -193,15 +192,19 @@ module Wrapture
           src << CSource::CInclude.new(inc)
         end
 
-        namespace = scope_namespace(scope)
-        src.puts("namespace #{namespace} {")
-        src.puts
+        unless context.nil?
+          src.puts("namespace #{Cpp.context_namespace(context)} {")
+          src.puts
+        end
 
         src.declare(defined_class_from_spec(class_spec, scope))
+        src.puts
 
-        src.puts
-        src.puts("} /* namespace #{namespace} */")
-        src.puts
+        unless context.nil?
+          src.puts("} /* namespace #{Cpp.context_namespace(context)} */")
+          src.puts
+        end
+
         src.puts("#endif /* #{guard} */")
 
         src
@@ -307,32 +310,37 @@ module Wrapture
         func
       end
 
-      # Generate a source file with the definition of a class.
-      def self.define_class(class_spec, scope)
+      # Generate a source file with the definition of +class_spec+ within
+      # +context+.
+      def self.define_class(class_spec, scope, context)
         unless class_spec.definable?
           raise UndefinableSpec, "#{class_spec.name} is not definable"
         end
 
-        namespace = scope_namespace(scope)
         src = CppSource::CppSourceFile.new("#{class_spec.name}.cpp")
 
         definition_includes(class_spec, scope).sort.each do |inc|
           src << CSource::CInclude.new(inc)
         end
 
-        src.puts("namespace #{namespace} {")
-        src.puts
+        unless context.nil?
+          src.puts("namespace #{Cpp.context_namespace(context)} {")
+          src.puts
+        end
 
         src << defined_class_from_spec(class_spec, scope)
-
         src.puts
-        src.puts("} /* namespace #{namespace} */")
+
+        unless context.nil?
+          src.puts("} /* namespace #{Cpp.context_namespace(context)} */")
+        end
 
         src
       end
 
-      # Generate a source file with the definition of an enumeration.
-      def self.define_enum(enum_spec, scope)
+      # Generate a source file with the definition of +enum_spec+ within
+      # +context+.
+      def self.define_enum(enum_spec, context)
         src = CppSource::CppSourceFile.new(definition_filename(enum_spec))
 
         guard = header_guard(enum_spec)
@@ -344,16 +352,19 @@ module Wrapture
           src << CSource::CInclude.new(inc)
         end
 
-        namespace = scope_namespace(scope)
-
-        src.puts("namespace #{namespace} {")
-        src.puts
+        unless context.nil?
+          src.puts("namespace #{Cpp.context_namespace(context)} {")
+          src.puts
+        end
 
         src << enum_from_spec(enum_spec)
+        src.puts
 
-        src.puts
-        src.puts("} /* namespace #{namespace} */")
-        src.puts
+        unless context.nil?
+          src.puts("} /* namespace #{Cpp.context_namespace(context)} */")
+          src.puts
+        end
+
         src.puts("#endif /* #{guard} */")
 
         src
@@ -794,18 +805,6 @@ module Wrapture
         header
       end
 
-      # The namespace words of a +scope+ that classes and enums within it are a
-      # part of.
-      def self.scope_namespace(scope)
-        words = if scope.decorate_wrapped_name?
-                  Cpp.decorate_name_words(scope.name_words)
-                else
-                  scope.name_words
-                end
-
-        Named.snake_case_name(words)
-      end
-
       # Creates a CppClass instance from a ClassSpec, with enough information
       # available to use the class for type conversions.
       def self.type_class_from_spec(spec)
@@ -829,8 +828,8 @@ module Wrapture
       def self.wrap_class(class_spec, scope: Scope.new, context: nil)
         set = CppSource::CppSourceSet.new(class_spec.name)
 
-        set.add_lib_header(declare_class(class_spec, scope))
-        set.add_lib_source(define_class(class_spec, scope))
+        set.add_lib_header(declare_class(class_spec, scope, context))
+        set.add_lib_source(define_class(class_spec, scope, context))
 
         class_spec.libraries.each do |lib|
           set.add_lib_link(lib)
@@ -841,15 +840,13 @@ module Wrapture
 
       # Generates a build for a C++ library wrapping the provided +enum_spec+,
       # within +context+ if it is provided.
-      def self.wrap_enum(enum_spec, scope: nil, context: nil)
+      def self.wrap_enum(enum_spec, context: nil)
         unless enum_spec.is_a?(EnumSpec)
           raise InvalidSpec, 'only EnumSpec instances can be wrapped as enums'
         end
 
         build = CppSource::CppSourceSet.new(enum_spec.name)
-
-        scope = enum_spec.scope if scope.nil?
-        build.add_lib_header(define_enum(enum_spec, scope))
+        build.add_lib_header(define_enum(enum_spec, context))
 
         build
       end

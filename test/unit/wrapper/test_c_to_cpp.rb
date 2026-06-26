@@ -93,14 +93,17 @@ class CToCppTest < Minitest::Test
            'delegating constructor not present')
   end
 
-  def test_enum_with_namespace
-    test_spec = fixture_hash('enum_with_namespace')
+  def test_enum_with_context
+    test_spec = fixture_hash('basic_enum')
     spec = Wrapture::EnumSpec.from_hash(test_spec)
-    build = Wrapture::Wrapper::CToCpp.wrap_enum(spec)
+    ns = Wrapture::PlainNamespace.new(%w[wrapture test])
+    context = Wrapture::Context.new(ns)
+    build = Wrapture::Wrapper::CToCpp.wrap_enum(spec, context: context)
 
     assert_equal(test_spec[:name], spec.name)
     assert_equal(1, build.sources.count,
                  'only one file should have been generated')
+    assert(source_file_contains_match?(build.sources.first, 'wrapture_test'))
 
     validate_cpp_source_file_matches_enum_spec(build.sources.first, test_spec)
   end
