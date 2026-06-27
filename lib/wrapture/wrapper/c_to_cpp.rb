@@ -144,7 +144,7 @@ module Wrapture
         "#{spec.upper_camel_case_name}.hpp"
       end
 
-      # The headers needed to declare a class. This does not necessarily
+      # The headers needed to declare +class_spec+. This does not necessarily
       # match the C includes for a spec. The includes for things like calling
       # wrapped functions and invoking error handling are not needed for the
       # declaration. Additional C++ includes may also be present to bring in
