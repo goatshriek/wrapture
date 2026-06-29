@@ -63,5 +63,16 @@ module Wrapture
     def parent?
       !@parent.nil?
     end
+
+    # Searches through the Context and its contents to see if any elements
+    # have +name_words+. Returns the match if one is found, or nil if no matches
+    # are found.
+    #
+    # Resolution occurs by searching the context's contents for matches. Note
+    # this search does not recursively search through contents. If no match is
+    # found in the contents and this context has a parent, then resolution is
+    # attempted in the parent. If there is no parent, then the search is ended.
+    def resolve_name_words(name_words)
+    end
   end
 end

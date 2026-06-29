@@ -32,8 +32,7 @@ module Wrapture
     # visible in the resulting shared library.
     #
     # An export header defines one or more macros that can be used in library
-    # headers, which expand to the appropriate visibility incantation based on
-    # the toolchain they are used from.
+    # headers, which expand to the toolchain-appropriate visibility modifiers.
     #
     # This is a separate source file class because some build systems, such as
     # +Build::CmakeBuild+, can generate these headers on their own. In those
@@ -48,7 +47,7 @@ module Wrapture
         spec.screaming_snake_case_name
       end
 
-      # An export header name derived from a +Named+ +spec+.
+      # An export header name derived from the +Named+ +spec+.
       def self.export_header_name(spec)
         if spec.name_words.empty?
           'export.h'

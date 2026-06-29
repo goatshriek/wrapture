@@ -149,8 +149,16 @@ module Wrapture
       # wrapped functions and invoking error handling are not needed for the
       # declaration. Additional C++ includes may also be present to bring in
       # type declarations for parameters declared by Wrapture.
-      def self.declaration_includes(class_spec, scope)
-        includes = ["#{CSource::CExportHeader.export_header_name(scope)}pp"]
+      #
+      # If +context+ is not nil, then the list will include headers needed to
+      # generate wrappings within the given Context.
+      def self.declaration_includes(class_spec, context: nil)
+        includes = []
+
+        unless context.nil?
+          base_name = CSource::CExportHeader.export_header_name(context.root)
+          includes << "#{base_name}pp"
+        end
 
         includes.concat(class_spec[:c].includes) if class_spec.source.key?(:c)
 
@@ -188,7 +196,7 @@ module Wrapture
         src.puts("#define #{guard}")
         src.puts
 
-        declaration_includes(class_spec, scope).sort.each do |inc|
+        declaration_includes(class_spec, context: context).sort.each do |inc|
           src << CSource::CInclude.new(inc)
         end
 
@@ -437,11 +445,12 @@ module Wrapture
         end
       end
 
-      # The includes needed in the definition file for the given +class_spec+ in
-      # the given +scope+.
-      def self.definition_includes(class_spec, scope)
+      # The includes needed in the definition file for the given +class_spec+.
+      # If +context+ is not nil, the list will have includes needed to define
+      # the class withing the given Context.
+      def self.definition_includes(class_spec, scope, context: nil)
         inc = [declaration_filename(class_spec)]
-        inc.concat(declaration_includes(class_spec, scope))
+        inc.concat(declaration_includes(class_spec, context: context))
         inc.concat(C.includes(class_spec))
 
         if C.factory?(class_spec, class_spec.scope)

@@ -22,7 +22,7 @@ module Wrapture
       def self.ancestor_suffix: (Wrapture::ClassSpec) -> String
       def self.converter: (untyped, untyped, untyped) -> Proc
       def self.declaration_filename: (untyped) -> String
-      def self.declaration_includes: (Wrapture::ClassSpec) -> Array[String]
+      def self.declaration_includes: (Wrapture::ClassSpec, ?context: Wrapture::Context) -> Array[String]
       def self.declare_class: (Wrapture::ClassSpec, Wrapture::Context) -> Wrapture::SourceFile
       def self.declare_member_function_locals: (Wrapture::CppSource::CppBlock, Wrapture::FunctionSpec) -> Wrapture::CppSource::CppBlock
       def self.define_alias_constructor: (Wrapture::ClassSpec, Wrapture::FunctionSpec) -> Wrapture::CppSource::CppFunction

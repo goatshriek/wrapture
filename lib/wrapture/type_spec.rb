@@ -19,7 +19,11 @@
 #++
 
 module Wrapture
-  # A description of a type used in a specification.
+  # A description of a type.
+  #
+  # TypeSpec is an abstraction of types in source languages. It is separate from
+  # language-specific types that are defined in source language modules like
+  # CSource::CType.
   class TypeSpec
     include Named
 
