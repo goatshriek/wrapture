@@ -65,14 +65,25 @@ module Wrapture
     end
 
     # Searches through the Context and its contents to see if any elements
-    # have +name_words+. Returns the match if one is found, or nil if no matches
-    # are found.
+    # have the name +name_words+. Returns the match if one is found, or nil if
+    # no matches are found. The match search is case sensitive.
     #
     # Resolution occurs by searching the context's contents for matches. Note
     # this search does not recursively search through contents. If no match is
     # found in the contents and this context has a parent, then resolution is
     # attempted in the parent. If there is no parent, then the search is ended.
-    def resolve_name_words(name_words)
+    def resolve_name(name_words)
+      return root if name_words == root.name_words
+
+      resolved = contents.find do |it|
+        it.name_words == name_words
+      end
+
+      if resolved.nil?
+        parent.resolve_name(name_words) if parent?
+      else
+        resolved
+      end
     end
   end
 end
