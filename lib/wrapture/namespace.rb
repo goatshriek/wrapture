@@ -18,50 +18,94 @@
 # limitations under the License.
 #++
 
+require 'wrapture/sourced'
+
 module Wrapture
-  # Namespaces represent elements that contain elements within them. This may be
-  # a purely logical construct as in PlainNamespace, or may be some other type
-  # that contains elements, such as ClassSpec. Anything contained within a
-  # Namespace must be Named. Namespaces themselves must also be Named and
-  # Sourced.
-  #
-  # Namespaces must have an attribute named +named_contents+ which is an Array
-  # holding the contents of the namespace. Note that this array could include
-  # other namespaces.
-  module Namespace
-    # Appends Named +item+ to the namespace.
-    def <<(item)
-      named_contents << item
+  # A Namespace is a logical element that contains other elements within it. The
+  # actual contents of a Namespace are determined by creating a Context with a
+  # Namespace as its root.
+  class Namespace
+    include Named
+    include Sourced
 
-      self
-    end
+    # The pieces of the namespace name.
+    attr_reader :name_words
 
-    # All classes in the namespace.
-    def classes
-      named_contents.grep(ClassSpec)
-    end
+    # The contents of this namespace.
+    attr_reader :named_contents
 
-    # All constants in the namespace.
-    def constants
-      named_contents.grep(ConstantSpec)
-    end
-
-    # All enums in the namespace.
-    def enums
-      named_contents.grep(EnumSpec)
-    end
-
-    # All function in the namespace.
+    # A Hash of language-specific wrapping details.
     #
-    # This is not a recursive enumeration. For example, functions in classes
-    # within the namespace are not returned.
-    def functions
-      named_contents.grep(FunctionSpec)
+    # Details for the C++ language are stored in the +:cpp+ key. This may have
+    # the following keys (as symbols):
+    # name:: A String of the namespace name. This will override the namespace
+    # name automatically generated from +name_words+.
+    attr_reader :source
+
+    # Creates a new Namespace from +hash+.
+    #
+    # +hash+ must have a +:name+ key with either a String or an array of
+    # strings.
+    #
+    # +hash+ may have a +:source+ key, which is used to populate the +source+
+    # hash of the resulting namespace.
+    def self.from_hash(hash)
+      unless hash.key?(:name)
+        raise MissingSpecKey, 'namespace hashes must have a :name key'
+      end
+
+      if hash.key?(:source)
+        unless hash[:source].is_a?(Hash)
+          raise InvalidSpec, 'the source key must contain a hash'
+        end
+
+        hash[:source].each_key.each do |it|
+          unless hash[:source][it].is_a?(Hash)
+            raise InvalidSpec, "source key #{it} must contain a hash"
+          end
+
+          if hash[:source][it].key?(:name) &&
+             !hash[:source][it][:name].is_a?(String)
+            raise InvalidSpec, "source key #{it} name must be a string"
+          end
+        end
+      end
+
+      ns = new(hash[:name])
+
+      if hash.key?(:source)
+        hash[:source].each_key do |it|
+          ns.source[it] = hash[:source][it]
+        end
+      end
+
+      ns
     end
 
-    # All namespaces in this namespace.
-    def namespaces
-      named_contents.grep(Namespace)
+    # Creates a new Namespace from the YAML loaded from +filename+.
+    def self.from_yaml_file(filename)
+      # simplify this to just safe_load_file after Ruby 2.7 is dropped
+      ns_hash = if YAML.respond_to?('safe_load_file')
+                  YAML.safe_load_file(filename, symbolize_names: true)
+                else
+                  File.open(filename, 'r:bom|utf-8') do |f|
+                    YAML.safe_load(f, filename: filename,
+                                      symbolize_names: true)
+                  end
+                end
+
+      from_hash(ns_hash)
+    end
+
+    # A plain namespace is created with a name and empty contents.
+    def initialize(name)
+      @name_words = if name.is_a?(String)
+                      Named.words_from_name(name)
+                    else
+                      name
+                    end
+      @named_contents = []
+      @source = {}
     end
   end
 end

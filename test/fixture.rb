@@ -18,19 +18,20 @@
 
 require 'yaml'
 
-# A PlainNamespace that contains a basic class, constant, enum, and function.
-def basic_namespace
+# A Namespace context that contains a basic class, constant, enum, and function.
+def basic_namespace_context
   class_hash = fixture_hash('basic_class')
   constant_hash = fixture_hash('basic_constant')
   enum_hash = fixture_hash('basic_enum')
   func_hash = fixture_hash('basic_function')
+  ns = Wrapture::Namespace.new(%w[basic namespace])
 
-  ns = Wrapture::PlainNamespace.new(%w[basic namespace])
-  ns << Wrapture::ClassSpec.new(class_hash)
-  ns << Wrapture::ConstantSpec.new(constant_hash)
-  ns << Wrapture::EnumSpec.from_hash(enum_hash)
-  ns << Wrapture::FunctionSpec.from_hash(func_hash)
-  ns << Wrapture::PlainNamespace.new(%w[nested namespace])
+  c = Wrapture::Context.new(ns)
+  c << Wrapture::ClassSpec.new(class_hash)
+  c << Wrapture::ConstantSpec.new(constant_hash)
+  c << Wrapture::EnumSpec.from_hash(enum_hash)
+  c << Wrapture::FunctionSpec.from_hash(func_hash)
+  c << Wrapture::Namespace.new(%w[nested namespace])
 end
 
 # The build spec for the fixture corresponding to +name+.

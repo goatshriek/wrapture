@@ -26,7 +26,7 @@ class WrapTest < Minitest::Test
   def test_wrap
     config = Wrapture::Config::WrapConfig.new
     ns_file = fixture_yaml_path('minimal_namespace')
-    ns = Wrapture::PlainNamespace.from_yaml_file(ns_file)
+    ns = Wrapture::Namespace.from_yaml_file(ns_file)
     config.namespaces << ns
     config.paths << Wrapture::Path.new('c,cpp')
 

@@ -44,13 +44,13 @@ class CToCppTest < Minitest::Test
   end
 
   def test_class_pointer_to_struct_pointer
-    test_spec = fixture_hash('scope_with_pointer_param')
-    scope = Wrapture::Scope.new(test_spec)
-    build = Wrapture::Wrapper::CToCpp.wrap_scope(scope)
+    test_spec = fixture_hash('namespace_with_pointer_param')
+    context = Wrapture::Context.from_namespace_hash(test_spec)
+    build = Wrapture::Wrapper::CToCpp.wrap_context(context)
+    rifle_file = build['Rifle.cpp']
 
-    validate_cpp_build(scope, build)
-
-    assert(source_file_contains_match?(build['Rifle.cpp'],
+    refute_nil(rifle_file)
+    assert(source_file_contains_match?(rifle_file,
                                        /bullet->equivalent/),
            'equivalent struct member was not referenced')
   end
@@ -58,7 +58,7 @@ class CToCppTest < Minitest::Test
   def test_declaration_includes_with_no_c_details
     # we need a class spec where there isn't a :c key in wrapped
     class_spec = Wrapture::ClassSpec.new(fixture_hash('versioned_class'))
-    context = Wrapture::Context.new(Wrapture::PlainNamespace.new(%w[test ns]))
+    context = Wrapture::Context.new(Wrapture::Namespace.new(%w[test ns]))
     includes = Wrapture::Wrapper::CToCpp.declaration_includes(class_spec,
                                                               context: context)
 
@@ -97,7 +97,7 @@ class CToCppTest < Minitest::Test
   def test_enum_with_context
     test_spec = fixture_hash('basic_enum')
     spec = Wrapture::EnumSpec.from_hash(test_spec)
-    ns = Wrapture::PlainNamespace.new(%w[wrapture test])
+    ns = Wrapture::Namespace.new(%w[wrapture test])
     context = Wrapture::Context.new(ns)
     build = Wrapture::Wrapper::CToCpp.wrap_enum(spec, context: context)
 
@@ -124,6 +124,34 @@ class CToCppTest < Minitest::Test
 
   def test_from_language
     assert_equal(:c, Wrapture::Wrapper::CToCpp.from_language)
+  end
+
+  def test_header_for_namespace_with_class_and_enum
+    spec_hash = fixture_hash('namespace_with_class_and_enum')
+    ns = Wrapture::Namespace.from_hash(spec_hash)
+    header = Wrapture::Wrapper::CToCpp.namespace_header(ns)
+
+    refute_nil(header)
+    assert_kind_of(Wrapture::CppSource::CppSourceFile, header)
+
+    (ns.classes + ns.enums).each do |it|
+      assert_source_file_contains_match(header, Cpp.header_name(it))
+    end
+  end
+
+  def test_namespace_with_class_and_enum
+    spec_hash = fixture_hash('namespace_with_class_and_enum')
+    context = Wrapture::Context.from_namespace_hash(spec_hash)
+    source_set = Wrapture::Wrapper::CToCpp.wrap_namespace_context(context)
+
+    refute_nil(source_set)
+    assert_kind_of(Wrapture::SourceSet, source_set)
+    assert_instance_of(Wrapture::CppSource::CppSourceSet, source_set)
+    assert_respond_to(source_set, :sources)
+    assert_respond_to(source_set, :lib_headers)
+    refute_empty(source_set.lib_headers)
+    refute_empty(source_set.sources)
+    assert(source_set.lib_headers.any?(Wrapture::CppSource::CppExportHeader))
   end
 
   def test_overloaded_struct
@@ -251,22 +279,6 @@ class CToCppTest < Minitest::Test
     assert(source_file_contains_match?(build['Rifle.cpp'],
                                        /bullet\.equivalent/),
            'equivalent struct member was not referenced')
-  end
-
-  def test_scope_header_with_class_and_enum
-    test_spec = fixture_hash('scope_with_enum')
-    scope = Wrapture::Scope.new(test_spec)
-    build = Wrapture::Wrapper::CToCpp.wrap_scope(scope)
-
-    validate_cpp_build(scope, build)
-
-    assert_includes(build, 'wrapture_test.hpp', 'rollup header missing')
-
-    header = build['wrapture_test.hpp']
-
-    assert_kind_of(Wrapture::CppSource::CppSourceFile, header)
-    assert(source_file_contains_match?(header, 'BasicClass.hpp'))
-    assert(source_file_contains_match?(header, 'BasicEnum.hpp'))
   end
 
   def test_self_reference_function

@@ -189,9 +189,9 @@ module Wrapture
 
       # Generate a source file with the declaration of a class within +context+.
       def self.declare_class(class_spec, scope, context)
-        src = CppSource::CppSourceFile.new(header_name(class_spec))
+        src = CppSource::CppSourceFile.new(Cpp.header_name(class_spec))
 
-        guard = header_guard(class_spec)
+        guard = Cpp.header_guard(class_spec)
         src.puts("#ifndef #{guard}")
         src.puts("#define #{guard}")
         src.puts
@@ -351,7 +351,7 @@ module Wrapture
       def self.define_enum(enum_spec, context)
         src = CppSource::CppSourceFile.new(definition_filename(enum_spec))
 
-        guard = header_guard(enum_spec)
+        guard = Cpp.header_guard(enum_spec)
         src.puts("#ifndef #{guard}")
         src.puts("#define #{guard}")
         src.puts
@@ -379,8 +379,8 @@ module Wrapture
       end
 
       # Creates a CppClass instance from a ClassSpec, with all members and
-      # functions fully defined, in the given +scope+.
-      def self.defined_class_from_spec(spec, scope)
+      # functions fully defined, in the given +context+.
+      def self.defined_class_from_spec(spec, context)
         # start with the type class, then build out the definitions
         cls = type_class_from_spec(spec)
         cls.doc = spec.doc
@@ -429,7 +429,7 @@ module Wrapture
           cls.member_functions << factory_member_function(spec)
         end
 
-        cls.attributes << "#{CSource::CExportHeader.base_name(scope)}_EXPORT"
+        cls.attributes << "#{CppSource::CppExportHeader.base_name(context)}_EXPORT"
 
         cls
       end
@@ -441,7 +441,7 @@ module Wrapture
         if forward_declared?(spec)
           "#{spec.upper_camel_case_name}.cpp"
         else
-          header_name(spec)
+          Cpp.header_name(spec)
         end
       end
 
@@ -466,7 +466,7 @@ module Wrapture
           next if action.nil?
 
           type = scope.type(action.type)
-          inc << header_name(type) unless type.nil?
+          inc << Cpp.header_name(type) unless type.nil?
         end
 
         inc.uniq
@@ -588,21 +588,6 @@ module Wrapture
         end
       end
 
-      # The symbol to use for header guard checks.
-      def self.header_guard(spec)
-        "#{spec.screaming_snake_case_name}_HPP"
-      end
-
-      # The name of the header file for a given item.
-      def self.header_name(spec)
-        case spec
-        when ClassSpec, EnumSpec
-          "#{spec.upper_camel_case_name}.hpp"
-        else
-          "#{spec.snake_case_name}.hpp"
-        end
-      end
-
       # The member constructor for a class spec.
       def self.member_constructor(class_spec)
         class_name = class_spec.upper_camel_case_name
@@ -666,6 +651,31 @@ module Wrapture
         end
 
         func
+      end
+
+      # A header file for +namespace+ that includes all of its elements'
+      # headers.
+      def self.namespace_header(namespace)
+        header_name = Cpp.header_name(namespace)
+        header = Wrapture::CppSource::CppSourceFile.new(header_name)
+
+        guard = Cpp.header_guard(namespace)
+        header.puts("#ifndef #{guard}")
+        header.puts("#define #{guard}")
+        header.puts
+
+        includes = namespace.named_contents.filter_map do |it|
+          Cpp.header_name(it) if it.is_a?(ClassSpec) || it.is_a?(EnumSpec)
+        end
+
+        includes.sort.each do |it|
+          header << CSource::CInclude.new(it)
+        end
+
+        header.puts
+        header.puts("#endif /* #{guard} */")
+
+        header
       end
 
       # True if the provided wrapped param spec can be cast to when used in this
@@ -790,30 +800,6 @@ module Wrapture
         conversion.call(val)
       end
 
-      # A header file for the given scope that includes all of its elements'
-      # headers.
-      def self.scope_header(scope)
-        header = Wrapture::CppSource::CppSourceFile.new(header_name(scope))
-
-        guard = header_guard(scope)
-        header.puts("#ifndef #{guard}")
-        header.puts("#define #{guard}")
-        header.puts
-
-        includes = (scope.classes + scope.enums).map do |it|
-          header_name(it)
-        end
-
-        includes.sort.each do |it|
-          header << CSource::CInclude.new(it)
-        end
-
-        header.puts
-        header.puts("#endif /* #{guard} */")
-
-        header
-      end
-
       # Creates a CppClass instance from a ClassSpec, with enough information
       # available to use the class for type conversions.
       def self.type_class_from_spec(spec)
@@ -832,9 +818,10 @@ module Wrapture
         cls
       end
 
-      # Generates a build for a C++ library wrapping a class, within +context+
-      # if it is provided.
-      def self.wrap_class(class_spec, scope: Scope.new, context: nil)
+      # Generates a CppSourceSet for a C++ library wrapping a +context+ with a
+      # class root.
+      def self.wrap_class_context(context, scope: Scope.new)
+        class_spec = context.root
         set = CppSource::CppSourceSet.new(class_spec.name)
 
         set.add_lib_header(declare_class(class_spec, scope, context))
@@ -847,9 +834,11 @@ module Wrapture
         set
       end
 
-      # Generates a build for a C++ library wrapping the provided +enum_spec+,
-      # within +context+ if it is provided.
-      def self.wrap_enum(enum_spec, context: nil)
+      # Generates a build for a C++ library wrapping a +context+ with an enum
+      # root.
+      def self.wrap_enum_context(context)
+        enum_spec = context.root
+
         unless enum_spec.is_a?(EnumSpec)
           raise InvalidSpec, 'only EnumSpec instances can be wrapped as enums'
         end
@@ -860,27 +849,32 @@ module Wrapture
         build
       end
 
-      # Generates a build for a C++ library wrapping +namespace+. If +context+
-      # is provided then the wrapping is done within it.
-      def self.wrap_namespace(namespace, context: nil)
-        ns_context = Context.new(namespace, parent: context)
+      # Generates a build for a C++ library wrapping +context+ with a root
+      # namespace.
+      def self.wrap_namespace_context(context)
+        namespace = context.root
         source_set_name = Cpp.namespace_name(namespace)
         source_set = CppSource::CppSourceSet.new(source_set_name)
 
-        namespace.classes.each do |it|
-          source_set << wrap_class(it, context: ns_context)
+        source_set.add_lib_header(namespace_header(namespace))
+
+        export = CppSource::CppExportHeader.from_spec(namespace)
+        source_set.add_lib_header(export)
+
+        context.classes.each do |it|
+          source_set << wrap_class(it)
         end
 
-        namespace.constants.each do |it|
-          source_set << wrap_constant(it, context: ns_context)
+        context.constants.each do |it|
+          source_set << wrap_constant(it)
         end
 
-        namespace.enums.each do |it|
-          source_set << wrap_enum(it, context: ns_context)
+        context.enums.each do |it|
+          source_set << wrap_enum(it)
         end
 
-        namespace.functions.each do |it|
-          source_set << wrap_function(it, context: ns_context)
+        context.functions.each do |it|
+          source_set << wrap_function(it)
         end
 
         source_set
@@ -906,7 +900,7 @@ module Wrapture
           source_set << wrap(scope_member, scope: scope)
         end
 
-        source_set.add_lib_header(scope_header(scope))
+        source_set.add_lib_header(namespace_header(scope))
 
         export_name = "#{CSource::CExportHeader.export_header_name(scope)}pp"
         export = CSource::CExportHeader.from_spec(scope, path: export_name)

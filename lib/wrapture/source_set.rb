@@ -26,7 +26,7 @@ module Wrapture
   # source files they contain.
   #
   # A source set must also have a spec associated with it, accessible as +spec+,
-  # which describes the implementation that the source files produce. This
+  # which describes the implementation that the source files produced. This
   # allows source sets to be used as input to wrappers, which in turn allows
   # wrappers to be chained together.
   module SourceSet

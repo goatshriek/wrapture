@@ -39,14 +39,6 @@ class InvalidTest < Minitest::Test
     end
   end
 
-  def test_no_namespace
-    test_spec = fixture_hash 'invalid/no_namespace'
-
-    assert_raises(Wrapture::WraptureError) do
-      Wrapture::ClassSpec.new test_spec
-    end
-  end
-
   def test_rule_missing_condition
     test_spec = fixture_hash('invalid/rule_missing_condition')
 

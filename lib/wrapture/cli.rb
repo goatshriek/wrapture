@@ -120,11 +120,11 @@ module Wrapture
                        end
 
         options[:namespaces]&.each do |it|
-          config.namespaces << PlainNamespace.from_yaml_file(it)
+          config.namespaces << Namespace.from_yaml_file(it)
         end
 
         specs.each do |it|
-          config.namespaces << PlainNamespace.from_yaml_file(it)
+          config.namespaces << Namespace.from_yaml_file(it)
         end
 
         config.output = options[:output] if options[:output]

@@ -24,7 +24,7 @@ require 'wrapture'
 
 class CppWrapperTest < Minitest::Test
   def test_base_decorated_context_namespace_name
-    ns = Wrapture::PlainNamespace.new(%w[test namespace])
+    ns = Wrapture::Namespace.new(%w[test namespace])
     ns.source[:base] = { decorate_name: true }
     context = Wrapture::Context.new(ns)
     ns_name = Wrapture::Wrapper::Cpp.context_namespace(context)
@@ -33,7 +33,7 @@ class CppWrapperTest < Minitest::Test
   end
 
   def test_base_undecorated_context_namespace_name
-    ns = Wrapture::PlainNamespace.new(%w[test namespace])
+    ns = Wrapture::Namespace.new(%w[test namespace])
     ns.source[:base] = { decorate_name: false }
     context = Wrapture::Context.new(ns)
     ns_name = Wrapture::Wrapper::Cpp.context_namespace(context)
@@ -42,7 +42,7 @@ class CppWrapperTest < Minitest::Test
   end
 
   def test_decorated_namespace_name
-    ns = Wrapture::PlainNamespace.new(%w[test namespace])
+    ns = Wrapture::Namespace.new(%w[test namespace])
     ns.source[:cpp] = { decorate_name: true }
     name = Wrapture::Wrapper::Cpp.namespace_name(ns)
 
@@ -50,16 +50,16 @@ class CppWrapperTest < Minitest::Test
   end
 
   def test_default_namespace_name
-    ns = Wrapture::PlainNamespace.new(%w[test namespace])
+    ns = Wrapture::Namespace.new(%w[test namespace])
     name = Wrapture::Wrapper::Cpp.namespace_name(ns)
 
     assert_equal('test_namespace', name)
   end
 
   def test_nested_context_namesapce
-    top_ns = Wrapture::PlainNamespace.new(%w[top namespace])
+    top_ns = Wrapture::Namespace.new(%w[top namespace])
     top_context = Wrapture::Context.new(top_ns)
-    nested_ns = Wrapture::PlainNamespace.new(%w[nested namespace])
+    nested_ns = Wrapture::Namespace.new(%w[nested namespace])
     nested_context = Wrapture::Context.new(nested_ns, parent: top_context)
     name = Wrapture::Wrapper::Cpp.context_namespace(nested_context)
 
@@ -67,7 +67,7 @@ class CppWrapperTest < Minitest::Test
   end
 
   def test_top_level_context_namespace
-    ns = Wrapture::PlainNamespace.new(%w[test namespace])
+    ns = Wrapture::Namespace.new(%w[test namespace])
     context = Wrapture::Context.new(ns)
     ns_name = Wrapture::Wrapper::Cpp.context_namespace(context)
 

@@ -37,8 +37,8 @@ class CToCppIntegrationTest < Minitest::Test
 
     # create the c++ wrapper and a CMake build
     spec_hash = fixture_hash('cmake_c_library')
-    scope = Wrapture::Scope.from_hash(spec_hash)
-    wrapper_sources = Wrapture::Wrapper::CToCpp.wrap_scope(scope)
+    c = Wrapture::Context.from_namespace_hash(spec_hash)
+    wrapper_sources = Wrapture::Wrapper::CToCpp.wrap_namespace_context(c)
     wrapper_build = Wrapture::Build::CmakeBuild.new(wrapper_sources)
 
     # write the wrapper source files

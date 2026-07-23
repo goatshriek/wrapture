@@ -37,22 +37,20 @@ module Wrapture
       def self.forward_declared?: (untyped) -> String
       def self.generate_pointer_copy_constructor?: (Wrapture::ClassSpec) -> bool
       def self.generate_pointer_move_constructor?: (Wrapture::ClassSpec) -> bool
-      def self.header_guard: (Wrapture::Named) -> String
       def self.header_name: (Wrapture::Scope | Wrapture::ClassSpec | Wrapture::EnumSpec) -> String
       def self.member_constructor: (Wrapture::ClassSpec) -> Wrapture::CppSource::CppFunction
       def self.member_function_from_spec: (Wrapture::FunctionSpec) -> Wrapture::CppSource::CppFunction
+      def self.namespace_header: (Namespace) -> CppSource::CppSourceFile
       def self.pointer_copy_constructor: (Wrapture::ClassSpec) -> Wrapture::CppSource::CppFunction
       def self.pointer_move_constructor: (Wrapture::ClassSpec) -> Wrapture::CppSource::CppFunction
       def self.resolve_action_value: (Wrapture::FunctionSpec, String) -> String
       def self.resolve_wrapped_param: (Wrapture::FunctionSpec, Wrapture::CSource::CDeclaration) -> String
-      def self.scope_headers: (Wrapture::Scope) -> Wrapture::CppSource::CppSourceFile
       def self.type_class_from_spec: (Wrapture::ClassSpec) -> Wrapture::CppSource::CppClass
-      def self.wrap_class: (ClassSpec, ?context: Namespace) -> CppSource::CppSourceSet
-      def self.wrap_constant: (ConstantSpec, ?context: Context) -> CppSource::CppSourceSet
-      def self.wrap_enum: (EnumSpec, ?context: Context) -> CppSource::CppSourceSet
-      def self.wrap_function: (FunctionSpec, ?context: Context) -> CppSource::CppSourceSet
-      def self.wrap_namespace: (Namespace, ?context: Context) -> CppSource::CppSourceSet
-      def self.wrap_scope: (Wrapture::Scope) -> Wrapture::CppSource::CppSourceSet
+      def self.wrap_class_context: (Context) -> CppSource::CppSourceSet
+      def self.wrap_constant_context: (Context) -> CppSource::CppSourceSet
+      def self.wrap_enum_context: (Context) -> CppSource::CppSourceSet
+      def self.wrap_function_context: (Context) -> CppSource::CppSourceSet
+      def self.wrap_namespace_context: (Context) -> CppSource::CppSourceSet
       def self.wrapped_error_check: (Wrapture::FunctionSpec) -> Array[untyped]
       def self.wrapped_function_call: (Wrapture::FunctionSpec) -> String
       def self.wrapper_captures_return?: (Wrapture::FunctionSpec) -> bool

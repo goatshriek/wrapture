@@ -15,11 +15,19 @@
 # limitations under the License.
 
 module Wrapture
-  module Namespace
-    def classes: -> Enumerable[ClassSpec]
-    def constants: -> Enumerable[ConstantSpec]
-    def enums: -> Enumerable[EnumSpec]
-    def functions: -> Enumerable[FunctionSpec]
-    def namespace: -> Enumerable[Namespace]
+  class Namespace
+    include Named
+
+    @name_words: Enumerable[String]
+    @named_contents: Array[Named]
+
+    attr_reader name_words: Enumerable[String]
+    attr_reader named_contents: Array[Named]
+    attr_reader source: Hash[Symbol, Hash[Symbol, untyped]]
+
+    def self.from_hash: (spec_hash) -> Namespace
+    def self.from_yaml_file: (String) -> Namespace
+
+    def initialize: (String | Enumerable[String]) -> void
   end
 end

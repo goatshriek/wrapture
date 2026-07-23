@@ -45,9 +45,24 @@ module Wrapture
         ['cpp'] + name_words
       end
 
-      # Gives the decorate name words for a Named instance.
+      # The decorated name words for Named instance +named+.
       def self.decorated_name(named)
         decorate_name_words(named.name_words)
+      end
+
+      # The symbol to use for header guard checks.
+      def self.header_guard(spec)
+        "#{spec.screaming_snake_case_name}_HPP"
+      end
+
+      # The name of the header file for Named entity +named+.
+      def self.header_name(named)
+        case named
+        when ClassSpec, EnumSpec
+          "#{named.upper_camel_case_name}.hpp"
+        else
+          "#{named.snake_case_name}.hpp"
+        end
       end
 
       # The effective C++ name for +namespace+.

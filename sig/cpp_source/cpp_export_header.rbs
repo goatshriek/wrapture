@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-# Copyright 2025-2026 Joel E. Anderson
+# Copyright 2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,13 +15,17 @@
 # limitations under the License.
 
 module Wrapture
-  module Wrapper
-    module Cpp
-      def self.context_namespace: (Context) -> String
-      def self.decorate_name_words: (Array[String]) -> Array[String]
-      def self.header_guard: (Wrapture::Named) -> String
-      def self.header_name: (Named) -> String
-      def self.namespace_name: (Namespace) -> String
+  module CppSource
+    class CppExportHeader < CppSourceFile
+      @base_name: String
+
+      def self.base_name: (Named) -> String
+      def self.export_header_name: (Named) -> String
+      def self.export_macro_name: (Named) -> String
+      def self.from_spec: (Named, ?path: (Pathname | String)) -> CppExportHeader
+
+      def initialize: ((Pathname | String), String) -> void
+      attr_reader base_name: String
     end
   end
 end

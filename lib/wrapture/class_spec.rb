@@ -109,7 +109,6 @@ module Wrapture
     # If the 'doc' key is present, it is validated using Comment::validate_doc.
     # If not, it is set to an empty string.
     def self.normalize_spec_hash!(spec)
-      raise MissingNamespace unless spec.key?(:namespace)
       raise MissingSpecKey, 'name key is required' unless spec.key?(:name)
 
       spec[:name] = Wrapture.normalize_name(spec, :name)

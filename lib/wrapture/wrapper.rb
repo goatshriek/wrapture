@@ -34,11 +34,13 @@ module Wrapture
   # map which wrappers are compatible with build systems and other wrappers.
   #
   # This module expects the following functions to be implemented:
-  # +self.wrap_class+
-  # +self.wrap_constant+
-  # +self.wrap_enum+
-  # +self.wrap_function+
-  # +self.wrap_namespace+
+  # +self.wrap_class_context+
+  # +self.wrap_constant_context+
+  # +self.wrap_enum_context+
+  # +self.wrap_function_context+
+  # +self.wrap_namespace_context+
+  # Each of these must take a single Context instance as their argument, with
+  # the root being of the named type, and return a SourceSet.
   module Wrapper
     # The symbol of the programming language this module's wrappers use as
     # input.
@@ -52,25 +54,54 @@ module Wrapture
       name.split('::').last.split('To').last.downcase.to_sym
     end
 
-    # Generates a wrapper for a given spec.
-    def wrap(spec, scope: nil, context: nil)
+    # Generates a wrapper for +context+.
+    def wrap(context, scope: nil)
+      spec = if context.is_a?(Context)
+               context.root
+             else
+               context
+             end
+
       case spec
       when ClassSpec
-        wrap_class(spec, scope: scope, context: context)
+        wrap_class_context(context, scope: scope)
       when ConstantSpec
-        wrap_constant(spec, context: context)
+        wrap_constant_context(context)
       when EnumSpec
-        wrap_enum(spec, context: context)
+        wrap_enum_context(context)
       when FunctionSpec
-        wrap_function(spec, context: context)
-      when Scope
-        wrap_scope(spec)
+        wrap_function_context(context)
       when Namespace
-        wrap_namespace(spec, context: context)
+        wrap_namespace_context(context)
       else
         wrap_name = 'Wrapture::Wrapper.wrap'
         raise InvalidSpec, "#{spec.class} not supported by #{wrap_name}"
       end
+    end
+
+    # Generates a wrapper for +class_spec+ in an empty Context.
+    def wrap_class(class_spec)
+      wrap_class_context(Context.new(class_spec))
+    end
+
+    # Generates a wrapper for +constant_spec+ in an empty Context.
+    def wrap_constant(constant_spec)
+      wrap_constant_context(Context.new(constant_spec))
+    end
+
+    # Generates a wrapper for +enum_spec+ in an empty Context.
+    def wrap_enum(enum_spec)
+      wrap_enum_context(Context.new(enum_spec))
+    end
+
+    # Generates a wrapper for +func_spec+ in an empty Context.
+    def wrap_function(func_spec)
+      wrap_function_context(Context.new(func_spec))
+    end
+
+    # Generates a wrapper for +namespace+ in an empty Context.
+    def wrap_namespace(namespace)
+      wrap_namespace_context(Context.new(namespace))
     end
   end
 

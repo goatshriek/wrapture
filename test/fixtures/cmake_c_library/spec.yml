@@ -15,7 +15,9 @@
 # limitations under the License.
 
 name: ['cmake', 'c', 'lib']
-decorate_wrapped_name: true
+source:
+  base:
+    decorate_wrapped_name: true
 classes:
   - name: CmakeCLib
     namespace: cmakeclib

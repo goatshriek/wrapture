@@ -52,24 +52,6 @@ class ScopeTest < Minitest::Test
     end
   end
 
-  def test_scope_with_enum
-    test_spec = fixture_hash('scope_with_enum')
-    scope = Wrapture::Scope.new(test_spec)
-    build = Wrapture::Wrapper::CToCpp.wrap_scope(scope)
-
-    validate_cpp_build(scope, build)
-    enum_name = test_spec[:enums][0][:name]
-    header_name = "#{enum_name}.hpp"
-
-    assert_includes(build, header_name)
-    header = build[header_name]
-
-    refute_nil(header)
-    test_spec[:enums][0][:elements].each do |element|
-      assert(source_file_contains_match?(header, element[:name]))
-    end
-  end
-
   def test_sequential_scope_load
     class_specs = [fixture_hash('basic_class'),
                    fixture_hash('child_class'),

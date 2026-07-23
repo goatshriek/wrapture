@@ -23,20 +23,14 @@ module Wrapture
   # provides the information needed to resolve relative references within specs
   # during wrapper generation. For example, a function being used as a method
   # in a class will resolve the type of the self/this instance using the
-  # context.
+  # context it is invoked within.
   #
-  # A Context has three attributes: an Enumerable of name words, a set of
-  # Named elements called contents, and a Context instance named parent. Note
-  # that while a Context is aware of the Context which contains it, it is not
-  # aware of any Contexts that it might contain. This is to ensure that the
-  # context chain is always walked in a specific to general direction.
-  #
-  # When a context resolves a name, it starts by searching its own contents,
-  # and if nothing is found then it defers to the parent Context.
+  # A Context has three attributes: a Named root element, a set of Context
+  # instances called contents, and a Context instance named parent.
   class Context
     include Named
 
-    # A Set of Named elements that this Context directly contains.
+    # A Set of Context instance which this context directly contains.
     attr_reader :contents
 
     # A Context that contains this one. If this is nil, then this Context is at
@@ -46,6 +40,40 @@ module Wrapture
     # The root of this context.
     attr_reader :root
 
+    # Creates a Context with a root of a Namespace constructed from +hash+, and
+    # contents derived from the +:classes+, +:constants+, +:enums+,
+    # and +:functions+ keys.
+    def self.from_namespace_hash(spec)
+      root = Namespace.from_hash(spec)
+      context = new(root)
+
+      if spec.key?(:classes)
+        spec[:classes].each do |it|
+          context << ClassSpec.new(it)
+        end
+      end
+
+      if spec.key?(:constants)
+        spec[:constants].each do |it|
+          context << ConstantSpec.new(it)
+        end
+      end
+
+      if spec.key?(:enums)
+        spec[:enums].each do |it|
+          context << EnumSpec.from_hash(it)
+        end
+      end
+
+      if spec.key?(:functions)
+        spec[:functions].each do |it|
+          context << FunctionSpec.from_hash(it)
+        end
+      end
+
+      context
+    end
+
     # A new Context is created from a source element, and may have a +parent+
     # Context.
     def initialize(root, parent: nil)
@@ -54,9 +82,49 @@ module Wrapture
       @root = root
     end
 
+    # Adds the given element to the context's contents. If the element is
+    # a Context instance then it is added directly, otherwise a new Context
+    # is created with the element as its root and this Context as the parent,
+    # and the new Context is added to the contents. The modified Context image
+    # is returned in either case.
+    def <<(element)
+      @contents << if element.is_a?(Context)
+                     element
+                   else
+                     Context.new(element, parent: self)
+                   end
+
+      self
+    end
+
+    # All contents with a ClassSpec root.
+    def classes
+      @contents.select { |it| it.root.is_a?(ClassSpec) }
+    end
+
+    # All contents with a ConstantSpec root.
+    def constants
+      @contents.select { |it| it.root.is_a?(ConstantSpec) }
+    end
+
+    # All contents with an EnumSpec root.
+    def enums
+      @contents.select { |it| it.root.is_a?(EnumSpec) }
+    end
+
+    # All contents with a FunctionSpec root.
+    def functions
+      @contents.select { |it| it.root.is_a?(FunctionSpec) }
+    end
+
     # The name words for this context.
     def name_words
       @root.name_words
+    end
+
+    # All contents with a Namespace root.
+    def namespaces
+      @contents.select { |it| it.root.is_a?(Namespace) }
     end
 
     # True if this context has a parent.
@@ -83,6 +151,15 @@ module Wrapture
         parent.resolve_name(name_words) if parent?
       else
         resolved
+      end
+    end
+
+    # The topmost parent of this context.
+    def top
+      if parent?
+        parent.top
+      else
+        self
       end
     end
   end

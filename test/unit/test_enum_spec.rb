@@ -26,7 +26,7 @@ class EnumSpecTest < Minitest::Test
   def test_documentation
     test_spec = fixture_hash('documented_enum')
     spec = Wrapture::EnumSpec.from_hash(test_spec)
-    build = Wrapture::Wrapper::CToCpp.wrap_enum(spec)
+    build = Wrapture::Wrapper::CToCpp.wrap_enum(Wrapture::Context.new(spec))
 
     source = build.sources.first
 

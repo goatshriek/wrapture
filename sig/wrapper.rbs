@@ -18,7 +18,12 @@ module Wrapture
   module Wrapper
     def from_language: () -> Symbol
     def to_language: () -> Symbol
-    def wrap: ((ClassSpec | EnumSpec | FunctionSpec | ConstantSpec | Namespace), ?context: Context) -> Build
+    def wrap: ((ClassSpec | ConstantSpec | EnumSpec | FunctionSpec | Namespace | Context)) -> SourceSet
+    def wrap_class: (ClassSpec) -> SourceSet
+    def wrap_constant: (ConstantSpec) -> SourceSet
+    def wrap_enum: (EnumSpec) -> SourceSet
+    def wrap_function: (FunctionSpec) -> SourceSet
+    def wrap_namespace: (Namespace) -> SourceSet
   end
 
   WRAPPERS: Array[Wrapture::Wrapper]

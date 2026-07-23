@@ -18,16 +18,26 @@ module Wrapture
   class Context
     include Named
 
-    @contents: Set[Named]
+    @contents: Set[Context]
     @parent: Context | nil
     @root: Named
 
-    attr_reader contents: Set[Named]
+    attr_reader contents: Set[Context]
     attr_reader parent: Context | nil
     attr_reader root: Named
 
+    def self.from_namespace_hash: (spec_hash) -> Context
+
     def initialize: (from: Named, ?parent: Context) -> void
+    def <<: (Context | Named) -> Context
+    def classes: -> Enumerable[Context]
+    def constants: -> Enumerable[Context]
+    def enums: -> Enumerable[Context]
+    def functions: -> Enumerable[Context]
+    def name_words: () -> Enumerable[String]
+    def namespace: -> Enumerable[Context]
     def parent?: () -> bool
     def resolve_name: (Enumerable[String]) -> (Named | nil)
+    def top: () -> Context
   end
 end

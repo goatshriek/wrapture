@@ -71,7 +71,7 @@ class CliTest < Minitest::Test
 
       assert_empty(out)
 
-      ns = Wrapture::PlainNamespace.from_yaml_file(ns_file)
+      ns = Wrapture::Namespace.from_yaml_file(ns_file)
 
       ns.classes.each do |it|
         assert_includes(Dir.children(dir), "#{it.camel_case_name}.cpp")
@@ -95,7 +95,7 @@ class CliTest < Minitest::Test
 
       assert_empty(out)
 
-      ns = Wrapture::PlainNamespace.from_yaml_file(ns_file)
+      ns = Wrapture::Namespace.from_yaml_file(ns_file)
 
       ns.classes.each do |it|
         assert_includes(Dir.children(dir), "#{it.camel_case_name}.cpp")
