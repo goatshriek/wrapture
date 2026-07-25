@@ -19,11 +19,11 @@ module Wrapture
     def from_language: () -> Symbol
     def to_language: () -> Symbol
     def wrap: ((ClassSpec | ConstantSpec | EnumSpec | FunctionSpec | Namespace | Context)) -> SourceSet
-    def wrap_class: (ClassSpec) -> SourceSet
-    def wrap_constant: (ConstantSpec) -> SourceSet
-    def wrap_enum: (EnumSpec) -> SourceSet
-    def wrap_function: (FunctionSpec) -> SourceSet
-    def wrap_namespace: (Namespace) -> SourceSet
+    def wrap_class: (ClassSpec | Context) -> SourceSet
+    def wrap_constant: (ConstantSpec | Context) -> SourceSet
+    def wrap_enum: (EnumSpec | Context) -> SourceSet
+    def wrap_function: (FunctionSpec | Context) -> SourceSet
+    def wrap_namespace: (Namespace | Context) -> SourceSet
   end
 
   WRAPPERS: Array[Wrapture::Wrapper]

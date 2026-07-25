@@ -32,7 +32,7 @@ module Wrapture
                     end
 
         if context.parent?
-          base_name.prepend('::').prepend(context_namespace(context.parent))
+          "#{context_namespace(context.parent)}::#{base_name}"
         else
           base_name
         end

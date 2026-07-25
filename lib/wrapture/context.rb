@@ -74,6 +74,22 @@ module Wrapture
       context
     end
 
+    # Creates a Context with a root of a Namespace constructed from the hash in
+    # the YAML file +filename+.
+    def self.from_namespace_yaml_file(filename)
+      # simplify this to just safe_load_file after Ruby 2.7 is dropped
+      ns_hash = if YAML.respond_to?('safe_load_file')
+                  YAML.safe_load_file(filename, symbolize_names: true)
+                else
+                  File.open(filename, 'r:bom|utf-8') do |f|
+                    YAML.safe_load(f, filename: filename,
+                                      symbolize_names: true)
+                  end
+                end
+
+      from_namespace_hash(ns_hash)
+    end
+
     # A new Context is created from a source element, and may have a +parent+
     # Context.
     def initialize(root, parent: nil)

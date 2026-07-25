@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2025 Joel E. Anderson
+# Copyright 2025-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,6 +25,9 @@ module Wrapture
     class CSourceSet
       include SourceSet
 
+      # The context representing what this source set implements.
+      attr_reader :context
+
       # The header files for the project's library.
       attr_reader :lib_headers
 
@@ -36,9 +39,6 @@ module Wrapture
 
       # The name of the library.
       attr_reader :name
-
-      # The spec representing what this source set implements.
-      attr_reader :spec
 
       # Creates a CSourceSet from a provided hash.
       def self.from_hash(spec)
@@ -77,7 +77,7 @@ module Wrapture
         @lib_headers = []
         @lib_links = []
         @lib_sources = []
-        @spec = nil
+        @context = nil
       end
 
       # Add the content of another C project to this one.

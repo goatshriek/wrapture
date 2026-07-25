@@ -26,15 +26,15 @@ class WrapTest < Minitest::Test
   def test_wrap
     config = Wrapture::Config::WrapConfig.new
     ns_file = fixture_yaml_path('minimal_namespace')
-    ns = Wrapture::Namespace.from_yaml_file(ns_file)
-    config.namespaces << ns
+    context = Wrapture::Context.from_namespace_yaml_file(ns_file)
+    config.contexts << context
     config.paths << Wrapture::Path.new('c,cpp')
 
     Dir.mktmpdir do |dir|
       config.output = dir
       Wrapture.wrap(config)
 
-      ns.classes.each do |it|
+      context.classes.each do |it|
         assert_includes(Dir.children(dir), "#{it.upper_camel_case_name}.cpp")
       end
     end

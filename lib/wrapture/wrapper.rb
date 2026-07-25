@@ -79,29 +79,60 @@ module Wrapture
       end
     end
 
-    # Generates a wrapper for +class_spec+ in an empty Context.
+    # Generates a wrapper for +class_spec+ in an empty Context. If +class_spec+
+    # is a Context, then it is passed to wrap_class_context unchanged.
     def wrap_class(class_spec)
-      wrap_class_context(Context.new(class_spec))
+      context = if class_spec.is_a?(Context)
+                  class_spec
+                else
+                  Context.new(class_spec)
+                end
+      wrap_class_context(context)
     end
 
-    # Generates a wrapper for +constant_spec+ in an empty Context.
+    # Generates a wrapper for +constant_spec+ in an empty Context. If
+    # +constant_spec+ is a Context, then it is passed to wrap_constant_context
+    # unchanged.
     def wrap_constant(constant_spec)
-      wrap_constant_context(Context.new(constant_spec))
+      context = if constant_spec.is_a?(Context)
+                  constant_spec
+                else
+                  Context.new(constant_spec)
+                end
+      wrap_constant_context(context)
     end
 
-    # Generates a wrapper for +enum_spec+ in an empty Context.
+    # Generates a wrapper for +enum_spec+ in an empty Context. If +enum_spec+
+    # is a Context, then it is passed to wrap_enum_context unchanged.
     def wrap_enum(enum_spec)
-      wrap_enum_context(Context.new(enum_spec))
+      context = if enum_spec.is_a?(Context)
+                  enum_spec
+                else
+                  Context.new(enum_spec)
+                end
+      wrap_enum_context(context)
     end
 
-    # Generates a wrapper for +func_spec+ in an empty Context.
+    # Generates a wrapper for +func_spec+ in an empty Context. If +func_spec+
+    # is a Context, then it is passed to wrap_func_context unchanged.
     def wrap_function(func_spec)
-      wrap_function_context(Context.new(func_spec))
+      context = if func_spec.is_a?(Context)
+                  func_spec
+                else
+                  Context.new(func_spec)
+                end
+      wrap_function_context(context)
     end
 
-    # Generates a wrapper for +namespace+ in an empty Context.
+    # Generates a wrapper for +namespace+ in an empty Context. If +namespace+
+    # is a Context, then it is passed to wrap_namespace_context unchanged.
     def wrap_namespace(namespace)
-      wrap_namespace_context(Context.new(namespace))
+      context = if namespace.is_a?(Context)
+                  namespace
+                else
+                  Context.new(namespace)
+                end
+      wrap_namespace_context(context)
     end
   end
 

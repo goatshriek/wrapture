@@ -14,9 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+name: [wrapture, test]
 classes:
   - name: "Gym"
-    namespace: "wrapture_test"
     source:
       c:
         name: "gym"
@@ -86,7 +86,6 @@ classes:
                   name: "struct gym_track"
                   includes: "gym.h"
   - name: "Pool"
-    namespace: "wrapture_test"
     source:
       c:
         pointer:
@@ -101,7 +100,6 @@ classes:
               return:
                 type: "equivalent_struct_pointer"
   - name: "Track"
-    namespace: "wrapture_test"
     source:
       c:
         pointer:

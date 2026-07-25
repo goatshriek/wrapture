@@ -270,11 +270,9 @@ class CToCppTest < Minitest::Test
   end
 
   def test_reference_to_pointer
-    test_spec = fixture_hash('scope_with_reference_param')
-    scope = Wrapture::Scope.new(test_spec)
-    build = Wrapture::Wrapper::CToCpp.wrap_scope(scope)
-
-    validate_cpp_build(scope, build)
+    test_spec = fixture_hash('namespace_with_reference_param')
+    c = Wrapture::Context.from_namespace_hash(test_spec)
+    build = Wrapture::Wrapper::CToCpp.wrap_namespace_context(c)
 
     assert(source_file_contains_match?(build['Rifle.cpp'],
                                        /bullet\.equivalent/),

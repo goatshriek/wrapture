@@ -23,30 +23,18 @@ module Wrapture
   module Config
     # Configuration information for a single wrap command.
     class WrapConfig
-      # A WrapConfig instance describes the namespaces, classes, enumerations,
-      # and functions that should be wrapped by an invocation, as well as the
-      # input and output language paths. Other details include parallelization,
-      # how to report progress, and output details.
+      # A WrapConfig instance describes the contexts that should be wrapped by
+      # an invocation, as well as the input and output language paths. Other
+      # details include parallelization, how to report progress, and output
+      # details.
       def initialize
-        @classes = []
-        @enums = []
-        @functions = []
-        @namespaces = []
+        @contexts = []
         @output = Pathname.pwd
         @paths = []
       end
 
       # A list of ClassSpec instances with class hashes to wrap.
-      attr_accessor :classes
-
-      # A list of EnumSpec instances with enum hashes to wrap.
-      attr_accessor :enums
-
-      # A list of FunctionSpec instances to wrap.
-      attr_accessor :functions
-
-      # A list of Namespace instances with specs to wrap.
-      attr_accessor :namespaces
+      attr_accessor :contexts
 
       # A Pathname for the output directory for generated wrappers.
       attr_accessor :output

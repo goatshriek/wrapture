@@ -22,15 +22,15 @@ module Wrapture
   # Generate wrappers for the given configuration.
   def self.wrap(config)
     config.paths.map do |path|
-      config.namespaces.map do |ns|
-        spec = ns
+      config.contexts.map do |it|
+        context = it
         path.wrappers.each do |wrapper|
-          source_set = wrapper.wrap(spec)
+          source_set = wrapper.wrap(context)
           source_set.save(config.output)
-          spec = source_set.spec
+          context = source_set.context
         end
 
-        spec
+        context
       end
     end
   end
