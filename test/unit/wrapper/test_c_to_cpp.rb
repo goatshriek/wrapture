@@ -128,14 +128,19 @@ class CToCppTest < Minitest::Test
 
   def test_header_for_namespace_with_class_and_enum
     spec_hash = fixture_hash('namespace_with_class_and_enum')
-    ns = Wrapture::Namespace.from_hash(spec_hash)
-    header = Wrapture::Wrapper::CToCpp.namespace_header(ns)
+    context = Wrapture::Context.from_namespace_hash(spec_hash)
+
+    assert_kind_of(Wrapture::Namespace, context.root)
+
+    header = Wrapture::Wrapper::CToCpp.namespace_context_header(context)
 
     refute_nil(header)
     assert_kind_of(Wrapture::CppSource::CppSourceFile, header)
 
-    (ns.classes + ns.enums).each do |it|
-      assert_source_file_contains_match(header, Cpp.header_name(it))
+    (context.classes + context.enums).each do |it|
+      content_name = Wrapture::Wrapper::Cpp.header_name(it.root)
+
+      assert(source_file_contains_match?(header, content_name))
     end
   end
 

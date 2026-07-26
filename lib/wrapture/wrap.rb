@@ -27,7 +27,7 @@ module Wrapture
         path.wrappers.each do |wrapper|
           source_set = wrapper.wrap(context)
           source_set.save(config.output)
-          context = source_set.context
+          context = source_set.contexts.first
         end
 
         context

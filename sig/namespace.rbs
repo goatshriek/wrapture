@@ -19,10 +19,9 @@ module Wrapture
     include Named
 
     @name_words: Enumerable[String]
-    @named_contents: Array[Named]
+    @source: Hash[Symbol, Hash[Symbol, untyped]]
 
     attr_reader name_words: Enumerable[String]
-    attr_reader named_contents: Array[Named]
     attr_reader source: Hash[Symbol, Hash[Symbol, untyped]]
 
     def self.from_hash: (spec_hash) -> Namespace

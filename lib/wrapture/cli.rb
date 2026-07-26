@@ -119,7 +119,7 @@ module Wrapture
                                         to: options[:to]&.to_sym)
                        end
 
-        options[:namespaces]&.each do |it|
+        options[:namespace]&.each do |it|
           config.contexts << Context.from_namespace_yaml_file(it)
         end
 

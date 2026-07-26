@@ -31,9 +31,6 @@ module Wrapture
     # The pieces of the namespace name.
     attr_reader :name_words
 
-    # The contents of this namespace.
-    attr_reader :named_contents
-
     # A Hash of language-specific wrapping details.
     #
     # Details for the C++ language are stored in the +:cpp+ key. This may have
@@ -104,7 +101,6 @@ module Wrapture
                     else
                       name
                     end
-      @named_contents = []
       @source = {}
     end
   end

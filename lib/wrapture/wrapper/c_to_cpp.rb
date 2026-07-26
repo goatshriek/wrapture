@@ -653,9 +653,10 @@ module Wrapture
         func
       end
 
-      # A header file for +namespace+ that includes all of its elements'
-      # headers.
-      def self.namespace_header(namespace)
+      # A header file for +context+ (with a Namespace root) that includes all
+      # of its contents headers.
+      def self.namespace_context_header(context)
+        namespace = context.root
         header_name = Cpp.header_name(namespace)
         header = Wrapture::CppSource::CppSourceFile.new(header_name)
 
@@ -664,8 +665,10 @@ module Wrapture
         header.puts("#define #{guard}")
         header.puts
 
-        includes = namespace.named_contents.filter_map do |it|
-          Cpp.header_name(it) if it.is_a?(ClassSpec) || it.is_a?(EnumSpec)
+        includes = context.contents.filter_map do |it|
+          if it.root.is_a?(ClassSpec) || it.root.is_a?(EnumSpec)
+            Cpp.header_name(it.root)
+          end
         end
 
         includes.sort.each do |it|
@@ -819,7 +822,7 @@ module Wrapture
       end
 
       # Generates a CppSourceSet for a C++ library wrapping a +context+ with a
-      # class root.
+      # ClassSpec root.
       def self.wrap_class_context(context, scope: Scope.new)
         class_spec = context.root
         set = CppSource::CppSourceSet.new(class_spec.name)
@@ -856,25 +859,29 @@ module Wrapture
         source_set_name = Cpp.namespace_name(namespace)
         source_set = CppSource::CppSourceSet.new(source_set_name)
 
-        source_set.add_lib_header(namespace_header(namespace))
+        source_set.add_lib_header(namespace_context_header(context))
 
         export = CppSource::CppExportHeader.from_spec(namespace)
         source_set.add_lib_header(export)
 
         context.classes.each do |it|
-          source_set << wrap_class(it)
+          source_set << wrap_class_context(it)
         end
 
         context.constants.each do |it|
-          source_set << wrap_constant(it)
+          source_set << wrap_constant_context(it)
         end
 
         context.enums.each do |it|
-          source_set << wrap_enum(it)
+          source_set << wrap_enum_context(it)
         end
 
         context.functions.each do |it|
-          source_set << wrap_function(it)
+          source_set << wrap_function_context(it)
+        end
+
+        context.namespaces.each do |it|
+          source_set << wrap_namespace_context(it)
         end
 
         source_set

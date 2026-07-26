@@ -26,7 +26,7 @@ module Wrapture
       include SourceSet
 
       # The context representing what this source set implements.
-      attr_reader :context
+      attr_reader :contexts
 
       # The header files for the project's library.
       attr_reader :lib_headers
@@ -77,7 +77,7 @@ module Wrapture
         @lib_headers = []
         @lib_links = []
         @lib_sources = []
-        @context = nil
+        @contexts = []
       end
 
       # Add the content of another C project to this one.

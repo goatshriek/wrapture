@@ -25,10 +25,10 @@ module Wrapture
   # Classes can use this module by implementing +sources+ as an enumerable of
   # source files they contain.
   #
-  # A source set must also have a spec associated with it, accessible as +spec+,
-  # which describes the implementation that the source files produced. This
-  # allows source sets to be used as input to wrappers, which in turn allows
-  # wrappers to be chained together.
+  # A source set must also have at least one Context associated with it,
+  # accessible as +contexts+, which describes the implementation that the
+  # source files produced. This allows source sets to be used as input to
+  # wrappers, which in turn allows wrappers to be chained together.
   module SourceSet
     # Get the source file associated with a key.
     #

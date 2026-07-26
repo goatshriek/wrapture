@@ -84,12 +84,11 @@ module Wrapture
       def self.type_object_name: (Wrapture::Named class_spec) -> String
       def self.type_object_pointer: (Wrapture::ClassSpec class_spec) -> (String | nil)
       def self.type_struct_name: (Wrapture::Named class_spec) -> String
-      def self.wrap_class: (ClassSpec, ?context: Namespace) -> PythonSource::PythonSourceSet
-      def self.wrap_constant: (ConstantSpec, ?context: Namespace) -> PythonSource::PythonSourceSet
-      def self.wrap_enum: (EnumSpec, ?context: Namespace) -> PythonSource::PythonSourceSet
-      def self.wrap_function: (FunctionSpec, ?context: Namespace) -> PythonSource::PythonSourceSet
-      def self.wrap_namespace: (Namespace, ?context: Namespace) -> PythonSource::PythonSourceSet
-      def self.wrap_scope: (Wrapture::Scope) -> Wrapture::PythonSource::PythonSourceSet
+      def self.wrap_class_context: (Context) -> PythonSource::PythonSourceSet
+      def self.wrap_constant_context: (Context) -> PythonSource::PythonSourceSet
+      def self.wrap_enum_context: (Context) -> PythonSource::PythonSourceSet
+      def self.wrap_function_context: (Context) -> PythonSource::PythonSourceSet
+      def self.wrap_namespace_context: (Context) -> PythonSource::PythonSourceSet
       def self.wrapped_error_check: (Wrapture::FunctionSpec, Wrapture::Scope) -> Array[untyped]
       def self.wrapped_function_call: (Wrapture::FunctionSpec) -> String
       def self.wrapper_param_locals: (Wrapture::FunctionSpec) -> Enumerable[Wrapture::CSource::CDeclaration]

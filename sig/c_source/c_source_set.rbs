@@ -19,13 +19,13 @@ module Wrapture
     class CSourceSet
       include SourceSet
 
-      @context: Context
+      @contexts: Array[Context]
       @lib_headers: Array[Wrapture::SourceFile]
       @lib_links: Array[String]
       @lib_sources: Array[Wrapture::SourceFile]
       @name: String
 
-      attr_reader context: Wrapture::Context
+      attr_reader contexts: Array[Context]
       attr_reader lib_headers: Array[Wrapture::SourceFile]
       attr_reader lib_links: Array[String]
       attr_reader lib_sources: Array[Wrapture::SourceFile]

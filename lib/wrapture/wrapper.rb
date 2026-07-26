@@ -64,15 +64,15 @@ module Wrapture
 
       case spec
       when ClassSpec
-        wrap_class_context(context, scope: scope)
+        wrap_class(context, scope: scope)
       when ConstantSpec
-        wrap_constant_context(context)
+        wrap_constant(context)
       when EnumSpec
-        wrap_enum_context(context)
+        wrap_enum(context)
       when FunctionSpec
-        wrap_function_context(context)
+        wrap_function(context)
       when Namespace
-        wrap_namespace_context(context)
+        wrap_namespace(context)
       else
         wrap_name = 'Wrapture::Wrapper.wrap'
         raise InvalidSpec, "#{spec.class} not supported by #{wrap_name}"

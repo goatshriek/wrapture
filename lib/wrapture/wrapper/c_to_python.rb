@@ -1352,6 +1352,20 @@ module Wrapture
         "#{class_spec.snake_case_name}_type_struct"
       end
 
+      # Generates a PythonSourceSet for a Python library wrapping a +context+
+      # with a ClassSpec root.
+      def self.wrap_class_context(context)
+        # TODO: implement
+        PythonSource::PythonSourceSet.new(context.root.snake_case_name)
+      end
+
+      # Generates a PythonSourceSet for a Python library wrapping a +context+
+      # with a Namespace root.
+      def self.wrap_namespace_context(context)
+        # TODO: implement
+        PythonSource::PythonSourceSet.new(context.root.snake_case_name)
+      end
+
       # Generates a build for a Python library wrapping the provided scope.
       #
       # +scope+ describes all of the classes and other entities that will be

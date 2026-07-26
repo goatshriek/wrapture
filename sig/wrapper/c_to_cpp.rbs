@@ -40,7 +40,7 @@ module Wrapture
       def self.header_name: (Wrapture::Scope | Wrapture::ClassSpec | Wrapture::EnumSpec) -> String
       def self.member_constructor: (Wrapture::ClassSpec) -> Wrapture::CppSource::CppFunction
       def self.member_function_from_spec: (Wrapture::FunctionSpec) -> Wrapture::CppSource::CppFunction
-      def self.namespace_header: (Namespace) -> CppSource::CppSourceFile
+      def self.namespace_context_header: (Context) -> CppSource::CppSourceFile
       def self.pointer_copy_constructor: (Wrapture::ClassSpec) -> Wrapture::CppSource::CppFunction
       def self.pointer_move_constructor: (Wrapture::ClassSpec) -> Wrapture::CppSource::CppFunction
       def self.resolve_action_value: (Wrapture::FunctionSpec, String) -> String
