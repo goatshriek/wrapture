@@ -25,7 +25,11 @@ begin
   end
 
   SimpleCov.start do
-    skip '/test/'
+    if SimpleCov.respond_to?(:skip)
+      skip '/test/'
+    else
+      add_filter '/test/'
+    end
   end
 rescue LoadError
   puts 'could not load code coverage tools'

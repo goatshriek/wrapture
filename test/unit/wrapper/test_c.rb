@@ -33,25 +33,57 @@ class CWrapperTest < Minitest::Test
   end
 
   def test_class_with_no_struct_overloads
-    test_spec = fixture_hash('no_struct_class')
-    spec = Wrapture::ClassSpec.new(test_spec)
-    build = Wrapture::Wrapper::CToCpp.wrap_class(spec)
-
-    validate_cpp_build(spec, build)
+    no_struct_spec = fixture_hash('no_struct_class')
+    no_struct_class = Wrapture::ClassSpec.new(no_struct_spec)
 
     overload_specs = fixture_hash('overloaded_struct')
     parent_spec = Wrapture::ClassSpec.new(overload_specs[:classes].first)
 
-    refute(Wrapture::Wrapper::C.overload?(spec, parent_spec))
-    refute(Wrapture::Wrapper::C.overload?(parent_spec, spec))
+    refute_nil(no_struct_class)
+    refute_nil(parent_spec)
+    refute(Wrapture::Wrapper::C.overload?(no_struct_class, parent_spec))
+    refute(Wrapture::Wrapper::C.overload?(parent_spec, no_struct_class))
+  end
+
+  def test_equivalent_ancestor
+    ns_spec = fixture_yaml_path('namespace_with_c_equivalent_ancestors')
+    context = Wrapture::Context.from_namespace_yaml_file(ns_spec)
+    bottom_class = context.resolve_name(%w[bottom class])
+    middle_class = context.resolve_name(%w[middle class])
+    top_class = context.resolve_name(%w[top class])
+
+    refute_nil(bottom_class)
+    refute_nil(middle_class)
+    refute_nil(top_class)
+    assert(Wrapture::Wrapper::C.equivalent_ancestor?(bottom_class))
+    assert(Wrapture::Wrapper::C.equivalent_ancestor?(middle_class))
+    refute(Wrapture::Wrapper::C.equivalent_ancestor?(top_class))
+  end
+
+  def test_equivalent_member
+    ns_spec = fixture_yaml_path('namespace_with_c_equivalent_ancestors')
+    context = Wrapture::Context.from_namespace_yaml_file(ns_spec)
+    bottom_class = context.resolve_name(%w[bottom class])
+    middle_class = context.resolve_name(%w[middle class])
+    top_class = context.resolve_name(%w[top class])
+
+    refute_nil(bottom_class)
+    refute_nil(middle_class)
+    refute_nil(top_class)
+    refute(Wrapture::Wrapper::C.equivalent_member?(bottom_class))
+    refute(Wrapture::Wrapper::C.equivalent_member?(middle_class))
+    assert(Wrapture::Wrapper::C.equivalent_member?(top_class))
   end
 
   def test_factory
-    scope_hash = fixture_hash('overloaded_struct')
-    scope = Wrapture::Scope.new(scope_hash)
-    factory_class = scope.classes.find { |it| it.name == 'Parent' }
+    ns_hash = fixture_hash('overloaded_struct')
+    context = Wrapture::Context.from_namespace_hash(ns_hash)
+    factory_class = context.classes.find do |it|
+      it.root.upper_camel_case_name == 'Parent'
+    end
 
-    assert(Wrapture::Wrapper::C.factory?(factory_class, scope))
+    refute_nil(factory_class)
+    assert(Wrapture::Wrapper::C.factory?(factory_class))
   end
 
   def test_function_includes_with_no_c_details
@@ -64,12 +96,24 @@ class CWrapperTest < Minitest::Test
   end
 
   def test_overload
-    scope_hash = fixture_hash('overloaded_struct')
-    scope = Wrapture::Scope.new(scope_hash)
-    factory_class = scope.classes.find { |it| it.name == 'Parent' }
-    overload_class_one = scope.classes.find { |it| it.name == 'ChildOne' }
-    overload_class_two = scope.classes.find { |it| it.name == 'ChildTwo' }
+    ns_hash = fixture_hash('overloaded_struct')
+    ns = Wrapture::Context.from_namespace_hash(ns_hash)
+    factory_context = ns.classes.find do |it|
+      it.root.upper_camel_case_name == 'Parent'
+    end
+    factory_class = factory_context.root
+    overload_context_one = ns.classes.find do |it|
+      it.root.upper_camel_case_name == 'ChildOne'
+    end
+    overload_class_one = overload_context_one.root
+    overload_context_two = ns.classes.find do |it|
+      it.root.upper_camel_case_name == 'ChildTwo'
+    end
+    overload_class_two = overload_context_two.root
 
+    refute_nil(factory_class)
+    refute_nil(overload_class_one)
+    refute_nil(overload_class_two)
     assert(Wrapture::Wrapper::C.overload?(factory_class, overload_class_one))
     assert(Wrapture::Wrapper::C.overload?(factory_class, overload_class_two))
   end

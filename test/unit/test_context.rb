@@ -64,15 +64,15 @@ class ContextTest < Minitest::Test
     func_name = %w[test function]
     func = Wrapture::FunctionSpec.new(func_name)
     c = Wrapture::Context.new(ns)
-    c.contents << func
-    c.contents << enum
+    c << func
+    c << enum
     resolved_enum = c.resolve_name(enum_name)
     resolved_func = c.resolve_name(func_name)
 
     refute_nil(resolved_enum)
     refute_nil(resolved_func)
-    assert_same(enum, resolved_enum)
-    assert_same(func, resolved_func)
+    assert_same(enum, resolved_enum.root)
+    assert_same(func, resolved_func.root)
   end
 
   def test_empty_name_namespace_name_resolution
@@ -88,7 +88,8 @@ class ContextTest < Minitest::Test
     resolved_ns = c.resolve_name(ns_name)
 
     refute_nil(resolved_ns)
-    assert_same(ns, resolved_ns)
+    assert_kind_of(Wrapture::Context, resolved_ns)
+    assert_same(ns, resolved_ns.root)
   end
 
   def test_from_namespace_hash
@@ -97,8 +98,20 @@ class ContextTest < Minitest::Test
 
     refute_nil(context)
     assert_kind_of(Wrapture::Namespace, context.root)
-    assert(context.contents.any?(Wrapture::ClassSpec))
-    assert(context.contents.any?(Wrapture::EnumSpec))
+    refute_empty(context.classes)
+    refute_empty(context.enums)
+  end
+
+  def test_from_namespace_hash_with_anchors
+    test_spec = fixture_hash('namespace_with_anchors')
+    context = Wrapture::Context.from_namespace_hash(test_spec)
+    used_structs = %w[one_struct two_struct red_struct blue_struct]
+
+    used_structs.each do |struct_name|
+      assert(context.classes.any? do |it|
+        it.root[:c].c_type.name == struct_name
+      end)
+    end
   end
 
   def test_from_namespace_hash_with_class_and_enum
@@ -117,12 +130,13 @@ class ContextTest < Minitest::Test
     parent_context = Wrapture::Context.new(parent_ns)
     func_name = %w[test function]
     func = Wrapture::FunctionSpec.new(func_name)
-    parent_context.contents << func
+    parent_context << func
     c = Wrapture::Context.new(context_ns, parent: parent_context)
     resolved_func = c.resolve_name(func_name)
 
     refute_nil(resolved_func)
-    assert_same(func, resolved_func)
+    assert_kind_of(Wrapture::Context, resolved_func)
+    assert_same(func, resolved_func.root)
   end
 
   def test_functions
@@ -152,13 +166,13 @@ class ContextTest < Minitest::Test
     c = Wrapture::Context.new(ns)
     func_name = %w[single]
     func = Wrapture::FunctionSpec.new(func_name)
-    c.contents << func
+    c << func
     result = c.resolve_name(func_name)
 
     refute_nil(result)
-    assert_kind_of(Wrapture::FunctionSpec, result)
-    assert_same(func, result)
-    assert_equal(func_name, result.name_words)
+    assert_kind_of(Wrapture::Context, result)
+    assert_same(func, result.root)
+    assert_equal(func_name, result.root.name_words)
   end
 
   def test_parent_name_resolution
@@ -170,7 +184,14 @@ class ContextTest < Minitest::Test
     resolved_ns = c.resolve_name(parent_ns_name)
 
     refute_nil(resolved_ns)
-    assert_same(parent_ns, resolved_ns)
+    assert_kind_of(Wrapture::Context, resolved_ns)
+    assert_same(parent_ns, resolved_ns.root)
+  end
+
+  def test_resolve_nil_name
+    context = Wrapture::Context.new(Wrapture::Namespace.new(%w[test ns]))
+
+    assert_nil(context.resolve_name(nil))
   end
 
   def test_single_function_in_namespace_name_resolution
@@ -179,11 +200,13 @@ class ContextTest < Minitest::Test
     func_name = %w[test function]
     func = Wrapture::FunctionSpec.new(func_name)
     c = Wrapture::Context.new(ns)
-    c.contents << func
+    c << func
     resolved_func = c.resolve_name(func_name)
 
     refute_nil(resolved_func)
-    assert_same(func, resolved_func)
+    assert_kind_of(Wrapture::Context, resolved_func)
+    assert_kind_of(Wrapture::FunctionSpec, resolved_func.root)
+    assert_same(func, resolved_func.root)
   end
 
   def test_top_with_three_levels

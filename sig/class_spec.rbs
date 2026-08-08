@@ -21,14 +21,14 @@ module Wrapture
     @constants: Array[Wrapture::ConstantSpec]
     @doc: Wrapture::Comment
     @functions: Array[Wrapture::FunctionSpec]
-    @scope: Wrapture::Scope
-    @source: Hash[Symbol, CSource::CStruct]
+    @parent: Enumerable[String] | nil
+    @source: Hash[Symbol, CSource::CStruct] | nil
     @spec: spec_hash
 
     attr_reader constants: Array[Wrapture::ConstantSpec]
     attr_reader doc: Wrapture::Comment
     attr_reader functions: Array[Wrapture::FunctionSpec]
-    attr_reader scope: Wrapture::Scope
+    attr_reader parent: Enumerable[String] | nil
     attr_reader source: Hash[Symbol, CSource::CStruct] | nil
 
     def self.effective_type: (spec_hash spec) -> String

@@ -15,11 +15,9 @@
 # limitations under the License.
 
 name: "ChildClass"
-namespace: "wrapture_test"
 source:
   c:
     pointer:
       name: "error_struct"
 parent:
-  name: "exception"
-  includes: "exception"
+  name: "ParentClass"

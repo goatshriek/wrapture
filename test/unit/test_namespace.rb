@@ -75,4 +75,12 @@ class NamespaceTest < Minitest::Test
 
     assert_equal('TestNamespace', ns.upper_camel_case_name)
   end
+
+  def test_versioned_hash
+    ns_hash = fixture_hash('versioned_namespace')
+    ns = Wrapture::Namespace.from_hash(ns_hash)
+
+    refute_nil(ns)
+    assert_equal(%w[wrapture test], ns.name_words)
+  end
 end

@@ -32,6 +32,7 @@ class CToPythonTest < Minitest::Test
     source_set = Wrapture::Wrapper::CToPython.wrap_scope(class_spec.scope)
     module_source = source_set['wrapture_test.c']
 
+    refute_nil(module_source)
     assert_kind_of(Wrapture::CSource::CSourceFile, module_source)
 
     python_included = module_source.tree.any? do |it|

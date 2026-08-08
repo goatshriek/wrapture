@@ -35,6 +35,9 @@ module Wrapture
     # The list of functions in this class.
     attr_reader :functions
 
+    # The name words of the parent of this class, or nil if it has no parent.
+    attr_reader :parent
+
     # The scope of this class.
     attr_reader :scope
 
@@ -213,6 +216,15 @@ module Wrapture
           @source[:c] = CSource::CStruct.from_hash(spec[:source][:c])
         end
       end
+
+      @parent = if @spec.key?(:parent) && @spec[:parent].key?(:name)
+                  name = @spec[:parent][:name]
+                  if name.is_a?(String)
+                    Named.words_from_name(name)
+                  else
+                    Wrapture.normalize_name_words(name)
+                  end
+                end
     end
 
     # Get the wrapping details for the given language. This is equivalent to
@@ -229,7 +241,7 @@ module Wrapture
 
     # True if the class has a parent.
     def child?
-      @spec.key?(:parent)
+      !@parent.nil?
     end
 
     # A list of constructor functions for the class.
@@ -285,12 +297,13 @@ module Wrapture
 
     # The name of the parent of this class, or nil if there is no parent.
     def parent_name
-      # TODO: this needs to use the actual class spec method instead of the hash
-      @spec[:parent][:name] if child?
+      # TODO: remove
+      @parent.join
     end
 
     # The class spec of the parent class, or nil if this cannot be resolved.
     def parent_spec
+      # TODO: remove
       type(TypeSpec.new(parent_name))
     end
 

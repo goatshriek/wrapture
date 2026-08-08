@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2025 Joel E. Anderson
+# Copyright 2025-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,32 +29,36 @@ module Wrapture
         ['c'] + name_words
       end
 
-      # True if one of the ancestors of a class has an equivalent struct that
-      # it can use.
-      #
-      # TODO: For now we only check the direct parent class. However,
-      # once a context is formalized into a type, it should be changed
-      # to that, and the entire chain should be checked.
-      def self.equivalent_ancestor?(class_spec)
+      # True if one of the ancestors of the ClassSpec at the root of +context+
+      # has an equivalent struct that it can use.
+      def self.equivalent_ancestor?(context)
+        class_spec = context.root
         return false unless class_spec.child?
 
-        parent = class_spec.parent_spec
-        !parent.nil? &&
-          parent.source.key?(:c) &&
-          parent[:c] == class_spec[:c]
+        parent_context = context.resolve_name(context.root.parent)
+        until parent_context.nil?
+          parent_source = parent_context.root.source
+          if parent_source.key?(:c) && parent_source[:c] == class_spec[:c]
+            return true
+          else
+            next_parent_name = parent_context.root.parent
+            parent_context = parent_context.resolve_name(next_parent_name)
+          end
+        end
       end
 
-      # True if the class has an underlying equivalent struct member for itself.
+      # True if the class at the root of +context+ has an underlying equivalent
+      # struct member for itself.
       #
       # A class might not have an equivalent struct member even though it
       # wraps a struct. One such example is if it is able to use one of its
       # ancestor's members if it wraps the same struct.
-      def self.equivalent_member?(class_spec)
+      def self.equivalent_member?(context)
         # there's no equivalent member if there's no wrapped struct
-        return false unless class_spec.source.key?(:c)
+        return false unless context.root.source.key?(:c)
 
         # let's see if we can re-use an ancestor's struct
-        !equivalent_ancestor?(class_spec)
+        !equivalent_ancestor?(context)
       end
 
       # The equivalent struct pointer type for a class spec if an underlying
@@ -89,7 +93,7 @@ module Wrapture
         class_spec[:c] if class_spec.source.key?(:c)
       end
 
-      # True if the given ClassSpec is a factory in the given context. A factory
+      # True if the ClassSpec at the root of +context+ is a factory. A factory
       # class can generate instances of different classes from the same struct,
       # based on rules specified for each class.
       #
@@ -98,20 +102,30 @@ module Wrapture
       # factory class itself may not have any rules associated with its struct.
       #
       # TODO: can the child and no rules in the parent rules be relaxed?
-      def self.factory?(class_spec, context)
+      def self.factory?(context)
+        class_spec = context.root
         class_struct = equivalent_struct(class_spec)
         return false if class_struct.nil?
 
-        unless class_struct.rules.empty? && equivalent_member?(class_spec)
+        unless class_struct.rules.empty? && equivalent_member?(context)
           return false
         end
 
-        context.classes.any? do |it|
-          other_struct = equivalent_struct(it)
+        overloaded_class = context.resolve do |it|
+          next unless it.root.is_a?(ClassSpec)
+          next unless it.root.child?
+
+          other_struct = equivalent_struct(it.root)
+          next if other_struct.nil? || other_struct.rules.empty?
+
+          # TODO: this needs to be update to only use name words
+          parent_name = Named.upper_camel_case_name(it.root.parent)
+
           class_struct.name == other_struct.name &&
-            class_spec.name == it.parent_name &&
-            !other_struct.rules.empty?
+            class_spec.upper_camel_case_name == parent_name
         end
+
+        !overloaded_class.nil?
       end
 
       # An array with all includes in the given spec. For specs that include
@@ -170,14 +184,19 @@ module Wrapture
       # factory. That is, if the wrapped struct of the overload class is the
       # same as that of the factory class, with additional rules.
       def self.overload?(factory, overload)
+        return false unless overload.child?
+
         factory_struct = equivalent_struct(factory)
         overload_struct = equivalent_struct(overload)
+        # TODO: this should compare name words, not specific name forms
+        factory_name = factory.upper_camel_case_name
+        parent_name = Named.upper_camel_case_name(overload.parent)
 
         !factory_struct.nil? &&
           !overload_struct.nil? &&
           factory_struct.rules.empty? &&
           factory_struct.name == overload_struct.name &&
-          factory.name == overload.parent_name &&
+          factory_name == parent_name &&
           !overload_struct.rules.empty?
       end
 

@@ -38,7 +38,8 @@ module Wrapture
     def name_words: () -> Enumerable[String]
     def namespace: -> Enumerable[Context]
     def parent?: () -> bool
-    def resolve_name: (Enumerable[String]) -> (Named | nil)
+    def resolve: () {(Context) -> bool} -> (Context | nil)
+    def resolve_name: (Enumerable[String]) -> (Context | nil)
     def top: () -> Context
   end
 end

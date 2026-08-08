@@ -42,16 +42,6 @@ class ScopeTest < Minitest::Test
     assert_equal('wrapture_test', scope.name)
   end
 
-  def test_scope_with_anchors
-    test_spec = fixture_hash('scope_with_anchors')
-    scope = Wrapture::Scope.new(test_spec)
-    used_structs = %w[one_struct two_struct red_struct blue_struct]
-
-    used_structs.each do |struct_name|
-      assert(scope.classes.any? { |it| it[:c].c_type.name == struct_name })
-    end
-  end
-
   def test_sequential_scope_load
     class_specs = [fixture_hash('basic_class'),
                    fixture_hash('child_class'),
@@ -71,15 +61,5 @@ class ScopeTest < Minitest::Test
     class_spec = Wrapture::ClassSpec.new(spec_hash)
 
     refute_predicate(class_spec.scope, :definable?)
-  end
-
-  def test_versioned_scope
-    test_spec = fixture_hash('versioned_scope')
-    scope = Wrapture::Scope.new(test_spec)
-    build = Wrapture::Wrapper::CToCpp.wrap_scope(scope)
-
-    validate_cpp_build(scope, build)
-
-    assert_equal(test_spec[:classes].count, scope.classes.count)
   end
 end

@@ -20,10 +20,10 @@ module Wrapture
       extend Wrapper
 
       def self.ancestor_suffix: (Wrapture::ClassSpec) -> String
-      def self.converter: (untyped, untyped, untyped) -> Proc
+      def self.converter: (untyped, untyped, Context) -> Proc
       def self.declaration_filename: (untyped) -> String
-      def self.declaration_includes: (Wrapture::ClassSpec, ?context: Wrapture::Context) -> Array[String]
-      def self.declare_class: (Wrapture::ClassSpec, Wrapture::Context) -> Wrapture::SourceFile
+      def self.declaration_includes: (Context) -> Array[String]
+      def self.declare_class: (Context) -> SourceFile
       def self.declare_member_function_locals: (Wrapture::CppSource::CppBlock, Wrapture::FunctionSpec) -> Wrapture::CppSource::CppBlock
       def self.define_alias_constructor: (Wrapture::ClassSpec, Wrapture::FunctionSpec) -> Wrapture::CppSource::CppFunction
       def self.define_class: (Wrapture::ClassSpec, Wrapture::Context) -> Wrapture::SourceFile
@@ -31,7 +31,7 @@ module Wrapture
       def self.define_enum: (Wrapture::ClassSpec, Wrapture::Scope) -> Wrapture::SourceFile
       def self.defined_class_from_spec: (Wrapture::ClassSpec, Wrapture::Scope) -> Wrapture::CppSource::CppClass
       def self.definition_filename: (Wrapture::ClassSpec | Wrapture::EnumSpec) -> String
-      def self.definition_includes: (Wrapture::ClassSpec | Wrapture::EnumSpec) -> Array[String]
+      def self.definition_includes: Context) -> Array[String]
       def self.enum_from_spec: (Wrapture::EnumSpec) -> Wrapture::CppSource::CppEnum
       def self.factory_member_function: (Wrapture::ClassSpec) -> Wrapture::CppSource::CppFunction
       def self.forward_declared?: (untyped) -> String

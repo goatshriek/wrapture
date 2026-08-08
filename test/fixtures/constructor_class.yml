@@ -15,7 +15,6 @@
 # limitations under the License.
 
 name: "ClassWithConstructor"
-namespace: "wrapture_test"
 source:
   c:
     name: "constructed_struct"

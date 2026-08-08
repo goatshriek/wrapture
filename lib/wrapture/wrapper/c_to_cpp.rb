@@ -144,22 +144,22 @@ module Wrapture
         "#{spec.upper_camel_case_name}.hpp"
       end
 
-      # The headers needed to declare +class_spec+. This does not necessarily
-      # match the C includes for a spec. The includes for things like calling
-      # wrapped functions and invoking error handling are not needed for the
-      # declaration. Additional C++ includes may also be present to bring in
-      # type declarations for parameters declared by Wrapture.
-      #
-      # If +context+ is not nil, then the list will include headers needed to
-      # generate wrappings within the given Context.
-      def self.declaration_includes(class_spec, context: nil)
+      # The headers needed to declare the class rooted at +context+. This does
+      # not necessarily match the C includes for a spec. The includes for
+      # things like calling wrapped functions and invoking error handling are
+      # not needed for the declaration. Additional C++ includes may also be
+      # present to bring in type declarations for parameters declared by
+      # Wrapture.
+      def self.declaration_includes(context)
         includes = []
 
-        unless context.nil?
-          base_name = CSource::CExportHeader.export_header_name(context.root)
+        if context.parent?
+          parent_root = context.parent.root
+          base_name = CSource::CExportHeader.export_header_name(parent_root)
           includes << "#{base_name}pp"
         end
 
+        class_spec = context.root
         includes.concat(class_spec[:c].includes) if class_spec.source.key?(:c)
 
         class_spec.functions.each do |func|
@@ -187,8 +187,10 @@ module Wrapture
         includes.uniq
       end
 
-      # Generate a source file with the declaration of a class within +context+.
-      def self.declare_class(class_spec, scope, context)
+      # Generate a source file with the declaration of the class at the root of
+      # +context+.
+      def self.declare_class(context, scope)
+        class_spec = context.root
         src = CppSource::CppSourceFile.new(Cpp.header_name(class_spec))
 
         guard = Cpp.header_guard(class_spec)
@@ -196,7 +198,7 @@ module Wrapture
         src.puts("#define #{guard}")
         src.puts
 
-        declaration_includes(class_spec, context: context).sort.each do |inc|
+        declaration_includes(context).sort.each do |inc|
           src << CSource::CInclude.new(inc)
         end
 
@@ -445,12 +447,11 @@ module Wrapture
         end
       end
 
-      # The includes needed in the definition file for the given +class_spec+.
-      # If +context+ is not nil, the list will have includes needed to define
-      # the class withing the given Context.
-      def self.definition_includes(class_spec, scope, context: nil)
-        inc = [declaration_filename(class_spec)]
-        inc.concat(declaration_includes(class_spec, context: context))
+      # The includes needed in the definition file for the spec at the root of
+      # +context+.
+      def self.definition_includes(context)
+        inc = [declaration_filename(context.root)]
+        inc.concat(declaration_includes(context))
         inc.concat(C.includes(class_spec))
 
         if C.factory?(class_spec, class_spec.scope)
@@ -459,7 +460,7 @@ module Wrapture
           end
         end
 
-        class_spec.functions.each do |func_spec|
+        context.functions.map(&:root).each do |func_spec|
           next unless func_spec.source.key?(:c)
 
           action = func_spec[:c].error_action
@@ -827,7 +828,7 @@ module Wrapture
         class_spec = context.root
         set = CppSource::CppSourceSet.new(class_spec.name)
 
-        set.add_lib_header(declare_class(class_spec, scope, context))
+        set.add_lib_header(declare_class(context, scope))
         set.add_lib_source(define_class(class_spec, scope, context))
 
         class_spec.libraries.each do |lib|

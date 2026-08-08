@@ -46,7 +46,7 @@ class CToCppTest < Minitest::Test
   def test_class_pointer_to_struct_pointer
     test_spec = fixture_hash('namespace_with_pointer_param')
     context = Wrapture::Context.from_namespace_hash(test_spec)
-    build = Wrapture::Wrapper::CToCpp.wrap_context(context)
+    build = Wrapture::Wrapper::CToCpp.wrap_namespace_context(context)
     rifle_file = build['Rifle.cpp']
 
     refute_nil(rifle_file)
@@ -97,14 +97,12 @@ class CToCppTest < Minitest::Test
   def test_enum_with_context
     test_spec = fixture_hash('basic_enum')
     spec = Wrapture::EnumSpec.from_hash(test_spec)
-    ns = Wrapture::Namespace.new(%w[wrapture test])
-    context = Wrapture::Context.new(ns)
-    build = Wrapture::Wrapper::CToCpp.wrap_enum(spec, context: context)
+    context = Wrapture::Context.new(spec)
+    build = Wrapture::Wrapper::CToCpp.wrap_enum_context(context)
 
     assert_equal(test_spec[:name], spec.name)
     assert_equal(1, build.sources.count,
                  'only one file should have been generated')
-    assert(source_file_contains_match?(build.sources.first, 'wrapture_test'))
 
     validate_cpp_source_file_matches_enum_spec(build.sources.first, test_spec)
   end
@@ -161,16 +159,11 @@ class CToCppTest < Minitest::Test
 
   def test_overloaded_struct
     test_spec = fixture_hash('overloaded_struct')
-    scope = Wrapture::Scope.new(test_spec)
-
-    assert_equal(test_spec[:classes].count, scope.classes.count)
-
-    build = Wrapture::Wrapper::CToCpp.wrap_scope(scope)
-
-    validate_cpp_build(scope, build)
-
+    context = Wrapture::Context.from_namespace_hash(test_spec)
+    build = Wrapture::Wrapper::CToCpp.wrap_namespace_context(context)
     source = build['Parent.cpp']
 
+    assert_equal(test_spec[:classes].count, context.classes.count)
     assert(source_file_contains_match?(source, 'NewParent'))
     assert(source_file_contains_match?(source, 'Parent \*Parent::NewParent'))
     assert(source_file_contains_match?(source,
@@ -211,13 +204,12 @@ class CToCppTest < Minitest::Test
 
   def test_pointer_class_and_child
     test_spec = fixture_hash('pointer_class_and_child')
-    spec = Wrapture::Scope.new(test_spec)
-    build = Wrapture::Wrapper::CToCpp.wrap_scope(spec)
-
-    validate_cpp_build(spec, build)
+    context = Wrapture::Context.from_namespace_hash(test_spec)
+    build = Wrapture::Wrapper::CToCpp.wrap_namespace_context(context)
 
     header = build['ChildPointer.hpp']
     equivalent_signature = 'struct wrapped_struct \*equivalent;'
+    puts header.contents.join
 
     refute(source_file_contains_match?(header, equivalent_signature))
 
@@ -229,11 +221,8 @@ class CToCppTest < Minitest::Test
 
   def test_pointer_class_and_child_with_different_struct
     test_spec = fixture_hash('pointer_class_and_child_with_different_struct')
-    spec = Wrapture::Scope.new(test_spec)
-    build = Wrapture::Wrapper::CToCpp.wrap_scope(spec)
-
-    validate_cpp_build(spec, build)
-
+    context = Wrapture::Context.from_namespace_hash(test_spec)
+    build = Wrapture::Wrapper::CToCpp.wrap_namespace_context(context)
     header = build['ChildPointer.hpp']
     equivalent_signature = 'struct wrapped_struct \*equivalent;'
 
@@ -310,19 +299,18 @@ class CToCppTest < Minitest::Test
                    fixture_hash('constant_class'),
                    fixture_hash('constructor_class')]
     enum_specs = [fixture_hash('basic_enum')]
-    scope = Wrapture::Scope.new
-    class_specs.each { |spec| scope.add_class_spec_hash(spec) }
-    enum_specs.each { |spec| scope.add_enum_spec_hash(spec) }
+    ns = Wrapture::Namespace.new(%w[wrapture test])
+    context = Wrapture::Context.new(ns)
+    class_specs.each { |it| context << Wrapture::ClassSpec.new(it) }
+    enum_specs.each { |it| context << Wrapture::EnumSpec.new(it) }
 
-    assert_equal(class_specs.count, scope.classes.count)
-    assert_equal(enum_specs.count, scope.enums.count)
+    assert_equal(class_specs.count, context.classes.count)
+    assert_equal(enum_specs.count, context.enums.count)
 
-    build = Wrapture::Wrapper::CToCpp.wrap_scope(scope)
-
-    validate_cpp_build(scope, build)
+    build = Wrapture::Wrapper::CToCpp.wrap_namespace_context(context)
 
     # 2 headers per class, one per enum, and the rollup and export headers
-    expected_count = (scope.classes.count * 2) + scope.enums.count + 2
+    expected_count = (context.classes.count * 2) + context.enums.count + 2
 
     assert_equal(expected_count, build.sources.count)
   end

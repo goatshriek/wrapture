@@ -15,14 +15,4 @@
 # limitations under the License.
 
 version: "0.6.0"
-classes:
-  - name: "MinimalClassOne"
-    namespace: "wrapture_test"
-    source:
-      c:
-        name: "minimal_struct_one"
-  - name: "MinimalClassTwo"
-    namespace: "wrapture_test"
-    source:
-      c:
-        name: "minimal_struct_two"
+name: [wrapture, test]

@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2019-2025 Joel E. Anderson
+# Copyright 2019-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -195,6 +195,16 @@ class ClassSpecTest < Minitest::Test
 
     assert(source_file_contains_match?(header, 'member_1 = 42'),
            'default value not present in signature')
+  end
+
+  def test_parent
+    spec_hash = fixture_hash('child_class')
+    spec = Wrapture::ClassSpec.new(spec_hash)
+    parent_name_words = spec.parent
+
+    refute_nil(parent_name_words)
+    assert_kind_of(Enumerable, parent_name_words)
+    assert_equal(%w[parent class], parent_name_words)
   end
 
   def test_versioned_class
