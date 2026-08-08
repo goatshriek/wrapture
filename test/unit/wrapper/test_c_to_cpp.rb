@@ -55,12 +55,13 @@ class CToCppTest < Minitest::Test
            'equivalent struct member was not referenced')
   end
 
-  def test_declaration_includes_with_no_c_details
-    # we need a class spec where there isn't a :c key in wrapped
+  def test_declaration_includes_in_namespace_with_no_c_details
+    # we need a class spec where there isn't a :c key
     class_spec = Wrapture::ClassSpec.new(fixture_hash('versioned_class'))
     context = Wrapture::Context.new(Wrapture::Namespace.new(%w[test ns]))
-    includes = Wrapture::Wrapper::CToCpp.declaration_includes(class_spec,
-                                                              context: context)
+    context << class_spec
+    class_context = context.classes.first
+    includes = Wrapture::Wrapper::CToCpp.declaration_includes(class_context)
 
     assert_equal(1, includes.length,
                  'declaration includes has more than export header for a  ' \

@@ -104,6 +104,7 @@ module Wrapture
     # and the new Context is added to the contents. The modified Context image
     # is returned in either case.
     def <<(element)
+      # TODO: pick up here, removing context option and adding test for parenthood
       @contents << if element.is_a?(Context)
                      element
                    else
