@@ -23,6 +23,14 @@ require 'minitest/autorun'
 require 'wrapture'
 
 class ContextTest < Minitest::Test
+  def test_add_unnamed
+    context = basic_namespace_context
+
+    assert_throws(Wrapture::UnnamedError) do
+      context << 'this is not named'
+    end
+  end
+
   def test_classes
     classes = basic_namespace_context.classes
 

@@ -30,7 +30,7 @@ module Wrapture
     def self.from_namespace_yaml_file: (String) -> Context
 
     def initialize: (from: Named, ?parent: Context) -> void
-    def <<: (Context | Named) -> Context
+    def <<: (Named) -> Context
     def classes: -> Enumerable[Context]
     def constants: -> Enumerable[Context]
     def enums: -> Enumerable[Context]

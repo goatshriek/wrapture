@@ -89,6 +89,10 @@ module Wrapture
   class UndefinableSpec < WraptureError
   end
 
+  # An instance required to be Named was not.
+  class UnnamedError < WraptureError
+  end
+
   # The spec version is not supported by this version of Wrapture.
   class UnsupportedSpecVersion < WraptureError
   end
