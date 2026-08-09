@@ -26,8 +26,17 @@ class ContextTest < Minitest::Test
   def test_add_unnamed
     context = basic_namespace_context
 
-    assert_throws(Wrapture::UnnamedError) do
+    assert_raises(Wrapture::InvalidSpec) do
       context << 'this is not named'
+    end
+  end
+
+  def test_add_context
+    context = basic_namespace_context
+    added_context = Wrapture::Context.new(Wrapture::Namespace.new(%w[test ns]))
+
+    assert_raises(Wrapture::InvalidSpec) do
+      context << added_context
     end
   end
 
@@ -155,6 +164,14 @@ class ContextTest < Minitest::Test
     functions.each do |it|
       assert_kind_of(Wrapture::Context, it)
       assert_kind_of(Wrapture::FunctionSpec, it.root)
+    end
+  end
+
+  def test_invalid_parent
+    root = Wrapture::Namespace.new(%w[test ns])
+
+    assert_raises(Wrapture::InvalidContext) do
+      Wrapture::Context.new(root, parent: 'this is not a context')
     end
   end
 

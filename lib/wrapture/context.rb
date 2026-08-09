@@ -93,23 +93,30 @@ module Wrapture
     # A new Context is created from a source element, and may have a +parent+
     # Context.
     def initialize(root, parent: nil)
+      # TODO: there needs to be a parent module/class to describe wrappable
+      # specs in some way more concisely than a flat list
+      unless root.is_a?(ClassSpec) ||
+             root.is_a?(ConstantSpec) ||
+             root.is_a?(FunctionSpec) ||
+             root.is_a?(EnumSpec) ||
+             root.is_a?(Namespace)
+        raise InvalidSpec, 'context roots must be wrappable specs'
+      end
+
+      if !parent.nil? && !parent.is_a?(Context)
+        raise InvalidContext, 'the parent of a Context must be a Context'
+      end
+
       @contents = Set.new
       @parent = parent
       @root = root
     end
 
-    # Adds the given element to the context's contents. If the element is
-    # a Context instance then it is added directly, otherwise a new Context
-    # is created with the element as its root and this Context as the parent,
-    # and the new Context is added to the contents. The modified Context image
-    # is returned in either case.
+    # Adds the given element to the context's contents. A new Context is created
+    # with the element as its root and this Context as the parent, and the new
+    # Context is added to the contents. The modified Context image is returned.
     def <<(element)
-      # TODO: pick up here, removing context option and adding test for parenthood
-      @contents << if element.is_a?(Context)
-                     element
-                   else
-                     Context.new(element, parent: self)
-                   end
+      @contents << Context.new(element, parent: self)
 
       self
     end
@@ -124,6 +131,13 @@ module Wrapture
       @contents.select { |it| it.root.is_a?(ConstantSpec) }
     end
 
+    # All contents that are constructor functions.
+    def constructors
+      @contents.select do |it|
+        it.root.is_a?(FunctionSpec) && it.root.constructor?
+      end
+    end
+
     # All contents with an EnumSpec root.
     def enums
       @contents.select { |it| it.root.is_a?(EnumSpec) }
@@ -132,6 +146,16 @@ module Wrapture
     # All contents with a FunctionSpec root.
     def functions
       @contents.select { |it| it.root.is_a?(FunctionSpec) }
+    end
+
+    # The functions in this context that are neither constructors nor
+    # destructors.
+    def methods
+      @contents.select do |it|
+        it.root.is_a?(FunctionSpec) &&
+          !it.root.constructor? &&
+          !it.root.destructor?
+      end
     end
 
     # The name words for this context.

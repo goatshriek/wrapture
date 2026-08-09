@@ -37,6 +37,12 @@ module Wrapture
         end
       end
 
+      # The name of the C++ class generated for +class_spec+.
+      def self.class_name(class_spec)
+        # TODO: check :cpp entry in sources for override
+        class_spec.upper_camel_case_name
+      end
+
       # Returns a cast of the equivalent member of an instance of the given
       # class with the given name from one type to another.
       def self.cast_equivalent(class_spec, var_name, from, to)
@@ -87,16 +93,16 @@ module Wrapture
         context_class = context.owner # assume a FunctionSpec
 
         if from == :this
-          from = CSource::CPointer.new(type_class_from_spec(context_class))
+          from = CSource::CPointer.new(type_class(context_class))
         end
 
         if from.is_a?(TypeSpec)
           from_class = context_class.type(from)
           unless from_class.nil?
             from = if from.pointer?
-                     CSource::CPointer.new(type_class_from_spec(from_class))
+                     CSource::CPointer.new(type_class(from_class))
                    else
-                     type_class_from_spec(from_class)
+                     type_class(from_class)
                    end
 
           end
@@ -189,7 +195,7 @@ module Wrapture
 
       # Generate a source file with the declaration of the class at the root of
       # +context+.
-      def self.declare_class(context, scope)
+      def self.declare_class(context)
         class_spec = context.root
         src = CppSource::CppSourceFile.new(Cpp.header_name(class_spec))
 
@@ -207,7 +213,7 @@ module Wrapture
           src.puts
         end
 
-        src.declare(defined_class_from_spec(class_spec, scope))
+        src.declare(defined_class(context))
         src.puts
 
         unless context.nil?
@@ -242,7 +248,7 @@ module Wrapture
       #
       # In C++ an aliased constructor results in a delegating constructor.
       def self.define_alias_constructor(class_spec, func_spec)
-        class_name = type_class_from_spec(class_spec).name
+        class_name = type_class(class_spec).name
 
         func = Wrapture::CppSource::CppFunction.new(class_name)
         func_spec.params.each do |param_spec|
@@ -270,12 +276,15 @@ module Wrapture
       end
 
       # Generate the definition for a constructor function.
-      def self.define_constructor(class_spec, func_spec)
+      def self.define_constructor(context)
+        class_spec = context.parent.root
+        func_spec = context.root
+
         if func_spec.source.key?(:alias)
           return define_alias_constructor(class_spec, func_spec)
         end
 
-        class_name = type_class_from_spec(class_spec).name
+        class_name = type_class(class_spec).name
 
         # TODO: check for return type equality to wrapped type
         # raise InvalidConstructor if this happens
@@ -320,16 +329,18 @@ module Wrapture
         func
       end
 
-      # Generate a source file with the definition of +class_spec+ within
+      # Generate a source file with the definition of the class at the root of
       # +context+.
-      def self.define_class(class_spec, scope, context)
+      def self.define_class(context)
+        class_spec = context.root
+
         unless class_spec.definable?
           raise UndefinableSpec, "#{class_spec.name} is not definable"
         end
 
         src = CppSource::CppSourceFile.new("#{class_spec.name}.cpp")
 
-        definition_includes(class_spec, scope).sort.each do |inc|
+        definition_includes(context).sort.each do |inc|
           src << CSource::CInclude.new(inc)
         end
 
@@ -338,7 +349,7 @@ module Wrapture
           src.puts
         end
 
-        src << defined_class_from_spec(class_spec, scope)
+        src << defined_class(context)
         src.puts
 
         unless context.nil?
@@ -382,9 +393,11 @@ module Wrapture
 
       # Creates a CppClass instance from a ClassSpec, with all members and
       # functions fully defined, in the given +context+.
-      def self.defined_class_from_spec(spec, context)
+      def self.defined_class(context)
+        spec = context.root
+
         # start with the type class, then build out the definitions
-        cls = type_class_from_spec(spec)
+        cls = type_class(context)
         cls.doc = spec.doc
 
         if spec.child?
@@ -402,8 +415,8 @@ module Wrapture
           cls.constants << decl
         end
 
-        spec.constructors.each do |it|
-          cls.constructors << define_constructor(spec, it)
+        context.constructors.each do |it|
+          cls.constructors << define_constructor(it)
         end
 
         cls.constructors << member_constructor(spec) if C.wrapped_members?(spec)
@@ -416,18 +429,19 @@ module Wrapture
           cls.constructors << pointer_move_constructor(spec)
         end
 
-        unless spec.destructor.nil?
+        destructor = context.functions.find { |it| it.root.destructor? }
+        unless destructor.nil?
           func = CppSource::CppFunction.new("~#{cls.name}")
-          func << wrapped_function_call(spec.destructor)
+          func << wrapped_function_call(destructor.root)
           func << ';'
           cls.destructor = func
         end
 
-        spec.method_specs.each do |meth_spec|
-          cls.member_functions << member_function_from_spec(meth_spec, spec)
+        context.methods.each do |it|
+          cls.member_functions << member_function(it)
         end
 
-        if C.factory?(spec, spec.scope)
+        if C.factory?(context)
           cls.member_functions << factory_member_function(spec)
         end
 
@@ -591,8 +605,7 @@ module Wrapture
 
       # The member constructor for a class spec.
       def self.member_constructor(class_spec)
-        class_name = class_spec.upper_camel_case_name
-        func = Wrapture::CppSource::CppFunction.new(class_name)
+        func = Wrapture::CppSource::CppFunction.new(class_name(class_spec))
 
         func.params.concat(class_spec[:c].members)
 
@@ -604,13 +617,15 @@ module Wrapture
         func
       end
 
-      # Define a member function based on a function spec.
-      def self.member_function_from_spec(spec, context)
+      # Define a member function based on the function at the root of +context+.
+      def self.member_function(context)
+        # TODO: pick up here, converting to context
+        spec = context.root
         func_name = spec.upper_camel_case_name
         func = Wrapture::CppSource::CppFunction.new(func_name)
         return_spec = spec.return_type
         func.return_type = if spec.return_type.self_reference?
-                             CppSource::CppReference.new(type_class_from_spec(context))
+                             CppSource::CppReference.new(type_class(context))
                            else
                              CppSource::CppType.from_spec(return_spec)
                            end
@@ -804,17 +819,18 @@ module Wrapture
         conversion.call(val)
       end
 
-      # Creates a CppClass instance from a ClassSpec, with enough information
-      # available to use the class for type conversions.
-      def self.type_class_from_spec(spec)
-        class_name = spec.upper_camel_case_name
+      # Creates a CppClass instance from the ClassSpec at the root of +context+,
+      # with enough information to use the class for type conversions.
+      def self.type_class(context)
+        spec = context.root
+        class_name = class_name(spec)
         cls = Wrapture::CppSource::CppClass.new(class_name)
 
-        if C.equivalent_member?(spec)
+        if C.equivalent_member?(context)
           eqv = Wrapture::CSource::CDeclaration.new(spec[:c], 'equivalent')
           cls.data_members << eqv
           cls.equivalent_member = eqv
-        elsif C.equivalent_ancestor?(spec)
+        elsif C.equivalent_ancestor?(context)
           eqv = Wrapture::CSource::CDeclaration.new(spec[:c], 'equivalent')
           cls.equivalent_member = eqv
         end
@@ -824,12 +840,12 @@ module Wrapture
 
       # Generates a CppSourceSet for a C++ library wrapping a +context+ with a
       # ClassSpec root.
-      def self.wrap_class_context(context, scope: Scope.new)
+      def self.wrap_class_context(context)
         class_spec = context.root
         set = CppSource::CppSourceSet.new(class_spec.name)
 
-        set.add_lib_header(declare_class(context, scope))
-        set.add_lib_source(define_class(class_spec, scope, context))
+        set.add_lib_header(declare_class(context))
+        set.add_lib_source(define_class(context))
 
         class_spec.libraries.each do |lib|
           set.add_lib_link(lib)

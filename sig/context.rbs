@@ -33,8 +33,10 @@ module Wrapture
     def <<: (Named) -> Context
     def classes: -> Enumerable[Context]
     def constants: -> Enumerable[Context]
+    def constructors: -> Enumerable[Context]
     def enums: -> Enumerable[Context]
     def functions: -> Enumerable[Context]
+    def methods: -> Enumerable[Context]
     def name_words: () -> Enumerable[String]
     def namespace: -> Enumerable[Context]
     def parent?: () -> bool

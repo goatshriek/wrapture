@@ -19,41 +19,42 @@ module Wrapture
     module CToCpp
       extend Wrapper
 
-      def self.ancestor_suffix: (Wrapture::ClassSpec) -> String
+      def self.ancestor_suffix: (ClassSpec) -> String
+      def self.class_name: (ClassSpec) -> String
       def self.converter: (untyped, untyped, Context) -> Proc
       def self.declaration_filename: (untyped) -> String
       def self.declaration_includes: (Context) -> Array[String]
       def self.declare_class: (Context) -> SourceFile
-      def self.declare_member_function_locals: (Wrapture::CppSource::CppBlock, Wrapture::FunctionSpec) -> Wrapture::CppSource::CppBlock
-      def self.define_alias_constructor: (Wrapture::ClassSpec, Wrapture::FunctionSpec) -> Wrapture::CppSource::CppFunction
-      def self.define_class: (Wrapture::ClassSpec, Wrapture::Context) -> Wrapture::SourceFile
-      def self.define_constructor: (Wrapture::ClassSpec, Wrapture::FunctionSpec) -> Wrapture::CppSource::CppFunction
-      def self.define_enum: (Wrapture::ClassSpec, Wrapture::Scope) -> Wrapture::SourceFile
-      def self.defined_class_from_spec: (Wrapture::ClassSpec, Wrapture::Scope) -> Wrapture::CppSource::CppClass
-      def self.definition_filename: (Wrapture::ClassSpec | Wrapture::EnumSpec) -> String
-      def self.definition_includes: Context) -> Array[String]
-      def self.enum_from_spec: (Wrapture::EnumSpec) -> Wrapture::CppSource::CppEnum
-      def self.factory_member_function: (Wrapture::ClassSpec) -> Wrapture::CppSource::CppFunction
+      def self.declare_member_function_locals: (CppSource::CppBlock, FunctionSpec) -> CppSource::CppBlock
+      def self.define_alias_constructor: (ClassSpec, FunctionSpec) -> CppSource::CppFunction
+      def self.define_class: (Context) -> SourceFile
+      def self.define_constructor: (Context) -> CppSource::CppFunction
+      def self.define_enum: (ClassSpec, Scope) -> SourceFile
+      def self.defined_class: (Context) -> CppSource::CppClass
+      def self.definition_filename: (ClassSpec | EnumSpec) -> String
+      def self.definition_includes: (Context) -> Array[String]
+      def self.enum_from_spec: (EnumSpec) -> CppSource::CppEnum
+      def self.factory_member_function: (ClassSpec) -> CppSource::CppFunction
       def self.forward_declared?: (untyped) -> String
-      def self.generate_pointer_copy_constructor?: (Wrapture::ClassSpec) -> bool
-      def self.generate_pointer_move_constructor?: (Wrapture::ClassSpec) -> bool
-      def self.header_name: (Wrapture::Scope | Wrapture::ClassSpec | Wrapture::EnumSpec) -> String
-      def self.member_constructor: (Wrapture::ClassSpec) -> Wrapture::CppSource::CppFunction
-      def self.member_function_from_spec: (Wrapture::FunctionSpec) -> Wrapture::CppSource::CppFunction
+      def self.generate_pointer_copy_constructor?: (ClassSpec) -> bool
+      def self.generate_pointer_move_constructor?: (ClassSpec) -> bool
+      def self.header_name: (Scope | ClassSpec | EnumSpec) -> String
+      def self.member_constructor: (ClassSpec) -> CppSource::CppFunction
+      def self.member_function_from_spec: (FunctionSpec) -> CppSource::CppFunction
       def self.namespace_context_header: (Context) -> CppSource::CppSourceFile
-      def self.pointer_copy_constructor: (Wrapture::ClassSpec) -> Wrapture::CppSource::CppFunction
-      def self.pointer_move_constructor: (Wrapture::ClassSpec) -> Wrapture::CppSource::CppFunction
-      def self.resolve_action_value: (Wrapture::FunctionSpec, String) -> String
-      def self.resolve_wrapped_param: (Wrapture::FunctionSpec, Wrapture::CSource::CDeclaration) -> String
-      def self.type_class_from_spec: (Wrapture::ClassSpec) -> Wrapture::CppSource::CppClass
+      def self.pointer_copy_constructor: (ClassSpec) -> CppSource::CppFunction
+      def self.pointer_move_constructor: (ClassSpec) -> CppSource::CppFunction
+      def self.resolve_action_value: (FunctionSpec, String) -> String
+      def self.resolve_wrapped_param: (FunctionSpec, CSource::CDeclaration) -> String
+      def self.type_class: (Context) -> CppSource::CppClass
       def self.wrap_class_context: (Context) -> CppSource::CppSourceSet
       def self.wrap_constant_context: (Context) -> CppSource::CppSourceSet
       def self.wrap_enum_context: (Context) -> CppSource::CppSourceSet
       def self.wrap_function_context: (Context) -> CppSource::CppSourceSet
       def self.wrap_namespace_context: (Context) -> CppSource::CppSourceSet
-      def self.wrapped_error_check: (Wrapture::FunctionSpec) -> Array[untyped]
-      def self.wrapped_function_call: (Wrapture::FunctionSpec) -> String
-      def self.wrapper_captures_return?: (Wrapture::FunctionSpec) -> bool
+      def self.wrapped_error_check: (FunctionSpec) -> Array[untyped]
+      def self.wrapped_function_call: (FunctionSpec) -> String
+      def self.wrapper_captures_return?: (FunctionSpec) -> bool
     end
   end
 end

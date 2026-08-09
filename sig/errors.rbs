@@ -27,6 +27,9 @@ module Wrapture
   class InvalidConstructor < WraptureError
   end
 
+  class InvalidContext < WraptureError
+  end
+
   class InvalidDoc < WraptureError
   end
 

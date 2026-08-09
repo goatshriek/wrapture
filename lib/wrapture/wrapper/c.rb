@@ -54,8 +54,15 @@ module Wrapture
       # wraps a struct. One such example is if it is able to use one of its
       # ancestor's members if it wraps the same struct.
       def self.equivalent_member?(context)
+        # TODO: remove
+        unless context.is_a?(Context)
+          raise WraptureError, 'equivalent member without Context'
+        end
+
         # there's no equivalent member if there's no wrapped struct
-        return false unless context.root.source.key?(:c)
+        unless context.is_a?(Context) && context.root.source.key?(:c)
+          return false
+        end
 
         # let's see if we can re-use an ancestor's struct
         !equivalent_ancestor?(context)

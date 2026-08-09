@@ -32,6 +32,10 @@ module Wrapture
   class InvalidConstructor < WraptureError
   end
 
+  # A Context is not valid.
+  class InvalidContext < WraptureError
+  end
+
   # A documentation string is invalid.
   class InvalidDoc < WraptureError
   end
@@ -42,7 +46,7 @@ module Wrapture
 
   # A spec is not valid for the context it was used in. For example, if a
   # method only accepts specs of a certain kind, this will be raised if an
-  # oncompatible spec is provided.
+  # uncompatible spec is provided.
   class InvalidSpec < WraptureError
   end
 
@@ -71,6 +75,7 @@ module Wrapture
   end
 
   # Missing a namespace in a class spec.
+  # TODO: remove after context migration
   class MissingNamespace < WraptureError
   end
 
@@ -87,10 +92,6 @@ module Wrapture
 
   # The spec cannot be defined due to missing information.
   class UndefinableSpec < WraptureError
-  end
-
-  # An instance required to be Named was not.
-  class UnnamedError < WraptureError
   end
 
   # The spec version is not supported by this version of Wrapture.

@@ -75,6 +75,14 @@ class CWrapperTest < Minitest::Test
     assert(Wrapture::Wrapper::C.equivalent_member?(top_class))
   end
 
+  def test_equivalent_member_of_non_context
+    ns_spec = fixture_yaml_path('namespace_with_c_equivalent_ancestors')
+    context = Wrapture::Context.from_namespace_yaml_file(ns_spec)
+    bottom_class = context.resolve_name(%w[bottom class])
+
+    refute(Wrapture::Wrapper::C.equivalent_member?(bottom_class.root))
+  end
+
   def test_factory
     ns_hash = fixture_hash('overloaded_struct')
     context = Wrapture::Context.from_namespace_hash(ns_hash)
