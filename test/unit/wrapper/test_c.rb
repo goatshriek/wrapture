@@ -125,4 +125,28 @@ class CWrapperTest < Minitest::Test
     assert(Wrapture::Wrapper::C.overload?(factory_class, overload_class_one))
     assert(Wrapture::Wrapper::C.overload?(factory_class, overload_class_two))
   end
+
+  def test_overloads
+    ns_hash = fixture_hash('overloaded_struct')
+    ns = Wrapture::Context.from_namespace_hash(ns_hash)
+    factory_context = ns.classes.find do |it|
+      it.root.upper_camel_case_name == 'Parent'
+    end
+    overload_context_one = ns.classes.find do |it|
+      it.root.upper_camel_case_name == 'ChildOne'
+    end
+    overload_context_two = ns.classes.find do |it|
+      it.root.upper_camel_case_name == 'ChildTwo'
+    end
+    overloads = Wrapture::Wrapper::C.overloads(factory_context)
+
+    refute_nil(overload_context_one)
+    refute_nil(overload_context_two)
+    refute_nil(overloads)
+    assert_kind_of(Array, overloads)
+    refute_empty(overloads)
+    assert_equal(2, overloads.length)
+    assert_includes(overloads, overload_context_one)
+    assert_includes(overloads, overload_context_two)
+  end
 end

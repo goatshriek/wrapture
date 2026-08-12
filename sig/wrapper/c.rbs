@@ -26,6 +26,7 @@ module Wrapture
       def self.factory?: (Context) -> bool
       def self.includes: (Scope | ClassSpec | FunctionSpec | ParamSpec | ConstantSpec | TypeSpec) -> Array[String]
       def self.overload?: (ClassSpec, ClassSpec) -> bool
+      def self.overloads: (Context, search: Context) -> Array[Context]
       def self.wrapped_members?: (ClassSpec) -> bool
     end
   end

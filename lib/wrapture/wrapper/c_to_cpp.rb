@@ -92,9 +92,7 @@ module Wrapture
       def self.converter(from, to, context)
         context_class = context.owner # assume a FunctionSpec
 
-        if from == :this
-          from = CSource::CPointer.new(type_class(context_class))
-        end
+        from = CSource::CPointer.new(type_class(context_class)) if from == :this
 
         if from.is_a?(TypeSpec)
           from_class = context_class.type(from)
@@ -421,8 +419,8 @@ module Wrapture
 
         cls.constructors << member_constructor(spec) if C.wrapped_members?(spec)
 
-        if generate_pointer_copy_constructor?(spec)
-          cls.constructors << pointer_copy_constructor(spec)
+        if generate_pointer_copy_constructor?(context)
+          cls.constructors << pointer_copy_constructor(context)
         end
 
         if generate_pointer_move_constructor?(spec)
@@ -464,14 +462,13 @@ module Wrapture
       # The includes needed in the definition file for the spec at the root of
       # +context+.
       def self.definition_includes(context)
-        inc = [declaration_filename(context.root)]
+        class_spec = context.root
+        inc = [declaration_filename(class_spec)]
         inc.concat(declaration_includes(context))
         inc.concat(C.includes(class_spec))
 
-        if C.factory?(class_spec, class_spec.scope)
-          class_spec.scope.classes.each do |it|
-            inc << declaration_filename(it) if C.overload?(class_spec, it)
-          end
+        C.overloads(context).each do |it|
+          inc << declaration_filename(it.root)
         end
 
         context.functions.map(&:root).each do |func_spec|
@@ -567,14 +564,15 @@ module Wrapture
         !spec.is_a?(EnumSpec)
       end
 
-      # True if a pointer move constructor should be generated for the given
-      # class.
+      # True if a pointer move constructor should be generated for the class
+      # at the root of +context+.
       #
       # A pointer constructor is generated for a class where the wrapped struct
       # is already a pointer, and no constructor that takes a single pointer of
       # this type is defined. The pointer constructor sets the wrapped struct
       # to the parameter, instead of calling any of the constructor functions.
-      def self.generate_pointer_copy_constructor?(class_spec)
+      def self.generate_pointer_copy_constructor?(context)
+        class_spec = context.root
         type = C.equivalent_type(class_spec)
         return false if type.nil? || !type.is_a?(CSource::CStruct)
 
@@ -707,12 +705,13 @@ module Wrapture
           func_spec.owner.type?(param.type)
       end
 
-      # The pointer copy constructor for a class spec, which copies all of the
-      # defined members into the new instance's struct.
+      # The pointer copy constructor for the class at the root of +context+,
+      # which copies all of the defined members into the new instance's struct.
       #
       # This is different from the pointer move constructor, which instead takes
       # ownership of a pointer to an equivalent struct.
-      def self.pointer_copy_constructor(class_spec)
+      def self.pointer_copy_constructor(context)
+        class_spec = context.root
         wrapped_type = C.equivalent_type(class_spec)
         if wrapped_type.nil? || !wrapped_type.is_a?(CSource::CStruct)
           msg = 'wrapped C type must be a struct for a copy constructor ' \
@@ -727,7 +726,7 @@ module Wrapture
         param_decl.attributes << 'const'
         func.params << param_decl
 
-        if C.equivalent_ancestor?(class_spec)
+        if C.equivalent_ancestor?(context)
           # TODO: when equivalent ancestor changes to do more than just the
           # direct parent, this will also need to change
           parent_name = class_spec.parent_name

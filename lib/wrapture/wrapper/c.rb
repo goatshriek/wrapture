@@ -187,8 +187,8 @@ module Wrapture
         inc.uniq
       end
 
-      # True if the +ClassSpec+ overload is an overload of the +ClassSpec+
-      # factory. That is, if the wrapped struct of the overload class is the
+      # True if the ClassSpec +overload+ is an overload of the ClassSpec
+      # +factory+. That is, if the wrapped struct of the overload class is the
       # same as that of the factory class, with additional rules.
       def self.overload?(factory, overload)
         return false unless overload.child?
@@ -205,6 +205,26 @@ module Wrapture
           factory_struct.name == overload_struct.name &&
           factory_name == parent_name &&
           !overload_struct.rules.empty?
+      end
+
+      # An array of contexts with root classes that overload the class at the
+      # root of +context+.
+      #
+      # The contents of the parent of +context+ are searched recursively for any
+      # overloads. If +search_from+ is provided, the search is started there
+      # instead of at the parent of +context+.
+      def self.overloads(context, search: nil)
+        [] unless factory?(context)
+
+        search = context.parent if search.nil?
+
+        search.contents.flat_map do |it|
+          if overload?(context.root, it.root)
+            overloads(context, search: it) + [it]
+          else
+            overloads(context, search: it)
+          end
+        end
       end
 
       # True if the given class wraps a struct (not a pointer) with members

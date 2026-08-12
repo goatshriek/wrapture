@@ -100,7 +100,7 @@ module Wrapture
              root.is_a?(FunctionSpec) ||
              root.is_a?(EnumSpec) ||
              root.is_a?(Namespace)
-        raise InvalidSpec, 'context roots must be wrappable specs'
+        raise InvalidSpec, 'context root must be a wrappable spec'
       end
 
       if !parent.nil? && !parent.is_a?(Context)
