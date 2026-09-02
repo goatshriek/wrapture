@@ -32,6 +32,13 @@ module Wrapture
       # True if one of the ancestors of the ClassSpec at the root of +context+
       # has an equivalent struct that it can use.
       def self.equivalent_ancestor?(context)
+        # TODO: remove
+        unless context.is_a?(Context)
+          raise InvalidContext, 'equivalent member without Context'
+        end
+
+        return false unless context.is_a?(Context)
+
         class_spec = context.root
         return false unless class_spec.child?
 
@@ -56,7 +63,7 @@ module Wrapture
       def self.equivalent_member?(context)
         # TODO: remove
         unless context.is_a?(Context)
-          raise WraptureError, 'equivalent member without Context'
+          raise InvalidContext, 'equivalent member without Context'
         end
 
         # there's no equivalent member if there's no wrapped struct
@@ -217,6 +224,7 @@ module Wrapture
         [] unless factory?(context)
 
         search = context.parent if search.nil?
+        search = context if search.nil?
 
         search.contents.flat_map do |it|
           if overload?(context.root, it.root)

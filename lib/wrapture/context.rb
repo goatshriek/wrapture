@@ -40,33 +40,65 @@ module Wrapture
     # The root of this context.
     attr_reader :root
 
-    # Creates a Context with a root of a Namespace constructed from +hash+, and
-    # contents derived from the +:classes+, +:constants+, +:enums+,
-    # and +:functions+ keys.
-    def self.from_namespace_hash(spec)
-      root = Namespace.from_hash(spec)
-      context = new(root)
+    # Creates a Context with a root ClassSpec constructed from +hash+, and
+    # functions derived from the +:functions+ key. If +parent+ is provided, it
+    # is the parent of the new Context, but it is not added to the contents of
+    # the parent.
+    def self.from_class_hash(hash, parent: nil)
+      class_spec = ClassSpec.new(hash)
+      context = new(class_spec, parent: parent)
 
-      if spec.key?(:classes)
-        spec[:classes].each do |it|
-          context << ClassSpec.new(it)
+      if hash.key?(:functions)
+        hash[:functions].each do |it|
+          context << FunctionSpec.from_hash(it)
         end
       end
 
-      if spec.key?(:constants)
-        spec[:constants].each do |it|
+      if hash.key?(:constructors)
+        hash[:constructors].each do |it|
+          func_spec = FunctionSpec.from_hash(it)
+          func_spec.constructor = true
+          context << func_spec
+        end
+      end
+
+      if hash.key?(:destructor)
+        func_spec = FunctionSpec.from_hash(hash[:destructor])
+        func_spec.destructor = true
+        context << func_spec
+      end
+
+      context
+    end
+
+    # Creates a Context with a root Namespace constructed from +hash+, and
+    # contents derived from the +:classes+, +:constants+, +:enums+,
+    # and +:functions+ keys. If +parent+ is provided, it is the parent of the
+    # new Context, but it is not added to the contents of the parent.
+    def self.from_namespace_hash(hash, parent: nil)
+      ns = Namespace.from_hash(hash)
+      context = new(ns, parent: parent)
+
+      if hash.key?(:classes)
+        hash[:classes].each do |it|
+          context.contents << from_class_hash(it, parent: context)
+        end
+      end
+
+      if hash.key?(:constants)
+        hash[:constants].each do |it|
           context << ConstantSpec.new(it)
         end
       end
 
-      if spec.key?(:enums)
-        spec[:enums].each do |it|
+      if hash.key?(:enums)
+        hash[:enums].each do |it|
           context << EnumSpec.from_hash(it)
         end
       end
 
-      if spec.key?(:functions)
-        spec[:functions].each do |it|
+      if hash.key?(:functions)
+        hash[:functions].each do |it|
           context << FunctionSpec.from_hash(it)
         end
       end
@@ -75,8 +107,9 @@ module Wrapture
     end
 
     # Creates a Context with a root of a Namespace constructed from the hash in
-    # the YAML file +filename+.
-    def self.from_namespace_yaml_file(filename)
+    # the YAML file +filename+. If +parent+ is provided, it is the parent of the
+    # new Context, but it is not added to the contents of the parent.
+    def self.from_namespace_yaml_file(filename, parent: nil)
       # simplify this to just safe_load_file after Ruby 2.7 is dropped
       ns_hash = if YAML.respond_to?('safe_load_file')
                   YAML.safe_load_file(filename, symbolize_names: true)
@@ -87,10 +120,10 @@ module Wrapture
                   end
                 end
 
-      from_namespace_hash(ns_hash)
+      from_namespace_hash(ns_hash, parent: parent)
     end
 
-    # A new Context is created from a source element, and may have a +parent+
+    # A new Context is created from a +root+ element, and may have a +parent+
     # Context.
     def initialize(root, parent: nil)
       # TODO: there needs to be a parent module/class to describe wrappable

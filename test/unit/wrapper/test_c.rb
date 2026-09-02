@@ -80,7 +80,7 @@ class CWrapperTest < Minitest::Test
     context = Wrapture::Context.from_namespace_yaml_file(ns_spec)
     bottom_class = context.resolve_name(%w[bottom class])
 
-    refute(Wrapture::Wrapper::C.equivalent_member?(bottom_class.root))
+    refute(Wrapture::Wrapper::C.equivalent_member?(bottom_class))
   end
 
   def test_factory
@@ -148,5 +148,11 @@ class CWrapperTest < Minitest::Test
     assert_equal(2, overloads.length)
     assert_includes(overloads, overload_context_one)
     assert_includes(overloads, overload_context_two)
+  end
+
+  def test_overloads_with_no_parent
+    context = Wrapture::Context.new(Wrapture::Namespace.new(%w[test ns]))
+
+    assert_equal([], Wrapture::Wrapper::C.overloads(context))
   end
 end

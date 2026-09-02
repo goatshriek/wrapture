@@ -26,8 +26,9 @@ module Wrapture
     attr_reader parent: Context | nil
     attr_reader root: Named
 
-    def self.from_namespace_hash: (spec_hash) -> Context
-    def self.from_namespace_yaml_file: (String) -> Context
+    def self.from_class_hash: (spec_hash, ?parent: Context) -> Context
+    def self.from_namespace_hash: (spec_hash, ?parent: Context) -> Context
+    def self.from_namespace_yaml_file: (String, ?parent: Context) -> Context
 
     def initialize: (from: Named, ?parent: Context) -> void
     def <<: (Named) -> Context

@@ -423,8 +423,8 @@ module Wrapture
           cls.constructors << pointer_copy_constructor(context)
         end
 
-        if generate_pointer_move_constructor?(spec)
-          cls.constructors << pointer_move_constructor(spec)
+        if generate_pointer_move_constructor?(context)
+          cls.constructors << pointer_move_constructor(context)
         end
 
         destructor = context.functions.find { |it| it.root.destructor? }
@@ -440,7 +440,7 @@ module Wrapture
         end
 
         if C.factory?(context)
-          cls.member_functions << factory_member_function(spec)
+          cls.member_functions << factory_member_function(context)
         end
 
         cls.attributes << "#{CppSource::CppExportHeader.base_name(context)}_EXPORT"
@@ -504,9 +504,10 @@ module Wrapture
         enum
       end
 
-      # A static function that generates an instance of an overloaded struct's
-      # class according to the rules that the struct fulfills.
-      def self.factory_member_function(class_spec)
+      # A static function that generates an instance of the factory class at the
+      # root of +context+ according to the rules that the struct fulfills.
+      def self.factory_member_function(context)
+        class_spec = context.root
         factory_name = class_spec.upper_camel_case_name
         func_name = "New#{factory_name}"
         func = CppSource::CppFunction.new(func_name)
@@ -516,18 +517,14 @@ module Wrapture
         equivalent_type = C.equivalent_type(class_spec)
         func.params << CSource::CDeclaration.new(equivalent_type, 'equivalent')
 
-        overload_classes = class_spec.scope.select do |it|
-          C.overload?(class_spec, it)
-        end
-
-        blocks = overload_classes.map do |overload|
+        blocks = C.overloads(context).map do |overload|
           variable_access = if equivalent_type.is_a?(CSource::CPointer)
                               'equivalent->'
                             else
                               'equivalent.'
                             end
 
-          checks = C.equivalent_struct(overload).rules.map do |it|
+          checks = C.equivalent_struct(overload.root).rules.map do |it|
             new_vals = it.vals.dup
             new_vals[0] = "#{variable_access}#{it.vals[0]}"
 
@@ -584,14 +581,15 @@ module Wrapture
         end
       end
 
-      # True if a pointer move constructor should be generated for the given
-      # class.
+      # True if a pointer move constructor should be generated for the class
+      # at the root of +context+.
       #
       # A pointer constructor is generated for a class where the wrapped struct
       # is already a pointer, and no constructor that takes a single pointer of
       # this type is defined. The pointer constructor sets the wrapped struct
       # to the parameter, instead of calling any of the constructor functions.
-      def self.generate_pointer_move_constructor?(class_spec)
+      def self.generate_pointer_move_constructor?(context)
+        class_spec = context.root
         type = C.equivalent_type(class_spec)
         return false if type.nil? || !type.is_a?(CSource::CPointer)
 
@@ -740,12 +738,26 @@ module Wrapture
         func
       end
 
-      # The pointer move constructor for a class spec, which takes ownership of
-      # the pointer it is given.
+      # The pointer move constructor for the class spec at the root of
+      # +context+, which takes ownership of the pointer it is given.
       #
       # This is different from the pointer copy constructor, which copies all of
       # the defined members for the argument into a new struct.
-      def self.pointer_move_constructor(class_spec)
+      def self.pointer_move_constructor(context)
+        unless context.is_a?(Context)
+          raise InvalidContext,
+                'a pointer move constructor requires a Context instance'
+        end
+
+        class_spec = context.root
+
+        unless class_spec.is_a?(ClassSpec)
+          msg = 'the root of the Context for a pointer move constructor must ' \
+                'be a ClassSpec'
+          raise InvalidContext, msg
+
+        end
+
         wrapped_type = C.equivalent_type(class_spec)
         if wrapped_type.nil? || !wrapped_type.is_a?(CSource::CPointer)
           msg = 'wrapped C type must be a pointer for a move constructor ' \
@@ -758,7 +770,7 @@ module Wrapture
         pointer_type = C.equivalent_pointer(class_spec)
         func.params << CSource::CDeclaration.new(pointer_type, 'equivalent')
 
-        if C.equivalent_ancestor?(class_spec)
+        if C.equivalent_ancestor?(context)
           # TODO: when equivalent ancestor changes to do more than just the
           # direct parent, this will also need to change
           parent_name = class_spec.parent_name

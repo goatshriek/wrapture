@@ -34,16 +34,16 @@ module Wrapture
       def self.definition_filename: (ClassSpec | EnumSpec) -> String
       def self.definition_includes: (Context) -> Array[String]
       def self.enum_from_spec: (EnumSpec) -> CppSource::CppEnum
-      def self.factory_member_function: (ClassSpec) -> CppSource::CppFunction
+      def self.factory_member_function: (Context) -> CppSource::CppFunction
       def self.forward_declared?: (untyped) -> String
       def self.generate_pointer_copy_constructor?: (Context) -> bool
-      def self.generate_pointer_move_constructor?: (ClassSpec) -> bool
+      def self.generate_pointer_move_constructor?: (Context) -> bool
       def self.header_name: (Scope | ClassSpec | EnumSpec) -> String
       def self.member_constructor: (ClassSpec) -> CppSource::CppFunction
       def self.member_function_from_spec: (FunctionSpec) -> CppSource::CppFunction
       def self.namespace_context_header: (Context) -> CppSource::CppSourceFile
       def self.pointer_copy_constructor: (Context) -> CppSource::CppFunction
-      def self.pointer_move_constructor: (ClassSpec) -> CppSource::CppFunction
+      def self.pointer_move_constructor: (Context) -> CppSource::CppFunction
       def self.resolve_action_value: (FunctionSpec, String) -> String
       def self.resolve_wrapped_param: (FunctionSpec, CSource::CDeclaration) -> String
       def self.type_class: (Context) -> CppSource::CppClass

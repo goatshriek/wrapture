@@ -163,6 +163,7 @@ class CToCppTest < Minitest::Test
     context = Wrapture::Context.from_namespace_hash(test_spec)
     build = Wrapture::Wrapper::CToCpp.wrap_namespace_context(context)
     source = build['Parent.cpp']
+    puts source.contents.join
 
     assert_equal(test_spec[:classes].count, context.classes.count)
     assert(source_file_contains_match?(source, 'NewParent'))

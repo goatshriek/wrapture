@@ -109,6 +109,17 @@ class ContextTest < Minitest::Test
     assert_same(ns, resolved_ns.root)
   end
 
+  def test_from_class_hash_with_constructors_and_destructor
+    hash = fixture_hash('constructor_class')
+    context = Wrapture::Context.from_class_hash(hash)
+
+    refute_nil(context)
+    assert_nil(context.parent)
+    # TODO: pick up here, fixing these tests
+    refute_empty(context.constructors)
+    refute_empty(context.contents.select { |it| it.root.destructor? })
+  end
+
   def test_from_namespace_hash
     hash = fixture_hash('namespace_with_class_and_enum')
     context = Wrapture::Context.from_namespace_hash(hash)
@@ -139,6 +150,11 @@ class ContextTest < Minitest::Test
     c.contents.each { |it| assert_kind_of(Wrapture::Context, it) }
     refute_empty(c.classes)
     refute_empty(c.enums)
+
+    class_context = c.classes.first
+
+    refute_nil(class_context)
+    refute_empty(class_context.methods, 'no methods in class')
   end
 
   def test_function_in_parent_name_resolution
