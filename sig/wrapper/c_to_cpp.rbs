@@ -25,7 +25,7 @@ module Wrapture
       def self.declaration_filename: (untyped) -> String
       def self.declaration_includes: (Context) -> Array[String]
       def self.declare_class: (Context) -> SourceFile
-      def self.declare_member_function_locals: (CppSource::CppBlock, FunctionSpec) -> CppSource::CppBlock
+      def self.declare_member_function_locals: (CppSource::CppBlock, Context) -> CppSource::CppBlock
       def self.define_alias_constructor: (ClassSpec, FunctionSpec) -> CppSource::CppFunction
       def self.define_class: (Context) -> SourceFile
       def self.define_constructor: (Context) -> CppSource::CppFunction

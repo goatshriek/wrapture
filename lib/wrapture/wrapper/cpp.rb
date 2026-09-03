@@ -22,20 +22,13 @@ module Wrapture
   module Wrapper
     # Utilities for wrappers that use C++ as either a from or to language.
     module Cpp
-      # The fully qualified namespace for given context.
+      # The fully qualified namespace for +context+. This will be an empty
+      # string if there is no namespace.
       def self.context_namespace(context)
-        base_name = case context.root
-                    when Namespace
-                      namespace_name(context.root)
-                    else
-                      ''
-                    end
-
-        if context.parent?
-          "#{context_namespace(context.parent)}::#{base_name}"
-        else
-          base_name
-        end
+        spaces = []
+        spaces << context_namespace(context.parent) if context.parent?
+        spaces << namespace_name(context.root) if context.root.is_a?(Namespace)
+        spaces.join('::')
       end
 
       # Makes a decorated version of the given name so that it is unique among

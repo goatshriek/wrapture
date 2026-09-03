@@ -224,21 +224,23 @@ module Wrapture
         src
       end
 
-      # Adds declarations to a block for the local parameters needed in a
-      # member function wrapper.
-      def self.declare_member_function_locals(blk, func_spec)
+      # Adds declarations to +blk+ for the local parameters needed in a
+      # member function wrapper for the function at the root of +context+.
+      def self.declare_member_function_locals(blk, context)
+        func_spec = context.root
+        class_spec = context.parent.root
+
         blk << 'va_list variadic_args;' if func_spec.variadic?
 
         if wrapper_captures_return?(func_spec)
           return_type = func_spec[:c].return_type
           if return_type.to_s == EQUIVALENT_STRUCT_KEYWORD
-            return_type = C.equivalent_struct(func_spec.owner)
+            return_type = C.equivalent_struct(class_spec)
           end
           if return_type.to_s == EQUIVALENT_POINTER_KEYWORD
-            return_type = C.equivalent_pointer(func_spec.owner)
+            return_type = C.equivalent_pointer(class_spec)
           end
-          blk << CSource::CDeclaration.new(return_type, 'return_val')
-          blk.puts(';')
+          blk.declare(return_type, name: 'return_val')
         end
       end
 
@@ -643,7 +645,7 @@ module Wrapture
           func.params << decl
         end
 
-        declare_member_function_locals(func, spec)
+        declare_member_function_locals(func, context)
 
         if spec.variadic?
           func.puts("va_start( variadic_args, #{spec.params[-2].name} );")

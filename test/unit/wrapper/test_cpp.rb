@@ -66,6 +66,13 @@ class CppWrapperTest < Minitest::Test
     assert_equal('top_namespace::nested_namespace', name)
   end
 
+  def test_standalone_function_namespace_name
+    func_spec = Wrapture::FunctionSpec.new(%w[just a func])
+    c = Wrapture::Context.new(func_spec)
+
+    assert_empty(Wrapture::Wrapper::Cpp.context_namespace(c))
+  end
+
   def test_top_level_context_namespace
     ns = Wrapture::Namespace.new(%w[test namespace])
     context = Wrapture::Context.new(ns)

@@ -115,7 +115,6 @@ class ContextTest < Minitest::Test
 
     refute_nil(context)
     assert_nil(context.parent)
-    # TODO: pick up here, fixing these tests
     refute_empty(context.constructors)
     refute_empty(context.contents.select { |it| it.root.destructor? })
   end

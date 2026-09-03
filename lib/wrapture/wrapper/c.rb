@@ -219,7 +219,8 @@ module Wrapture
       #
       # The contents of the parent of +context+ are searched recursively for any
       # overloads. If +search_from+ is provided, the search is started there
-      # instead of at the parent of +context+.
+      # instead of at the parent of +context+. If there is no parent of
+      # +context+, then search is performed from +context+ itself.
       def self.overloads(context, search: nil)
         [] unless factory?(context)
 
@@ -227,7 +228,9 @@ module Wrapture
         search = context if search.nil?
 
         search.contents.flat_map do |it|
-          if overload?(context.root, it.root)
+          if context.root.is_a?(ClassSpec) &&
+             it.root.is_a?(ClassSpec) &&
+             overload?(context.root, it.root)
             overloads(context, search: it) + [it]
           else
             overloads(context, search: it)
