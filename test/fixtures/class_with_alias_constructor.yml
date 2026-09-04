@@ -15,7 +15,6 @@
 # limitations under the License.
 
 name: "AliasConstructorClass"
-namespace: "wrapture_test"
 includes: "class_include.h"
 source:
   c:

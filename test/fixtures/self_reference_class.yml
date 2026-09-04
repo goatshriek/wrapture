@@ -15,7 +15,6 @@
 # limitations under the License.
 
 name: "SelfReferenceClass"
-namespace: "wrapture_test"
 includes: "class_include.h"
 source:
   c:
@@ -34,3 +33,4 @@ functions:
         params:
           - name: "equivalent_struct_pointer"
           - name: "app_name"
+            type: "const char *"

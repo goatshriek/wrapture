@@ -169,7 +169,13 @@ module Wrapture
       src = []
       src << "#{decl.attributes.join(' ')} " unless decl.attributes.empty?
       src << if decl.cpp_type.is_a?(CSource::CPointer)
-               "#{decl.cpp_type.c_type} *"
+               if decl.cpp_type.c_type.is_a?(CSource::CStruct)
+                 "struct #{decl.cpp_type.c_type} *"
+               else
+                 "#{decl.cpp_type.c_type} *"
+               end
+             elsif decl.cpp_type.is_a?(CSource::CType)
+               decl.cpp_type.to_s
              else
                decl.cpp_type.name
              end

@@ -90,17 +90,33 @@ module Wrapture
       # each of the parameters as well as what a converter must do needs to be
       # well-defined, documented, and tested thoroughly.
       def self.converter(from, to, context)
-        context_class = context.owner # assume a FunctionSpec
+        # TODO: remove
+        unless context.is_a?(Context)
+          raise WraptureError, 'the type converter requires a Context instance'
+        end
 
-        from = CSource::CPointer.new(type_class(context_class)) if from == :this
+        # TODO: remove assumption of a FunctionSpec root with a Class Spec
+        # parent
+        context_class = context.parent.root
+
+        if from == :this
+          from = CSource::CPointer.new(type_class(context.parent))
+        end
 
         if from.is_a?(TypeSpec)
-          from_class = context_class.type(from)
-          unless from_class.nil?
+          # TODO: should be able to directly use the type spec's name_words
+          name_words = Named.words_from_name(from.base)
+          class_name = Named.upper_camel_case_name(name_words)
+          from_context = context.resolve do |it|
+            it.root.upper_camel_case_name == class_name
+          end
+
+          unless from_context.nil?
+            from_type = type_class(from_context)
             from = if from.pointer?
-                     CSource::CPointer.new(type_class(from_class))
+                     CSource::CPointer.new(from_type)
                    else
-                     type_class(from_class)
+                     from_type
                    end
 
           end
@@ -138,9 +154,7 @@ module Wrapture
           end
         end
 
-        proc {
-          "TODO: conversion from #{from} to #{to} within context #{context}"
-        }
+        nil
       end
 
       # Gives the filename used for the declaration of a given spec.
@@ -244,11 +258,14 @@ module Wrapture
         end
       end
 
-      # Generate the definition of a constructor that is an alias of another.
+      # Generate the definition of a constructor that is an alias of another,
+      # based on the function at the root of +context+.
       #
       # In C++ an aliased constructor results in a delegating constructor.
-      def self.define_alias_constructor(class_spec, func_spec)
-        class_name = type_class(class_spec).name
+      def self.define_alias_constructor(context)
+        func_spec = context.root
+        class_spec = context.parent.root
+        class_name = class_name(class_spec)
 
         func = Wrapture::CppSource::CppFunction.new(class_name)
         func_spec.params.each do |param_spec|
@@ -261,9 +278,7 @@ module Wrapture
             param_type = C.equivalent_pointer(class_spec)
           end
 
-          decl = CppSource::CppDeclaration.new(param_type,
-                                               name: param_name)
-
+          decl = CppSource::CppDeclaration.new(param_type, name: param_name)
           decl.value = param_spec.default_value if param_spec.default_value?
 
           func.params << decl
@@ -281,10 +296,10 @@ module Wrapture
         func_spec = context.root
 
         if func_spec.source.key?(:alias)
-          return define_alias_constructor(class_spec, func_spec)
+          return define_alias_constructor(context)
         end
 
-        class_name = type_class(class_spec).name
+        class_name = class_name(class_spec)
 
         # TODO: check for return type equality to wrapped type
         # raise InvalidConstructor if this happens
@@ -322,7 +337,7 @@ module Wrapture
           func.params << decl
         end
 
-        func.puts("#{wrapped_function_call(func_spec)};")
+        func.puts("#{wrapped_function_call(context)};")
 
         wrapped_error_check(func_spec).each { |it| func << it }
 
@@ -338,7 +353,7 @@ module Wrapture
           raise UndefinableSpec, "#{class_spec.name} is not definable"
         end
 
-        src = CppSource::CppSourceFile.new("#{class_spec.name}.cpp")
+        src = CppSource::CppSourceFile.new(definition_filename(class_spec))
 
         definition_includes(context).sort.each do |inc|
           src << CSource::CInclude.new(inc)
@@ -401,7 +416,7 @@ module Wrapture
         cls.doc = spec.doc
 
         if spec.child?
-          cls.parent_name = spec.parent_name
+          cls.parent_name = Named.upper_camel_case_name(spec.parent)
         elsif spec.exception?
           cls.parent_name = 'std::exception'
         end
@@ -432,7 +447,7 @@ module Wrapture
         destructor = context.functions.find { |it| it.root.destructor? }
         unless destructor.nil?
           func = CppSource::CppFunction.new("~#{cls.name}")
-          func << wrapped_function_call(destructor.root)
+          func << wrapped_function_call(destructor)
           func << ';'
           cls.destructor = func
         end
@@ -479,8 +494,11 @@ module Wrapture
           action = func_spec[:c].error_action
           next if action.nil?
 
-          type = scope.type(action.type)
-          inc << Cpp.header_name(type) unless type.nil?
+          # TODO: should be able to use raw name words
+          type = context.resolve do |it|
+            it.root.upper_camel_case_name == action.type.base
+          end
+          inc << Cpp.header_name(type.root) unless type.nil?
         end
 
         inc.uniq
@@ -617,13 +635,14 @@ module Wrapture
 
       # Define a member function based on the function at the root of +context+.
       def self.member_function(context)
-        # TODO: pick up here, converting to context
         spec = context.root
+        class_spec = context.parent.root
         func_name = spec.upper_camel_case_name
         func = Wrapture::CppSource::CppFunction.new(func_name)
         return_spec = spec.return_type
         func.return_type = if spec.return_type.self_reference?
-                             CppSource::CppReference.new(type_class(context))
+                             ref_type = type_class(context.parent)
+                             CppSource::CppReference.new(ref_type)
                            else
                              CppSource::CppType.from_spec(return_spec)
                            end
@@ -635,9 +654,9 @@ module Wrapture
           param_name = param_spec.name
 
           if param_type.name == EQUIVALENT_STRUCT_KEYWORD
-            param_type = C.equivalent_struct(context)
+            param_type = C.equivalent_struct(class_spec)
           elsif param_type.name == EQUIVALENT_POINTER_KEYWORD
-            param_type = C.equivalent_pointer(context)
+            param_type = C.equivalent_pointer(class_spec)
           end
 
           decl = Wrapture::CppSource::CppDeclaration.new(param_type,
@@ -651,7 +670,7 @@ module Wrapture
           func.puts("va_start( variadic_args, #{spec.params[-2].name} );")
         end
 
-        func.puts("#{wrapped_function_call(spec)};")
+        func.puts("#{wrapped_function_call(context)};")
 
         wrapped_error_check(spec).each { |it| func << it }
 
@@ -695,16 +714,6 @@ module Wrapture
         header
       end
 
-      # True if the provided wrapped param spec can be cast to when used in this
-      # function.
-      def self.param_uses_equivalent?(func_spec, wrapped_param)
-        param = func_spec.params.find { |p| p.name == wrapped_param.value }
-
-        !param.nil? &&
-          !wrapped_param.c_type.nil? &&
-          func_spec.owner.type?(param.type)
-      end
-
       # The pointer copy constructor for the class at the root of +context+,
       # which copies all of the defined members into the new instance's struct.
       #
@@ -729,7 +738,7 @@ module Wrapture
         if C.equivalent_ancestor?(context)
           # TODO: when equivalent ancestor changes to do more than just the
           # direct parent, this will also need to change
-          parent_name = class_spec.parent_name
+          parent_name = Named.upper_camel_case_name(class_spec.parent)
           func.initializers << "#{parent_name}(equivalent)"
         else
           wrapped_type.members.each do |it|
@@ -775,7 +784,7 @@ module Wrapture
         if C.equivalent_ancestor?(context)
           # TODO: when equivalent ancestor changes to do more than just the
           # direct parent, this will also need to change
-          parent_name = class_spec.parent_name
+          parent_name = Named.upper_camel_case_name(class_spec.parent)
           func.initializers << "#{parent_name}(equivalent)"
         else
           func << 'this->equivalent = equivalent;'
@@ -804,37 +813,40 @@ module Wrapture
         end
       end
 
-      # Gives an expression for using a given parameter.
+      # Gives an expression for using the C value +param+ in +context+.
       # Equivalent structs and pointers are resolved, as well as casts between
-      # types if they are known within the scope of this function.
-      def self.resolve_wrapped_param(func_spec, param)
+      # types if they are known within the given context.
+      def self.resolve_wrapped_param(param, context)
+        # TODO: handle the assumption that context is not rooted in a FuncSpec
+        func_spec = context.root
         val = param.value
         conversion = if val == EQUIVALENT_STRUCT_KEYWORD
                        val = 'this'
-                       converter(:this, :equivalent_struct, func_spec)
+                       converter(:this, :equivalent_struct, context)
                      elsif val == EQUIVALENT_POINTER_KEYWORD
                        val = 'this'
-                       converter(:this, :equivalent_pointer, func_spec)
+                       converter(:this, :equivalent_pointer, context)
                      elsif val == '...'
-                       converter(:variadic_args, :variadic_args, func_spec)
-                     # TODO: remove this predicate, and rely on the converter
-                     # to make this determination itself
-                     elsif param_uses_equivalent?(func_spec, param)
-                       used_param = func_spec.params.find do |p|
-                         p.name == param.value
+                       converter(:variadic_args, :variadic_args, context)
+                     elsif func_spec.params.any? { |it| it.name == param.value }
+                       used_param = func_spec.params.find do |it|
+                         it.name == param.value
                        end
-                       converter(used_param.type, param.c_type, func_spec)
-                     else
-                       # use the plain param value and hope for the best
-                       proc { |val| val }
+                       converter(used_param.type, param.c_type, context)
                      end
 
-        conversion.call(val)
+        if conversion.nil?
+          # use the plain param value and hope for the best
+          val
+        else
+          conversion.call(val)
+        end
       end
 
       # Creates a CppClass instance from the ClassSpec at the root of +context+,
       # with enough information to use the class for type conversions.
       def self.type_class(context)
+        # TODO: handle the assumption that root is a ClassSpec
         spec = context.root
         class_name = class_name(spec)
         cls = Wrapture::CppSource::CppClass.new(class_name)
@@ -970,11 +982,14 @@ module Wrapture
         [check_blk]
       end
 
-      # The expression containing the call to the underlying wrapped function.
-      def self.wrapped_function_call(func_spec)
+      # The expression containing the call to the C function wrapped by the
+      # function spec at the root of +context+.
+      def self.wrapped_function_call(context)
+        # TODO: handle the assumption that the root is a FuncSpec
+        func_spec = context.root
         wrapped = func_spec[:c]
         params = wrapped.params.map do |it|
-          resolve_wrapped_param(func_spec, it)
+          resolve_wrapped_param(it, context)
         end
         wrapped_call = "#{wrapped.name}(#{params.join(', ')})"
 

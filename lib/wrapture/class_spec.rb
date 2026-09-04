@@ -297,7 +297,7 @@ module Wrapture
 
     # The name of the parent of this class, or nil if there is no parent.
     def parent_name
-      # TODO: remove
+      # TODO: remove, use parent to get the name words instead
       @parent.join
     end
 

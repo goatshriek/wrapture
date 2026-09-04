@@ -70,26 +70,24 @@ class CToCppTest < Minitest::Test
   end
 
   def test_definition_includes_with_exception_error_action
-    scope_hash = fixture_hash('scope_with_exceptions')
-    scope = Wrapture::Scope.new(scope_hash)
-    cls = scope.classes.find { |it| it.name == 'ExceptionThrower' }
+    ns_hash = fixture_hash('namespace_with_exceptions')
+    context = Wrapture::Context.from_namespace_hash(ns_hash)
+    cls = context.classes.find { |it| it.root.name == 'ExceptionThrower' }
 
     refute_nil(cls)
 
-    incs = Wrapture::Wrapper::CToCpp.definition_includes(cls, scope)
+    incs = Wrapture::Wrapper::CToCpp.definition_includes(cls)
 
     assert_includes(incs, 'CodeException.hpp')
   end
 
   def test_delegating_constructor
-    test_spec = fixture_hash('alias_constructor')
-    spec = Wrapture::ClassSpec.new(test_spec)
-    build = Wrapture::Wrapper::CToCpp.wrap_class(spec)
-
-    validate_cpp_build(spec, build)
+    spec_hash = fixture_hash('class_with_alias_constructor')
+    context = Wrapture::Context.from_class_hash(spec_hash)
+    build = Wrapture::Wrapper::CToCpp.wrap_class_context(context)
 
     source = build['AliasConstructorClass.cpp']
-    sig = "#{spec.name}\\(void\\) : #{spec.name}\\(3\\)"
+    sig = 'AliasConstructorClass\\(void\\) : AliasConstructorClass\\(3\\)'
 
     assert(source_file_contains_match?(source, sig),
            'delegating constructor not present')
@@ -163,7 +161,6 @@ class CToCppTest < Minitest::Test
     context = Wrapture::Context.from_namespace_hash(test_spec)
     build = Wrapture::Wrapper::CToCpp.wrap_namespace_context(context)
     source = build['Parent.cpp']
-    puts source.contents.join
 
     assert_equal(test_spec[:classes].count, context.classes.count)
     assert(source_file_contains_match?(source, 'NewParent'))
@@ -211,13 +208,14 @@ class CToCppTest < Minitest::Test
 
     header = build['ChildPointer.hpp']
     equivalent_signature = 'struct wrapped_struct \*equivalent;'
-    puts header.contents.join
 
+    refute_nil(header)
     refute(source_file_contains_match?(header, equivalent_signature))
 
     source = build['ChildPointer.cpp']
     parent_initializer = 'equivalent\) : ParentPointer\('
 
+    refute_nil(source)
     assert(source_file_contains_match?(source, parent_initializer))
   end
 
@@ -252,14 +250,13 @@ class CToCppTest < Minitest::Test
   end
 
   def test_pointer_class_with_explicit_pointer_constructor
-    test_spec = fixture_hash('pointer_class_with_explicit_pointer_constructor')
-    spec = Wrapture::ClassSpec.new(test_spec)
-    build = Wrapture::Wrapper::CToCpp.wrap_class(spec)
+    spec_hash = fixture_hash('pointer_class_with_explicit_pointer_constructor')
+    context = Wrapture::Context.from_class_hash(spec_hash)
+    build = Wrapture::Wrapper::CToCpp.wrap_class_context(context)
 
-    validate_cpp_build(spec, build)
-
-    source = build["#{spec.name}.hpp"]
-    constructor_sig = /#{spec.name}\(struct wrapped_struct \*\w+\)/
+    class_name = Wrapture::Wrapper::CToCpp.class_name(context.root)
+    source = build["#{class_name}.hpp"]
+    constructor_sig = /#{class_name}\(struct wrapped_struct \*\w+\)/
     num_constructors = count_source_file_matches(source, constructor_sig)
 
     assert_equal(1, num_constructors)
@@ -276,11 +273,9 @@ class CToCppTest < Minitest::Test
   end
 
   def test_self_reference_function
-    test_spec = fixture_hash('self_reference_class')
-    spec = Wrapture::ClassSpec.from_hash(test_spec)
-    build = Wrapture::Wrapper::CToCpp.wrap_class(spec)
-
-    validate_cpp_build(spec, build)
+    spec_hash = fixture_hash('self_reference_class')
+    context = Wrapture::Context.from_class_hash(spec_hash)
+    build = Wrapture::Wrapper::CToCpp.wrap_class_context(context)
 
     forbidden = Wrapture::SELF_REFERENCE_KEYWORD
 
@@ -289,7 +284,8 @@ class CToCppTest < Minitest::Test
              "#{src.path} contains wrapture keyword #{forbidden}")
     end
 
-    source = build["#{test_spec[:name]}.cpp"]
+    source_filename = Wrapture::Wrapper::CToCpp.definition_filename(context.root)
+    source = build[source_filename]
 
     assert(source_file_contains_match?(source, /return \*this;/))
     refute(source_file_contains_match?(source, 'return_val'))

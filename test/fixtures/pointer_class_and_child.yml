@@ -17,16 +17,14 @@
 version: "0.6.0"
 name: [wrapture, test]
 classes:
-  - name: "ParentPointer"
+  - name: ["parent", "pointer"]
     source:
       c:
         pointer:
           name: "wrapped_struct"
-  - name: "ChildPointer"
-    namespace: "wrapture_test"
+  - name: ["child", "pointer"]
     parent:
-      name: "ParentPointer"
-      includes: "ParentPointer.hpp"
+      name: ["parent", "pointer"]
     source:
       c:
         pointer:

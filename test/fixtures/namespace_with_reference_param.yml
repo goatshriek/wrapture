@@ -23,7 +23,6 @@ classes:
         includes: "bullet_struct.h"
     type: "pointer"
   - name: "Rifle"
-    namespace: "wrapture_test"
     source:
       c:
         name: "rifle_struct"
@@ -34,7 +33,7 @@ classes:
           - name: "bullet"
             type: "Bullet&"
         return:
-          type: "self-reference"
+          type: "self_reference"
         source:
           c:
             name: "load_rifle_with_bullet"

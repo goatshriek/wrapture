@@ -15,13 +15,15 @@
 # limitations under the License.
 
 name: "PointerClassWithExplicitPointerConstructor"
-namespace: "wrapture_test"
 source:
   c:
     pointer:
       name: "wrapped_struct"
 constructors:
-  - source:
+  - params:
+      - name: "original_thing"
+        type: "equivalent_struct_pointer"
+    source:
       c:
         name: "new_thing"
         params:

@@ -14,12 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+name: ['wrapture', 'test']
 classes:
   - name: "CodeException"
-    namespace: 'wrapture_test'
     exception: true
   - name: "ExceptionThrower"
-    namespace: 'wrapture_test'
     functions:
       - name: "IMightFail"
         source:

@@ -37,8 +37,6 @@ module Wrapture
           raise InvalidContext, 'equivalent member without Context'
         end
 
-        return false unless context.is_a?(Context)
-
         class_spec = context.root
         return false unless class_spec.child?
 

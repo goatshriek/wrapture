@@ -26,7 +26,7 @@ module Wrapture
       def self.declaration_includes: (Context) -> Array[String]
       def self.declare_class: (Context) -> SourceFile
       def self.declare_member_function_locals: (CppSource::CppBlock, Context) -> CppSource::CppBlock
-      def self.define_alias_constructor: (ClassSpec, FunctionSpec) -> CppSource::CppFunction
+      def self.define_alias_constructor: (Context) -> CppSource::CppFunction
       def self.define_class: (Context) -> SourceFile
       def self.define_constructor: (Context) -> CppSource::CppFunction
       def self.define_enum: (ClassSpec, Scope) -> SourceFile
@@ -38,14 +38,14 @@ module Wrapture
       def self.forward_declared?: (untyped) -> String
       def self.generate_pointer_copy_constructor?: (Context) -> bool
       def self.generate_pointer_move_constructor?: (Context) -> bool
-      def self.header_name: (Scope | ClassSpec | EnumSpec) -> String
+      def self.header_name: (ClassSpec | EnumSpec) -> String
       def self.member_constructor: (ClassSpec) -> CppSource::CppFunction
       def self.member_function_from_spec: (FunctionSpec) -> CppSource::CppFunction
       def self.namespace_context_header: (Context) -> CppSource::CppSourceFile
       def self.pointer_copy_constructor: (Context) -> CppSource::CppFunction
       def self.pointer_move_constructor: (Context) -> CppSource::CppFunction
       def self.resolve_action_value: (FunctionSpec, String) -> String
-      def self.resolve_wrapped_param: (FunctionSpec, CSource::CDeclaration) -> String
+      def self.resolve_wrapped_param: (CSource::CDeclaration, Context) -> String
       def self.type_class: (Context) -> CppSource::CppClass
       def self.wrap_class_context: (Context) -> CppSource::CppSourceSet
       def self.wrap_constant_context: (Context) -> CppSource::CppSourceSet
@@ -53,7 +53,7 @@ module Wrapture
       def self.wrap_function_context: (Context) -> CppSource::CppSourceSet
       def self.wrap_namespace_context: (Context) -> CppSource::CppSourceSet
       def self.wrapped_error_check: (FunctionSpec) -> Array[untyped]
-      def self.wrapped_function_call: (FunctionSpec) -> String
+      def self.wrapped_function_call: (Context) -> String
       def self.wrapper_captures_return?: (FunctionSpec) -> bool
     end
   end
