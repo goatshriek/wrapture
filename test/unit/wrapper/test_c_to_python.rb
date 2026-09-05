@@ -18,6 +18,7 @@
 
 require 'helper'
 
+require 'fixture'
 require 'minitest/autorun'
 require 'wrapture'
 
@@ -28,8 +29,8 @@ class CToPythonTest < Minitest::Test
 
   def test_includes
     hash = fixture_hash('basic_class')
-    class_spec = Wrapture::ClassSpec.from_hash(hash)
-    source_set = Wrapture::Wrapper::CToPython.wrap_scope(class_spec.scope)
+    context = Wrapture::Context.from_class_hash(hash)
+    source_set = Wrapture::Wrapper::CToPython.wrap_class_context(context)
     module_source = source_set['wrapture_test.c']
 
     refute_nil(module_source)

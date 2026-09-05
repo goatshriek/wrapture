@@ -44,24 +44,6 @@ class ClassSpecTest < Minitest::Test
     refute_nil normalized_spec
   end
 
-  def test_return_val_in_constructor
-    test_spec = fixture_hash('class_with_return_val_in_constructor')
-
-    spec = Wrapture::ClassSpec.new(test_spec)
-    build = Wrapture::Wrapper::CToCpp.wrap_class(spec)
-    validate_cpp_build(spec, build)
-
-    source_name = "#{test_spec[:name]}.cpp"
-
-    assert_includes(build, source_name)
-    source_file = build[source_name]
-
-    assert(source_file_contains_match?(source_file, 'this->equivalent == NULL'),
-           'no error check against the equivalent struct was found')
-    refute(source_file_contains_match?(source_file, 'return_val'),
-           'a return value variable was still generated')
-  end
-
   def test_future_spec_version
     test_spec = fixture_hash('future_version_class')
 
@@ -84,55 +66,6 @@ class ClassSpecTest < Minitest::Test
     build = Wrapture::Wrapper::CToCpp.wrap_class(spec)
 
     validate_cpp_build(spec, build)
-  end
-
-  def test_class_with_constructor
-    test_spec = fixture_hash('constructor_class')
-    spec = Wrapture::ClassSpec.new(test_spec)
-    build = Wrapture::Wrapper::CToCpp.wrap_class(spec)
-
-    validate_cpp_build(spec, build)
-
-    class_name = test_spec[:name]
-    header = build["#{class_name}.hpp"]
-    member_regex = /^\s*#{class_name}\(int member/
-    spec_regex = /^\s*#{class_name}\(constructed_struct/
-    destructor_regex = /^\s*~#{class_name}/
-
-    assert(source_file_contains_match?(header, member_regex),
-           'the member constructor declaration was not found')
-    assert(source_file_contains_match?(header, spec_regex),
-           'the struct constructor declaration was not found')
-    assert(source_file_contains_match?(header, destructor_regex),
-           'the destructor declaration was not found')
-
-    source = build["#{class_name}.cpp"]
-    includes = get_source_file_include_list(source)
-
-    all_spec_includes(test_spec).each do |inc|
-      assert_includes(includes, inc)
-    end
-
-    forbidden = Wrapture::EQUIVALENT_STRUCT_KEYWORD
-
-    refute(source_file_contains_match?(source, forbidden),
-           'the source file contained a wrapture keyword')
-
-    member_regex = /^\s*#{class_name}::#{class_name}\(int member/
-    spec_regex = /^\s*#{class_name}::#{class_name}\(constructed_struct/
-    destructor_regex = /^\s*#{class_name}::~#{class_name}/
-
-    assert(source_file_contains_match?(source, member_regex),
-           'the member constructor definition was not found')
-    assert(source_file_contains_match?(source, spec_regex),
-           'the spec constructor definition was not found')
-    assert(source_file_contains_match?(source, destructor_regex),
-           'the destructor definition was not found')
-
-    wrapped_function = test_spec[:constructors][0][:source][:c]
-
-    assert(source_file_contains_match?(source, /= #{wrapped_function[:name]}/),
-           'source file does not include the wrapped function')
   end
 
   def test_class_with_constant
@@ -169,19 +102,6 @@ class ClassSpecTest < Minitest::Test
     build = Wrapture::Wrapper::CToCpp.wrap_class(spec)
 
     validate_cpp_build(spec, build)
-  end
-
-  def test_class_with_static_function
-    test_spec = fixture_hash('static_function_class')
-    spec = Wrapture::ClassSpec.new test_spec
-    build = Wrapture::Wrapper::CToCpp.wrap_class(spec)
-
-    validate_cpp_build(spec, build)
-
-    header = build["#{test_spec[:name]}.hpp"]
-
-    assert(source_file_contains_match?(header, 'static'),
-           'static keyword not found')
   end
 
   def test_default_constructor_generation

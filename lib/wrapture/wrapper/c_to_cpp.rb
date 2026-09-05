@@ -220,7 +220,7 @@ module Wrapture
           src << CSource::CInclude.new(inc)
         end
 
-        unless context.nil?
+        unless context.parent.nil?
           src.puts("namespace #{Cpp.context_namespace(context)} {")
           src.puts
         end
@@ -228,7 +228,7 @@ module Wrapture
         src.declare(defined_class(context))
         src.puts
 
-        unless context.nil?
+        unless context.parent.nil?
           src.puts("} /* namespace #{Cpp.context_namespace(context)} */")
           src.puts
         end
@@ -359,7 +359,7 @@ module Wrapture
           src << CSource::CInclude.new(inc)
         end
 
-        unless context.nil?
+        unless context.parent.nil?
           src.puts("namespace #{Cpp.context_namespace(context)} {")
           src.puts
         end
@@ -367,7 +367,7 @@ module Wrapture
         src << defined_class(context)
         src.puts
 
-        unless context.nil?
+        unless context.parent.nil?
           src.puts("} /* namespace #{Cpp.context_namespace(context)} */")
         end
 

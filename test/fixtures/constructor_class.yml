@@ -24,7 +24,10 @@ source:
     includes:
       - "constructed.h"
 constructors:
-  - source:
+  - params:
+      - name: "new_name"
+        type: "const char *"
+    source:
       c:
         name: "build_a_struct"
         params:
@@ -33,7 +36,10 @@ constructors:
         return:
           type: "equivalent_struct"
         includes: "constructed.h"
-  - source:
+  - params:
+      - name: "original_struct"
+        type: "equivalent_struct"
+    source:
       c:
         name: "copy_struct"
         params:
@@ -43,7 +49,10 @@ constructors:
           type: "equivalent_struct"
         includes:
           - "constructed.h"
-  - source:
+  - params:
+      - name: "original_struct_pointer"
+        type: "equivalent_struct_pointer"
+    source:
       c:
         name: "copy_struct_pointer"
         params:

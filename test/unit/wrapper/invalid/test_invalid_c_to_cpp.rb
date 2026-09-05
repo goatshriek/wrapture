@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2025 Joel E. Anderson
+# Copyright 2025-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -27,10 +27,10 @@ class InvalidCToCppTest < Minitest::Test
   # class, then an exception is raised.
   def test_constructor_return_type_mismatch
     hash = fixture_hash('invalid/class_with_c_constructor_return_type_mismatch')
-    spec = Wrapture::ClassSpec.from_hash(hash)
+    context = Wrapture::Context.from_class_hash(hash)
 
     assert_raises(Wrapture::InvalidConstructor) do
-      Wrapture::Wrapper::CToCpp.wrap_class(spec)
+      Wrapture::Wrapper::CToCpp.wrap_class_context(context)
     end
   end
 

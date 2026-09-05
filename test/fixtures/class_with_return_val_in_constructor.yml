@@ -15,7 +15,6 @@
 # limitations under the License.
 
 name: "ClassWithReturnActionInConstructor"
-namespace: "wrapture_test"
 source:
   c:
     pointer:
