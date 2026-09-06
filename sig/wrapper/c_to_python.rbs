@@ -42,7 +42,7 @@ module Wrapture
       def self.default_allocator: (Wrapture::ClassSpec) -> Wrapture::CSource::CFunction
       def self.default_destructor: (Wrapture::ClassSpec) -> Wrapture::CSource::CFunction
       def self.define_class_functions: (Wrapture::CSource::CBlock, Wrapture::Scope) -> Wrapture::CSource::CBlock
-      def self.define_module: (Wrapture::Scope) -> Wrapture::SourceFile
+      def self.define_module: (Context) -> CSource::CSourceFile
       def self.define_module_init: (Wrapture::SourceFile, Wrapture::Scope) -> Wrapture::SourceFile
       def self.destructor_wrapper: (Wrapture::FunctionSpec) -> Wrapture::CSource::CFunction
       def self.enum_constructor: (Wrapture::EnumSpec) -> Wrapture::CSource::CFunction

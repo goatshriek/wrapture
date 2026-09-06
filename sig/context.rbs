@@ -32,17 +32,18 @@ module Wrapture
 
     def initialize: (from: Named, ?parent: Context) -> void
     def <<: (Named) -> Context
-    def classes: -> Enumerable[Context]
-    def constants: -> Enumerable[Context]
-    def constructors: -> Enumerable[Context]
-    def enums: -> Enumerable[Context]
-    def functions: -> Enumerable[Context]
-    def methods: -> Enumerable[Context]
-    def name_words: () -> Enumerable[String]
-    def namespace: -> Enumerable[Context]
+    def classes: -> Array[Context]
+    def constants: -> Array[Context]
+    def constructors: -> Array[Context]
+    def enums: -> Array[Context]
+    def flatten: -> Array[Context]
+    def functions: -> Array[Context]
+    def methods: -> Array[Context]
+    def name_words: () -> Array[String]
+    def namespace: -> Array[Context]
     def parent?: () -> bool
     def resolve: () {(Context) -> bool} -> (Context | nil)
-    def resolve_name: (Enumerable[String]) -> (Context | nil)
+    def resolve_name: (Array[String]) -> (Context | nil)
     def top: () -> Context
   end
 end

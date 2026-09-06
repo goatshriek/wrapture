@@ -176,6 +176,12 @@ module Wrapture
       @contents.select { |it| it.root.is_a?(EnumSpec) }
     end
 
+    # An Array of this context, its contents, and all of their contents,
+    # obtained recursively.
+    def flatten
+      [self] + @contents.flat_map(&:flatten)
+    end
+
     # All contents with a FunctionSpec root.
     def functions
       @contents.select { |it| it.root.is_a?(FunctionSpec) }

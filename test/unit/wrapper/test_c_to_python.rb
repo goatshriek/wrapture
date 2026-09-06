@@ -31,6 +31,10 @@ class CToPythonTest < Minitest::Test
     hash = fixture_hash('basic_class')
     context = Wrapture::Context.from_class_hash(hash)
     source_set = Wrapture::Wrapper::CToPython.wrap_class_context(context)
+
+    refute_nil(source_set)
+    refute_empty(source_set.sources, 'wrapper has no source files')
+
     module_source = source_set['wrapture_test.c']
 
     refute_nil(module_source)

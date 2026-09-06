@@ -218,6 +218,7 @@ module Wrapture
     # In the long term, this should probably be renamed to something like
     # "wrappable?" and added to ClassSpec and/or Scope.
     def definable?(lang: nil)
+      # TODO: remove, replace with check of source for lang key
       if lang.nil?
         !@source.empty?
       else

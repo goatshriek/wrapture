@@ -64,7 +64,7 @@ module Wrapture
 
       case spec
       when ClassSpec
-        wrap_class(context, scope: scope)
+        wrap_class(context)
       when ConstantSpec
         wrap_constant(context)
       when EnumSpec

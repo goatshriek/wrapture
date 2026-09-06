@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2025 Joel E. Anderson
+# Copyright 2025-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -504,16 +504,15 @@ module Wrapture
         end
       end
 
-      # Generates a source file with the definition of a module for a scope.
-      def self.define_module(scope)
-        unless scope.definable?
-          raise UndefinableSpec, "#{scope.name} is not definable"
-        end
-
-        src = CSource::CSourceFile.new("#{scope.name}.c")
+      # Generates a source file with the definition of a module for +context+.
+      def self.define_module(context)
+        module_name = context.root.snake_case_name
+        src = CSource::CSourceFile.new("#{module_name}.c")
 
         src.puts('#define PY_SSIZE_T_CLEAN')
         src.puts
+
+        # TODO: pick up here, converting from scope to context
 
         module_includes(scope).each { |it| src << it }
         src.puts
@@ -1362,21 +1361,12 @@ module Wrapture
       # Generates a PythonSourceSet for a Python library wrapping a +context+
       # with a Namespace root.
       def self.wrap_namespace_context(context)
-        # TODO: implement
-        PythonSource::PythonSourceSet.new(context.root.snake_case_name)
-      end
+        set = PythonSource::PythonSourceSet.new(context.root.snake_case_name)
 
-      # Generates a build for a Python library wrapping the provided scope.
-      #
-      # +scope+ describes all of the classes and other entities that will be
-      # wrapped. These will all be put into a namespace named after the scope.
-      def self.wrap_scope(scope)
-        set = PythonSource::PythonSourceSet.new(scope.snake_case_name)
+        set.add_module_source(define_module(context))
 
-        set.add_module_source(define_module(scope))
-
-        scope.libraries.each do |lib|
-          set.add_link(lib)
+        C.libraries(context).each do |it|
+          set.add_link(it)
         end
 
         set

@@ -192,6 +192,14 @@ module Wrapture
         inc.uniq
       end
 
+      # An Array of libraries that must be linked for everything in +context+.
+      def self.libraries(context)
+        funcs = context.flatten.select { |it| it.root.is_a?(FunctionSpec) }
+        funcs.flat_map do |it|
+          it.root[:c].libraries if it.root.source.key?(:c)
+        end
+      end
+
       # True if the ClassSpec +overload+ is an overload of the ClassSpec
       # +factory+. That is, if the wrapped struct of the overload class is the
       # same as that of the factory class, with additional rules.

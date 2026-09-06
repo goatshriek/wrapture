@@ -103,6 +103,30 @@ class CWrapperTest < Minitest::Test
                  'entry for c in the source languages')
   end
 
+  def test_libraries
+    func_hash = fixture_hash('cmake_c_library')
+    context = Wrapture::Context.from_namespace_hash(func_hash)
+    libs = Wrapture::Wrapper::C.libraries(context)
+
+    refute_nil(libs)
+    assert_kind_of(Array, libs)
+    refute_empty(libs)
+    assert_includes(libs, 'cmakeclib')
+  end
+
+  def test_libraries_includes_root
+    f = Wrapture::FunctionSpec.new(%w[test function])
+    f[:c] = Wrapture::CSource::CFunction.new('c test function')
+    f[:c].libraries << 'testlib'
+    context = Wrapture::Context.new(f)
+    libs = Wrapture::Wrapper::C.libraries(context)
+
+    refute_nil(libs)
+    assert_kind_of(Array, libs)
+    refute_empty(libs)
+    assert_equal(['testlib'], libs)
+  end
+
   def test_overload
     ns_hash = fixture_hash('overloaded_struct')
     ns = Wrapture::Context.from_namespace_hash(ns_hash)

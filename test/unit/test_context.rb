@@ -109,6 +109,28 @@ class ContextTest < Minitest::Test
     assert_same(ns, resolved_ns.root)
   end
 
+  def test_flatten_namespace_without_contents
+    ns = Wrapture::Namespace.new(%w[test namespace])
+    context = Wrapture::Context.new(ns)
+    flattened = context.flatten
+
+    refute_nil(flattened)
+    assert_kind_of(Array, flattened)
+    refute_empty(flattened)
+    assert_equal([context], flattened)
+  end
+
+  def test_flatten_namespace
+    ns_hash = fixture_hash('cmake_c_library')
+    context = Wrapture::Context.from_namespace_hash(ns_hash)
+    flattened = context.flatten
+
+    refute_nil(flattened)
+    assert_kind_of(Array, flattened)
+    refute_empty(flattened)
+    assert_includes(flattened, context)
+  end
+
   def test_from_class_hash_with_constructors_and_destructor
     hash = fixture_hash('constructor_class')
     context = Wrapture::Context.from_class_hash(hash)
