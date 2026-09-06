@@ -24,7 +24,7 @@ module Wrapture
       def self.equivalent_struct: (ClassSpec) -> CSource::CStruct?
       def self.equivalent_type: (ClassSpec) -> CSource::CType?
       def self.factory?: (Context) -> bool
-      def self.includes: (ClassSpec | FunctionSpec | ParamSpec | ConstantSpec | TypeSpec) -> Array[String]
+      def self.includes: (Context | ClassSpec | FunctionSpec | ParamSpec | ConstantSpec | TypeSpec) -> Array[String]
       def self.libraries: (Context) -> Array[String]
       def self.overload?: (ClassSpec, ClassSpec) -> bool
       def self.overloads: (Context, search: Context) -> Array[Context]

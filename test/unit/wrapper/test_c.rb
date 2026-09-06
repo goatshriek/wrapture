@@ -103,6 +103,17 @@ class CWrapperTest < Minitest::Test
                  'entry for c in the source languages')
   end
 
+  def test_includes_of_namespace
+    ns_hash = fixture_hash('cmake_c_library')
+    context = Wrapture::Context.from_namespace_hash(ns_hash)
+    includes = Wrapture::Wrapper::C.includes(context)
+
+    refute_nil(includes)
+    assert_kind_of(Array, includes)
+    refute_empty(includes)
+    assert_equal(['cmakeclib.h'], includes)
+  end
+
   def test_libraries
     func_hash = fixture_hash('cmake_c_library')
     context = Wrapture::Context.from_namespace_hash(func_hash)

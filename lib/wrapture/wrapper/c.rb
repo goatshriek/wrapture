@@ -140,14 +140,14 @@ module Wrapture
         !overloaded_class.nil?
       end
 
-      # An array with all includes in the given spec. For specs that include
+      # An array with all includes in +spec+. For specs that include
       # others, the array will have all includes of the included items as well.
       # +uniq+ is called on the array before it is returned to remove
       # duplicates.
       def self.includes(spec)
         inc = case spec
-              when Scope
-                spec.flat_map { |it| includes(it) }
+              when Context
+                spec.flatten.flat_map { |it| includes(it.root) }
               when ClassSpec
                 spec_includes = if spec.source.key?(:c)
                                   spec[:c].includes

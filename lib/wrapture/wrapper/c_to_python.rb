@@ -375,10 +375,9 @@ module Wrapture
         end
       end
 
-      # Declares the module definition struct (PyModuleDef) in a source file for
-      # a scope.
-      def self.declare_module_struct(src, scope)
-        module_name = scope.snake_case_name
+      # Declares the module definition struct (PyModuleDef) for +module_name+
+      # in source file +src+.
+      def self.declare_module_struct(src, module_name)
         module_struct = CSource::CStruct.new(name: 'PyModuleDef')
         module_fields = ['.m_base = PyModuleDef_HEAD_INIT',
                          ".m_name = \"#{module_name}\"",
@@ -467,16 +466,17 @@ module Wrapture
         f.statement('Py_TYPE( self )->tp_free( ( PyObject * ) self )')
       end
 
-      # Adds definitions for functions needed for all classes in +scope+ to the
-      # C source block +src+.
-      def self.define_class_functions(src, scope)
-        factory_classes = scope.classes.select { |it| C.factory?(it, scope) }
+      # Adds definitions for functions needed for all classes in +context+ to
+      # the C source block +src+.
+      def self.define_class_functions(src, context)
+        factory_classes = context.classes.select { |it| C.factory?(it) }
         factory_classes.each do |it|
           src << factory_constructor(it)
           src.puts
         end
 
-        scope.classes.each do |class_spec|
+        context.classes.each do |it|
+          class_spec = it.root
           if base_type_object(class_spec).nil?
             src << default_allocator(class_spec)
             src.puts
@@ -487,18 +487,18 @@ module Wrapture
             src.puts
           end
 
-          unless class_spec.functions.any?(&:destructor?)
+          unless it.functions.any? { |it| it.root.destructor? }
             src << default_destructor(class_spec)
             src.puts
           end
 
-          class_spec.functions.each do |func_spec|
-            src << function_wrapper(func_spec)
+          it.functions.each do |it|
+            src << function_wrapper(it.root)
             src.puts
           end
         end
 
-        overload_groups(scope).each_value do |funcs|
+        overload_groups(context).each_value do |funcs|
           src << overload_dispatcher(funcs)
           src.puts
         end
@@ -512,34 +512,35 @@ module Wrapture
         src.puts('#define PY_SSIZE_T_CLEAN')
         src.puts
 
-        # TODO: pick up here, converting from scope to context
-
-        module_includes(scope).each { |it| src << it }
+        src.concat(module_includes(context))
         src.puts
 
-        declare_module_struct(src, scope)
+        declare_module_struct(src, module_name)
         src.puts
 
-        scope.enums.each do |enum_spec|
-          src << enum_constructor(enum_spec)
+        context.enums.each do |it|
+          src << enum_constructor(it.root)
           src.puts
         end
 
-        scope.classes.each do |class_spec|
+        context.classes.each do |it|
+          class_spec = it.root
           src << class_type_struct(class_spec)
           src.declare('PyTypeObject', type_object_name(class_spec),
                       attributes: ['static'])
           src.puts
         end
 
-        define_class_functions(src, scope)
+        define_class_functions(src, context)
 
-        scope.classes.each do |class_spec|
+        context.classes.each do |it|
+          class_spec = it.root
           src.statement(class_methods_declaration(class_spec))
           src.statement(class_members_declaration(class_spec))
           src.statement(class_type_object_declaration(class_spec))
         end
 
+        # TODO: pick up here, converting from scope to context
         define_module_init(src, scope)
       end
 
@@ -952,20 +953,23 @@ module Wrapture
         flags.join(' | ')
       end
 
-      # All includes needed to define a module for the given +scope+.
-      def self.module_includes(scope)
-        incs = [CSource::CInclude.new('Python.h')]
+      # All includes needed to define a module for +context+.
+      def self.module_includes(context)
+        incs = Wrapper::C.includes(context).map do |it|
+          CSource::CInclude.new(it)
+        end
 
         # offsetof is only needed for the member definition for constants
-        if scope.classes.any? { |it| !it.constants.empty? }
+        classes = context.flatten.select { |it| it.root.is_a?(ClassSpec) }
+        unless classes.all? { |it| it.constants.empty? }
           incs << CSource::CInclude.new('stddef.h', comment: 'for offsetof()')
         end
 
-        Wrapper::C.includes(scope).each do |it|
+        Wrapper::C.includes(context).each do |it|
           incs << CSource::CInclude.new(it)
         end
 
-        incs
+        incs << CSource::CInclude.new('Python.h')
       end
 
       # A function wrapper for a function that does not have an parameters.
@@ -1098,15 +1102,18 @@ module Wrapture
         f
       end
 
-      # The function overload groups for a +scope+, provided as a +Hash+ that
+      # The function overload groups for a +context+, provided as a +Hash+ that
       # maps the function name to an +Array+ of +FunctionSpec+ instances that
       # are overloaded under that name.
-      def self.overload_groups(scope)
+      def self.overload_groups(context)
+        # TODO: what if the same function name is overloaded in multiple classes?
+        # currently this results in conflicts
         overload_groups = {}
-        scope.classes.each do |class_spec|
-          wrapped_members = C.wrapped_members?(class_spec)
+        context.classes.each do |it|
+          wrapped_members = C.wrapped_members?(it.root)
 
-          class_spec.functions.each do |func_spec|
+          it.functions.each do |func_context|
+            func_spec = func_context.root
             overloaded_constructor = func_spec.constructor? && wrapped_members
             if func_spec.overloaded? || overloaded_constructor
               if overload_groups.include?(func_spec.name)

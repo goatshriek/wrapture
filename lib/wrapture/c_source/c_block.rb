@@ -32,6 +32,15 @@ module Wrapture
         self
       end
 
+      # Appends all elements from each array in +elements+ to the source tree.
+      def concat(*elements)
+        elements.each do |it|
+          it.each do |element|
+            tree << element
+          end
+        end
+      end
+
       # Add a variable declaration statement to the block. The declaration is
       # created using the supplied arguments passed directly to the CDeclaration
       # constructor, followed by a semicolon and newline.

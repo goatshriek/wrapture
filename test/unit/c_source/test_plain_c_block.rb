@@ -23,6 +23,29 @@ require 'minitest/autorun'
 require 'wrapture'
 
 class PlainCBlockTest < Minitest::Test
+  def test_concat_single_array
+    blk = Wrapture::CSource::PlainCBlock.new
+    blk.concat(['int a;', 'int b;', 'int c;'])
+
+    refute_empty(blk.tree)
+    assert_includes(blk.tree, 'int a;')
+    assert_includes(blk.tree, 'int b;')
+    assert_includes(blk.tree, 'int c;')
+  end
+
+  def test_concat_two_arrays
+    blk = Wrapture::CSource::PlainCBlock.new
+    blk.concat(['int a;', 'int b;', 'int c;'], ['char x;', 'char y;'])
+
+    refute_empty(blk.tree)
+    assert_includes(blk.tree, 'int a;')
+    assert_includes(blk.tree, 'int b;')
+    assert_includes(blk.tree, 'int c;')
+    assert_includes(blk.tree, 'int a;')
+    assert_includes(blk.tree, 'char x;')
+    assert_includes(blk.tree, 'char y;')
+  end
+
   def test_declaration
     blk = Wrapture::CSource::PlainCBlock.new
     blk.declare('int', 'variable_name')
