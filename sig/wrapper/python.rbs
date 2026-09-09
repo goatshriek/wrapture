@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-# Copyright 2025-2026 Joel E. Anderson
+# Copyright 2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,13 +16,10 @@
 
 module Wrapture
   module Wrapper
-    module Cpp
-      def self.context_namespace: (Context) -> String
+    module Python
       def self.decorate_name: (Named) -> Array[String]
       def self.decorate_name_words: (Array[String]) -> Array[String]
-      def self.header_guard: (Wrapture::Named) -> String
-      def self.header_name: (Named) -> String
-      def self.namespace_name: (Namespace) -> String
+      def self.module_name: (Namespace) -> String
     end
   end
 end

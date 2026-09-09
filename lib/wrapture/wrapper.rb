@@ -22,6 +22,7 @@ require 'wrapture/wrapper/c'
 require 'wrapture/wrapper/c_to_cpp'
 require 'wrapture/wrapper/c_to_python'
 require 'wrapture/wrapper/cpp'
+require 'wrapture/wrapper/python'
 
 module Wrapture
   # +Wrapper+ includes the base wrapping functionality that all language

@@ -21,15 +21,15 @@ module Wrapture
 
       def self.add_class_object: (SourceFile, ClassSpec) -> SourceFile
       def self.add_enum_object: (SourceFile, EnumSpec) -> SourceFile
-      def self.add_module_objects: (SourceFile, Scope) -> SourceFile
+      def self.add_module_objects: (SourceFile, Context) -> SourceFile
       def self.allocator_params: () -> Enumerable[CSource::CDeclaration]
       def self.arg_parse_format: (Enumerable[String], ?Enumerable[String]) -> String
       def self.base_type_object: (ClassSpec) -> String?
       def self.cast_equivalent: (ClassSpec, String, String) -> String
       def self.class_members_declaration: (ClassSpec) -> CSource::CDeclaration
       def self.class_methods_declaration: (ClassSpec) -> CSource::CDeclaration
-      def self.class_struct: (ClassSpec, ?var_name: String) -> String
-      def self.class_struct_pointer: (ClassSpec, ?var_name: String) -> String
+      def self.class_struct: (Context, ?var_name: String) -> String
+      def self.class_struct_pointer: (Context, ?var_name: String) -> String
       def self.class_type_object_declaration: (ClassSpec) -> CSource::CDeclaration
       def self.class_type_struct: (ClassSpec) -> CSource::CStruct
       def self.constructor_params: () -> Enumerable[CSource::CDeclaration]
@@ -41,17 +41,17 @@ module Wrapture
       def self.declare_wrapper_param_locals: (CSource::CBlock, FunctionSpec) -> CSource::CBlock
       def self.default_allocator: (ClassSpec) -> CSource::CFunction
       def self.default_destructor: (ClassSpec) -> CSource::CFunction
-      def self.define_class_functions: (CSource::CBlock, Scope) -> CSource::CBlock
+      def self.define_class_functions: (CSource::CBlock, Context) -> CSource::CBlock
       def self.define_module: (Context) -> CSource::CSourceFile
-      def self.define_module_init: (SourceFile, Scope) -> SourceFile
-      def self.destructor_wrapper: (FunctionSpec) -> CSource::CFunction
+      def self.define_module_init: (SourceFile, Context) -> SourceFile
+      def self.destructor_wrapper: (Context) -> CSource::CFunction
       def self.enum_constructor: (EnumSpec) -> CSource::CFunction
       def self.equivalent_member_declaration: (ClassSpec) -> CSource::CDeclaration
       def self.factory_constructor: (ClassSpec) -> CSource::CFunction
-      def self.finalize_module_types: (CSource::CBlock, Scope) -> SourceFile
+      def self.finalize_module_types: (CSource::CBlock, Context) -> SourceFile
       def self.function_arg_parse_format: (FunctionSpec) -> String
-      def self.function_wrapper: (FunctionSpec) -> CSource::CFunction
-      def self.function_wrapper_name: (FunctionSpec) -> String
+      def self.function_wrapper: (Context) -> CSource::CFunction
+      def self.function_wrapper_name: (Context) -> String
       def self.initialize_optional_params: (CSource::CBlock, FunctionSpec) -> CSource::CBlock
       def self.member_constructor: (ClassSpec) -> CSource::CFunction
       def self.member_constructor?: (ClassSpec) -> bool
@@ -63,18 +63,18 @@ module Wrapture
       def self.member_type: (TypeSpec) -> String
       def self.method_flags: (FunctionSpec) -> String
       def self.module_includes: (Context) -> Array[CSource::CInclude]
-      def self.no_args_wrapper: (FunctionSpec) -> CSource::CFunction
+      def self.no_args_wrapper: (Context) -> CSource::CFunction
       def self.overload_dispatcher: (Enumerable[FunctionSpec]) -> CSource::CFunction
       def self.overload_groups: (Context) -> Hash[String, Array[FunctionSpec]]
-      def self.overload_wrapper: (FunctionSpec) -> CSource::CFunction
+      def self.overload_wrapper: (Context) -> CSource::CFunction
       def self.overload_wrapper_call: (FunctionSpec) -> String
       def self.overload_wrapper_name: (FunctionSpec) -> String
       def self.param_format: (FunctionSpec, ParamSpec) -> String
-      def self.param_uses_equivalent?: (FunctionSpec, spec_hash) -> bool
+      def self.param_uses_equivalent?: (Context, CSource::CDeclaration) -> bool
       def self.parse_tuple_call: (FunctionSpec) -> String
-      def self.parsing_wrapper: (FunctionSpec) -> CSource::CFunction
+      def self.parsing_wrapper: (Context) -> CSource::CFunction
       def self.resolve_action_value: (FunctionSpec, String) -> String
-      def self.resolve_wrapped_param: (FunctionSpec, ParamSpec) -> String
+      def self.resolve_wrapped_param: (FunctionSpec, CSource::CDeclaration) -> String
       def self.return_statement: (FunctionSpec) -> String
       def self.runtime_base_size: (ClassSpec) -> String
       def self.runtime_class?: (ClassSpec) -> bool
@@ -89,8 +89,8 @@ module Wrapture
       def self.wrap_enum_context: (Context) -> PythonSource::PythonSourceSet
       def self.wrap_function_context: (Context) -> PythonSource::PythonSourceSet
       def self.wrap_namespace_context: (Context) -> PythonSource::PythonSourceSet
-      def self.wrapped_error_check: (FunctionSpec, Scope) -> Array[untyped]
-      def self.wrapped_function_call: (FunctionSpec) -> String
+      def self.wrapped_error_check: (Context) -> Array[untyped]
+      def self.wrapped_function_call: (Context) -> String
       def self.wrapper_param_locals: (FunctionSpec) -> Enumerable[CSource::CDeclaration]
       def self.wrapper_return_type: (FunctionSpec) -> untyped
     end
