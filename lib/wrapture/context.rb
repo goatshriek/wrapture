@@ -154,6 +154,16 @@ module Wrapture
       self
     end
 
+    # True if there are any ClassSpecs in this context or its contents which are
+    # children of +class_spec+.
+    def child?(class_spec)
+      specs = classes.map(&:root)
+      specs << @root if @root.is_a?(ClassSpec)
+      specs.any? do |it|
+        it.upper_camel_case_name == class_spec.upper_camel_case_name
+      end
+    end
+
     # All contents with a ClassSpec root.
     def classes
       @contents.select { |it| it.root.is_a?(ClassSpec) }
@@ -167,6 +177,13 @@ module Wrapture
     # All contents that are constructor functions.
     def constructors
       @contents.select do |it|
+        it.root.is_a?(FunctionSpec) && it.root.constructor?
+      end
+    end
+
+    # True if there are any constructors in this context's contents.
+    def constructors?
+      @contents.any? do |it|
         it.root.is_a?(FunctionSpec) && it.root.constructor?
       end
     end

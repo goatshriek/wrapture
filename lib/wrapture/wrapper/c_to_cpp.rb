@@ -90,11 +90,6 @@ module Wrapture
       # each of the parameters as well as what a converter must do needs to be
       # well-defined, documented, and tested thoroughly.
       def self.converter(from, to, context)
-        # TODO: remove
-        unless context.is_a?(Context)
-          raise WraptureError, 'the type converter requires a Context instance'
-        end
-
         # TODO: remove assumption of a FunctionSpec root with a Class Spec
         # parent
         context_class = context.parent.root

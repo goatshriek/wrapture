@@ -32,9 +32,11 @@ module Wrapture
 
     def initialize: (from: Named, ?parent: Context) -> void
     def <<: (Named) -> Context
+    def child?: (ClassSpec) -> bool
     def classes: -> Array[Context]
     def constants: -> Array[Context]
     def constructors: -> Array[Context]
+    def constructors?: -> bool
     def enums: -> Array[Context]
     def flatten: -> Array[Context]
     def functions: -> Array[Context]

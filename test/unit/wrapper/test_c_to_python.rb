@@ -28,14 +28,17 @@ class CToPythonTest < Minitest::Test
   end
 
   def test_includes
+    ns = Wrapture::Namespace.new(%w[basic module])
+    ns_context = Wrapture::Context.new(ns)
     hash = fixture_hash('basic_class')
-    context = Wrapture::Context.from_class_hash(hash)
-    source_set = Wrapture::Wrapper::CToPython.wrap_class_context(context)
+    class_context = Wrapture::Context.from_class_hash(hash, parent: ns_context)
+    ns_context.contents << class_context
+    source_set = Wrapture::Wrapper::CToPython.wrap_namespace_context(ns_context)
 
     refute_nil(source_set)
     refute_empty(source_set.sources, 'wrapper has no source files')
 
-    module_source = source_set['wrapture_test.c']
+    module_source = source_set['basic_module.c']
 
     refute_nil(module_source)
     assert_kind_of(Wrapture::CSource::CSourceFile, module_source)
@@ -52,9 +55,10 @@ class CToPythonTest < Minitest::Test
     assert(struct_included, 'the equivalent struct header was not included')
   end
 
-  def test_multipart_scope_name
-    scope = Wrapture::Scope.new({ name: %w[lots of parts] })
-    wrapped_set = Wrapture::Wrapper::CToPython.wrap_scope(scope)
+  def test_multipart_namespace_name
+    ns = Wrapture::Namespace.new(%w[lots of parts])
+    context = Wrapture::Context.new(ns)
+    wrapped_set = Wrapture::Wrapper::CToPython.wrap_namespace_context(context)
 
     assert_equal('lots_of_parts', wrapped_set.name)
   end
