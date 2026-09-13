@@ -56,7 +56,7 @@ module Wrapture
     end
 
     # Generates a wrapper for +context+.
-    def wrap(context, scope: nil)
+    def wrap(context)
       spec = if context.is_a?(Context)
                context.root
              else

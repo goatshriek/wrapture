@@ -179,7 +179,9 @@ module Wrapture
           func.params.each do |param|
             includes.concat(Wrapper::C.includes(param))
 
-            param_type = class_spec.type(param.type)
+            param_type = context.resolve do |it|
+              it.root.upper_camel_case_name == param.type.upper_camel_case_name
+            end
             includes << declaration_filename(param_type) unless param_type.nil?
           end
         end
@@ -189,10 +191,15 @@ module Wrapture
         end
 
         if class_spec.child?
-          includes.concat(Wrapper::C.includes(class_spec.parent_spec))
+          parent_name = Named.upper_camel_case_name(class_spec.parent)
+          parent_context = context.resolve do |it|
+            it.root.upper_camel_case_name == parent_name
+          end
 
-          parent_spec = class_spec.type(class_spec.parent_name)
-          includes << declaration_filename(parent_spec) unless parent_spec.nil?
+          unless parent_context.nil?
+            includes.concat(Wrapper::C.includes(parent_context.root))
+            includes << declaration_filename(parent_context.root)
+          end
         elsif class_spec.exception?
           includes << 'exception'
         end

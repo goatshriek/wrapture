@@ -228,7 +228,7 @@ module Wrapture
       # instead of at the parent of +context+. If there is no parent of
       # +context+, then search is performed from +context+ itself.
       def self.overloads(context, search: nil)
-        [] unless factory?(context)
+        return [] unless factory?(context)
 
         search = context.parent if search.nil?
         search = context if search.nil?

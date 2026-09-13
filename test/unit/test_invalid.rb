@@ -43,7 +43,7 @@ class InvalidTest < Minitest::Test
     test_spec = fixture_hash('invalid/rule_missing_condition')
 
     assert_raises(Wrapture::MissingSpecKey) do
-      Wrapture::Scope.new(test_spec)
+      Wrapture::Context.from_namespace_hash(test_spec)
     end
   end
 
@@ -51,7 +51,7 @@ class InvalidTest < Minitest::Test
     test_spec = fixture_hash('invalid/rule_with_invalid_condition')
 
     assert_raises(Wrapture::InvalidSpecKey) do
-      Wrapture::Scope.new(test_spec)
+      Wrapture::Context.from_namespace_hash(test_spec)
     end
   end
 
@@ -59,7 +59,7 @@ class InvalidTest < Minitest::Test
     test_spec = fixture_hash('invalid/rule_with_invalid_key')
 
     assert_raises(Wrapture::InvalidSpecKey) do
-      Wrapture::Scope.new(test_spec)
+      Wrapture::Context.from_namespace_hash(test_spec)
     end
   end
 end

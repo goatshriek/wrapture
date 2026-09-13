@@ -692,7 +692,7 @@ module Wrapture
         overload_classes = C.overloads(context)
         cond = nil
         overload_classes.each do |it|
-          overloaded = it.root
+          overload = it.root
           variable_access = if C.equivalent_type(overload).is_a?(CSource::CPointer)
                               'equivalent->'
                             else
@@ -1132,8 +1132,8 @@ module Wrapture
       # maps the function name to an +Array+ of +FunctionSpec+ instances that
       # are overloaded under that name.
       def self.overload_groups(context)
-        # TODO: what if the same function name is overloaded in multiple classes?
-        # currently this results in conflicts
+        # TODO: what if the same function name is overloaded in multiple
+        # classes? Currently this results in conflicts
         overload_groups = {}
         context.classes.each do |it|
           wrapped_members = C.wrapped_members?(it.root)

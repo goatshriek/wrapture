@@ -25,7 +25,7 @@ require 'wrapture'
 class PlainCBlockTest < Minitest::Test
   def test_concat_single_array
     blk = Wrapture::CSource::PlainCBlock.new
-    blk.concat(['int a;', 'int b;', 'int c;'])
+    blk.push('int a;', 'int b;', 'int c;')
 
     refute_empty(blk.tree)
     assert_includes(blk.tree, 'int a;')
@@ -35,7 +35,7 @@ class PlainCBlockTest < Minitest::Test
 
   def test_concat_two_arrays
     blk = Wrapture::CSource::PlainCBlock.new
-    blk.concat(['int a;', 'int b;', 'int c;'], ['char x;', 'char y;'])
+    blk.push('int a;', 'int b;', 'int c;', 'char x;', 'char y;')
 
     refute_empty(blk.tree)
     assert_includes(blk.tree, 'int a;')

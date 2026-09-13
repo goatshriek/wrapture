@@ -38,9 +38,6 @@ module Wrapture
     # The name words of the parent of this class, or nil if it has no parent.
     attr_reader :parent
 
-    # The scope of this class.
-    attr_reader :scope
-
     # A map of language-specific wrapping details.
     attr_reader :source
 
@@ -147,9 +144,6 @@ module Wrapture
 
     # Creates a class spec based on the provided hash spec.
     #
-    # The scope can be provided if available. Otherwise, a new Scope is created
-    # holding only this class.
-    #
     # The hash must have the following keys:
     # name:: the name of the class, in CamelCase
     # namespace:: the namespace to put the class into
@@ -164,7 +158,7 @@ module Wrapture
     # functions:: A list of function specs that are in this class.
     # includes:: A list of includes that are needed for this class.
     # libraries:: A list of libraries that must be linked to use this class.
-    def initialize(spec, scope: Scope.new)
+    def initialize(spec)
       @spec = ClassSpec.normalize_spec_hash(spec)
 
       @functions = @spec[:constructors].map do |constructor_spec|
@@ -203,9 +197,6 @@ module Wrapture
       end
 
       @doc = Comment.new(@spec[:doc])
-
-      scope << self
-      @scope = scope
 
       @source = {}
       if @spec.key?(:source) && @spec[:source].key?(:c)
@@ -286,35 +277,6 @@ module Wrapture
     # The namespace of the class.
     def namespace
       @spec[:namespace]
-    end
-
-    # True if this class is a parent of others.
-    def parent?
-      @scope.classes.any? do |class_spec|
-        class_spec.parent_name == name
-      end
-    end
-
-    # The name of the parent of this class, or nil if there is no parent.
-    def parent_name
-      # TODO: remove, use parent to get the name words instead
-      @parent.join
-    end
-
-    # The class spec of the parent class, or nil if this cannot be resolved.
-    def parent_spec
-      # TODO: remove
-      type(TypeSpec.new(parent_name))
-    end
-
-    # Returns the ClassSpec for the given type in this class's scope.
-    def type(type)
-      @scope.type(type)
-    end
-
-    # Returns true if the given type exists in this class's scope.
-    def type?(type)
-      @scope.type?(type)
     end
   end
 end
