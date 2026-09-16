@@ -17,10 +17,9 @@
 name: ['cmake', 'c', 'lib']
 source:
   base:
-    decorate_wrapped_name: true
+    decorate_name: true
 classes:
   - name: CmakeCLib
-    namespace: cmakeclib
     functions:
       - name: Add
         static: true

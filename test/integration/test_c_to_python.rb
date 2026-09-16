@@ -35,8 +35,8 @@ class CToPythonIntegrationTest < Minitest::Test
     end
 
     spec_hash = fixture_hash('cmake_c_library')
-    scope = Wrapture::Scope.new(spec_hash)
-    wrapper_sources = Wrapture::Wrapper::CToPython.wrap_scope(scope)
+    c = Wrapture::Context.from_namespace_hash(spec_hash)
+    wrapper_sources = Wrapture::Wrapper::CToPython.wrap_namespace_context(c)
     wrapper_build = Wrapture::Build::PyprojectBuild.new(wrapper_sources)
     python_build_dir = File.join(build_dir, 'python')
     FileUtils.mkdir_p(python_build_dir)

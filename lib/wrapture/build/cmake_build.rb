@@ -175,7 +175,7 @@ module Wrapture
 
       # The include directories for the library target in this project.
       def target_include_directories
-        dirs = [include_dir_variable]
+        dirs = ["${#{include_dir_variable}}"]
 
         unless @source_set.lib_headers.grep(CSource::CExportHeader).empty?
           dirs << '${PROJECT_BINARY_DIR}/include'
