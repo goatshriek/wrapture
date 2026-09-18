@@ -19,7 +19,6 @@ doc: "A collection of Kitchen appliance implementations."
 classes:
   - name: "Stove"
     doc: "A humble stove."
-    libraries: "stove"
     source:
       c:
         pointer:
@@ -33,6 +32,7 @@ classes:
         source:
           c:
             name: "new_stove"
+            libraries: "stove"
             params:
               - value: "burner_count"
                 type: "int"
