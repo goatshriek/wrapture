@@ -14,9 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+name: "soccer"
 classes:
   - name: "PlayerStats"
-    namespace: "soccer"
     libraries: "stats"
     source:
       c:

@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-# Copyright 2025 Joel E. Anderson
+# Copyright 2025-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,9 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+name: "kitchen"
 classes:
   - name: "IceMaker"
-    namespace: "kitchen"
     libraries: "fridge"
     includes: "fridge.h"
     source:
@@ -25,18 +25,22 @@ classes:
           name: "struct ice_maker"
           includes: "fridge.h"
     constructors:
-      - source:
+      - params:
+          - name: "size"
+            type: "int"
+          - name: "can_crush_ice"
+            type: "int"
+        source:
           c:
             name: "new_ice_maker"
             params:
-              - name: "size"
+              - value: "size"
                 type: "int"
-              - name: "can_crush_ice"
+              - value: "can_crush_ice"
                 type: "int"
             return:
               type: "equivalent_struct_pointer"
   - name: "WaterFilter"
-    namespace: "kitchen"
     libraries: "fridge"
     includes: "fridge.h"
     source:
@@ -45,16 +49,18 @@ classes:
           name: "struct water_filter"
           includes: "fridge.h"
     constructors:
-      - source:
+      - params:
+        - name: "purity_level"
+          type: "int"
+        source:
           c:
             name: "new_water_filter"
             params:
-              - name: "purity_level"
+              - value: "purity_level"
                 type: "int"
             return:
               type: "equivalent_struct_pointer"
   - name: "Freezer"
-    namespace: "kitchen"
     libraries: "fridge"
     source:
       c:
@@ -62,18 +68,22 @@ classes:
           name: "struct freezer"
           includes: "fridge.h"
     constructors:
-      - source:
+      - params:
+        - name: "minimum_temp"
+          type: "int"
+        - name: "set_temp"
+          type: "int"
+        source:
           c:
             name: "new_freezer"
             params:
-              - name: "minimum_temp"
+              - value: "minimum_temp"
                 type: "int"
-              - name: "set_temp"
+              - value: "set_temp"
                 type: "int"
             return:
               type: "equivalent_struct_pointer"
   - name: "Fridge"
-    namespace: "kitchen"
     libraries: "fridge"
     includes:
       - "fridge.h"
@@ -83,11 +93,14 @@ classes:
           name: "fridge"
           includes: "fridge.h"
     constructors:
-      - source:
+      - params:
+        - name: "temperature"
+          type: "int"
+        source:
           c:
             name: "new_fridge"
             params:
-              - name: "temperature"
+              - value: "temperature"
                 type: "int"
             return:
               type: "equivalent_struct_pointer"

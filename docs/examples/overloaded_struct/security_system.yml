@@ -14,10 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+name: ["home", "automation"]
 version: "0.6.0"
 classes:
   - name: "SecurityEvent"
-    namespace: "home_automation"
     libraries: "security_system"
     source:
       c:
@@ -30,13 +30,18 @@ classes:
             name: "new_default_event"
             return:
               type: "equivalent_struct_pointer"
-      - source:
+      - params:
+        - name: "code"
+          type: "int"
+        - name: "data"
+          type: "void *"
+        source:
           c:
             name: "new_event"
             params:
-              - name: "code"
+              - value: "code"
                 type: "int"
-              - name: "data"
+              - value: "data"
                 type: "void *"
             return:
               type: "equivalent_struct_pointer"
@@ -79,7 +84,6 @@ classes:
             params:
               - value: "equivalent_struct_pointer"
   - name: "CameraEvent"
-    namespace: "home_automation"
     libraries: "security_system"
     parent:
       name: "SecurityEvent"
@@ -93,11 +97,14 @@ classes:
               condition: "equal"
               value: "CAMERA_EVENT"
     constructors:
-      - source:
+      - params:
+        - name: "description"
+          type: "const char *"
+        source:
           c:
             name: "new_camera_event"
             params:
-              - name: "description"
+              - value: "description"
                 type: "const char *"
             return:
               type: "equivalent_struct_pointer"
@@ -119,7 +126,6 @@ classes:
             params:
               - value: "equivalent_struct_pointer"
   - name: "GlassBreakEvent"
-    namespace: "home_automation"
     libraries: "security_system"
     parent:
       name: "SecurityEvent"
@@ -133,11 +139,14 @@ classes:
               condition: "equal"
               value: "GLASS_BREAK_EVENT"
     constructors:
-      - source:
+      - params:
+        - name: "level"
+          type: "int"
+        source:
           c:
             name: "new_glass_break_event"
             params:
-              - name: "level"
+              - value: "level"
                 type: "int"
             return:
               type: "equivalent_struct_pointer"
@@ -159,7 +168,6 @@ classes:
             params:
               - value: "equivalent_struct_pointer"
   - name: "MotionEvent"
-    namespace: "home_automation"
     libraries: "security_system"
     parent:
       name: "SecurityEvent"
@@ -173,11 +181,14 @@ classes:
               condition: "equal"
               value: "MOTION_EVENT"
     constructors:
-      - source:
+      - params:
+        - name: "description"
+          type: "const char *"
+        source:
           c:
             name: "new_motion_event"
             params:
-              - name: "description"
+              - value: "description"
                 type: "const char *"
             return:
               type: "equivalent_struct_pointer"

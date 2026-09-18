@@ -19,9 +19,10 @@
 def run_cpp_example(name, lib, sources, build_dir)
   example_dir = File.absolute_path("docs/examples/#{name}")
 
-  scope = Wrapture::Scope.load_files("#{example_dir}/#{lib}.yml")
-  build = Wrapture::Wrapper::CToCpp.wrap_scope(scope)
-  Wrapture::Build::CmakeBuild.new(build).save(build_dir)
+  filename = "#{example_dir}/#{lib}.yml"
+  context = Wrapture::Context.from_namespace_yaml_file(filename)
+  source_set = Wrapture::Wrapper::CToCpp.wrap_namespace_context(context)
+  Wrapture::Build::CmakeBuild.new(source_set).save(build_dir)
 
   Dir.chdir(build_dir) do
     usage_opts = "-Iinclude -I#{example_dir} -o #{lib}_usage_cpp"
@@ -30,12 +31,12 @@ def run_cpp_example(name, lib, sources, build_dir)
       source_opts = "-shared -o lib#{lib}.so -fPIC -I#{example_dir}"
       source_files = sources.map { |s| "#{example_dir}/#{s}" }.join(' ')
       sh "gcc #{source_files} #{source_opts}"
-      usage_opts += " -L. -l#{scope.name} -l#{lib}"
+      usage_opts += " -L. -l#{source_set.name} -l#{lib}"
 
       include_cmd = "include_directories(\".\" \"#{example_dir}\")"
       sh "echo \"#{include_cmd}\" >> CMakeLists.txt"
       sh 'cmake -DCMAKE_LIBRARY_PATH=. .'
-      sh "cmake --build . --target #{scope.name}"
+      sh "cmake --build . --target #{source_set.name}"
     end
 
     sh "g++ #{example_dir}/#{lib}_usage.cpp #{usage_opts}"
@@ -47,8 +48,9 @@ def run_python_example(name, lib, sources, build_dir)
   example_dir = File.absolute_path("docs/examples/#{name}")
   load_dir = File.absolute_path(build_dir)
 
-  scope = Wrapture::Scope.load_files("#{example_dir}/#{lib}.yml")
-  build = Wrapture::Wrapper::CToPython.wrap_scope(scope)
+  filename = "#{example_dir}/#{lib}.yml"
+  context = Wrapture::Context.from_namespace_yaml_file(filename)
+  build = Wrapture::Wrapper::CToPython.wrap_namespace_context(context)
   python_build = Wrapture::Build::PyprojectBuild.new(build)
 
   Dir.chdir(build_dir) do

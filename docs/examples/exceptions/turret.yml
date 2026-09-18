@@ -17,9 +17,9 @@
 # support for overloaded structs was introduced in version 0.3.0, so you will
 # need to use this version of wrapture at a minimum
 version: "0.6.0"
+name: ["defense", "turret"]
 classes:
   - name: "Turret"
-    namespace: "defense_turret"
     libraries: "turret"
     source:
       c:
@@ -100,7 +100,6 @@ classes:
             params:
               - value: "equivalent_struct_pointer"
   - name: "TurretException"
-    namespace: "defense_turret"
     exception: true
     source:
       c:
@@ -127,7 +126,6 @@ classes:
             return:
               type: "const char *"
   - name: "JammedException"
-    namespace: "defense_turret"
     type: "pointer"
     parent:
       name: "TurretException"
@@ -154,7 +152,6 @@ classes:
             params:
               - value: "equivalent_struct_pointer"
   - name: "OutOfAmmoException"
-    namespace: "defense_turret"
     type: "pointer"
     parent:
       name: "TurretException"
@@ -181,7 +178,6 @@ classes:
             params:
               - value: "equivalent_struct_pointer"
   - name: "TargetingException"
-    namespace: "defense_turret"
     type: "pointer"
     parent:
       name: "TurretException"

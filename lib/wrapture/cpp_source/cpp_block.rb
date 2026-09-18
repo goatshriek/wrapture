@@ -68,6 +68,15 @@ module Wrapture
 
         self
       end
+
+      # Adds the given element to the block as a statement. This is
+      # equivalent to calling +<<+ followed by +puts(";")+.
+      def statement(element)
+        tree << element
+        tree << ";\n"
+
+        self
+      end
     end
   end
 end

@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-# Copyright 2025 Joel E. Anderson
+# Copyright 2025-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,26 +14,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+name: "kitchen"
 doc: "A collection of Kitchen appliance implementations."
 classes:
   - name: "Stove"
     doc: "A humble stove."
-    namespace: "kitchen"
     libraries: "stove"
     source:
       c:
         pointer:
           name: "stove"
           includes: "stove.h"
-    equivalent_struct:
-      name: "stove"
     constructors:
       - doc: "Creates a new stove."
+        params:
+          - name: "burner_count"
+            type: "int"
         source:
           c:
             name: "new_stove"
             params:
-              - name: "burner_count"
+              - value: "burner_count"
                 type: "int"
             return:
               type: "equivalent_struct_pointer"

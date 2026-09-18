@@ -426,8 +426,7 @@ module Wrapture
         spec.constants.each do |it|
           decl = CppSource::CppDeclaration.new(it.type, name: it.name,
                                                         value: it.value)
-          decl.attributes << 'static'
-          decl.attributes << 'const'
+          decl.attributes.push('static', 'const')
 
           cls.constants << decl
         end
@@ -449,8 +448,7 @@ module Wrapture
         destructor = context.functions.find { |it| it.root.destructor? }
         unless destructor.nil?
           func = CppSource::CppFunction.new("~#{cls.name}")
-          func << wrapped_function_call(destructor)
-          func << ';'
+          func.statement(wrapped_function_call(destructor))
           cls.destructor = func
         end
 
@@ -462,7 +460,12 @@ module Wrapture
           cls.member_functions << factory_member_function(context)
         end
 
-        cls.attributes << "#{CppSource::CppExportHeader.base_name(context)}_EXPORT"
+        export = if context.parent?
+                   context.parent
+                 else
+                   spec
+                 end
+        cls.attributes << CppSource::CppExportHeader.export_macro_name(export)
 
         cls
       end

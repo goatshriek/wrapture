@@ -178,6 +178,16 @@ class CToCppTest < Minitest::Test
     assert(source_file_contains_match?(header, declaration))
   end
 
+  def test_export_macro_name
+    ns_hash = fixture_hash('minimal_namespace')
+    context = Wrapture::Context.from_namespace_hash(ns_hash)
+    source_set = Wrapture::Wrapper::CToCpp.wrap_namespace_context(context)
+    header = source_set['MinimalClassOne.hpp']
+
+    refute_nil(header)
+    assert(source_file_contains_match?(header, 'MINIMAL_NAMESPACE_EXPORT'))
+  end
+
   def test_from_language
     assert_equal(:c, Wrapture::Wrapper::CToCpp.from_language)
   end

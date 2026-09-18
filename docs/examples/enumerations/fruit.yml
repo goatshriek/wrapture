@@ -14,10 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+name: "store"
 enums:
   - name: "Fruit"
     doc: "fruits sold by our fine establishment"
-    namespace: "store"
     source:
       c:
         includes:
