@@ -28,16 +28,16 @@ harry_potter = Book("Harry Potter and the Chamber of Commerce",
 tablet = Item("Tax Educator 2002")
 lord_of_the_rings = Book("The Two Showers", False, TOO_MANY_PAGE_COUNT)
 
-pc =  harry_potter.GetPageCount()
+pc =  harry_potter.get_page_count()
 print(f"Harry Potter has {pc} pages, not too bad.")
 if pc != NOT_BAD_PAGE_COUNT:
     exit("Harry Potter didn't have the right page count!")
-harry_potter.CheckOut()
+harry_potter.check_out()
 
-movie.CheckOut()
-tablet.CheckOut()
+movie.check_out()
+tablet.check_out()
 
-pc = lord_of_the_rings.GetPageCount()
+pc = lord_of_the_rings.get_page_count()
 print(f"Lord of the Rings has {pc} pages, too much!")
 if pc != TOO_MANY_PAGE_COUNT:
     exit("Lord of the Rings didn't have the right page count!")

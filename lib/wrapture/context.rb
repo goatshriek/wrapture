@@ -48,6 +48,12 @@ module Wrapture
       class_spec = ClassSpec.new(hash)
       context = new(class_spec, parent: parent)
 
+      if hash.key?(:constants)
+        hash[:constants].each do |it|
+          context << ConstantSpec.from_hash(it)
+        end
+      end
+
       if hash.key?(:functions)
         hash[:functions].each do |it|
           context << FunctionSpec.from_hash(it)

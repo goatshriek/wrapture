@@ -352,7 +352,7 @@ module Wrapture
       # overloaded, and need to be dynamically dispatched.
       def self.constructors_overloaded?(context)
         constructor_count = context.constructors.length
-        constructor_count.increment if member_constructor?(context)
+        constructor_count.succ if member_constructor?(context)
         constructor_count > 1
       end
 
@@ -730,7 +730,7 @@ module Wrapture
             blk.declare(super_type, 'super', value: super_value)
           end
 
-          equiv = class_struct_pointer(overload, var_name: struct_name)
+          equiv = class_struct_pointer(it, var_name: struct_name)
           blk.puts("#{equiv} = equivalent;")
           blk.puts("obj = (PyObject *) new_#{struct_type};")
         end
@@ -839,9 +839,9 @@ module Wrapture
       # class at the root of +context+ to fill in the struct.
       def self.member_constructor(context)
         if constructors_overloaded?(context)
-          member_constructor_overload_wrapper(class_spec)
+          member_constructor_overload_wrapper(context.root)
         else
-          member_constructor_parsing_wrapper(class_spec)
+          member_constructor_parsing_wrapper(context)
         end
       end
 
@@ -945,7 +945,7 @@ module Wrapture
           f.puts("self = (#{type_struct_name(class_spec)} *) self_obj;")
         end
 
-        class_struct = class_struct(class_spec)
+        class_struct = class_struct(context)
         class_spec[:c].members.each do |member|
           f.statement("#{class_struct}.#{member.name} = #{member.name}")
         end
@@ -1001,7 +1001,8 @@ module Wrapture
       # wrapper methods.
       def self.no_args_wrapper(context)
         func_spec = context.root
-        class_spec = context.parent.root
+        class_context = context.parent
+        class_spec = class_context.root
         name = function_wrapper_name(context)
         runtime_class = runtime_class?(class_spec)
         pyobject_ptr = CSource::CPointer.new('PyObject')
@@ -1030,7 +1031,7 @@ module Wrapture
         if func_spec.constructor?
           f.puts("self = (#{type_struct_name(class_spec)} *) self_obj;")
         elsif runtime_class
-          self_cast = runtime_type_cast(class_spec, 'self_obj')
+          self_cast = runtime_type_cast(class_context, 'self_obj')
           f.puts("self = #{self_cast};")
         end
 
@@ -1421,7 +1422,7 @@ module Wrapture
         return [] unless func_spec[:c].error_check?
 
         action = func_spec[:c].error_action
-        exception_class = context.resolve_name(action.type.name_words).root
+        exception_class = context.resolve_name(action.type.name_words)
         type_object = "(PyObject *) &#{type_object_name(exception_class)}"
 
         checks = func_spec[:c].error_rules.map do |rule|

@@ -20,7 +20,6 @@ version: "0.6.0"
 name: ["defense", "turret"]
 classes:
   - name: "Turret"
-    libraries: "turret"
     source:
       c:
         pointer:
@@ -50,6 +49,7 @@ classes:
         source:
           c:
             name: "aim"
+            libraries: "turret"
             params:
               - value: "equivalent_struct_pointer"
               - value: "x"

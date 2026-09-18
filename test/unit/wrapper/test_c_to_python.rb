@@ -23,6 +23,20 @@ require 'minitest/autorun'
 require 'wrapture'
 
 class CToPythonTest < Minitest::Test
+  # TODO: pick up here, hadd test for class_type_struct when the class is a
+  # child class that is not a runtime type
+
+  def test_class_type_struct
+    class_hash = fixture_hash('basic_class')
+    context = Wrapture::Context.from_class_hash(class_hash)
+    type_struct = Wrapture::Wrapper::CToPython.class_type_struct(context)
+    expected_typedef = Wrapture::Wrapper::CToPython.type_struct_name(context)
+
+    refute_nil(type_struct)
+    assert_kind_of(Wrapture::CSource::CStruct, type_struct)
+    assert_equal(expected_typedef, type_struct.typedef)
+  end
+
   def test_from_language
     assert_equal(:c, Wrapture::Wrapper::CToPython.from_language)
   end
@@ -61,6 +75,13 @@ class CToPythonTest < Minitest::Test
     wrapped_set = Wrapture::Wrapper::CToPython.wrap_namespace_context(context)
 
     assert_equal('lots_of_parts', wrapped_set.name)
+  end
+
+  def test_overloaded_constructors_with_member
+    class_hash = fixture_hash('struct_wrapper_class')
+    context = Wrapture::Context.from_class_hash(class_hash)
+
+    refute(Wrapture::Wrapper::CToPython.constructors_overloaded?(context))
   end
 
   def test_to_language
