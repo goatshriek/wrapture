@@ -163,10 +163,11 @@ module Wrapture
     # True if there are any ClassSpecs in this context or its contents which are
     # children of +class_spec+.
     def child?(class_spec)
+      class_name = class_spec.upper_camel_case_name
       specs = classes.map(&:root)
       specs << @root if @root.is_a?(ClassSpec)
       specs.any? do |it|
-        it.upper_camel_case_name == class_spec.upper_camel_case_name
+        !it.parent.nil? && Named.upper_camel_case_name(it.parent) == class_name
       end
     end
 

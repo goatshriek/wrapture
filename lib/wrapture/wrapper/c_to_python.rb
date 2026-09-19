@@ -144,8 +144,11 @@ module Wrapture
       def self.base_type_object(context)
         class_spec = context.root
         if class_spec.child?
-          parent_spec = context.resolve_name(context.parent)
-          return "(&#{type_object_name(parent_spec)})" if parent_spec
+          parent_name = Named.upper_camel_case_name(class_spec.parent)
+          parent = context.resolve do |it|
+            it.root.upper_camel_case_name == parent_name
+          end
+          return "(&#{type_object_name(parent)})" if parent
         end
 
         return '(( PyTypeObject *) PyExc_Exception)' if class_spec.exception?
@@ -266,10 +269,10 @@ module Wrapture
         mod = Python.module_name(context.parent.root)
         type_name = "#{mod}.#{class_spec.upper_camel_case_name}"
         flags = 'Py_TPFLAGS_DEFAULT'
-        children_in_context = context.flatten.any? do |it|
+        children_in_context = context.resolve do |it|
           it.child?(class_spec)
         end
-        flags += ' | Py_TPFLAGS_BASETYPE' if children_in_context
+        flags += ' | Py_TPFLAGS_BASETYPE' unless children_in_context.nil?
 
         members = [
           'PyVarObject_HEAD_INIT( NULL, 0 )',
@@ -315,9 +318,12 @@ module Wrapture
         # see runtime_type_cast for how to recover the type struct from these
         unless runtime_class?(class_spec)
           if class_spec.child?
-            parent_spec = class_spec.parent_spec
-            unless parent_spec.nil?
-              members << "#{type_struct_name(parent_spec)} super"
+            parent_name = Named.upper_camel_case_name(class_spec.parent)
+            parent_context = context.resolve do |it|
+              it.upper_camel_case_name == parent_name
+            end
+            unless parent_context.nil?
+              members << "#{type_struct_name(parent_context)} super"
             end
           else
             members << 'PyObject_HEAD'

@@ -15,9 +15,9 @@
 # limitations under the License.
 
 name: "ChildClass"
+parent:
+  name: "ParentClass"
 source:
   c:
     pointer:
       name: "error_struct"
-parent:
-  name: "ParentClass"

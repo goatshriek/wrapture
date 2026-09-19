@@ -25,8 +25,15 @@ require 'wrapture'
 class CToPythonTest < Minitest::Test
   # TODO: pick up here, hadd test for class_type_struct when the class is a
   # child class that is not a runtime type
+  def test_class_type_struct_with_child_class
+    class_hash = fixture_hash('child_class')
+    context = Wrapture::Context.from_class_hash(class_hash)
+    type_struct = Wrapture::Wrapper::CToPython.class_type_struct(context)
 
-  def test_class_type_struct
+    refute_nil(type_struct)
+  end
+
+  def test_class_type_struct_with_pointer_wrapper_class
     class_hash = fixture_hash('basic_class')
     context = Wrapture::Context.from_class_hash(class_hash)
     type_struct = Wrapture::Wrapper::CToPython.class_type_struct(context)
