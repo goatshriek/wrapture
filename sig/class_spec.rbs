@@ -18,16 +18,12 @@ module Wrapture
   class ClassSpec
     include Named
 
-    @constants: Array[Wrapture::ConstantSpec]
     @doc: Wrapture::Comment
-    @functions: Array[Wrapture::FunctionSpec]
     @parent: Enumerable[String] | nil
     @source: Hash[Symbol, CSource::CStruct] | nil
     @spec: spec_hash
 
-    attr_reader constants: Array[Wrapture::ConstantSpec]
     attr_reader doc: Wrapture::Comment
-    attr_reader functions: Array[Wrapture::FunctionSpec]
     attr_reader parent: Enumerable[String] | nil
     attr_reader source: Hash[Symbol, CSource::CStruct] | nil
 
@@ -40,14 +36,8 @@ module Wrapture
     def []: (Symbol) -> CSource::CStruct
     def []=: (Symbol, CSource::CStruct) -> CSource::CStruct
     def child?: -> bool
-    def constructors: -> Array[Wrapture::FunctionSpec]
-    def definable?: () -> bool
-    def destructor: -> Wrapture::FunctionSpec
     def equivalent_member?: -> bool
     def exception?: -> bool
-    def libraries: -> Array[String]
-    def method_specs: -> Array[Wrapture::FunctionSpec]
     def name_words: -> Array[String]
-    def namespace: -> String
   end
 end

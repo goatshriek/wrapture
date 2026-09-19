@@ -26,14 +26,8 @@ module Wrapture
   class ClassSpec
     include Named
 
-    # The list of constants in this class.
-    attr_reader :constants
-
     # The documentation comment for this class.
     attr_reader :doc
-
-    # The list of functions in this class.
-    attr_reader :functions
 
     # The name words of the parent of this class, or nil if it has no parent.
     attr_reader :parent
@@ -160,39 +154,6 @@ module Wrapture
     # libraries:: A list of libraries that must be linked to use this class.
     def initialize(spec)
       @spec = ClassSpec.normalize_spec_hash(spec)
-
-      @functions = @spec[:constructors].map do |constructor_spec|
-        full_spec = constructor_spec.dup
-        full_spec[:name] = @spec[:name]
-        # TODO: there shouldn't be C-specific code here
-        if constructor_spec[:source].key?(:c)
-          full_spec[:params] = constructor_spec[:source][:c][:params]
-        end
-        full_spec[:constructor] = true
-
-        func_spec = FunctionSpec.from_hash(full_spec)
-
-        func_spec
-      end
-
-      if @spec.key?(:destructor)
-        destructor_spec = @spec[:destructor].dup
-        destructor_spec[:name] = @spec[:name]
-        destructor_spec[:destructor] = true
-
-        func_spec = FunctionSpec.from_hash(destructor_spec)
-        @functions << func_spec
-      end
-
-      @spec[:functions].each do |function_spec|
-        func_spec = FunctionSpec.from_hash(function_spec)
-        @functions << func_spec
-      end
-
-      @constants = @spec[:constants].map do |constant_spec|
-        ConstantSpec.new(constant_spec)
-      end
-
       @doc = Comment.new(@spec[:doc])
 
       @source = {}
@@ -232,48 +193,14 @@ module Wrapture
       !@parent.nil?
     end
 
-    # A list of constructor functions for the class.
-    def constructors
-      @functions.select(&:constructor?)
-    end
-
-    # True if this class can be defined.
-    def definable?
-      @functions.all?(&:definable?)
-    end
-
-    # The destructor function for the class, or nil if there isn't one.
-    def destructor
-      @functions.select(&:destructor?).first
-    end
-
     # True if this class is an exception.
     def exception?
       @spec[:exception]
     end
 
-    # An array of libraries needed for everything in this class.
-    def libraries
-      @functions.flat_map(&:libraries).concat(@spec[:libraries])
-    end
-
-    # An array of methods of the class. This is a subset of the list of
-    # functions without the constructors and destructors.
-    #
-    # Named with a specs suffix to avoid conflicts with Ruby's "methods"
-    # instance method.
-    def method_specs
-      @functions.select { |spec| !spec.constructor? && !spec.destructor? }
-    end
-
     # The words that make up the function name.
     def name_words
       @spec[:name]
-    end
-
-    # The namespace of the class.
-    def namespace
-      @spec[:namespace]
     end
   end
 end

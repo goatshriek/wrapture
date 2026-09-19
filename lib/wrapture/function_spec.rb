@@ -280,23 +280,6 @@ module Wrapture
       @params.reject(&:default_value?)
     end
 
-    # A resolved type, given a TypeSpec +type+. Resolved types will not have any
-    # placeholders like +equivalent_struct+, which will be resolved to their
-    # effective type.
-    #
-    # TODO: This C-specific code should be removed from FunctionSpec
-    def resolve_type(type_spec)
-      if type_spec.equivalent_struct?
-        TypeSpec.new("struct #{@owner[:c].name}")
-      elsif type_spec.equivalent_pointer?
-        TypeSpec.new("struct #{@owner[:c].name} *")
-      elsif type_spec.self_reference?
-        TypeSpec.new("#{@owner.name}&")
-      else
-        type_spec
-      end
-    end
-
     # The resolved type of the return type.
     def resolved_return
       @return_type.resolve(self)
