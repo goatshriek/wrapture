@@ -23,8 +23,8 @@ module Wrapture
     # A generated Python project along with the information required to build
     # it.
     #
-    # Python projects are generated as single modules, defined by the scope
-    # containing all of the specs for it.
+    # Python projects are generated as single modules, defined by a Context
+    # instance with a Namespace root containing all of the specs for it.
     class PythonSourceSet
       include SourceSet
 

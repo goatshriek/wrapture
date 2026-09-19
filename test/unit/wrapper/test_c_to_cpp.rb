@@ -375,7 +375,7 @@ class CToCppTest < Minitest::Test
     refute(source_file_contains_match?(source, 'return_val'))
   end
 
-  def test_sequential_scope_load
+  def test_sequential_namespace_load
     class_specs = [fixture_hash('basic_class'),
                    fixture_hash('child_class'),
                    fixture_hash('constant_class'),

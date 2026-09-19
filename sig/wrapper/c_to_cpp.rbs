@@ -29,7 +29,7 @@ module Wrapture
       def self.define_alias_constructor: (Context) -> CppSource::CppFunction
       def self.define_class: (Context) -> SourceFile
       def self.define_constructor: (Context) -> CppSource::CppFunction
-      def self.define_enum: (ClassSpec, Scope) -> SourceFile
+      def self.define_enum: (ClassSpec, Context) -> SourceFile
       def self.defined_class: (Context) -> CppSource::CppClass
       def self.definition_filename: (ClassSpec | EnumSpec) -> String
       def self.definition_includes: (Context) -> Array[String]

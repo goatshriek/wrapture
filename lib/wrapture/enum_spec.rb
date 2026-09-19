@@ -37,15 +37,11 @@ module Wrapture
     # The namespace of the enumeration.
     attr_accessor :namespace
 
-    # The scope the enumeration is in.
-    attr_reader :scope
-
     # A map of language-specific wrapping details.
     attr_reader :source
 
     # Creates a new EnumSpec from hash +spec+.
-    # TODO: remove scope argument, this should not be tracked by the enum
-    def self.from_hash(spec, scope: Scope.new)
+    def self.from_hash(spec)
       if spec&.key?(:version) && !Wrapture.supports_version?(spec[:version])
         raise UnsupportedSpecVersion
       end
@@ -65,7 +61,7 @@ module Wrapture
       Comment.validate_doc(spec[:doc]) if spec.key?(:doc)
 
       name = Wrapture.normalize_name(spec, :name)
-      enum = EnumSpec.new(name, scope: scope)
+      enum = EnumSpec.new(name)
       enum.doc = Comment.new(spec[:doc])
       enum.namespace = spec[:namespace] if spec.key?(:namespace)
 
@@ -139,9 +135,6 @@ module Wrapture
 
     # Creates an enumeration specification based on the provided hash spec.
     #
-    # The scope can be provided if available. Otherwise, a new Scope is created
-    # holding only this enumeration.
-    #
     # The hash must have the following keys:
     # name:: The name of the enumeration.
     # elements:: A list of elements contained in the enumeration.
@@ -158,12 +151,9 @@ module Wrapture
     # to the wrapping language if possible, and chosen by wrapture if not. This
     # means that the same element may have different values in different
     # languages if it is not specified.
-    def initialize(name_words, scope: Scope.new)
+    def initialize(name_words)
       @name_words = Wrapture.normalize_name_words(name_words)
       @namespace = nil
-
-      scope << self
-      @scope = scope
 
       # TODO: this should be an array of custom objects instead of hashes
       @elements = []

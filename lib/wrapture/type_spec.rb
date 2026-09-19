@@ -116,13 +116,6 @@ module Wrapture
       name.end_with?('*')
     end
 
-    # Creates a new TypeSpec within the scope of +owner+ that will be directly
-    # usable. This will replace equivalent structs, pointers, and self
-    # references with a usable type name.
-    def resolve(owner)
-      owner.resolve_type(self)
-    end
-
     # True if this type is a reference to a class instance.
     def self_reference?
       name == SELF_REFERENCE_KEYWORD

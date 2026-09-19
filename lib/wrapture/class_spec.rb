@@ -171,7 +171,6 @@ module Wrapture
         full_spec[:constructor] = true
 
         func_spec = FunctionSpec.from_hash(full_spec)
-        func_spec.owner = self
 
         func_spec
       end
@@ -182,13 +181,11 @@ module Wrapture
         destructor_spec[:destructor] = true
 
         func_spec = FunctionSpec.from_hash(destructor_spec)
-        func_spec.owner = self
         @functions << func_spec
       end
 
       @spec[:functions].each do |function_spec|
         func_spec = FunctionSpec.from_hash(function_spec)
-        func_spec.owner = self
         @functions << func_spec
       end
 

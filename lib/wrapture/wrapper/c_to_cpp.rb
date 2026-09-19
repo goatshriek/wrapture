@@ -934,35 +934,6 @@ module Wrapture
         source_set
       end
 
-      # Generates a build for a C++ library wrapping the provided scope.
-      #
-      # +scope+ describes all of the classes and other entities that will be
-      # wrapped. These will all be put into a namespace named after the scope.
-      # In addition to the headers for each class and enumeration in the scope,
-      # a header will be generated for this namespace, which includes all of
-      # the items in it.
-      def self.wrap_scope(scope)
-        name_words = if scope.decorate_wrapped_name?
-                       Cpp.decorate_name_words(scope.name_words)
-                     else
-                       scope.name_words
-                     end
-        name = name_words.map(&:downcase).join
-        source_set = CppSource::CppSourceSet.new(name)
-
-        scope.each do |scope_member|
-          source_set << wrap(scope_member, scope: scope)
-        end
-
-        source_set.add_lib_header(namespace_header(scope))
-
-        export_name = "#{CSource::CExportHeader.export_header_name(scope)}pp"
-        export = CSource::CExportHeader.from_spec(scope, path: export_name)
-        source_set.add_lib_header(export)
-
-        source_set
-      end
-
       # An +Array+ of C++ source for the error check for a given function.
       def self.wrapped_error_check(func_spec)
         return [] unless func_spec[:c].error_check?

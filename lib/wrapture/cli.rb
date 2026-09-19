@@ -50,8 +50,7 @@ module Wrapture
         wrapping paths.
 
         Specs are provided as paths to YAML files containing the specs. Specs
-        are assumed to be scope specs, and will all be combined into the same
-        scope during loading.
+        are assumed to be namespace specs.
 
         The --from and --to options allow the starting and ending languages to
         be manually specified. If either (or both) option is given, then only

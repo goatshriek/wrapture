@@ -41,10 +41,6 @@ module Wrapture
     # The words that make up the function name.
     attr_reader :name_words
 
-    # The owner of this function. This may be an empty scope if no owner was
-    # defined for this function.
-    attr_accessor :owner
-
     # A list of the ParamSpecs this function accepts.
     attr_accessor :params
 
@@ -171,7 +167,6 @@ module Wrapture
     def initialize(name)
       @name_words = Wrapture.normalize_name_words(name)
       @doc = nil
-      @owner = Scope.new
       @source = {}
       @params = []
       @return_doc = nil
@@ -216,7 +211,7 @@ module Wrapture
     # function is definable for any language.
     #
     # In the long term, this should probably be renamed to something like
-    # "wrappable?" and added to ClassSpec and/or Scope.
+    # "wrappable?" and added to ClassSpec and/or Context.
     def definable?(lang: nil)
       # TODO: remove, replace with check of source for lang key
       if lang.nil?
@@ -268,19 +263,6 @@ module Wrapture
     # The parameters that are optional (have default values) for this function.
     def optional_params
       @params.select(&:default_value?)
-    end
-
-    # True if this function is overloaded in it's owning scope.
-    def overloaded?
-      case @owner
-      when ClassSpec
-        @owner.functions.count do |f|
-          f.name_words == name_words &&
-            f.constructor? == constructor? &&
-            f.destructor? == destructor?
-        end > 1
-      else false
-      end
     end
 
     # An array of the names of the function params.
