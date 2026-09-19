@@ -18,6 +18,8 @@
 # limitations under the License.
 #++
 
+require 'yaml'
+
 module Wrapture
   # A context represents a specific collection of specs and namespaces. This
   # provides the information needed to resolve relative references within specs
