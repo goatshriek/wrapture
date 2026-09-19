@@ -1160,7 +1160,7 @@ module Wrapture
             end
           end
 
-          it.methods.group_by(&:name_words).each_pair do |name, funcs|
+          it.methods.group_by(&:name_words).each_value do |funcs|
             next unless funcs.length > 1
 
             overload_groups[it.name_words] = funcs
