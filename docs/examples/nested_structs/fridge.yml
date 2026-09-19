@@ -17,8 +17,6 @@
 name: "kitchen"
 classes:
   - name: "IceMaker"
-    libraries: "fridge"
-    includes: "fridge.h"
     source:
       c:
         pointer:
@@ -33,6 +31,7 @@ classes:
         source:
           c:
             name: "new_ice_maker"
+            libraries: "fridge"
             params:
               - value: "size"
                 type: "int"
@@ -41,8 +40,6 @@ classes:
             return:
               type: "equivalent_struct_pointer"
   - name: "WaterFilter"
-    libraries: "fridge"
-    includes: "fridge.h"
     source:
       c:
         pointer:
@@ -55,20 +52,21 @@ classes:
         source:
           c:
             name: "new_water_filter"
+            libraries: "fridge"
             params:
               - value: "purity_level"
                 type: "int"
             return:
               type: "equivalent_struct_pointer"
   - name: "Freezer"
-    libraries: "fridge"
     source:
       c:
         pointer:
           name: "struct freezer"
           includes: "fridge.h"
     constructors:
-      - params:
+      - libraries: "fridge"
+        params:
         - name: "minimum_temp"
           type: "int"
         - name: "set_temp"
@@ -84,9 +82,6 @@ classes:
             return:
               type: "equivalent_struct_pointer"
   - name: "Fridge"
-    libraries: "fridge"
-    includes:
-      - "fridge.h"
     source:
       c:
         pointer:
@@ -99,6 +94,7 @@ classes:
         source:
           c:
             name: "new_fridge"
+            libraries: "fridge"
             params:
               - value: "temperature"
                 type: "int"

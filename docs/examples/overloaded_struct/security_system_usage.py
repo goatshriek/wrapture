@@ -19,9 +19,9 @@
 import home_automation
 
 for i in range(5):
-    ev = home_automation.SecurityEvent.NextEvent()
+    ev = home_automation.SecurityEvent.next_event()
 
-    if ev.GetCode() < 0:
+    if ev.get_code() < 0:
         exit("the derived class code was not used!")
 
-    ev.Print()
+    ev.print()

@@ -17,7 +17,6 @@
 name: "soccer"
 classes:
   - name: "PlayerStats"
-    libraries: "stats"
     source:
       c:
         name: "player_stats"
@@ -42,6 +41,7 @@ classes:
         source:
           c:
             name: "get_goals_scored"
+            libraries: "stats"
             params:
               - name: "equivalent_struct_pointer"
             return:
@@ -52,6 +52,7 @@ classes:
         source:
           c:
             name: "get_red_cards"
+            libraries: "stats"
             params:
               - name: "equivalent_struct_pointer"
             return:
@@ -62,6 +63,7 @@ classes:
         source:
           c:
             name: "get_yellow_cards"
+            libraries: "stats"
             params:
               - name: "equivalent_struct_pointer"
             return:
@@ -70,6 +72,7 @@ classes:
         source:
           c:
             name: "print_player_stats"
+            libraries: "stats"
             params:
               - name: "equivalent_struct_pointer"
             includes: "stats.h"

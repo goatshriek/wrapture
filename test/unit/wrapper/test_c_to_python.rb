@@ -23,8 +23,6 @@ require 'minitest/autorun'
 require 'wrapture'
 
 class CToPythonTest < Minitest::Test
-  # TODO: pick up here, hadd test for class_type_struct when the class is a
-  # child class that is not a runtime type
   def test_class_type_struct_with_child_class
     class_hash = fixture_hash('child_class')
     context = Wrapture::Context.from_class_hash(class_hash)
@@ -84,7 +82,25 @@ class CToPythonTest < Minitest::Test
     assert_equal('lots_of_parts', wrapped_set.name)
   end
 
-  def test_overloaded_constructors_with_member
+  def test_overload_groups_with_constructors
+    context = Wrapture::Context.new(Wrapture::Namespace.new(%w[wrapture test]))
+    class_hash = fixture_hash('class_with_overloaded_constructors')
+    class_context = Wrapture::Context.from_class_hash(class_hash,
+                                                      parent: context)
+    context.contents << class_context
+    groups = Wrapture::Wrapper::CToPython.overload_groups(context)
+
+    refute_empty(groups)
+  end
+
+  def test_overloaded_constructors
+    class_hash = fixture_hash('class_with_overloaded_constructors')
+    context = Wrapture::Context.from_class_hash(class_hash)
+
+    assert(Wrapture::Wrapper::CToPython.constructors_overloaded?(context))
+  end
+
+  def test_overloaded_constructors_with_only_member_constructor
     class_hash = fixture_hash('struct_wrapper_class')
     context = Wrapture::Context.from_class_hash(class_hash)
 
@@ -93,5 +109,19 @@ class CToPythonTest < Minitest::Test
 
   def test_to_language
     assert_equal(:python, Wrapture::Wrapper::CToPython.to_language)
+  end
+
+  def test_wrapper_of_overloaded_constructors
+    context = Wrapture::Context.new(Wrapture::Namespace.new(%w[wrapture test]))
+    class_hash = fixture_hash('class_with_overloaded_constructors')
+    class_context = Wrapture::Context.from_class_hash(class_hash,
+                                                      parent: context)
+    context.contents << class_context
+    first_constructor = class_context.constructors.first
+    func = Wrapture::Wrapper::CToPython.function_wrapper(first_constructor)
+
+    refute_nil(func)
+    refute_equal('overloaded_constructor_class_init', func.name,
+                 'an overloaded constructor wrapper name was not unique')
   end
 end

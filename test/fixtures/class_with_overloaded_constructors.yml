@@ -1,8 +1,6 @@
-#!/usr/bin/env python
-
 # SPDX-License-Identifier: Apache-2.0
 
-# Copyright 2024-2026 Joel E. Anderson
+# Copyright 2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,18 +14,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from kitchen import Freezer, Fridge, IceMaker, WaterFilter
-
-kitchen_fridge = Fridge( 34 )
-filter = WaterFilter( 10 )
-ice_maker = IceMaker( 10, 1 )
-freezer = Freezer( -10, 4 )
-
-kitchen_fridge.add_freezer( freezer )
-if kitchen_fridge.get_freezer_minimum_temp() != -10:
-    exit("the freezer minimum temperature was not correct!")
-
-kitchen_fridge.add_ice_maker( ice_maker )
-kitchen_fridge.add_water_filter( filter )
-
-kitchen_fridge.print()
+name: "OverloadedConstructorClass"
+source:
+  c:
+    pointer:
+      name: "basic_struct"
+      includes: "folder/include_file_1.h"
+constructors:
+  - source:
+      c:
+        name: "default_constructor"
+        return:
+          type: "equivalent_struct_pointer"
+  - params:
+      - name: "param_1"
+        type: "int"
+    source:
+      c:
+        name: "one_int_constructor"
+        params:
+          - value: "param_1"
+            type: "int"
+        return:
+          type: "equivalent_struct_pointer"

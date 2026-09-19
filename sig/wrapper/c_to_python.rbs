@@ -50,6 +50,7 @@ module Wrapture
       def self.factory_constructor: (ClassSpec) -> CSource::CFunction
       def self.finalize_module_types: (CSource::CBlock, Context) -> SourceFile
       def self.function_arg_parse_format: (FunctionSpec) -> String
+      def self.function_overloaded?: (Context) -> bool
       def self.function_wrapper: (Context) -> CSource::CFunction
       def self.function_wrapper_name: (Context) -> String
       def self.initialize_optional_params: (CSource::CBlock, FunctionSpec) -> CSource::CBlock

@@ -416,9 +416,9 @@ module Wrapture
       def self.declare_wrapper_locals(blk, context)
         func_spec = context.root
         class_spec = context.parent.root
+        overloaded = function_overloaded?(context)
 
-        if !func_spec.overloaded? &&
-           (func_spec.constructor? || runtime_class?(class_spec))
+        if !overloaded && (func_spec.constructor? || runtime_class?(class_spec))
           blk.statement(self_declaration(class_spec))
         end
 
@@ -431,9 +431,7 @@ module Wrapture
           blk.declare(CSource::CPointer.new(type_name), 'super')
         end
 
-        if func_spec.params? && !func_spec.overloaded?
-          blk.declare('int', 'parse_result')
-        end
+        blk.declare('int', 'parse_result') if func_spec.params? && !overloaded
 
         error_return = func_spec[:c].error_rules.any? do |it|
           it.vals.include?(RETURN_VALUE_KEYWORD)
@@ -444,7 +442,7 @@ module Wrapture
 
         # if the function is overloaded, then params are passed as args, rather
         # than being parsed in this wrapper
-        declare_wrapper_param_locals(blk, context) unless func_spec.overloaded?
+        declare_wrapper_param_locals(blk, context) unless overloaded
 
         blk.puts
       end
@@ -785,6 +783,15 @@ module Wrapture
         arg_parse_format(required_args, optional_args)
       end
 
+      # True if the function at the root of +context+ is overloaded.
+      def self.function_overloaded?(context)
+        func_spec = context.root
+        class_groups = overload_groups(context.parent.parent)
+
+        class_groups.key?(context.name_words) ||
+          (func_spec.constructor? && constructors_overloaded?(context.parent))
+      end
+
       # The function wrapper for the funtion at the root of +context+.
       #
       # For destructors, this function calls +destructor_wrapper+.
@@ -798,9 +805,10 @@ module Wrapture
       # Otherwise, this function is equivalent to calling +no_args_wrapper+.
       def self.function_wrapper(context)
         func_spec = context.root
+
         if func_spec.destructor?
           destructor_wrapper(context)
-        elsif func_spec.overloaded?
+        elsif function_overloaded?(context)
           overload_wrapper(context)
         elsif func_spec.params?
           parsing_wrapper(context)
@@ -1135,27 +1143,27 @@ module Wrapture
         f
       end
 
-      # The function overload groups for a +context+, provided as a +Hash+ that
-      # maps the function name to an +Array+ of +FunctionSpec+ instances that
-      # are overloaded under that name.
+      # The function overload groups for the Namespace at the root of +context+,
+      # provided as a +Hash+ that maps the function name to an +Array+ of
+      # +FunctionSpec+ instances that are overloaded under that name.
       def self.overload_groups(context)
+        # TODO: error or handle if the root of context is not a namespace
+
         # TODO: what if the same function name is overloaded in multiple
         # classes? Currently this results in conflicts
         overload_groups = {}
         context.classes.each do |it|
-          wrapped_members = C.wrapped_members?(it.root)
-
-          it.functions.each do |func_context|
-            func_spec = func_context.root
-            func_name = func_spec.snake_case_name
-            overloaded_constructor = func_spec.constructor? && wrapped_members
-            if func_spec.overloaded? || overloaded_constructor
-              if overload_groups.include?(func_name)
-                overload_groups[func_name] << func_context
-              else
-                overload_groups[func_name] = [func_context]
-              end
+          if constructors_overloaded?(it)
+            overload_groups[it.name_words] = it.constructors
+            if member_constructor?(it)
+              overload_groups[it.name_words] << member_constructor(it)
             end
+          end
+
+          it.methods.group_by(&:name_words).each_pair do |name, funcs|
+            next unless funcs.length > 1
+
+            overload_groups[it.name_words] = funcs
           end
         end
 
