@@ -22,7 +22,7 @@ module Wrapture
       def if: (String) { (CppBlock) -> void } -> CSource::CIf
       def include: (String, ?comment: Comment | String, ?quote: bool) -> CppBlock
       def puts: (*String) -> CppBlock
-      def statement: (untyped) -> CBlock
+      def statement: (untyped) -> CppBlock
     end
   end
 end
