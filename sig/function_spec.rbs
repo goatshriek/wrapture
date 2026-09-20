@@ -39,7 +39,6 @@ module Wrapture
     def []=: (Symbol, CSource::CFunction) -> CSource::CFunction
     def constructor?: -> bool
     def declaration_includes: -> Array[String]
-    def definable?: (?lang: Symbol) -> bool
     def definition_includes: -> Array[String]
     def destructor?: -> bool
     def doc: -> Wrapture::Comment
@@ -51,8 +50,6 @@ module Wrapture
     def params?: -> bool
     def qualified_name: -> String
     def required_params: -> Array[Wrapture::ParamSpec]
-    def resolved_return: -> Wrapture::TypeSpec
-    def return_expression: (?func_name: String) -> String
     def return_overloaded?: -> bool
     def static?: -> bool
     def to_s: () -> String

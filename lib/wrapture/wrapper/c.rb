@@ -149,18 +149,11 @@ module Wrapture
               when Context
                 spec.flatten.flat_map { |it| includes(it.root) }
               when ClassSpec
-                spec_includes = if spec.source.key?(:c)
-                                  spec[:c].includes
-                                else
-                                  []
-                                end
-                function_includes = spec.functions.flat_map do |it|
-                  includes(it)
+                if spec.source.key?(:c)
+                  spec[:c].includes
+                else
+                  []
                 end
-                constant_includes = spec.constants.flat_map do |it|
-                  includes(it)
-                end
-                spec_includes + constant_includes + function_includes
               when FunctionSpec
                 spec_includes = if spec.source.key?(:c)
                                   spec[:c].includes

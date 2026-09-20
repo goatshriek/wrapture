@@ -192,6 +192,14 @@ class CToCppTest < Minitest::Test
     assert_equal(:c, Wrapture::Wrapper::CToCpp.from_language)
   end
 
+  def test_generate_pointer_constructor
+    hash = fixture_hash('pointer_class_with_explicit_pointer_move_constructor')
+    context = Wrapture::Context.from_class_hash(hash)
+    res = Wrapture::Wrapper::CToCpp.generate_pointer_move_constructor?(context)
+
+    refute(res)
+  end
+
   def test_header_for_namespace_with_class_and_enum
     spec_hash = fixture_hash('namespace_with_class_and_enum')
     context = Wrapture::Context.from_namespace_hash(spec_hash)
@@ -319,8 +327,8 @@ class CToCppTest < Minitest::Test
   end
 
   def test_pointer_class_with_explicit_pointer_constructor
-    spec_hash = fixture_hash('pointer_class_with_explicit_pointer_constructor')
-    context = Wrapture::Context.from_class_hash(spec_hash)
+    hash = fixture_hash('pointer_class_with_explicit_pointer_move_constructor')
+    context = Wrapture::Context.from_class_hash(hash)
     build = Wrapture::Wrapper::CToCpp.wrap_class_context(context)
 
     class_name = Wrapture::Wrapper::CToCpp.class_name(context.root)

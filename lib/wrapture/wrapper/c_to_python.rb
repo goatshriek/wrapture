@@ -169,13 +169,16 @@ module Wrapture
         end
       end
 
-      # Declares an array of PyMemberDef structures for a given class spec.
-      def self.class_members_declaration(class_spec)
+      # Declares an array of PyMemberDef structures for the class at the root of
+      # +context+.
+      def self.class_members_declaration(context)
+        class_spec = context.root
         snake_name = class_spec.snake_case_name
-        members = class_spec.constants.map do |constant_spec|
+        members = context.constants.map do |it|
+          constant_spec = it.root
           offset_struct = type_struct_name(class_spec)
           offset_field = constant_spec.snake_case_name
-          init = [".name = \"#{constant_spec.name}\"",
+          init = [".name = \"#{constant_spec.screaming_snake_case_name}\"",
                   ".type = #{member_type(constant_spec.type)}",
                   ".offset = offsetof( #{offset_struct}, #{offset_field} )",
                   '.flags = Py_READONLY']
@@ -330,7 +333,8 @@ module Wrapture
           end
         end
 
-        class_spec.constants.each do |constant_spec|
+        context.constants.each do |it|
+          constant_spec = it.root
           members << "#{constant_spec.type} #{constant_spec.snake_case_name};"
         end
 
@@ -377,21 +381,23 @@ module Wrapture
         end
       end
 
-      # Allocates a new instance of the given class to the self variable in the
-      # given source block, and performs any setup needed on it. Assumes that
-      # the type variable has a pointer to the PyTypeObject structure for the
-      # class.
+      # Allocates a new instance of the class at the root of +context+ to the
+      # self variable in source block +blk+, and performs any setup needed on
+      # it. Assumes that the type variable has a pointer to the PyTypeObject
+      # structure for the class.
       #
       # This is useful for constructors that need to construct the self instance
       # before calling a wrapped function with the instance.
-      def self.create_self(blk, class_spec)
+      def self.create_self(blk, context)
+        class_spec = context.root
         self_type = "#{type_struct_name(class_spec)} *"
         blk.puts("self = ( #{self_type} ) subtype->tp_alloc( subtype, 0 );")
         blk.if('!self') do |if_blk|
           if_blk.puts('return NULL;')
         end
 
-        class_spec.constants.each do |constant_spec|
+        context.constants.each do |it|
+          constant_spec = it.root
           field_name = constant_spec.snake_case_name
           field_value = constant_spec.value
           blk.puts("self->#{field_name} = #{field_value};")
@@ -457,12 +463,14 @@ module Wrapture
         blk
       end
 
-      # The default type allocator for classes without a base type.
+      # The default type allocator for the class at the root of +context+, which
+      # does not have a base type.
       #
       # We need an allocator for our types because they are static and therefore
       # do not have a default, as described in the Python C API documentation:
       # https://docs.python.org/3/c-api/typeobj.html#c.PyTypeObject.tp_new
-      def self.default_allocator(class_spec)
+      def self.default_allocator(context)
+        class_spec = context.root
         name = "#{class_spec.snake_case_name}_new"
         params = allocator_params
         return_type = Wrapture::CSource::CPointer.new('PyObject')
@@ -472,7 +480,7 @@ module Wrapture
                                          attributes: ['static'])
 
         f.statement(self_declaration(class_spec))
-        create_self(f, class_spec)
+        create_self(f, context)
         f.return('( PyObject * ) self')
       end
 
@@ -496,9 +504,8 @@ module Wrapture
         end
 
         context.classes.each do |it|
-          class_spec = it.root
           if base_type_object(it).nil?
-            src << default_allocator(class_spec)
+            src << default_allocator(it)
             src.puts
           end
 
@@ -508,7 +515,7 @@ module Wrapture
           end
 
           unless it.functions.any? { |it| it.root.destructor? }
-            src << default_destructor(class_spec)
+            src << default_destructor(it.root)
             src.puts
           end
 
@@ -554,9 +561,8 @@ module Wrapture
         define_class_functions(src, context)
 
         context.classes.each do |it|
-          class_spec = it.root
           src.statement(class_methods_declaration(it))
-          src.statement(class_members_declaration(class_spec))
+          src.statement(class_members_declaration(it))
           src.statement(class_type_object_declaration(it))
         end
 
@@ -772,14 +778,16 @@ module Wrapture
         end
       end
 
-      # The format string to use for +func_spec+.
-      def self.function_arg_parse_format(func_spec)
-        required_args = func_spec.required_params.map do |param_spec|
-          func_spec.resolve_type(param_spec.type).to_s
+      # The format string to use for the function at the root of +context+.
+      def self.function_arg_parse_format(context)
+        required_args = context.root.required_params.map do |it|
+          it.type.to_s
         end
-        optional_args = func_spec.optional_params.map do |param_spec|
-          func_spec.resolve_type(param_spec.type).to_s
+        optional_args = context.root.optional_params.map do |it|
+          it.type.to_s
         end
+        # puts required_args
+        # puts optional_args
         arg_parse_format(required_args, optional_args)
       end
 
@@ -1228,7 +1236,7 @@ module Wrapture
       # The expression containing the call to PyArg_ParseTuple to parse the
       # arguments for the function at the root of +context+.
       def self.parse_tuple_call(context)
-        format_str = function_arg_parse_format(context.root)
+        format_str = function_arg_parse_format(context)
         arg_vars = wrapper_param_locals(context).map do |decl|
           "&#{decl.name}"
         end

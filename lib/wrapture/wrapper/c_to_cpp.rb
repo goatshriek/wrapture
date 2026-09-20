@@ -83,6 +83,17 @@ module Wrapture
         end
       end
 
+      # A CppDeclaration of +const_spec+.
+      def self.constant_declaration(const_spec)
+        name = - const_spec.screaming_snake_case_name
+        value = const_spec.value
+        decl = CppSource::CppDeclaration.new(const_spec.type, name: name,
+                                                              value: value)
+        decl.attributes.push('static', 'const')
+
+        decl
+      end
+
       # Retrieves a conversion proc which converts one source component to
       # another.
       #
@@ -175,7 +186,9 @@ module Wrapture
         class_spec = context.root
         includes.concat(class_spec[:c].includes) if class_spec.source.key?(:c)
 
-        class_spec.functions.each do |func|
+        context.functions.each do |it|
+          func = it.root
+          includes.concat(Wrapper::C.includes(func))
           func.params.each do |param|
             includes.concat(Wrapper::C.includes(param))
 
@@ -186,8 +199,8 @@ module Wrapture
           end
         end
 
-        class_spec.constants.each do |const|
-          includes.concat(Wrapper::C.includes(const))
+        context.constants.each do |it|
+          includes.concat(Wrapper::C.includes(it))
         end
 
         if class_spec.child?
@@ -351,8 +364,12 @@ module Wrapture
       def self.define_class(context)
         class_spec = context.root
 
-        unless class_spec.definable?
-          raise UndefinableSpec, "#{class_spec.name} is not definable"
+        definable = context.functions.all? do |it|
+          it.root.source.key?(:c) || it.root.source.key?(:alias)
+        end
+        unless definable
+          msg = "#{class_name(class_spec)} is not definable for C to C++"
+          raise UndefinableSpec, msg
         end
 
         src = CppSource::CppSourceFile.new(definition_filename(class_spec))
@@ -423,12 +440,8 @@ module Wrapture
           cls.parent_name = 'std::exception'
         end
 
-        spec.constants.each do |it|
-          decl = CppSource::CppDeclaration.new(it.type, name: it.name,
-                                                        value: it.value)
-          decl.attributes.push('static', 'const')
-
-          cls.constants << decl
+        context.constants.each do |it|
+          cls.constants << constant_declaration(it.root)
         end
 
         context.constructors.each do |it|
@@ -591,18 +604,20 @@ module Wrapture
       #
       # A pointer constructor is generated for a class where the wrapped struct
       # is already a pointer, and no constructor that takes a single pointer of
-      # this type is defined. The pointer constructor sets the wrapped struct
-      # to the parameter, instead of calling any of the constructor functions.
+      # this type is defined. The pointer copy constructor sets each member of
+      # the wrapped struct to those of the parameter, instead of calling any of
+      # the constructor functions.
       def self.generate_pointer_copy_constructor?(context)
         class_spec = context.root
         type = C.equivalent_type(class_spec)
         return false if type.nil? || !type.is_a?(CSource::CStruct)
 
         pointer_type = C.equivalent_pointer(class_spec)
-        class_spec.constructors.none? do |it|
+        context.constructors.none? do |it|
           # TODO: check for const
-          it.params.length == 1 &&
-            CppSource::CppType.from_spec(it.params.first.type) == pointer_type
+          params = it.root.params
+          params.length == 1 &&
+            CppSource::CppType.from_spec(params.first.type) == pointer_type
         end
       end
 
@@ -611,16 +626,19 @@ module Wrapture
       #
       # A pointer constructor is generated for a class where the wrapped struct
       # is already a pointer, and no constructor that takes a single pointer of
-      # this type is defined. The pointer constructor sets the wrapped struct
-      # to the parameter, instead of calling any of the constructor functions.
+      # this type is defined. The pointer move constructor sets the wrapped
+      # struct to the parameter, instead of calling any of the constructor
+      # functions.
       def self.generate_pointer_move_constructor?(context)
         class_spec = context.root
         type = C.equivalent_type(class_spec)
         return false if type.nil? || !type.is_a?(CSource::CPointer)
 
-        class_spec.constructors.none? do |it|
-          it.params.length == 1 &&
-            CppSource::CppType.from_spec(it.params.first.type) == type
+        context.constructors.none? do |it|
+          params = it.root.params
+          params.length == 1 &&
+            (params.first.type.equivalent_pointer? ||
+             CppSource::CppType.from_spec(params.first.type) == type)
         end
       end
 
@@ -876,10 +894,6 @@ module Wrapture
 
         set.add_lib_header(declare_class(context))
         set.add_lib_source(define_class(context))
-
-        class_spec.libraries.each do |lib|
-          set.add_lib_link(lib)
-        end
 
         set
       end

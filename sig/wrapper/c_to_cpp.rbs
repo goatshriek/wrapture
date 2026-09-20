@@ -21,6 +21,7 @@ module Wrapture
 
       def self.ancestor_suffix: (ClassSpec) -> String
       def self.class_name: (ClassSpec) -> String
+      def self.constant_declaration: (ConstantSpec) -> CppSource::CppDeclaration
       def self.converter: (untyped, untyped, Context) -> Proc
       def self.declaration_filename: (untyped) -> String
       def self.declaration_includes: (Context) -> Array[String]

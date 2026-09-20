@@ -26,24 +26,24 @@ classes:
         includes:
           - "vcr.h"
     constants:
-      - name: "PLAY_COMMAND"
+      - name: ["play", "command"]
         type: "int"
         value: "PLAY"
         includes:
           - "vcr.h"
-      - name: "PAUSE_COMMAND"
+      - name: ["pause", "command"]
         type: "int"
         value: "PAUSE"
-      - name: "FAST_FORWARD_COMMAND"
+      - name: ["fast", "forward", "command"]
         type: "int"
         value: "FAST_FORWARD"
-      - name: "REWIND_COMMAND"
+      - name: ["rewind", "command"]
         type: "int"
         value: "REWIND"
-      - name: "VOLUME_UP_COMMAND"
+      - name: ["volume", "up", "command"]
         type: "int"
         value: "VOLUME_UP"
-      - name: "VOLUME_DOWN_COMMAND"
+      - name: ["volume", "down", "command"]
         type: "int"
         value: "VOLUME_DOWN"
     functions:

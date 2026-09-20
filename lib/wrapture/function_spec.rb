@@ -204,23 +204,6 @@ module Wrapture
       includes.uniq
     end
 
-    # True if this function can be defined, false if not.
-    #
-    # If +lang+ is given, then the result is true only if this function is
-    # definable for the given language. If not, the result is true if the
-    # function is definable for any language.
-    #
-    # In the long term, this should probably be renamed to something like
-    # "wrappable?" and added to ClassSpec and/or Context.
-    def definable?(lang: nil)
-      # TODO: remove, replace with check of source for lang key
-      if lang.nil?
-        !@source.empty?
-      else
-        @source.key?(lang)
-      end
-    end
-
     # A list of includes needed for the definition of the function.
     def definition_includes
       includes = @source[:c].includes
@@ -278,21 +261,6 @@ module Wrapture
     # The parameters that are required (no default values) for this function.
     def required_params
       @params.reject(&:default_value?)
-    end
-
-    # The resolved type of the return type.
-    def resolved_return
-      @return_type.resolve(self)
-    end
-
-    # Calls return_expression on the return type of this function. +func_name+
-    # is passed to return_expression if provided.
-    def return_expression(func_name: name)
-      if @constructor || @destructor
-        signature(func_name: func_name)
-      else
-        resolved_return.return_expression(self, func_name: func_name)
-      end
     end
 
     # True if the return type of this function is overloaded.

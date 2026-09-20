@@ -26,7 +26,7 @@ module Wrapture
       def self.arg_parse_format: (Enumerable[String], ?Enumerable[String]) -> String
       def self.base_type_object: (Context) -> String?
       def self.cast_equivalent: (ClassSpec, String, String) -> String
-      def self.class_members_declaration: (ClassSpec) -> CSource::CDeclaration
+      def self.class_members_declaration: (Context) -> CSource::CDeclaration
       def self.class_methods_declaration: (Context) -> CSource::CDeclaration
       def self.class_struct: (Context, ?var_name: String) -> String
       def self.class_struct_pointer: (Context, ?var_name: String) -> String
@@ -35,11 +35,11 @@ module Wrapture
       def self.constructor_params: () -> Enumerable[CSource::CDeclaration]
       def self.constructors_overloaded?: (Context) -> bool
       def self.create_python_object: (TypeSpec, String) -> String
-      def self.create_self: (CSource::CBlock, ClassSpec) -> CSource::CBlock
+      def self.create_self: (CSource::CBlock, Context) -> CSource::CBlock
       def self.declare_module_struct: (SourceFile, String) -> SourceFile
       def self.declare_wrapper_locals: (CSource::CBlock, Context) -> CSource::CBlock
       def self.declare_wrapper_param_locals: (CSource::CBlock, Context) -> CSource::CBlock
-      def self.default_allocator: (ClassSpec) -> CSource::CFunction
+      def self.default_allocator: (Context) -> CSource::CFunction
       def self.default_destructor: (ClassSpec) -> CSource::CFunction
       def self.define_class_functions: (CSource::CBlock, Context) -> CSource::CBlock
       def self.define_module: (Context) -> CSource::CSourceFile
@@ -49,7 +49,7 @@ module Wrapture
       def self.equivalent_member_declaration: (ClassSpec) -> CSource::CDeclaration
       def self.factory_constructor: (ClassSpec) -> CSource::CFunction
       def self.finalize_module_types: (CSource::CBlock, Context) -> SourceFile
-      def self.function_arg_parse_format: (FunctionSpec) -> String
+      def self.function_arg_parse_format: (Context) -> String
       def self.function_overloaded?: (Context) -> bool
       def self.function_wrapper: (Context) -> CSource::CFunction
       def self.function_wrapper_name: (Context) -> String
