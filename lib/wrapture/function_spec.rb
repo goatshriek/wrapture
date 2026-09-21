@@ -196,24 +196,6 @@ module Wrapture
       @constructor
     end
 
-    # A list of includes needed for the declaration of the function.
-    def declaration_includes
-      includes = @return_type.includes
-      @params.each { |param| includes.concat(param.includes) }
-      includes.concat(@return_type.includes)
-      includes.uniq
-    end
-
-    # A list of includes needed for the definition of the function.
-    def definition_includes
-      includes = @source[:c].includes
-      includes.concat(@return_type.includes)
-      @params.each { |param| includes.concat(param.includes) }
-      includes.concat(@return_type.includes)
-      includes << 'stdarg.h' if variadic?
-      includes.uniq
-    end
-
     # True if the function is a destructor, false otherwise.
     def destructor?
       @destructor
@@ -233,24 +215,9 @@ module Wrapture
       comment
     end
 
-    # An array of libraries required for this function call.
-    def libraries
-      # TODO: there shouldn't be C-specific code here
-      if @source.empty? || !@source.key?(:c)
-        []
-      else
-        @source[:c].libraries
-      end
-    end
-
     # The parameters that are optional (have default values) for this function.
     def optional_params
       @params.select(&:default_value?)
-    end
-
-    # An array of the names of the function params.
-    def param_names
-      @params.map(&:name)
     end
 
     # True if this function has parameters.
