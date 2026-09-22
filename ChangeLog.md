@@ -22,14 +22,18 @@ fixes, check out the
 - Replaced single `wrapture` script with CLI tool with subcommands.
 - C++ namespaces have an additional rollup header generated for them that
   includes all headers generated for them.
+- The Scope class has been replaced with the Context class, which is used to
+  represent hierarchical relationships instead of embeddeding them into the
+  individual specs.
+- Constructor specs must manually specify their parameters.
 
 ### Removed
 - Ruby 2.4 through 2.6 are no longer supported.
 - Templates are no longer supported natively. Spec reuse must be performed
   outside of wrapture, for example via YAML anchors or in Ruby code.
-- The Scope class has been replaced with the Context class, which is used to
-  represent hierarchical relationships instead of embeddeding them into the
-  individual specs.
+- Class specs no longer have the 'includes', 'libraries', or 'namespace'
+  attributes.
+- Function specs no longer have the 'owner' attribute.
 
 ## [0.5.0] - 2020-12-15
 ### Fixed

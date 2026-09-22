@@ -32,7 +32,7 @@ module Wrapture
   class Context
     include Named
 
-    # A Set of Context instance which this context directly contains.
+    # A Set of Context instances which this context directly contains.
     attr_reader :contents
 
     # A Context that contains this one. If this is nil, then this Context is at
@@ -42,10 +42,11 @@ module Wrapture
     # The root of this context.
     attr_reader :root
 
-    # Creates a Context with a root ClassSpec constructed from +hash+, and
-    # functions derived from the +:functions+ key. If +parent+ is provided, it
-    # is the parent of the new Context, but it is not added to the contents of
-    # the parent.
+    # Creates a Context with a root ClassSpec constructed from +hash+,
+    # functions derived from the +:functions+, +:constructors+, and
+    # +:destructor+ keys, and constants derived from the +:constants+ key. If
+    # +parent+ is provided, it is the parent of the new Context, but it is not
+    # added to the contents of the parent.
     def self.from_class_hash(hash, parent: nil)
       class_spec = ClassSpec.new(hash)
       context = new(class_spec, parent: parent)
@@ -154,8 +155,8 @@ module Wrapture
     end
 
     # Adds the given element to the context's contents. A new Context is created
-    # with the element as its root and this Context as the parent, and the new
-    # Context is added to the contents. The modified Context image is returned.
+    # with the element as its root and this Context as the parent, and then
+    # added to the contents. The modified +self+ is returned.
     def <<(element)
       @contents << Context.new(element, parent: self)
 
@@ -203,7 +204,7 @@ module Wrapture
     end
 
     # An Array of this context, its contents, and all of their contents,
-    # obtained recursively.
+    # recursively.
     def flatten
       [self] + @contents.flat_map(&:flatten)
     end
@@ -241,7 +242,7 @@ module Wrapture
     # Searches through the Context for an element where +block+ returns true and
     # returns the first match, or nil if there are none.
     #
-    # Resolution occurs by first checking the root for a match, followed by the
+    # Resolution is done by first checking the root for a match, followed by the
     # context's contents for matches. Note this search does not recursively
     # search through contents. If no match is found in the contents and this
     # context has a parent, then resolution is attempted in the parent. If there

@@ -20,26 +20,26 @@ module Wrapture
       include SourceSet
 
       @contexts: Array[Context]
-      @lib_headers: Array[Wrapture::SourceFile]
+      @lib_headers: Array[SourceFile]
       @lib_links: Array[String]
-      @lib_sources: Array[Wrapture::SourceFile]
+      @lib_sources: Array[SourceFile]
       @name: String
 
       attr_reader contexts: Array[Context]
-      attr_reader lib_headers: Array[Wrapture::SourceFile]
+      attr_reader lib_headers: Array[SourceFile]
       attr_reader lib_links: Array[String]
-      attr_reader lib_sources: Array[Wrapture::SourceFile]
+      attr_reader lib_sources: Array[SourceFile]
       attr_reader name: String
 
-      def self.from_hash: (spec_hash) -> Wrapture::CSource::CSourceSet
+      def self.from_hash: (spec_hash) -> CSource::CSourceSet
 
       def initialize: (String) -> void
-      def <<: (Wrapture::CSource::CSourceSet) -> (Wrapture::CSource::CSourceSet)
-      def add_lib_header: (Wrapture::SourceFile) -> void
-      def add_lib_source: (Wrapture::SourceFile) -> void
+      def <<: (CSource::CSourceSet) -> (CSource::CSourceSet)
+      def add_lib_header: (SourceFile) -> void
+      def add_lib_source: (SourceFile) -> void
       def add_lib_link: (String) -> void
-      def includes: () -> Enumerable[Wrapture::CSource::CInclude]
-      def sources: -> Array[Wrapture::SourceFile]
+      def includes: () -> Enumerable[CSource::CInclude]
+      def sources: -> Array[SourceFile]
     end
   end
 end

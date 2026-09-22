@@ -19,7 +19,7 @@ module Wrapture
     class PythonSourceSet
       include SourceSet
 
-      @contexts: Array[Context]
+      @contexts: Set[Context]
       @module_links: Array[String]
       @module_sources: Array[Wrapture::SourceFile]
       @name: String

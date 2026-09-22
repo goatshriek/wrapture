@@ -49,9 +49,6 @@ module Wrapture
   class MissingSpecKey < WraptureError
   end
 
-  class MissingNamespace < WraptureError
-  end
-
   class MissingWrapped < WraptureError
   end
 

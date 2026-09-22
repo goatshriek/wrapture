@@ -42,12 +42,12 @@ module Wrapture
       # The base name used to derive the export macro names.
       attr_reader :base_name
 
-      # A base name to use for a +Named+ +spec+.
+      # A base name to use for a Named +spec+.
       def self.base_name(spec)
         spec.screaming_snake_case_name
       end
 
-      # An export header name derived from the +Named+ +spec+.
+      # An export header name derived from the Named +spec+.
       def self.export_header_name(spec)
         if spec.name_words.empty?
           'export.hpp'
@@ -57,12 +57,12 @@ module Wrapture
       end
 
       # The name of the macro created to control exporting in the export header
-      # created for the +Named+ +spec+.
+      # created for the Named +spec+.
       def self.export_macro_name(spec)
         "#{base_name(spec)}_EXPORT"
       end
 
-      # A C++ export header for the +Named+ +spec+.
+      # A C++ export header for the Named +spec+.
       #
       # The export macro will be +CExportHeader.base_name+ with "_EXPORT"
       # added to the end. This macro will be defined differently depending on

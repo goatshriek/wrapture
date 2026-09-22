@@ -94,7 +94,7 @@ module Wrapture
       from_hash(ns_hash)
     end
 
-    # A plain namespace is created with a name and empty contents.
+    # A plain namespace is created with a +name+ and empty contents.
     def initialize(name)
       @name_words = if name.is_a?(String)
                       Named.words_from_name(name)

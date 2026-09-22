@@ -28,7 +28,7 @@ module Wrapture
     class PythonSourceSet
       include SourceSet
 
-      # The contexts representing what this source set implements.
+      # A Set of contexts this source set implements.
       attr_reader :contexts
 
       # The libraries this project's module links with.
@@ -47,7 +47,7 @@ module Wrapture
         @name = name
         @module_links = []
         @module_sources = []
-        @contexts = []
+        @contexts = Set.new
       end
 
       # Add a source file to the project's module's list.

@@ -74,11 +74,6 @@ module Wrapture
   class MissingSpecKey < WraptureError
   end
 
-  # Missing a namespace in a class spec.
-  # TODO: remove after context migration
-  class MissingNamespace < WraptureError
-  end
-
   # A wrapped component was used, but not defined.
   class MissingWrapped < WraptureError
     # A MissingWrapped exception is created with the +spec+ that is missing the

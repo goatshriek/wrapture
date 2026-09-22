@@ -25,7 +25,7 @@ module Wrapture
     class CSourceSet
       include SourceSet
 
-      # The context representing what this source set implements.
+      # An Array of the contexts this source set implements.
       attr_reader :contexts
 
       # The header files for the project's library.
@@ -77,7 +77,7 @@ module Wrapture
         @lib_headers = []
         @lib_links = []
         @lib_sources = []
-        @contexts = []
+        @contexts = Set.new
       end
 
       # Add the content of another C project to this one.

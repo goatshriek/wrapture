@@ -47,7 +47,7 @@ module Wrapture
         spec.screaming_snake_case_name
       end
 
-      # An export header name derived from the +Named+ +spec+.
+      # An export header name derived from the Named +spec+.
       def self.export_header_name(spec)
         if spec.name_words.empty?
           'export.h'
