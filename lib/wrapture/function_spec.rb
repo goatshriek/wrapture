@@ -41,10 +41,6 @@ module Wrapture
     # The words that make up the function name.
     attr_reader :name_words
 
-    # The owner of this function. This may be an empty scope if no owner was
-    # defined for this function.
-    attr_accessor :owner
-
     # A list of the ParamSpecs this function accepts.
     attr_accessor :params
 
@@ -171,7 +167,6 @@ module Wrapture
     def initialize(name)
       @name_words = Wrapture.normalize_name_words(name)
       @doc = nil
-      @owner = Scope.new
       @source = {}
       @params = []
       @return_doc = nil
@@ -201,40 +196,6 @@ module Wrapture
       @constructor
     end
 
-    # A list of includes needed for the declaration of the function.
-    def declaration_includes
-      includes = @return_type.includes
-      @params.each { |param| includes.concat(param.includes) }
-      includes.concat(@return_type.includes)
-      includes.uniq
-    end
-
-    # True if this function can be defined, false if not.
-    #
-    # If +lang+ is given, then the result is true only if this function is
-    # definable for the given language. If not, the result is true if the
-    # function is definable for any language.
-    #
-    # In the long term, this should probably be renamed to something like
-    # "wrappable?" and added to ClassSpec and/or Scope.
-    def definable?(lang: nil)
-      if lang.nil?
-        !@source.empty?
-      else
-        @source.key?(lang)
-      end
-    end
-
-    # A list of includes needed for the definition of the function.
-    def definition_includes
-      includes = @source[:c].includes
-      includes.concat(@return_type.includes)
-      @params.each { |param| includes.concat(param.includes) }
-      includes.concat(@return_type.includes)
-      includes << 'stdarg.h' if variadic?
-      includes.uniq
-    end
-
     # True if the function is a destructor, false otherwise.
     def destructor?
       @destructor
@@ -254,37 +215,9 @@ module Wrapture
       comment
     end
 
-    # An array of libraries required for this function call.
-    def libraries
-      # TODO: there shouldn't be C-specific code here
-      if @source.empty? || !@source.key?(:c)
-        []
-      else
-        @source[:c].libraries
-      end
-    end
-
     # The parameters that are optional (have default values) for this function.
     def optional_params
       @params.select(&:default_value?)
-    end
-
-    # True if this function is overloaded in it's owning scope.
-    def overloaded?
-      case @owner
-      when ClassSpec
-        @owner.functions.count do |f|
-          f.name_words == name_words &&
-            f.constructor? == constructor? &&
-            f.destructor? == destructor?
-        end > 1
-      else false
-      end
-    end
-
-    # An array of the names of the function params.
-    def param_names
-      @params.map(&:name)
     end
 
     # True if this function has parameters.
@@ -295,38 +228,6 @@ module Wrapture
     # The parameters that are required (no default values) for this function.
     def required_params
       @params.reject(&:default_value?)
-    end
-
-    # A resolved type, given a TypeSpec +type+. Resolved types will not have any
-    # placeholders like +equivalent_struct+, which will be resolved to their
-    # effective type.
-    #
-    # TODO: This C-specific code should be removed from FunctionSpec
-    def resolve_type(type_spec)
-      if type_spec.equivalent_struct?
-        TypeSpec.new("struct #{@owner[:c].name}")
-      elsif type_spec.equivalent_pointer?
-        TypeSpec.new("struct #{@owner[:c].name} *")
-      elsif type_spec.self_reference?
-        TypeSpec.new("#{@owner.name}&")
-      else
-        type_spec
-      end
-    end
-
-    # The resolved type of the return type.
-    def resolved_return
-      @return_type.resolve(self)
-    end
-
-    # Calls return_expression on the return type of this function. +func_name+
-    # is passed to return_expression if provided.
-    def return_expression(func_name: name)
-      if @constructor || @destructor
-        signature(func_name: func_name)
-      else
-        resolved_return.return_expression(self, func_name: func_name)
-      end
     end
 
     # True if the return type of this function is overloaded.

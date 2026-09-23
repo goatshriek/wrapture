@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2025 Joel E. Anderson
+# Copyright 2025-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -87,17 +87,19 @@ module Wrapture
         src
       end
 
-      # Adds code to a module init function to add the class and enum type
-      # objects to the corresponding module.
-      def self.add_module_objects(src, scope)
-        scope.classes.each do |class_spec|
+      # Adds code to the source file +src+ to add the class and enum type
+      # objects to the module for +context+.
+      def self.add_module_objects(src, context)
+        context.classes.each do |it|
+          class_spec = it.root
           object_name = type_object_name(class_spec)
           fail_label = "fail_add_#{object_name}"
           add_class_object(src, class_spec, fail_label)
           src.add_fail_label(fail_label, "Py_DECREF( &#{object_name} );")
         end
 
-        scope.enums.each do |enum_spec|
+        context.enums.each do |it|
+          enum_spec = it.root
           fail_label = "fail_add_#{enum_spec.snake_case_name}"
           add_enum_object(src, enum_spec, fail_label)
           src.add_fail_label(fail_label)
@@ -137,11 +139,16 @@ module Wrapture
         end
       end
 
-      # Get the name of the type object for the given class's base, if one
-      # exists.
-      def self.base_type_object(class_spec)
-        if class_spec.child? && class_spec.parent_spec
-          return "(&#{type_object_name(class_spec.parent_spec)})"
+      # Get the name of the type object for base of the class at the root of
+      # +context+.
+      def self.base_type_object(context)
+        class_spec = context.root
+        if class_spec.child?
+          parent_name = Named.upper_camel_case_name(class_spec.parent)
+          parent = context.resolve do |it|
+            it.root.upper_camel_case_name == parent_name
+          end
+          return "(&#{type_object_name(parent)})" if parent
         end
 
         return '(( PyTypeObject *) PyExc_Exception)' if class_spec.exception?
@@ -162,13 +169,16 @@ module Wrapture
         end
       end
 
-      # Declares an array of PyMemberDef structures for a given class spec.
-      def self.class_members_declaration(class_spec)
+      # Declares an array of PyMemberDef structures for the class at the root of
+      # +context+.
+      def self.class_members_declaration(context)
+        class_spec = context.root
         snake_name = class_spec.snake_case_name
-        members = class_spec.constants.map do |constant_spec|
+        members = context.constants.map do |it|
+          constant_spec = it.root
           offset_struct = type_struct_name(class_spec)
           offset_field = constant_spec.snake_case_name
-          init = [".name = \"#{constant_spec.name}\"",
+          init = [".name = \"#{constant_spec.screaming_snake_case_name}\"",
                   ".type = #{member_type(constant_spec.type)}",
                   ".offset = offsetof( #{offset_struct}, #{offset_field} )",
                   '.flags = Py_READONLY']
@@ -187,14 +197,16 @@ module Wrapture
                                   value: members)
       end
 
-      # Declares an array of PyMemberDef structures for a given class spec.
-      def self.class_methods_declaration(class_spec)
-        snake_name = class_spec.snake_case_name
+      # Declares an array of PyMemberDef structures for the class at the root of
+      # +context+.
+      def self.class_methods_declaration(context)
+        snake_name = context.root.snake_case_name
 
-        members = class_spec.method_specs.map do |func_spec|
+        members = context.methods.map do |it|
+          func_spec = it.root
           value = [
-            ".ml_name = \"#{func_spec.name}\"",
-            ".ml_meth = ( PyCFunction ) #{function_wrapper_name(func_spec)}",
+            ".ml_name = \"#{func_spec.snake_case_name}\"",
+            ".ml_meth = ( PyCFunction ) #{function_wrapper_name(it)}",
             ".ml_flags = #{method_flags(func_spec)}",
             ".ml_doc = \"#{func_spec.doc.text}\""
           ]
@@ -210,9 +222,10 @@ module Wrapture
       end
 
       # Gives a code snippet that accesses the equivalent struct from
-      # within the class using the given variable name.
-      def self.class_struct(class_spec, var_name: 'self')
-        name = if C.equivalent_ancestor?(class_spec)
+      # within the class at the root of +context+ using the given variable name.
+      def self.class_struct(context, var_name: 'self')
+        class_spec = context.root
+        name = if C.equivalent_ancestor?(context)
                  if runtime_class?(class_spec)
                    'super->equivalent'
                  else
@@ -231,9 +244,10 @@ module Wrapture
       end
 
       # Gives a code snippet that accesses the equivalent struct pointer from
-      # within the class using the given variable name.
-      def self.class_struct_pointer(class_spec, var_name: 'self')
-        name = if C.equivalent_ancestor?(class_spec)
+      # within the class at the root of +context+ using the given variable name.
+      def self.class_struct_pointer(context, var_name: 'self')
+        class_spec = context.root
+        name = if C.equivalent_ancestor?(context)
                  if runtime_class?(class_spec)
                    'super->equivalent'
                  else
@@ -251,12 +265,17 @@ module Wrapture
         end
       end
 
-      # Defines a PyTypeObject struct for the given class.
-      def self.class_type_object_declaration(class_spec)
+      # Defines a PyTypeObject struct for the class at the root of +context+.
+      def self.class_type_object_declaration(context)
+        class_spec = context.root
         snake_name = class_spec.snake_case_name
-        type_name = "#{class_spec.scope.name}.#{class_spec.name}"
+        mod = Python.module_name(context.parent.root)
+        type_name = "#{mod}.#{class_spec.upper_camel_case_name}"
         flags = 'Py_TPFLAGS_DEFAULT'
-        flags += ' | Py_TPFLAGS_BASETYPE' if class_spec.parent?
+        children_in_context = context.resolve do |it|
+          it.child?(class_spec)
+        end
+        flags += ' | Py_TPFLAGS_BASETYPE' unless children_in_context.nil?
 
         members = [
           'PyVarObject_HEAD_INIT( NULL, 0 )',
@@ -270,13 +289,13 @@ module Wrapture
           ".tp_members = #{snake_name}_members"
         ]
 
-        if class_spec.functions.any?(&:constructor?)
+        if context.constructors?
           members << ".tp_init = #{snake_name}_init"
-        elsif member_constructor?(class_spec)
+        elsif member_constructor?(context)
           members << ".tp_init = #{member_constructor_name(class_spec)}"
         end
 
-        base_type_object = base_type_object(class_spec)
+        base_type_object = base_type_object(context)
         if base_type_object.nil?
           members << ".tp_new = #{snake_name}_new"
         else
@@ -291,8 +310,10 @@ module Wrapture
                                             value: members)
       end
 
-      # The struct used to to wrap objects of the class.
-      def self.class_type_struct(class_spec)
+      # The struct used to to wrap objects of the class at the root of
+      # +context+.
+      def self.class_type_struct(context)
+        class_spec = context.root
         members = []
 
         # since the first portion of the PyObject structure is unknown at
@@ -300,20 +321,24 @@ module Wrapture
         # see runtime_type_cast for how to recover the type struct from these
         unless runtime_class?(class_spec)
           if class_spec.child?
-            parent_spec = class_spec.parent_spec
-            unless parent_spec.nil?
-              members << "#{type_struct_name(parent_spec)} super"
+            parent_name = Named.upper_camel_case_name(class_spec.parent)
+            parent_context = context.resolve do |it|
+              it.upper_camel_case_name == parent_name
+            end
+            unless parent_context.nil?
+              members << "#{type_struct_name(parent_context)} super"
             end
           else
             members << 'PyObject_HEAD'
           end
         end
 
-        class_spec.constants.each do |constant_spec|
+        context.constants.each do |it|
+          constant_spec = it.root
           members << "#{constant_spec.type} #{constant_spec.snake_case_name};"
         end
 
-        if C.equivalent_member?(class_spec)
+        if C.equivalent_member?(context)
           members << equivalent_member_declaration(class_spec)
         end
 
@@ -333,10 +358,12 @@ module Wrapture
          CSource::CDeclaration.new(pyobject_ptr, 'kwds')]
       end
 
-      # True if the constructors for +class_spec+ are overloaded, and need
-      # to be dynamically dispatched.
-      def self.constructors_overloaded?(class_spec)
-        member_constructor?(class_spec) && !class_spec.constructors.empty?
+      # True if the constructors for the class at the root of +context+ are
+      # overloaded, and need to be dynamically dispatched.
+      def self.constructors_overloaded?(context)
+        constructor_count = context.constructors.length
+        constructor_count.succ if member_constructor?(context)
+        constructor_count > 1
       end
 
       # Creates a Python object using a variable with the given name and type.
@@ -354,31 +381,32 @@ module Wrapture
         end
       end
 
-      # Allocates a new instance of the given class to the self variable in the
-      # given source block, and performs any setup needed on it. Assumes that
-      # the type variable has a pointer to the PyTypeObject structure for the
-      # class.
+      # Allocates a new instance of the class at the root of +context+ to the
+      # self variable in source block +blk+, and performs any setup needed on
+      # it. Assumes that the type variable has a pointer to the PyTypeObject
+      # structure for the class.
       #
       # This is useful for constructors that need to construct the self instance
       # before calling a wrapped function with the instance.
-      def self.create_self(blk, class_spec)
+      def self.create_self(blk, context)
+        class_spec = context.root
         self_type = "#{type_struct_name(class_spec)} *"
         blk.puts("self = ( #{self_type} ) subtype->tp_alloc( subtype, 0 );")
         blk.if('!self') do |if_blk|
           if_blk.puts('return NULL;')
         end
 
-        class_spec.constants.each do |constant_spec|
+        context.constants.each do |it|
+          constant_spec = it.root
           field_name = constant_spec.snake_case_name
           field_value = constant_spec.value
           blk.puts("self->#{field_name} = #{field_value};")
         end
       end
 
-      # Declares the module definition struct (PyModuleDef) in a source file for
-      # a scope.
-      def self.declare_module_struct(src, scope)
-        module_name = scope.snake_case_name
+      # Declares the module definition struct (PyModuleDef) for +module_name+
+      # in source file +src+.
+      def self.declare_module_struct(src, module_name)
         module_struct = CSource::CStruct.new(name: 'PyModuleDef')
         module_fields = ['.m_base = PyModuleDef_HEAD_INIT',
                          ".m_name = \"#{module_name}\"",
@@ -389,61 +417,60 @@ module Wrapture
                     value: module_fields)
       end
 
-      # Declares the local variables used in the wrapper for the given function
-      # in the given block.
-      def self.declare_wrapper_locals(blk, func_spec)
-        class_spec = func_spec.owner
+      # Adds declarations to +blk+ for the local variables used in the wrapper
+      # for the the function at the root of +context+.
+      def self.declare_wrapper_locals(blk, context)
+        func_spec = context.root
+        class_spec = context.parent.root
+        overloaded = function_overloaded?(context)
 
-        if !func_spec.overloaded? &&
-           (func_spec.constructor? || runtime_class?(class_spec))
+        if !overloaded && (func_spec.constructor? || runtime_class?(class_spec))
           blk.statement(self_declaration(class_spec))
         end
 
         # if we need an equivalent struct from a parent and this is a runtime
         # class, we'll need a super struct to reference
-        if C.equivalent_ancestor?(class_spec) && runtime_class?(class_spec)
+        if C.equivalent_ancestor?(context.parent) && runtime_class?(class_spec)
           # TODO: we may not need super if this function doesn't use the
           # equivalent struct anywhere
-          type_name = type_struct_name(class_spec.parent_spec)
+          type_name = type_struct_name(context.parent.parent.root)
           blk.declare(CSource::CPointer.new(type_name), 'super')
         end
 
-        if func_spec.params? && !func_spec.overloaded?
-          blk.declare('int', 'parse_result')
-        end
+        blk.declare('int', 'parse_result') if func_spec.params? && !overloaded
 
         error_return = func_spec[:c].error_rules.any? do |it|
           it.vals.include?(RETURN_VALUE_KEYWORD)
         end
         if !func_spec.void_return? || error_return
-          blk.declare(source_return_type(func_spec), 'return_val')
+          blk.declare(source_return_type(context), 'return_val')
         end
 
         # if the function is overloaded, then params are passed as args, rather
         # than being parsed in this wrapper
-        unless func_spec.overloaded?
-          declare_wrapper_param_locals(blk, func_spec)
-        end
+        declare_wrapper_param_locals(blk, context) unless overloaded
 
         blk.puts
       end
 
       # Declares the local variables used to pass parameters to the wrapped
-      # function for the given function spec.
-      def self.declare_wrapper_param_locals(blk, func_spec)
-        wrapper_param_locals(func_spec).each do |decl|
+      # function for the function at the root of +context+.
+      def self.declare_wrapper_param_locals(blk, context)
+        wrapper_param_locals(context).each do |decl|
           blk.statement(decl)
         end
 
         blk
       end
 
-      # The default type allocator for classes without a base type.
+      # The default type allocator for the class at the root of +context+, which
+      # does not have a base type.
       #
       # We need an allocator for our types because they are static and therefore
       # do not have a default, as described in the Python C API documentation:
       # https://docs.python.org/3/c-api/typeobj.html#c.PyTypeObject.tp_new
-      def self.default_allocator(class_spec)
+      def self.default_allocator(context)
+        class_spec = context.root
         name = "#{class_spec.snake_case_name}_new"
         params = allocator_params
         return_type = Wrapture::CSource::CPointer.new('PyObject')
@@ -453,7 +480,7 @@ module Wrapture
                                          attributes: ['static'])
 
         f.statement(self_declaration(class_spec))
-        create_self(f, class_spec)
+        create_self(f, context)
         f.return('( PyObject * ) self')
       end
 
@@ -467,108 +494,108 @@ module Wrapture
         f.statement('Py_TYPE( self )->tp_free( ( PyObject * ) self )')
       end
 
-      # Adds definitions for functions needed for all classes in +scope+ to the
-      # C source block +src+.
-      def self.define_class_functions(src, scope)
-        factory_classes = scope.classes.select { |it| C.factory?(it, scope) }
+      # Adds definitions for functions needed for all classes in +context+ to
+      # the C source block +src+.
+      def self.define_class_functions(src, context)
+        factory_classes = context.classes.select { |it| C.factory?(it) }
         factory_classes.each do |it|
           src << factory_constructor(it)
           src.puts
         end
 
-        scope.classes.each do |class_spec|
-          if base_type_object(class_spec).nil?
-            src << default_allocator(class_spec)
+        context.classes.each do |it|
+          if base_type_object(it).nil?
+            src << default_allocator(it)
             src.puts
           end
 
-          if member_constructor?(class_spec)
-            src << member_constructor(class_spec)
+          if member_constructor?(it)
+            src << member_constructor(it)
             src.puts
           end
 
-          unless class_spec.functions.any?(&:destructor?)
-            src << default_destructor(class_spec)
+          unless it.functions.any? { |it| it.root.destructor? }
+            src << default_destructor(it.root)
             src.puts
           end
 
-          class_spec.functions.each do |func_spec|
-            src << function_wrapper(func_spec)
+          it.functions.each do |it|
+            src << function_wrapper(it)
             src.puts
           end
         end
 
-        overload_groups(scope).each_value do |funcs|
+        overload_groups(context).each_value do |funcs|
           src << overload_dispatcher(funcs)
           src.puts
         end
       end
 
-      # Generates a source file with the definition of a module for a scope.
-      def self.define_module(scope)
-        unless scope.definable?
-          raise UndefinableSpec, "#{scope.name} is not definable"
-        end
-
-        src = CSource::CSourceFile.new("#{scope.name}.c")
+      # Generates a source file with the definition of a module for +context+.
+      def self.define_module(context)
+        module_name = Python.module_name(context.root)
+        src = CSource::CSourceFile.new("#{module_name}.c")
 
         src.puts('#define PY_SSIZE_T_CLEAN')
         src.puts
 
-        module_includes(scope).each { |it| src << it }
+        src.concat(module_includes(context))
         src.puts
 
-        declare_module_struct(src, scope)
+        declare_module_struct(src, module_name)
         src.puts
 
-        scope.enums.each do |enum_spec|
-          src << enum_constructor(enum_spec)
+        context.enums.each do |it|
+          src << enum_constructor(it.root)
           src.puts
         end
 
-        scope.classes.each do |class_spec|
-          src << class_type_struct(class_spec)
+        context.classes.each do |it|
+          class_spec = it.root
+          src << class_type_struct(it)
           src.declare('PyTypeObject', type_object_name(class_spec),
                       attributes: ['static'])
           src.puts
         end
 
-        define_class_functions(src, scope)
+        define_class_functions(src, context)
 
-        scope.classes.each do |class_spec|
-          src.statement(class_methods_declaration(class_spec))
-          src.statement(class_members_declaration(class_spec))
-          src.statement(class_type_object_declaration(class_spec))
+        context.classes.each do |it|
+          src.statement(class_methods_declaration(it))
+          src.statement(class_members_declaration(it))
+          src.statement(class_type_object_declaration(it))
         end
 
-        define_module_init(src, scope)
+        define_module_init(src, context)
       end
 
-      # Add the definition of the module init function to a source file.
-      def self.define_module_init(src, scope)
+      # Add the definition of the module init function for +context+ to source
+      # file +src+.
+      def self.define_module_init(src, context)
+        module_name = Python.module_name(context.root)
         return_type = CSource::CType.new('PyMODINIT_FUNC')
-        init_func = CSource::CFunction.new("PyInit_#{scope.snake_case_name}",
+        init_func = CSource::CFunction.new("PyInit_#{module_name}",
                                            return_type: return_type)
         init_func.puts('PyObject *m;')
-        finalize_module_types(init_func, scope)
-        create_call = "PyModule_Create( &#{scope.snake_case_name}_module )"
+        finalize_module_types(init_func, context)
+        create_call = "PyModule_Create( &#{module_name}_module )"
         init_func.puts("m = #{create_call};")
         init_func.if('!m') { |block| block.puts('goto fail;') }
         init_func.add_fail_label('fail', 'return NULL;')
-        add_module_objects(init_func, scope)
+        add_module_objects(init_func, context)
         init_func.puts('return m;')
 
         src << init_func
       end
 
-      # A function wrapper for a destructor.
-      def self.destructor_wrapper(func_spec)
-        params = [self_declaration(func_spec.owner)]
+      # A function wrapper for the destructor at the root of +context+.
+      def self.destructor_wrapper(context)
+        params = [self_declaration(context.parent.root)]
 
-        name = function_wrapper_name(func_spec)
+        name = function_wrapper_name(context)
         f = CSource::CFunction.new(name, params: params,
                                          attributes: ['static'])
-        f.statement(wrapped_function_call(func_spec))
+        f.statement(wrapped_function_call(context))
         f.statement('Py_TYPE( self )->tp_free( ( PyObject * ) self )')
       end
 
@@ -656,9 +683,10 @@ module Wrapture
         Wrapture::CSource::CDeclaration.new(class_spec[:c], 'equivalent')
       end
 
-      # The factory constructor for an overloaded struct.
-      def self.factory_constructor(class_spec)
-        name = "new_#{class_spec.name}"
+      # The factory constructor for the class at the root of +context+.
+      def self.factory_constructor(context)
+        class_spec = context.root
+        name = "new_#{class_spec.upper_camel_case_name}"
         equivalent_type = C.equivalent_type(class_spec)
         params = [Wrapture::CSource::CDeclaration.new(equivalent_type,
                                                       'equivalent')]
@@ -671,11 +699,10 @@ module Wrapture
         func.declare(return_type, 'obj')
         func.puts
 
-        overload_classes = class_spec.scope.select do |it|
-          C.overload?(class_spec, it)
-        end
+        overload_classes = C.overloads(context)
         cond = nil
-        overload_classes.each do |overload|
+        overload_classes.each do |it|
+          overload = it.root
           variable_access = if C.equivalent_type(overload).is_a?(CSource::CPointer)
                               'equivalent->'
                             else
@@ -706,14 +733,14 @@ module Wrapture
           alloc_call = "(#{struct_type} *) type->tp_alloc( type, 0 )"
           blk.puts("#{struct_name} = #{alloc_call};")
 
-          if C.equivalent_ancestor?(overload) && runtime_class?(overload)
-            parent = overload.parent_spec
-            super_type = CSource::CPointer.new(type_struct_name(parent))
+          if C.equivalent_ancestor?(it) && runtime_class?(overload)
+            parent = it.parent.parent
+            super_type = CSource::CPointer.new(type_struct_name(parent.root))
             super_value = runtime_type_cast(parent, struct_name)
             blk.declare(super_type, 'super', value: super_value)
           end
 
-          equiv = class_struct_pointer(overload, var_name: struct_name)
+          equiv = class_struct_pointer(it, var_name: struct_name)
           blk.puts("#{equiv} = equivalent;")
           blk.puts("obj = (PyObject *) new_#{struct_type};")
         end
@@ -731,16 +758,17 @@ module Wrapture
         func.puts('return obj;')
       end
 
-      # Performs runtime setup of the types in a module and calls PyType_Ready
-      # so to register them.
-      def self.finalize_module_types(blk, scope)
-        scope.classes.each do |cls|
+      # Adds code to +blk+ which performs runtime setup of the types in the
+      # module +context+ and calls PyType_Ready to register them.
+      def self.finalize_module_types(blk, context)
+        context.classes.each do |it|
+          cls = it.root
           py_type = type_object_name(cls)
 
           if runtime_class?(cls)
-            blk.puts("#{py_type}.tp_base = #{base_type_object(cls)};")
+            blk.puts("#{py_type}.tp_base = #{base_type_object(it)};")
             self_size = "sizeof( #{type_struct_name(cls)}"
-            basic_size = "#{runtime_base_size(cls)} + #{self_size}"
+            basic_size = "#{runtime_base_size(it)} + #{self_size}"
             blk.puts("#{py_type}.tp_basicsize = #{basic_size} );")
           end
 
@@ -750,51 +778,65 @@ module Wrapture
         end
       end
 
-      # The format string to use for +func_spec+.
-      def self.function_arg_parse_format(func_spec)
-        required_args = func_spec.required_params.map do |param_spec|
-          func_spec.resolve_type(param_spec.type).to_s
+      # The format string to use for the function at the root of +context+.
+      def self.function_arg_parse_format(context)
+        required_args = context.root.required_params.map do |it|
+          it.type.to_s
         end
-        optional_args = func_spec.optional_params.map do |param_spec|
-          func_spec.resolve_type(param_spec.type).to_s
+        optional_args = context.root.optional_params.map do |it|
+          it.type.to_s
         end
+        # puts required_args
+        # puts optional_args
         arg_parse_format(required_args, optional_args)
       end
 
-      # The function wrapper for a given function.
+      # True if the function at the root of +context+ is overloaded.
+      def self.function_overloaded?(context)
+        func_spec = context.root
+        class_groups = overload_groups(context.parent.parent)
+
+        class_groups.key?(context.name_words) ||
+          (func_spec.constructor? && constructors_overloaded?(context.parent))
+      end
+
+      # The function wrapper for the funtion at the root of +context+.
       #
-      # For destructors, this function is equivalent to calling
-      # +destructor_wrapper+.
+      # For destructors, this function calls +destructor_wrapper+.
       #
-      # For functions that are overloaded, this function is equivalent to
-      # calling +overload_wrapper+.
+      # For functions that are overloaded, this function calls
+      # +overload_wrapper+.
       #
-      # For functions that have parameters and aren't overloaded, this is
-      # equivalent to calling +parsing_wrapper+.
+      # For functions that have parameters and aren't overloaded, this function
+      # calls +parsing_wrapper+.
       #
       # Otherwise, this function is equivalent to calling +no_args_wrapper+.
-      def self.function_wrapper(func_spec)
+      def self.function_wrapper(context)
+        func_spec = context.root
+
         if func_spec.destructor?
-          destructor_wrapper(func_spec)
-        elsif func_spec.overloaded?
-          overload_wrapper(func_spec)
+          destructor_wrapper(context)
+        elsif function_overloaded?(context)
+          overload_wrapper(context)
         elsif func_spec.params?
-          parsing_wrapper(func_spec)
+          parsing_wrapper(context)
         else
-          no_args_wrapper(func_spec)
+          no_args_wrapper(context)
         end
       end
 
-      # The name of the function that will be defined to wrap the given
-      # function.
-      def self.function_wrapper_name(func_spec)
-        base = func_spec.owner.snake_case_name
+      # The name of the C function that will be defined to wrap the function at
+      # the root of +context+.
+      def self.function_wrapper_name(context)
+        # TODO: what if the function is not in a class?
+        base = context.parent.root.snake_case_name
+        func_spec = context.root
         method_name = if func_spec.constructor?
                         'init'
                       elsif func_spec.destructor?
                         'dealloc'
                       else
-                        func_spec.name
+                        func_spec.snake_case_name
                       end
 
         "#{base}_#{method_name}"
@@ -815,20 +857,20 @@ module Wrapture
         end
       end
 
-      # A member constructor uses the wrapped struct's members to fill in an
-      # allocated instance of the struct.
-      def self.member_constructor(class_spec)
-        if constructors_overloaded?(class_spec)
-          member_constructor_overload_wrapper(class_spec)
+      # A member constructor uses the members of the struct wrapped by the
+      # class at the root of +context+ to fill in the struct.
+      def self.member_constructor(context)
+        if constructors_overloaded?(context)
+          member_constructor_overload_wrapper(context.root)
         else
-          member_constructor_parsing_wrapper(class_spec)
+          member_constructor_parsing_wrapper(context)
         end
       end
 
-      # True if +class_spec+ will generate a member constructor from the wrapped
-      # struct.
-      def self.member_constructor?(class_spec)
-        C.wrapped_members?(class_spec)
+      # True if the given class at the root of +context+ will generate a member
+      # constructor.
+      def self.member_constructor?(context)
+        C.wrapped_members?(context.root)
       end
 
       # The format string to use for the arguments for the member constructor
@@ -893,9 +935,10 @@ module Wrapture
         "PyArg_ParseTuple( args, \"#{format_str}\", #{arg_vars.join(', ')})"
       end
 
-      # A member constructor for +class_spec+ that performs the parsing of
-      # arguments as supplied by Python.
-      def self.member_constructor_parsing_wrapper(class_spec)
+      # A member constructor for the class at the root of +context+ that
+      # performs the parsing of arguments as supplied by Python.
+      def self.member_constructor_parsing_wrapper(context)
+        class_spec = context.root
         name = member_constructor_name(class_spec)
         f = CSource::CFunction.new(name, params: constructor_params,
                                          return_type: 'int',
@@ -909,7 +952,7 @@ module Wrapture
 
         # TODO: ideally we would instead pass in the address of the equivalent
         # struct members instead of creating locals and copying them over
-        # for now we're doing things this way to resue the parse tuple call
+        # for now we're doing things this way to reuse the parse tuple call
         tuple_call = member_constructor_parse_tuple_call(class_spec)
         f.statement("parse_result = #{tuple_call}")
         f.if('!parse_result') do |if_blk|
@@ -918,13 +961,13 @@ module Wrapture
 
         runtime_class = runtime_class?(class_spec)
         if runtime_class
-          self_cast = runtime_type_cast(class_spec, 'self_obj')
+          self_cast = runtime_type_cast(context, 'self_obj')
           f.puts("self = #{self_cast};")
         else
           f.puts("self = (#{type_struct_name(class_spec)} *) self_obj;")
         end
 
-        class_struct = class_struct(class_spec)
+        class_struct = class_struct(context)
         class_spec[:c].members.each do |member|
           f.statement("#{class_struct}.#{member.name} = #{member.name}")
         end
@@ -953,30 +996,37 @@ module Wrapture
         flags.join(' | ')
       end
 
-      # All includes needed to define a module for the given +scope+.
-      def self.module_includes(scope)
-        incs = [CSource::CInclude.new('Python.h')]
+      # All includes needed to define a module for +context+.
+      def self.module_includes(context)
+        incs = Wrapper::C.includes(context).map do |it|
+          CSource::CInclude.new(it)
+        end
 
         # offsetof is only needed for the member definition for constants
-        if scope.classes.any? { |it| !it.constants.empty? }
+        classes = context.flatten.select { |it| it.root.is_a?(ClassSpec) }
+        unless classes.all? { |it| it.constants.empty? }
           incs << CSource::CInclude.new('stddef.h', comment: 'for offsetof()')
         end
 
-        Wrapper::C.includes(scope).each do |it|
+        Wrapper::C.includes(context).each do |it|
           incs << CSource::CInclude.new(it)
         end
 
-        incs
+        incs << CSource::CInclude.new('Python.h')
       end
 
-      # A function wrapper for a function that does not have an parameters.
+      # A wrapper for the function at the root of +context+ that does not have
+      # an parameters.
       #
       # TODO: there is so much constructor-specific code here that this (and
       # probably other wrappers) should probably be refactored into their own
       # wrapper methods.
-      def self.no_args_wrapper(func_spec)
-        name = function_wrapper_name(func_spec)
-        runtime_class = runtime_class?(func_spec.owner)
+      def self.no_args_wrapper(context)
+        func_spec = context.root
+        class_context = context.parent
+        class_spec = class_context.root
+        name = function_wrapper_name(context)
+        runtime_class = runtime_class?(class_spec)
         pyobject_ptr = CSource::CPointer.new('PyObject')
         unused_args = CSource::CDeclaration.new(pyobject_ptr,
                                                 'Py_UNUSED( ignored )')
@@ -986,7 +1036,7 @@ module Wrapture
                    [CSource::CDeclaration.new(pyobject_ptr, 'self_obj'),
                     unused_args]
                  else
-                   [self_declaration(func_spec.owner), unused_args]
+                   [self_declaration(class_spec), unused_args]
                  end
 
         return_type = wrapper_return_type(func_spec)
@@ -994,30 +1044,29 @@ module Wrapture
         f = CSource::CFunction.new(name, params: params,
                                          return_type: return_type,
                                          attributes: ['static'])
-        declare_wrapper_locals(f, func_spec)
+        declare_wrapper_locals(f, context)
 
         # TODO: in some cases (the exception example being one) the self pointer
         # is not actually used, but instead the super pointer is. This can be
         # collapsed to remove unused code and only do that cast if the self
         # pointer isnt' needed.
         if func_spec.constructor?
-          f.puts("self = (#{type_struct_name(func_spec.owner)} *) self_obj;")
+          f.puts("self = (#{type_struct_name(class_spec)} *) self_obj;")
         elsif runtime_class
-          self_cast = runtime_type_cast(func_spec.owner, 'self_obj')
+          self_cast = runtime_type_cast(class_context, 'self_obj')
           f.puts("self = #{self_cast};")
         end
 
-        if C.equivalent_ancestor?(func_spec.owner) && runtime_class
+        if C.equivalent_ancestor?(context.parent) && runtime_class
           # TODO: this should also be omitted if the equivalent struct isn't
           # actually used in the function
-          parent = func_spec.owner.parent_spec
+          parent = context.parent.parent.root
           f.puts("super = #{runtime_type_cast(parent, 'self_obj')};")
         end
 
-        f.puts("#{wrapped_function_call(func_spec)};")
+        f.puts("#{wrapped_function_call(context)};")
 
-        scope = func_spec.owner.scope
-        wrapped_error_check(func_spec, scope).each { |it| f.puts(it) }
+        wrapped_error_check(context).each { |it| f.puts(it) }
 
         f.puts(return_statement(func_spec))
 
@@ -1026,14 +1075,15 @@ module Wrapture
 
       # A function that dispatches to the overload wrappers, based on the
       # arguments provided.
-      def self.overload_dispatcher(funcs)
+      def self.overload_dispatcher(func_contexts)
         # use the first function spec to determine things that are assumed to be
         # the same across all functions
-        spec = funcs.first
-        class_spec = spec.owner
+        first_context = func_contexts.first
+        first_spec = first_context.root
+        class_spec = first_context.parent.root
 
-        name = function_wrapper_name(spec)
-        params = if spec.constructor?
+        name = function_wrapper_name(first_context)
+        params = if first_spec.constructor?
                    constructor_params
                  else
                    pyobject_ptr = CSource::CPointer.new('PyObject')
@@ -1042,7 +1092,7 @@ module Wrapture
                     CSource::CDeclaration.new(pyobject_ptr, 'kwds')]
                  end
 
-        return_type = if spec.constructor?
+        return_type = if first_spec.constructor?
                         'int'
                       else
                         CSource::CPointer.new('PyObject')
@@ -1051,7 +1101,7 @@ module Wrapture
         f = CSource::CFunction.new(name, params: params, attributes: ['static'],
                                          return_type: return_type)
 
-        param_locals = funcs.flat_map do |it|
+        param_locals = func_contexts.flat_map do |it|
           wrapper_param_locals(it)
         end
 
@@ -1060,23 +1110,25 @@ module Wrapture
         end
 
         f.declare('int', 'parse_result')
-        if spec.constructor? || runtime_class?(class_spec)
-          f.statement(self_declaration(spec.owner))
+        if first_spec.constructor? || runtime_class?(class_spec)
+          f.statement(self_declaration(class_spec))
         end
 
-        funcs.select(&:params?).each do |func_spec|
+        param_functions = func_contexts.select { |it| it.root.params? }
+        param_functions.each do |it|
           # TODO: there may be a more efficient way to do this than repeatedly
           # initialize the optionals for every overload
+          func_spec = it.root
           initialize_optional_params(f, func_spec)
-          f.puts("parse_result = #{parse_tuple_call(func_spec)};")
+          f.puts("parse_result = #{parse_tuple_call(it)};")
           f.if('parse_result') do |if_blk|
-            if_blk.puts("return #{overload_wrapper_call(func_spec)};")
+            if_blk.puts("return #{overload_wrapper_call(it)};")
           end
         end
 
         # the member constructor must be handled separately since there isn't a
         # FunctionSpec for it
-        if member_constructor?(class_spec)
+        if member_constructor?(first_context.parent)
           parse_call = member_constructor_parse_tuple_call(class_spec)
           f.puts("parse_result = #{parse_call};")
           f.if('parse_result') do |if_blk|
@@ -1084,11 +1136,11 @@ module Wrapture
           end
         end
 
-        unless funcs.all?(&:params?)
+        no_args = func_contexts.find { |it| !it.root.params? }
+        unless no_args.nil?
           # TODO: need to handle no arg case cleaner
           # preferably, check if args are empty up front
           # for now, it is the fallback case
-          no_args = funcs.find { |func_spec| !func_spec.params? }
           f.puts("return #{overload_wrapper_call(no_args)};")
         end
 
@@ -1099,44 +1151,50 @@ module Wrapture
         f
       end
 
-      # The function overload groups for a +scope+, provided as a +Hash+ that
-      # maps the function name to an +Array+ of +FunctionSpec+ instances that
-      # are overloaded under that name.
-      def self.overload_groups(scope)
-        overload_groups = {}
-        scope.classes.each do |class_spec|
-          wrapped_members = C.wrapped_members?(class_spec)
+      # The function overload groups for the Namespace at the root of +context+,
+      # provided as a +Hash+ that maps the function name to an +Array+ of
+      # +FunctionSpec+ instances that are overloaded under that name.
+      def self.overload_groups(context)
+        # TODO: error or handle if the root of context is not a namespace
 
-          class_spec.functions.each do |func_spec|
-            overloaded_constructor = func_spec.constructor? && wrapped_members
-            if func_spec.overloaded? || overloaded_constructor
-              if overload_groups.include?(func_spec.name)
-                overload_groups[func_spec.name] << func_spec
-              else
-                overload_groups[func_spec.name] = [func_spec]
-              end
+        # TODO: what if the same function name is overloaded in multiple
+        # classes? Currently this results in conflicts
+        overload_groups = {}
+        context.classes.each do |it|
+          if constructors_overloaded?(it)
+            overload_groups[it.name_words] = it.constructors
+            if member_constructor?(it)
+              overload_groups[it.name_words] << member_constructor(it)
             end
+          end
+
+          it.methods.group_by(&:name_words).each_value do |funcs|
+            next unless funcs.length > 1
+
+            overload_groups[it.name_words] = funcs
           end
         end
 
         overload_groups
       end
 
-      # A function wrapper for a function that is overloaded by others.
+      # A function wrapper for the function at the root of +context+ which
+      # is overloaded by others.
       #
       # Overloaded function wrappers do not do any Python argument parsing, but
       # instead take the C arguments directly.
-      def self.overload_wrapper(func_spec)
-        params = [self_declaration(func_spec.owner)]
-        params += wrapper_param_locals(func_spec)
+      def self.overload_wrapper(context)
+        func_spec = context.root
+        params = [self_declaration(context.parent.root)]
+        params += wrapper_param_locals(context)
         return_type = wrapper_return_type(func_spec)
 
-        f = CSource::CFunction.new(overload_wrapper_name(func_spec),
+        f = CSource::CFunction.new(overload_wrapper_name(context),
                                    return_type: return_type,
                                    params: params, attributes: ['static'])
 
-        declare_wrapper_locals(f, func_spec)
-        f.puts("#{wrapped_function_call(func_spec)};")
+        declare_wrapper_locals(f, context)
+        f.puts("#{wrapped_function_call(context)};")
         f.puts(return_statement(func_spec))
 
         f
@@ -1150,11 +1208,12 @@ module Wrapture
         "#{name}( #{args.join(', ')} )"
       end
 
-      # The name of the function that will be defined to wrap the given
-      # function.
-      def self.overload_wrapper_name(func_spec)
-        base = function_wrapper_name(func_spec)
+      # The name of the function that will be defined to wrap the function
+      # at the root of +context+.
+      def self.overload_wrapper_name(context)
+        base = function_wrapper_name(context)
 
+        func_spec = context.root
         types = if func_spec.params?
                   func_spec.params.map { |p| p.type.base }.join('_')
                 else
@@ -1164,35 +1223,38 @@ module Wrapture
         "#{base}_#{types}"
       end
 
-      # True if the provided wrapped param spec can be cast to when used in this
-      # function.
-      def self.param_uses_equivalent?(func_spec, wrapped_param)
-        param = func_spec.params.find { |p| p.name == wrapped_param.value }
+      # True if the provided +wrapped_param+ can be cast to when used in the
+      # function at the root of +context+.
+      def self.param_uses_equivalent?(context, wrapped_param)
+        param = context.root.params.find { |p| p.name == wrapped_param.value }
 
         !param.nil? &&
           !wrapped_param.c_type.nil? &&
-          func_spec.owner.type?(param.type)
+          !context.resolve_name(param.type.name_words).nil?
       end
 
-      # The expression containing the call to the PyArg_ParseTuple.
-      def self.parse_tuple_call(func_spec)
-        format_str = function_arg_parse_format(func_spec)
-        arg_vars = wrapper_param_locals(func_spec).map do |decl|
+      # The expression containing the call to PyArg_ParseTuple to parse the
+      # arguments for the function at the root of +context+.
+      def self.parse_tuple_call(context)
+        format_str = function_arg_parse_format(context)
+        arg_vars = wrapper_param_locals(context).map do |decl|
           "&#{decl.name}"
         end
         "PyArg_ParseTuple( args, \"#{format_str}\", #{arg_vars.join(', ')} )"
       end
 
-      # A function wrapper for a function that parses its parameters from Python
-      # arguments.
-      def self.parsing_wrapper(func_spec)
-        name = function_wrapper_name(func_spec)
+      # A C wrapper for the function at the root of +context+ which parses its
+      # parameters from Python arguments.
+      def self.parsing_wrapper(context)
+        func_spec = context.root
+        class_spec = context.parent.root
+        name = function_wrapper_name(context)
         pyobject_ptr = CSource::CPointer.new('PyObject')
 
         params = if func_spec.constructor?
                    constructor_params
                  else
-                   [self_declaration(func_spec.owner),
+                   [self_declaration(class_spec),
                     CSource::CDeclaration.new(pyobject_ptr, 'args'),
                     CSource::CDeclaration.new(pyobject_ptr, 'kwds')]
                  end
@@ -1203,10 +1265,10 @@ module Wrapture
                                          return_type: return_type,
                                          attributes: ['static'])
 
-        declare_wrapper_locals(f, func_spec)
+        declare_wrapper_locals(f, context)
         initialize_optional_params(f, func_spec)
 
-        f.puts("parse_result = #{parse_tuple_call(func_spec)};")
+        f.puts("parse_result = #{parse_tuple_call(context)};")
         f.if('!parse_result') do |if_blk|
           if func_spec.constructor?
             if_blk.return('-1')
@@ -1219,25 +1281,24 @@ module Wrapture
         # is not actually used, but instead the super pointer is. This can be
         # collapsed to remove unused code and only do that cast if the self
         # pointer isnt' needed.
-        runtime_class = runtime_class?(func_spec.owner)
+        runtime_class = runtime_class?(class_spec)
         if runtime_class
-          self_cast = runtime_type_cast(func_spec.owner, 'self_obj')
+          self_cast = runtime_type_cast(class_spec, 'self_obj')
           f.puts("self = #{self_cast};")
         elsif func_spec.constructor?
-          f.puts("self = (#{type_struct_name(func_spec.owner)} *) self_obj;")
+          f.puts("self = (#{type_struct_name(class_spec)} *) self_obj;")
         end
 
-        if C.equivalent_ancestor?(func_spec.owner) && runtime_class
+        if C.equivalent_ancestor?(context.parent) && runtime_class
           # TODO: this should also be omitted if the equivalent struct isn't
           # actually used in the function
-          parent = func_spec.owner.parent_spec
+          parent = context.parent.parent.root
           f.puts("super = #{runtime_type_cast(parent, 'self_obj')};")
         end
 
-        f.puts("#{wrapped_function_call(func_spec)};")
+        f.puts("#{wrapped_function_call(context)};")
 
-        scope = func_spec.owner.scope
-        wrapped_error_check(func_spec, scope).each { |it| f.puts(it) }
+        wrapped_error_check(context).each { |it| f.puts(it) }
 
         f.puts(return_statement(func_spec))
 
@@ -1245,12 +1306,12 @@ module Wrapture
       end
 
       # The expression to use for a value in an ActionSpec.
-      def self.resolve_action_value(func_spec, val)
+      def self.resolve_action_value(class_spec, val)
         case val
         when EQUIVALENT_STRUCT_KEYWORD
-          class_struct(func_spec.owner)
+          class_struct(class_spec)
         when EQUIVALENT_POINTER_KEYWORD
-          class_struct_pointer(func_spec.owner)
+          class_struct_pointer(class_spec)
         when RETURN_VALUE_KEYWORD
           'return_val'
         else
@@ -1258,20 +1319,22 @@ module Wrapture
         end
       end
 
-      # Gives an expression for using a given parameter.
-      # Equivalent structs and pointers are resolved, as well as casts between
-      # types if they are known within the scope of this function.
-      def self.resolve_wrapped_param(func_spec, param)
+      # Gives an expression for using a given parameter +param+ in the function
+      # at the root of +context+. Equivalent structs and pointers are resolved,
+      # as well as casts between types if they are known within the context of
+      # this function.
+      def self.resolve_wrapped_param(context, param)
+        func_spec = context.root
         used_param = func_spec.params.find { |p| p.name == param.value }
 
         if param.value == EQUIVALENT_STRUCT_KEYWORD
-          class_struct(func_spec.owner)
+          class_struct(context.parent)
         elsif param.value == EQUIVALENT_POINTER_KEYWORD
-          class_struct_pointer(func_spec.owner)
+          class_struct_pointer(context.parent)
         elsif param.value == '...'
           'variadic_args'
-        elsif param_uses_equivalent?(func_spec, param)
-          param_class = func_spec.owner.type(used_param.type)
+        elsif param_uses_equivalent?(context, param)
+          param_class = context.resolve_name(used_param.type.name_words).root
           cast_equivalent(param_class, used_param.name, param.c_type)
         else
           param.value
@@ -1300,9 +1363,10 @@ module Wrapture
         end
       end
 
-      # An expression with the size of the base type for +class_spec+.
-      def self.runtime_base_size(class_spec)
-        "#{base_type_object(class_spec)}->tp_basicsize"
+      # An expression with the size of the base type for the class at the base
+      # of +context+.
+      def self.runtime_base_size(context)
+        "#{base_type_object(context)}->tp_basicsize"
       end
 
       # True if some aspects of the class need to be defined at runtime.
@@ -1313,10 +1377,12 @@ module Wrapture
         class_spec.exception?
       end
 
-      # A cast of a runtime type to the class type struct.
-      def self.runtime_type_cast(class_spec, var_name)
+      # A cast of a runtime type of the class at the root of +context+ to its
+      # type struct.
+      def self.runtime_type_cast(context, var_name)
+        class_spec = context.root
         type_struct_name = type_struct_name(class_spec)
-        type_object = base_type_object(class_spec)
+        type_object = base_type_object(context)
         real_self = "((intptr_t) #{var_name}) + #{type_object}->tp_basicsize"
         "( #{type_struct_name} * )( #{real_self} )"
       end
@@ -1327,16 +1393,17 @@ module Wrapture
         CSource::CDeclaration.new(pointer_type, 'self')
       end
 
-      # The type of the source function.
-      def self.source_return_type(func_spec)
-        return_type = func_spec[:c].return_type
+      # The type of the C function wrapped by the function at the root of
+      # +context+.
+      def self.source_return_type(context)
+        return_type = context.root[:c].return_type
 
         if return_type.to_s == EQUIVALENT_STRUCT_KEYWORD
-          C.equivalent_struct(func_spec.owner)
+          C.equivalent_struct(context.parent.root)
         elsif return_type.to_s == EQUIVALENT_POINTER_KEYWORD
-          C.equivalent_pointer(func_spec.owner)
+          C.equivalent_pointer(context.parent.root)
         elsif return_type == CSource::CType.new('bool')
-          'long'
+          CSource::CType.new('long')
         else
           return_type
         end
@@ -1352,34 +1419,37 @@ module Wrapture
         "#{class_spec.snake_case_name}_type_struct"
       end
 
-      # Generates a build for a Python library wrapping the provided scope.
-      #
-      # +scope+ describes all of the classes and other entities that will be
-      # wrapped. These will all be put into a namespace named after the scope.
-      def self.wrap_scope(scope)
-        set = PythonSource::PythonSourceSet.new(scope.snake_case_name)
+      # Generates a PythonSourceSet for a Python library wrapping a +context+
+      # with a Namespace root.
+      def self.wrap_namespace_context(context)
+        name = Python.module_name(context.root)
+        set = PythonSource::PythonSourceSet.new(name)
 
-        set.add_module_source(define_module(scope))
+        set.add_module_source(define_module(context))
 
-        scope.libraries.each do |lib|
-          set.add_link(lib)
+        C.libraries(context).each do |it|
+          set.add_link(it)
         end
 
         set
       end
 
       # An +Array+ of C source to check for errors after the wrapped call in
-      # a function.
-      def self.wrapped_error_check(func_spec, scope)
+      # the function at the root of +context+.
+      def self.wrapped_error_check(context)
+        func_spec = context.root
+
+        # TODO: check to make sure the root is a FunctionSpec
+
         return [] unless func_spec[:c].error_check?
 
         action = func_spec[:c].error_action
-        exception_class = scope.type(action.type)
+        exception_class = context.resolve_name(action.type.name_words)
         type_object = "(PyObject *) &#{type_object_name(exception_class)}"
 
         checks = func_spec[:c].error_rules.map do |rule|
           resolved_vals = rule.vals.map do |it|
-            resolve_action_value(func_spec, it)
+            resolve_action_value(context.parent, it)
           end
 
           CSource::CExpression.new(resolved_vals, rule.operator)
@@ -1395,14 +1465,14 @@ module Wrapture
           blk.puts("PyObject *exception_obj = #{call_type};")
 
           equiv_class = if C.equivalent_ancestor?(exception_class)
-                          exception_class.parent_spec
+                          exception_class.parent
                         else
                           exception_class
                         end
           cast = runtime_type_cast(equiv_class, 'exception_obj')
           blk.puts("#{type_struct_name(equiv_class)} *subtype = #{cast};")
 
-          value_variable = resolve_action_value(func_spec, action.value)
+          value_variable = resolve_action_value(context.parent, action.value)
           blk.puts("subtype->equivalent = #{value_variable};")
           blk.puts("PyErr_SetObject(#{type_object}, exception_obj );")
           # TODO: need to detect whether a different error return is needed,
@@ -1413,16 +1483,18 @@ module Wrapture
         [check_blk]
       end
 
-      # The expression containing the call to the underlying wrapped function.
-      def self.wrapped_function_call(func_spec)
+      # The expression containing the call to the C function wrapped by the
+      # function at the root of +context+.
+      def self.wrapped_function_call(context)
+        func_spec = context.root
         resolved_params = func_spec[:c].params.map do |param|
-          resolve_wrapped_param(func_spec, param)
+          resolve_wrapped_param(context, param)
         end
 
         call = "#{func_spec[:c].name}( #{resolved_params.join(', ')} )"
 
         if func_spec.constructor?
-          "#{class_struct_pointer(func_spec.owner)} = #{call}"
+          "#{class_struct_pointer(context.parent)} = #{call}"
         elsif func_spec[:c].error_check? || !func_spec.void_return?
           "return_val = #{call}"
         else
@@ -1431,16 +1503,31 @@ module Wrapture
       end
 
       # Declares the local variables used to pass parameters to the wrapped
-      # function for the given function spec.
-      def self.wrapper_param_locals(func_spec)
+      # function for the function at the root of +context+.
+      def self.wrapper_param_locals(context)
+        func_spec = context.root
         func_spec.params.map do |param_spec|
-          param_type = func_spec.resolve_type(param_spec.type)
+          param_type = param_spec.type
+          local_type = if param_type.equivalent_struct?
+                         C.equivalent_struct(context.parent.root)
+                       elsif param_spec.type.equivalent_pointer?
+                         C.equivalent_pointer(context.parent.root)
+                       else
+                         name_words = Named.words_from_name(param_type.base)
+                         class_name = Named.upper_camel_case_name(name_words)
+                         type_context = context.resolve do |it|
+                           it.root.upper_camel_case_name == class_name
+                         end
 
-          if func_spec.owner.scope.type?(param_type)
-            param_type = CSource::CPointer.new(type_struct_name(param_type))
-          end
+                         if type_context.nil?
+                           CSource::CType.new(param_spec.type.name)
+                         else
+                           struct_name = type_struct_name(type_context.root)
+                           CSource::CPointer.new(struct_name)
+                         end
+                       end
 
-          CSource::CDeclaration.new(param_type, param_spec.name)
+          CSource::CDeclaration.new(local_type, param_spec.name)
         end
       end
 

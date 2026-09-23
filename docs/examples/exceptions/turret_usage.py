@@ -19,26 +19,26 @@
 import defense_turret
 
 blaster = defense_turret.Turret()
-blaster.Aim(-1, 2, 5 )
+blaster.aim(-1, 2, 5 )
 
 try:
     for _ in range(15):
-        blaster.Fire()
+        blaster.fire()
     exit('fired 15 shots without jamming!')
 except defense_turret.TurretException as e:
     print(e.message())
 
-blaster.Reload()
+blaster.reload()
 
 try:
     for i in range(15):
-        blaster.Aim( 7, 7, i)
-        blaster.Fire()
+        blaster.aim( 7, 7, i)
+        blaster.fire()
 except defense_turret.TurretException as e:
     print(e.message())
 
 try:
-    blaster.Aim( -6, -6, -6)
+    blaster.aim( -6, -6, -6)
     exit('aimed at an invalid location without error!')
 except defense_turret.TargetingException as e:
     print(e.message())

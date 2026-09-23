@@ -1,0 +1,51 @@
+# SPDX-License-Identifier: Apache-2.0
+
+# Copyright 2026 Joel E. Anderson
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+module Wrapture
+  class Context
+    include Named
+
+    @contents: Set[Context]
+    @parent: Context | nil
+    @root: Named
+
+    attr_reader contents: Set[Context]
+    attr_reader parent: Context | nil
+    attr_reader root: Named
+
+    def self.from_class_hash: (spec_hash, ?parent: Context) -> Context
+    def self.from_namespace_hash: (spec_hash, ?parent: Context) -> Context
+    def self.from_namespace_yaml_file: (String, ?parent: Context) -> Context
+
+    def initialize: (from: Named, ?parent: Context) -> void
+    def <<: (Named) -> Context
+    def child?: (ClassSpec) -> bool
+    def classes: -> Array[Context]
+    def constants: -> Array[Context]
+    def constructors: -> Array[Context]
+    def constructors?: -> bool
+    def enums: -> Array[Context]
+    def flatten: -> Array[Context]
+    def functions: -> Array[Context]
+    def methods: -> Array[Context]
+    def name_words: () -> Array[String]
+    def namespace: -> Array[Context]
+    def parent?: () -> bool
+    def resolve: () {(Context) -> bool} -> (Context | nil)
+    def resolve_name: (Array[String]) -> (Context | nil)
+    def top: () -> Context
+  end
+end

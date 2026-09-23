@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2019-2025 Joel E. Anderson
+# Copyright 2019-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,13 +22,11 @@ require 'fixture'
 require 'minitest/autorun'
 require 'wrapture'
 
-class FunctionSpecTest < Minitest::Test
+class VirtualFunctionTest < Minitest::Test
   def test_class_with_virtual_function
     test_spec = fixture_hash('class_with_virtual_function')
-    spec = Wrapture::ClassSpec.new(test_spec)
-    build = Wrapture::Wrapper::CToCpp.wrap_class(spec)
-
-    validate_cpp_build(spec, build)
+    context = Wrapture::Context.from_class_hash(test_spec)
+    build = Wrapture::Wrapper::CToCpp.wrap_class_context(context)
 
     header = build['BaseClass.hpp']
 

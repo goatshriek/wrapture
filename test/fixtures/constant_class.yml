@@ -15,7 +15,6 @@
 # limitations under the License.
 
 name: "ClassWithConstant"
-namespace: "wrapture_test"
 source:
   c:
     pointer:

@@ -24,8 +24,8 @@ require 'wrapture'
 
 class CExportHeaderTest < Minitest::Test
   def test_export_header_name_with_empty_name
-    scope = Wrapture::Scope.new
-    name = Wrapture::CSource::CExportHeader.export_header_name(scope)
+    ns = Wrapture::Namespace.new([])
+    name = Wrapture::CSource::CExportHeader.export_header_name(ns)
 
     refute(name.start_with?('_'),
            'export header name starts with underscore for an empty name')

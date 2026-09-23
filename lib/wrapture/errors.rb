@@ -32,6 +32,10 @@ module Wrapture
   class InvalidConstructor < WraptureError
   end
 
+  # A Context is not valid.
+  class InvalidContext < WraptureError
+  end
+
   # A documentation string is invalid.
   class InvalidDoc < WraptureError
   end
@@ -42,7 +46,7 @@ module Wrapture
 
   # A spec is not valid for the context it was used in. For example, if a
   # method only accepts specs of a certain kind, this will be raised if an
-  # oncompatible spec is provided.
+  # uncompatible spec is provided.
   class InvalidSpec < WraptureError
   end
 
@@ -68,10 +72,6 @@ module Wrapture
 
   # A spec hash is missing a key that is required.
   class MissingSpecKey < WraptureError
-  end
-
-  # Missing a namespace in a class spec.
-  class MissingNamespace < WraptureError
   end
 
   # A wrapped component was used, but not defined.

@@ -18,20 +18,48 @@
 
 require 'helper'
 
+require 'fixture'
 require 'minitest/autorun'
 require 'wrapture'
 
 class CToPythonTest < Minitest::Test
+  def test_class_type_struct_with_child_class
+    class_hash = fixture_hash('child_class')
+    context = Wrapture::Context.from_class_hash(class_hash)
+    type_struct = Wrapture::Wrapper::CToPython.class_type_struct(context)
+
+    refute_nil(type_struct)
+  end
+
+  def test_class_type_struct_with_pointer_wrapper_class
+    class_hash = fixture_hash('basic_class')
+    context = Wrapture::Context.from_class_hash(class_hash)
+    type_struct = Wrapture::Wrapper::CToPython.class_type_struct(context)
+    expected_typedef = Wrapture::Wrapper::CToPython.type_struct_name(context)
+
+    refute_nil(type_struct)
+    assert_kind_of(Wrapture::CSource::CStruct, type_struct)
+    assert_equal(expected_typedef, type_struct.typedef)
+  end
+
   def test_from_language
     assert_equal(:c, Wrapture::Wrapper::CToPython.from_language)
   end
 
   def test_includes
+    ns = Wrapture::Namespace.new(%w[basic module])
+    ns_context = Wrapture::Context.new(ns)
     hash = fixture_hash('basic_class')
-    class_spec = Wrapture::ClassSpec.from_hash(hash)
-    source_set = Wrapture::Wrapper::CToPython.wrap_scope(class_spec.scope)
-    module_source = source_set['wrapture_test.c']
+    class_context = Wrapture::Context.from_class_hash(hash, parent: ns_context)
+    ns_context.contents << class_context
+    source_set = Wrapture::Wrapper::CToPython.wrap_namespace_context(ns_context)
 
+    refute_nil(source_set)
+    refute_empty(source_set.sources, 'wrapper has no source files')
+
+    module_source = source_set['basic_module.c']
+
+    refute_nil(module_source)
     assert_kind_of(Wrapture::CSource::CSourceFile, module_source)
 
     python_included = module_source.tree.any? do |it|
@@ -46,14 +74,54 @@ class CToPythonTest < Minitest::Test
     assert(struct_included, 'the equivalent struct header was not included')
   end
 
-  def test_multipart_scope_name
-    scope = Wrapture::Scope.new({ name: %w[lots of parts] })
-    wrapped_set = Wrapture::Wrapper::CToPython.wrap_scope(scope)
+  def test_multipart_namespace_name
+    ns = Wrapture::Namespace.new(%w[lots of parts])
+    context = Wrapture::Context.new(ns)
+    wrapped_set = Wrapture::Wrapper::CToPython.wrap_namespace_context(context)
 
     assert_equal('lots_of_parts', wrapped_set.name)
   end
 
+  def test_overload_groups_with_constructors
+    context = Wrapture::Context.new(Wrapture::Namespace.new(%w[wrapture test]))
+    class_hash = fixture_hash('class_with_overloaded_constructors')
+    class_context = Wrapture::Context.from_class_hash(class_hash,
+                                                      parent: context)
+    context.contents << class_context
+    groups = Wrapture::Wrapper::CToPython.overload_groups(context)
+
+    refute_empty(groups)
+  end
+
+  def test_overloaded_constructors
+    class_hash = fixture_hash('class_with_overloaded_constructors')
+    context = Wrapture::Context.from_class_hash(class_hash)
+
+    assert(Wrapture::Wrapper::CToPython.constructors_overloaded?(context))
+  end
+
+  def test_overloaded_constructors_with_only_member_constructor
+    class_hash = fixture_hash('struct_wrapper_class')
+    context = Wrapture::Context.from_class_hash(class_hash)
+
+    refute(Wrapture::Wrapper::CToPython.constructors_overloaded?(context))
+  end
+
   def test_to_language
     assert_equal(:python, Wrapture::Wrapper::CToPython.to_language)
+  end
+
+  def test_wrapper_of_overloaded_constructors
+    context = Wrapture::Context.new(Wrapture::Namespace.new(%w[wrapture test]))
+    class_hash = fixture_hash('class_with_overloaded_constructors')
+    class_context = Wrapture::Context.from_class_hash(class_hash,
+                                                      parent: context)
+    context.contents << class_context
+    first_constructor = class_context.constructors.first
+    func = Wrapture::Wrapper::CToPython.function_wrapper(first_constructor)
+
+    refute_nil(func)
+    refute_equal('overloaded_constructor_class_init', func.name,
+                 'an overloaded constructor wrapper name was not unique')
   end
 end

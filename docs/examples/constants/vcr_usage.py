@@ -21,10 +21,10 @@ import mediacenter
 living_room = mediacenter.Vcr(3)
 bedroom = mediacenter.Vcr(4)
 
-sent = living_room.SendCommand(living_room.PAUSE_COMMAND)
+sent = living_room.send_command(living_room.PAUSE_COMMAND)
 if sent !=living_room.PAUSE_COMMAND:
   exit("the pause command wasn't sent!")
 
-sent = bedroom.SendCommand(bedroom.PLAY_COMMAND)
+sent = bedroom.send_command(bedroom.PLAY_COMMAND)
 if sent != bedroom.PLAY_COMMAND:
   exit("the play command wasn't sent!")

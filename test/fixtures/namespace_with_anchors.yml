@@ -19,9 +19,9 @@ to_string_common: &to_string_common
   name: ["to", "string"]
   return:
     type: "const char *"
+name: [wrapture, test]
 classes:
   - name: "OneClass"
-    namespace: &dr_seuss_namespace "wrapture_test"
     source:
       c:
         pointer:
@@ -35,7 +35,6 @@ classes:
             params:
               - value: "equivalent_struct_pointer"
   - name: "TwoClass"
-    namespace: *dr_seuss_namespace
     source:
       c:
         pointer:
@@ -49,7 +48,6 @@ classes:
             params:
               - value: "equivalent_struct_pointer"
   - name: "RedClass"
-    namespace: *dr_seuss_namespace
     source:
       c:
         pointer:
@@ -63,7 +61,6 @@ classes:
             params:
               - value: "equivalent_struct_pointer"
   - name: "BlueClass"
-    namespace: *dr_seuss_namespace
     source:
       c:
         pointer:

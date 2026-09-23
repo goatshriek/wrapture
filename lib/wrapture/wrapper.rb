@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2025 Joel E. Anderson
+# Copyright 2025-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ require 'wrapture/wrapper/c'
 require 'wrapture/wrapper/c_to_cpp'
 require 'wrapture/wrapper/c_to_python'
 require 'wrapture/wrapper/cpp'
+require 'wrapture/wrapper/python'
 
 module Wrapture
   # +Wrapper+ includes the base wrapping functionality that all language
@@ -34,9 +35,13 @@ module Wrapture
   # map which wrappers are compatible with build systems and other wrappers.
   #
   # This module expects the following functions to be implemented:
-  # +self.wrap_class+
-  # +self.wrap_enum+
-  # +self.wrap_scope+
+  # +self.wrap_class_context+
+  # +self.wrap_constant_context+
+  # +self.wrap_enum_context+
+  # +self.wrap_function_context+
+  # +self.wrap_namespace_context+
+  # Each of these must take a single Context instance as their argument, with
+  # the root being of the named type, and return a SourceSet.
   module Wrapper
     # The symbol of the programming language this module's wrappers use as
     # input.
@@ -50,19 +55,85 @@ module Wrapture
       name.split('::').last.split('To').last.downcase.to_sym
     end
 
-    # Generates a wrapper for a given spec.
-    def wrap(spec, scope: nil)
+    # Generates a wrapper for +context+.
+    def wrap(context)
+      spec = if context.is_a?(Context)
+               context.root
+             else
+               context
+             end
+
       case spec
       when ClassSpec
-        wrap_class(spec, scope: scope)
+        wrap_class(context)
+      when ConstantSpec
+        wrap_constant(context)
       when EnumSpec
-        wrap_enum(spec, scope: scope)
-      when Scope
-        wrap_scope(spec)
+        wrap_enum(context)
+      when FunctionSpec
+        wrap_function(context)
+      when Namespace
+        wrap_namespace(context)
       else
         wrap_name = 'Wrapture::Wrapper.wrap'
         raise InvalidSpec, "#{spec.class} not supported by #{wrap_name}"
       end
+    end
+
+    # Generates a wrapper for +class_spec+ in an empty Context. If +class_spec+
+    # is a Context, then it is passed to wrap_class_context unchanged.
+    def wrap_class(class_spec)
+      context = if class_spec.is_a?(Context)
+                  class_spec
+                else
+                  Context.new(class_spec)
+                end
+      wrap_class_context(context)
+    end
+
+    # Generates a wrapper for +constant_spec+ in an empty Context. If
+    # +constant_spec+ is a Context, then it is passed to wrap_constant_context
+    # unchanged.
+    def wrap_constant(constant_spec)
+      context = if constant_spec.is_a?(Context)
+                  constant_spec
+                else
+                  Context.new(constant_spec)
+                end
+      wrap_constant_context(context)
+    end
+
+    # Generates a wrapper for +enum_spec+ in an empty Context. If +enum_spec+
+    # is a Context, then it is passed to wrap_enum_context unchanged.
+    def wrap_enum(enum_spec)
+      context = if enum_spec.is_a?(Context)
+                  enum_spec
+                else
+                  Context.new(enum_spec)
+                end
+      wrap_enum_context(context)
+    end
+
+    # Generates a wrapper for +func_spec+ in an empty Context. If +func_spec+
+    # is a Context, then it is passed to wrap_func_context unchanged.
+    def wrap_function(func_spec)
+      context = if func_spec.is_a?(Context)
+                  func_spec
+                else
+                  Context.new(func_spec)
+                end
+      wrap_function_context(context)
+    end
+
+    # Generates a wrapper for +namespace+ in an empty Context. If +namespace+
+    # is a Context, then it is passed to wrap_namespace_context unchanged.
+    def wrap_namespace(namespace)
+      context = if namespace.is_a?(Context)
+                  namespace
+                else
+                  Context.new(namespace)
+                end
+      wrap_namespace_context(context)
     end
   end
 

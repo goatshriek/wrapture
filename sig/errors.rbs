@@ -27,6 +27,9 @@ module Wrapture
   class InvalidConstructor < WraptureError
   end
 
+  class InvalidContext < WraptureError
+  end
+
   class InvalidDoc < WraptureError
   end
 
@@ -44,9 +47,6 @@ module Wrapture
   end
 
   class MissingSpecKey < WraptureError
-  end
-
-  class MissingNamespace < WraptureError
   end
 
   class MissingWrapped < WraptureError

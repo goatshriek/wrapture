@@ -19,7 +19,11 @@
 #++
 
 module Wrapture
-  # A description of a type used in a specification.
+  # A description of a type.
+  #
+  # TypeSpec is an abstraction of types in source languages. It is separate from
+  # language-specific types that are defined in source language modules like
+  # CSource::CType.
   class TypeSpec
     include Named
 
@@ -110,13 +114,6 @@ module Wrapture
     # True if this type is a pointer.
     def pointer?
       name.end_with?('*')
-    end
-
-    # Creates a new TypeSpec within the scope of +owner+ that will be directly
-    # usable. This will replace equivalent structs, pointers, and self
-    # references with a usable type name.
-    def resolve(owner)
-      owner.resolve_type(self)
     end
 
     # True if this type is a reference to a class instance.

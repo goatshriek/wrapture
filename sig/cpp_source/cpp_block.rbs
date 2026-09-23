@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-# Copyright 2025 Joel E. Anderson
+# Copyright 2025-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ module Wrapture
       def if: (String) { (CppBlock) -> void } -> CSource::CIf
       def include: (String, ?comment: Comment | String, ?quote: bool) -> CppBlock
       def puts: (*String) -> CppBlock
+      def statement: (untyped) -> CppBlock
     end
   end
 end

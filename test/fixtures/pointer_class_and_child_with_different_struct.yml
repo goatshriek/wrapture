@@ -15,15 +15,14 @@
 # limitations under the License.
 
 version: "0.6.0"
+name: [wrapture, test]
 classes:
   - name: "ParentPointer"
-    namespace: "wrapture_test"
     type: "pointer"
     source:
       c:
         name: "wrapped_struct"
   - name: "ChildPointer"
-    namespace: "wrapture_test"
     type: "pointer"
     parent:
       name: "ParentPointer"

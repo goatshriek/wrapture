@@ -15,9 +15,9 @@
 # limitations under the License.
 
 version: "0.6.0"
+name: [wrapture, test]
 classes:
   - name: "Parent"
-    namespace: "wrapture_test"
     source:
       c:
         name: "overloaded_struct"
@@ -35,7 +35,6 @@ classes:
             return:
               type: "equivalent_struct_pointer"
   - name: "ChildOne"
-    namespace: "wrapture_test"
     parent:
       name: "Parent"
     source:
@@ -46,7 +45,6 @@ classes:
             condition: "equal"
             value: "1"
   - name: "ChildTwo"
-    namespace: "wrapture_test"
     parent:
       name: "Parent"
     source:

@@ -22,6 +22,7 @@ require 'wrapture/cpp_source/cpp_block'
 require 'wrapture/cpp_source/cpp_class'
 require 'wrapture/cpp_source/cpp_declaration'
 require 'wrapture/cpp_source/cpp_enum'
+require 'wrapture/cpp_source/cpp_export_header'
 require 'wrapture/cpp_source/cpp_function'
 require 'wrapture/cpp_source/cpp_reference'
 require 'wrapture/cpp_source/cpp_source_file'
@@ -161,10 +162,20 @@ module Wrapture
         return CSource.format_declaration(decl)
       end
 
+      if decl.cpp_type.is_a?(CppClass)
+        return format_class_declaration(decl.cpp_type)
+      end
+
       src = []
       src << "#{decl.attributes.join(' ')} " unless decl.attributes.empty?
       src << if decl.cpp_type.is_a?(CSource::CPointer)
-               "#{decl.cpp_type.c_type} *"
+               if decl.cpp_type.c_type.is_a?(CSource::CStruct)
+                 "struct #{decl.cpp_type.c_type} *"
+               else
+                 "#{decl.cpp_type.c_type} *"
+               end
+             elsif decl.cpp_type.is_a?(CSource::CType)
+               decl.cpp_type.to_s
              else
                decl.cpp_type.name
              end
@@ -323,12 +334,7 @@ module Wrapture
       tree.flat_map do |node|
         case node
         when CppDeclaration
-          if node.cpp_type.is_a?(CppClass)
-            format_class_declaration(node.cpp_type)
-          else
-            # fall back to C source formatting
-            CSource.format_declaration(node)
-          end
+          format_declaration(node)
         when CppClass
           format_class_definition(node)
         when CppBlock

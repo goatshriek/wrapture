@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2025 Joel E. Anderson
+# Copyright 2025-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,17 +25,17 @@ require 'wrapture'
 class WrapTest < Minitest::Test
   def test_wrap
     config = Wrapture::Config::WrapConfig.new
-    scope_file = fixture_yaml_path('minimal_scope')
-    scope = Wrapture::Scope.load_files(scope_file)
-    config.scopes << scope
+    ns_file = fixture_yaml_path('minimal_namespace')
+    context = Wrapture::Context.from_namespace_yaml_file(ns_file)
+    config.contexts << context
     config.paths << Wrapture::Path.new('c,cpp')
 
     Dir.mktmpdir do |dir|
       config.output = dir
       Wrapture.wrap(config)
 
-      scope.classes.each do |it|
-        assert_includes(Dir.children(dir), "#{it.name}.cpp")
+      context.classes.each do |it|
+        assert_includes(Dir.children(dir), "#{it.upper_camel_case_name}.cpp")
       end
     end
   end

@@ -18,41 +18,26 @@ module Wrapture
   class ClassSpec
     include Named
 
-    @constants: Array[Wrapture::ConstantSpec]
     @doc: Wrapture::Comment
-    @functions: Array[Wrapture::FunctionSpec]
-    @scope: Wrapture::Scope
-    @source: Hash[Symbol, CSource::CStruct]
+    @parent: Enumerable[String] | nil
+    @source: Hash[Symbol, CSource::CStruct] | nil
     @spec: spec_hash
 
-    attr_reader constants: Array[Wrapture::ConstantSpec]
     attr_reader doc: Wrapture::Comment
-    attr_reader functions: Array[Wrapture::FunctionSpec]
-    attr_reader scope: Wrapture::Scope
-    attr_accessor source: Hash[Symbol, CSource::CStruct] | nil
+    attr_reader parent: Enumerable[String] | nil
+    attr_reader source: Hash[Symbol, CSource::CStruct] | nil
 
     def self.effective_type: (spec_hash spec) -> String
     def self.from_hash: (spec_hash spec) -> Wrapture::ClassSpec
     def self.normalize_spec_hash: (spec_hash spec) -> spec_hash
     def self.normalize_spec_hash!: (spec_hash spec) -> spec_hash
 
-    def initialize: (spec_hash spec, ?scope: Wrapture::Scope) -> void
+    def initialize: (spec_hash spec) -> void
     def []: (Symbol) -> CSource::CStruct
     def []=: (Symbol, CSource::CStruct) -> CSource::CStruct
     def child?: -> bool
-    def constructors: -> Array[Wrapture::FunctionSpec]
-    def definable?: () -> bool
-    def destructor: -> Wrapture::FunctionSpec
     def equivalent_member?: -> bool
     def exception?: -> bool
-    def libraries: -> Array[String]
-    def method_specs: -> Array[Wrapture::FunctionSpec]
     def name_words: -> Array[String]
-    def namespace: -> String
-    def parent_name: -> (String | nil)
-    def parent_spec: -> ( Wrapture::ClassSpec | nil )
-    def snake_case_name: -> String
-    def type: ( ( Wrapture::TypeSpec | String ) type ) -> ( Wrapture::ClassSpec | nil )
-    def type?: ( ( Wrapture::TypeSpec | String ) type ) -> bool
   end
 end

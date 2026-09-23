@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2025 Joel E. Anderson
+# Copyright 2025-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -32,6 +32,16 @@ module Wrapture
         self
       end
 
+      # Appends all elements from each array in +elements+ to the source tree.
+      def concat(*elements)
+        elements.each do |it|
+          it.each do |element|
+            tree << element
+          end
+        end
+        self
+      end
+
       # Add a variable declaration statement to the block. The declaration is
       # created using the supplied arguments passed directly to the CDeclaration
       # constructor, followed by a semicolon and newline.
@@ -54,6 +64,14 @@ module Wrapture
       # arguments passed directly to the CInclude constructor.
       def include(*args, **kwargs)
         tree << CInclude.new(*args, **kwargs)
+        self
+      end
+
+      # Appends each item in +elements+ to the source tree.
+      def push(*elements)
+        elements.each do |it|
+          tree << it
+        end
         self
       end
 

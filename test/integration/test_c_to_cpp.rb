@@ -37,8 +37,8 @@ class CToCppIntegrationTest < Minitest::Test
 
     # create the c++ wrapper and a CMake build
     spec_hash = fixture_hash('cmake_c_library')
-    scope = Wrapture::Scope.from_hash(spec_hash)
-    wrapper_sources = Wrapture::Wrapper::CToCpp.wrap_scope(scope)
+    c = Wrapture::Context.from_namespace_hash(spec_hash)
+    wrapper_sources = Wrapture::Wrapper::CToCpp.wrap_namespace_context(c)
     wrapper_build = Wrapture::Build::CmakeBuild.new(wrapper_sources)
 
     # write the wrapper source files
@@ -63,7 +63,8 @@ class CToCppIntegrationTest < Minitest::Test
     wrapper_link = wrapper_build.source_set.name
     wrapped_link = wrapped_build.source_set.name
     links = "-l#{wrapper_link} -l#{wrapped_link}"
-    build_cmd = "g++ -L lib -I include #{cpp_usage} #{links} -o cpp_usage"
+    lib_dirs = '-L lib -L lib64'
+    build_cmd = "g++ #{lib_dirs} -I include #{cpp_usage} #{links} -o cpp_usage"
     build_success = system(build_cmd, chdir: build_dir, exception: true)
 
     assert(build_success)

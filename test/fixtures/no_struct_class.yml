@@ -15,7 +15,6 @@
 # limitations under the License.
 
 name: "ClassWithNoStruct"
-namespace: "wrapture_test"
 functions:
   - name: "StaticFunction"
     static: true

@@ -35,14 +35,16 @@ class CToPythonIntegrationTest < Minitest::Test
     end
 
     spec_hash = fixture_hash('cmake_c_library')
-    scope = Wrapture::Scope.new(spec_hash)
-    wrapper_sources = Wrapture::Wrapper::CToPython.wrap_scope(scope)
+    c = Wrapture::Context.from_namespace_hash(spec_hash)
+    wrapper_sources = Wrapture::Wrapper::CToPython.wrap_namespace_context(c)
     wrapper_build = Wrapture::Build::PyprojectBuild.new(wrapper_sources)
     python_build_dir = File.join(build_dir, 'python')
     FileUtils.mkdir_p(python_build_dir)
     wrapper_build.save(python_build_dir)
 
-    env = { 'CFLAGS' => "-I#{wrapped_build.include_dir} -L#{build_dir}/lib" }
+    inc = wrapped_build.include_dir
+    flags = "-I#{inc} -L#{build_dir}/lib -L#{build_dir}/lib64"
+    env = { 'CFLAGS' => flags }
     wrapper_build.build_commands.each do |cmd|
       system(env, cmd, chdir: python_build_dir, exception: true)
     end
@@ -57,7 +59,7 @@ class CToPythonIntegrationTest < Minitest::Test
     end
 
     python_usage = File.join(wrapped_build.source_dir, 'python_usage.py')
-    env = { 'LD_LIBRARY_PATH' => 'lib' }
+    env = { 'LD_LIBRARY_PATH' => 'lib:lib64' }
     cmd = "#{python_cmd} #{python_usage}"
     system(env, cmd, chdir: python_build_dir, exception: true)
   end

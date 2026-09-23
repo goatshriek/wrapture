@@ -15,7 +15,6 @@
 # limitations under the License.
 
 name: CConstructorReturnTypeMismatch
-namespace: invalid
 source:
   c:
     name: my_struct

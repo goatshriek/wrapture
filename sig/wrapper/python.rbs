@@ -14,25 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-classes:
-  - name: "CodeException"
-    namespace: 'wrapture_test'
-    exception: true
-  - name: "ExceptionThrower"
-    namespace: 'wrapture_test'
-    functions:
-      - name: "IMightFail"
-        source:
-          c:
-            name: "might_fail"
-            return:
-              type: "int"
-            error_check:
-              rules:
-                - left_expression: "return_value"
-                  condition: "not_equal"
-                  right_expression: "0"
-              error_action:
-                name: "throw_exception"
-                type: "CodeException"
-                value: "return_value"
+module Wrapture
+  module Wrapper
+    module Python
+      def self.decorate_name: (Named) -> Array[String]
+      def self.decorate_name_words: (Array[String]) -> Array[String]
+      def self.module_name: (Namespace) -> String
+    end
+  end
+end

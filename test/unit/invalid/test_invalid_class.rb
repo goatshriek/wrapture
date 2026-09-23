@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2021-2025 Joel E. Anderson
+# Copyright 2021-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ class InvalidClassTest < Minitest::Test
     test_spec = fixture_hash('invalid/initializer_missing_name')
 
     assert_raises(Wrapture::MissingSpecKey) do
-      Wrapture::ClassSpec.new(test_spec)
+      Wrapture::Context.from_class_hash(test_spec)
     end
   end
 end

@@ -18,25 +18,25 @@
 
 import kitchen
 
-if kitchen.Stove.IsModelSupported(4):
+if kitchen.Stove.is_model_supported(4):
   print('model 4 stoves are supported')
 else:
   exit('model 4 stoves are not supported!')
 
 my_stove = kitchen.Stove(4)
-burner_count = my_stove.GetBurnerCount()
+burner_count = my_stove.get_burner_count()
 print(f'burner count is: {burner_count}')
 if burner_count != 4:
   exit('the burner count was not 4!')
 
-my_stove.SetOvenTemp(350)
-oven_temp = my_stove.GetOvenTemp()
+my_stove.set_oven_temp(350)
+oven_temp = my_stove.get_oven_temp()
 print(f'current oven temp is: {oven_temp}')
 if oven_temp != 350:
   exit('the oven temp was not 350!')
 
-my_stove.SetBurnerLevel(2, 9);
-burner_level = my_stove.GetBurnerLevel(2)
+my_stove.set_burner_level(2, 9);
+burner_level = my_stove.get_burner_level(2)
 print(f'burner 2 level is: {burner_level}')
 if burner_level != 9:
   exit('the level of burner 2 was not 9!')

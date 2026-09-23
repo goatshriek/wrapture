@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2025 Joel E. Anderson
+# Copyright 2025-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,15 +22,15 @@ module Wrapture
   # Generate wrappers for the given configuration.
   def self.wrap(config)
     config.paths.map do |path|
-      config.scopes.map do |scope|
-        spec = scope
+      config.contexts.map do |it|
+        context = it
         path.wrappers.each do |wrapper|
-          source_set = wrapper.wrap(spec)
+          source_set = wrapper.wrap(context)
           source_set.save(config.output)
-          spec = source_set.spec
+          context = source_set.contexts.first
         end
 
-        spec
+        context
       end
     end
   end

@@ -14,21 +14,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: "EnumWithNamespace"
-namespace: "wrapture_test"
-source:
-  c:
-    includes:
-      - "overall_1.h"
-      - "overall_2.h"
-elements:
-  - name: "element_1"
+name: [wrapture, test]
+enums:
+  - name: "BasicEnum"
+    elements:
+      - name: "value_1"
+      - name: "value_2"
+      - name: "value_3"
+classes:
+  - name: "BasicClass"
+    type: "pointer"
     source:
       c:
-        value: 9
-    includes: "val_1.h"
-  - name: "element_2"
-    source:
-      c:
-        value: 3
-  - name: "element_3"
+        name: "basic_struct"
+        includes: "basic_struct.h"
+    functions:
+      - name: "do_stuff"
+        return:
+          type: "self_reference"
+        source:
+          c:
+            name: "do_stuff_with_basic_struct"
+            params:
+              - value: "equivalent-struct-pointer"

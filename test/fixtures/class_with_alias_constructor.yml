@@ -14,27 +14,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-enums:
-  - name: "BasicEnum"
-    namespace: "wrapture_test"
-    elements:
-      - name: "value_1"
-      - name: "value_2"
-      - name: "value_3"
-classes:
-  - name: "BasicClass"
-    namespace: "wrapture_test"
-    type: "pointer"
-    source:
+name: "AliasConstructorClass"
+includes: "class_include.h"
+source:
+  c:
+    pointer:
+      name: "basic_struct"
+      includes: "folder/include_file_1.h"
+constructors:
+  - source:
+      alias:
+        args:
+          - 3
+  - source:
       c:
-        name: "basic_struct"
-        includes: "basic_struct.h"
-    functions:
-      - name: "do_stuff"
+        name: "underlying_constructor"
+        params:
+          - name: "id"
+            type: "int"
         return:
-          type: "self_reference"
-        source:
-          c:
-            name: "do_stuff_with_basic_struct"
-            params:
-              - value: "equivalent-struct-pointer"
+          type: "equivalent_struct_pointer"

@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-# Copyright 2025 Joel E. Anderson
+# Copyright 2025-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -32,7 +32,6 @@ module Wrapture
     def includes: -> untyped
     def name_words: -> Array[String]
     def pointer?: -> bool
-    def resolve: (Wrapture::FunctionSpec owner) -> Wrapture::TypeSpec
     def self_reference?: -> bool
     def to_s: -> String
     def variadic?: -> bool

@@ -23,11 +23,11 @@ filter = WaterFilter( 10 )
 ice_maker = IceMaker( 10, 1 )
 freezer = Freezer( -10, 4 )
 
-kitchen_fridge.AddFreezer( freezer )
-if kitchen_fridge.GetFreezerMinimumTemp() != -10:
+kitchen_fridge.add_freezer( freezer )
+if kitchen_fridge.get_freezer_minimum_temp() != -10:
     exit("the freezer minimum temperature was not correct!")
 
-kitchen_fridge.AddIceMaker( ice_maker )
-kitchen_fridge.AddWaterFilter( filter )
+kitchen_fridge.add_ice_maker( ice_maker )
+kitchen_fridge.add_water_filter( filter )
 
-kitchen_fridge.Print()
+kitchen_fridge.print()

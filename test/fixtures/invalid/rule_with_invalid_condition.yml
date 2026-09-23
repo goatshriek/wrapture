@@ -15,9 +15,9 @@
 # limitations under the License.
 
 version: "0.6.0"
+name: ["wrapture", "test"]
 classes:
   - name: "Parent"
-    namespace: "wrapture_test"
     source:
       c:
         name: "overloaded_struct"
@@ -25,7 +25,6 @@ classes:
           - name: "code"
             type: "int"
   - name: "ChildOne"
-    namespace: "wrapture_test"
     source:
       c:
         name: "overloaded_struct"

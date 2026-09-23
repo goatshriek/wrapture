@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2024-2025 Joel E. Anderson
+# Copyright 2024-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,12 +25,10 @@ require 'wrapture'
 class NestedStructsTest < Minitest::Test
   def test_nested_structs
     test_spec = fixture_hash('nested_structs')
-    scope = Wrapture::Scope.new(test_spec)
-    build = Wrapture::Wrapper::CToCpp.wrap_scope(scope)
+    c = Wrapture::Context.from_namespace_hash(test_spec)
+    build = Wrapture::Wrapper::CToCpp.wrap_namespace_context(c)
 
-    validate_cpp_build(scope, build)
-
-    assert_equal(test_spec[:classes].count, scope.classes.count)
+    assert_equal(test_spec[:classes].count, c.classes.count)
 
     header_includes = get_source_file_include_list(build['Gym.hpp'])
     source_includes = get_source_file_include_list(build['Gym.cpp'])

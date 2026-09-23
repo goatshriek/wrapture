@@ -14,10 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+name: "library"
 classes:
   - name: "Item"
-    namespace: "library"
-    libraries: "mylib"
     source:
       c:
         name: "mylib_item"
@@ -39,12 +38,11 @@ classes:
         source:
           c:
             name: "check_out_item"
+            libraries: "mylib"
             params:
               - name: "equivalent_struct_pointer"
             includes: "mylib.h"
   - name: "Book"
-    namespace: "library"
-    libraries: "mylib"
     parent:
       name: "Item"
     source:
@@ -70,6 +68,7 @@ classes:
         source:
           c:
             name: "get_page_count"
+            libraries: "mylib"
             params:
               - name: "equivalent_struct_pointer"
             includes: "mylib.h"

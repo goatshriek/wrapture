@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2020-2025 Joel E. Anderson
+# Copyright 2020-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -27,6 +27,10 @@ class VersionTest < Minitest::Test
     spec_version = spec.version.to_s
 
     assert_equal Wrapture::VERSION, spec_version
+  end
+
+  def test_supports_own_version
+    assert(Wrapture.supports_version?(Wrapture::VERSION))
   end
 
   def test_version_syntax

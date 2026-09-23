@@ -25,6 +25,27 @@ module Wrapture
   class ConstantSpec
     include Named
 
+    # The documentation comment for this constant.
+    attr_reader :doc
+
+    # The type of this constant.
+    attr_reader :type
+
+    # Creates a new ConstantSpec from hash +spec+.
+    #
+    # The hash must have the following keys (symbols with this name):
+    # name:: the name of the constant
+    # type:: the type of the constant
+    # value:: the value to assign to the constant
+    # includes::  a list of includes that need to be added in order for this
+    # constant to be valid (for example, includes for the type and value).
+    #
+    # The following keys are optional:
+    # doc:: a string containing the documentation for this constant
+    def self.from_hash(hash)
+      new(hash)
+    end
+
     # Returns a normalized copy of a hash specification of an enumeration.
     # See normalize_spec_hash! for details.
     def self.normalize_spec_hash(spec)
@@ -65,12 +86,6 @@ module Wrapture
       @doc = Comment.new(@spec[:doc])
       @type = TypeSpec.new(@spec[:type])
     end
-
-    # The documentation comment for this constant.
-    attr_reader :doc
-
-    # The type of this constant.
-    attr_reader :type
 
     # A list of includes needed for the declaration of this constant.
     def declaration_includes

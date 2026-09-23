@@ -15,7 +15,6 @@
 # limitations under the License.
 
 name: "BaseClass"
-namespace: "wrapture_test"
 source:
   c:
     name: "overloaded_struct"

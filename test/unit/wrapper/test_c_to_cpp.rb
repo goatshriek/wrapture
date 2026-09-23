@@ -44,22 +44,83 @@ class CToCppTest < Minitest::Test
   end
 
   def test_class_pointer_to_struct_pointer
-    test_spec = fixture_hash('scope_with_pointer_param')
-    scope = Wrapture::Scope.new(test_spec)
-    build = Wrapture::Wrapper::CToCpp.wrap_scope(scope)
+    test_spec = fixture_hash('namespace_with_pointer_param')
+    context = Wrapture::Context.from_namespace_hash(test_spec)
+    build = Wrapture::Wrapper::CToCpp.wrap_namespace_context(context)
+    rifle_file = build['Rifle.cpp']
 
-    validate_cpp_build(scope, build)
-
-    assert(source_file_contains_match?(build['Rifle.cpp'],
+    refute_nil(rifle_file)
+    assert(source_file_contains_match?(rifle_file,
                                        /bullet->equivalent/),
            'equivalent struct member was not referenced')
   end
 
-  def test_declaration_includes_with_no_c_details
-    # we need a class spec where there isn't a :c key in wrapped
+  def test_class_with_constructor
+    spec_hash = fixture_hash('constructor_class')
+    context = Wrapture::Context.from_class_hash(spec_hash)
+    build = Wrapture::Wrapper::CToCpp.wrap_class_context(context)
+
+    class_name = Wrapture::Wrapper::CToCpp.class_name(context.root)
+    header = build["#{class_name}.hpp"]
+    member_regex = /^\s*#{class_name}\(int member/
+    spec_regex = /^\s*#{class_name}\(constructed_struct/
+    destructor_regex = /^\s*~#{class_name}/
+
+    assert(source_file_contains_match?(header, member_regex),
+           'the member constructor declaration was not found')
+    assert(source_file_contains_match?(header, spec_regex),
+           'the struct constructor declaration was not found')
+    assert(source_file_contains_match?(header, destructor_regex),
+           'the destructor declaration was not found')
+
+    source = build["#{class_name}.cpp"]
+    includes = get_source_file_include_list(source)
+
+    all_spec_includes(spec_hash).each do |inc|
+      assert_includes(includes, inc)
+    end
+
+    forbidden = Wrapture::EQUIVALENT_STRUCT_KEYWORD
+
+    refute(source_file_contains_match?(source, forbidden),
+           'the source file contained a wrapture keyword')
+
+    member_regex = /^\s*#{class_name}::#{class_name}\(int member/
+    spec_regex = /^\s*#{class_name}::#{class_name}\(constructed_struct/
+    destructor_regex = /^\s*#{class_name}::~#{class_name}/
+
+    assert(source_file_contains_match?(source, member_regex),
+           'the member constructor definition was not found')
+    assert(source_file_contains_match?(source, spec_regex),
+           'the spec constructor definition was not found')
+    assert(source_file_contains_match?(source, destructor_regex),
+           'the destructor definition was not found')
+
+    wrapped_function = spec_hash[:constructors][0][:source][:c]
+
+    assert(source_file_contains_match?(source, /= #{wrapped_function[:name]}/),
+           'source file does not include the wrapped function')
+  end
+
+  def test_class_with_static_function
+    spec_hash = fixture_hash('static_function_class')
+    context = Wrapture::Context.from_class_hash(spec_hash)
+    build = Wrapture::Wrapper::CToCpp.wrap_class_context(context)
+
+    header_name = Wrapture::Wrapper::Cpp.header_name(context.root)
+    header = build[header_name]
+
+    assert(source_file_contains_match?(header, 'static'),
+           'static keyword not found')
+  end
+
+  def test_declaration_includes_in_namespace_with_no_c_details
+    # we need a class spec where there isn't a :c key
     class_spec = Wrapture::ClassSpec.new(fixture_hash('versioned_class'))
-    scope = Wrapture::Scope.new({ name: ['test'] })
-    includes = Wrapture::Wrapper::CToCpp.declaration_includes(class_spec, scope)
+    context = Wrapture::Context.new(Wrapture::Namespace.new(%w[test ns]))
+    context << class_spec
+    class_context = context.classes.first
+    includes = Wrapture::Wrapper::CToCpp.declaration_includes(class_context)
 
     assert_equal(1, includes.length,
                  'declaration includes has more than export header for a  ' \
@@ -68,35 +129,34 @@ class CToCppTest < Minitest::Test
   end
 
   def test_definition_includes_with_exception_error_action
-    scope_hash = fixture_hash('scope_with_exceptions')
-    scope = Wrapture::Scope.new(scope_hash)
-    cls = scope.classes.find { |it| it.name == 'ExceptionThrower' }
+    ns_hash = fixture_hash('namespace_with_exceptions')
+    context = Wrapture::Context.from_namespace_hash(ns_hash)
+    cls = context.classes.find { |it| it.root.name == 'ExceptionThrower' }
 
     refute_nil(cls)
 
-    incs = Wrapture::Wrapper::CToCpp.definition_includes(cls, scope)
+    incs = Wrapture::Wrapper::CToCpp.definition_includes(cls)
 
     assert_includes(incs, 'CodeException.hpp')
   end
 
   def test_delegating_constructor
-    test_spec = fixture_hash('alias_constructor')
-    spec = Wrapture::ClassSpec.new(test_spec)
-    build = Wrapture::Wrapper::CToCpp.wrap_class(spec)
-
-    validate_cpp_build(spec, build)
+    spec_hash = fixture_hash('class_with_alias_constructor')
+    context = Wrapture::Context.from_class_hash(spec_hash)
+    build = Wrapture::Wrapper::CToCpp.wrap_class_context(context)
 
     source = build['AliasConstructorClass.cpp']
-    sig = "#{spec.name}\\(void\\) : #{spec.name}\\(3\\)"
+    sig = 'AliasConstructorClass\\(void\\) : AliasConstructorClass\\(3\\)'
 
     assert(source_file_contains_match?(source, sig),
            'delegating constructor not present')
   end
 
-  def test_enum_with_namespace
-    test_spec = fixture_hash('enum_with_namespace')
+  def test_enum_with_context
+    test_spec = fixture_hash('basic_enum')
     spec = Wrapture::EnumSpec.from_hash(test_spec)
-    build = Wrapture::Wrapper::CToCpp.wrap_enum(spec)
+    context = Wrapture::Context.new(spec)
+    build = Wrapture::Wrapper::CToCpp.wrap_enum_context(context)
 
     assert_equal(test_spec[:name], spec.name)
     assert_equal(1, build.sources.count,
@@ -118,22 +178,68 @@ class CToCppTest < Minitest::Test
     assert(source_file_contains_match?(header, declaration))
   end
 
+  def test_export_macro_name
+    ns_hash = fixture_hash('minimal_namespace')
+    context = Wrapture::Context.from_namespace_hash(ns_hash)
+    source_set = Wrapture::Wrapper::CToCpp.wrap_namespace_context(context)
+    header = source_set['MinimalClassOne.hpp']
+
+    refute_nil(header)
+    assert(source_file_contains_match?(header, 'MINIMAL_NAMESPACE_EXPORT'))
+  end
+
   def test_from_language
     assert_equal(:c, Wrapture::Wrapper::CToCpp.from_language)
   end
 
+  def test_generate_pointer_constructor
+    hash = fixture_hash('pointer_class_with_explicit_pointer_move_constructor')
+    context = Wrapture::Context.from_class_hash(hash)
+    res = Wrapture::Wrapper::CToCpp.generate_pointer_move_constructor?(context)
+
+    refute(res)
+  end
+
+  def test_header_for_namespace_with_class_and_enum
+    spec_hash = fixture_hash('namespace_with_class_and_enum')
+    context = Wrapture::Context.from_namespace_hash(spec_hash)
+
+    assert_kind_of(Wrapture::Namespace, context.root)
+
+    header = Wrapture::Wrapper::CToCpp.namespace_context_header(context)
+
+    refute_nil(header)
+    assert_kind_of(Wrapture::CppSource::CppSourceFile, header)
+
+    (context.classes + context.enums).each do |it|
+      content_name = Wrapture::Wrapper::Cpp.header_name(it.root)
+
+      assert(source_file_contains_match?(header, content_name))
+    end
+  end
+
+  def test_namespace_with_class_and_enum
+    spec_hash = fixture_hash('namespace_with_class_and_enum')
+    context = Wrapture::Context.from_namespace_hash(spec_hash)
+    source_set = Wrapture::Wrapper::CToCpp.wrap_namespace_context(context)
+
+    refute_nil(source_set)
+    assert_kind_of(Wrapture::SourceSet, source_set)
+    assert_instance_of(Wrapture::CppSource::CppSourceSet, source_set)
+    assert_respond_to(source_set, :sources)
+    assert_respond_to(source_set, :lib_headers)
+    refute_empty(source_set.lib_headers)
+    refute_empty(source_set.sources)
+    assert(source_set.lib_headers.any?(Wrapture::CppSource::CppExportHeader))
+  end
+
   def test_overloaded_struct
     test_spec = fixture_hash('overloaded_struct')
-    scope = Wrapture::Scope.new(test_spec)
-
-    assert_equal(test_spec[:classes].count, scope.classes.count)
-
-    build = Wrapture::Wrapper::CToCpp.wrap_scope(scope)
-
-    validate_cpp_build(scope, build)
-
+    context = Wrapture::Context.from_namespace_hash(test_spec)
+    build = Wrapture::Wrapper::CToCpp.wrap_namespace_context(context)
     source = build['Parent.cpp']
 
+    assert_equal(test_spec[:classes].count, context.classes.count)
     assert(source_file_contains_match?(source, 'NewParent'))
     assert(source_file_contains_match?(source, 'Parent \*Parent::NewParent'))
     assert(source_file_contains_match?(source,
@@ -174,29 +280,26 @@ class CToCppTest < Minitest::Test
 
   def test_pointer_class_and_child
     test_spec = fixture_hash('pointer_class_and_child')
-    spec = Wrapture::Scope.new(test_spec)
-    build = Wrapture::Wrapper::CToCpp.wrap_scope(spec)
-
-    validate_cpp_build(spec, build)
+    context = Wrapture::Context.from_namespace_hash(test_spec)
+    build = Wrapture::Wrapper::CToCpp.wrap_namespace_context(context)
 
     header = build['ChildPointer.hpp']
     equivalent_signature = 'struct wrapped_struct \*equivalent;'
 
+    refute_nil(header)
     refute(source_file_contains_match?(header, equivalent_signature))
 
     source = build['ChildPointer.cpp']
     parent_initializer = 'equivalent\) : ParentPointer\('
 
+    refute_nil(source)
     assert(source_file_contains_match?(source, parent_initializer))
   end
 
   def test_pointer_class_and_child_with_different_struct
     test_spec = fixture_hash('pointer_class_and_child_with_different_struct')
-    spec = Wrapture::Scope.new(test_spec)
-    build = Wrapture::Wrapper::CToCpp.wrap_scope(spec)
-
-    validate_cpp_build(spec, build)
-
+    context = Wrapture::Context.from_namespace_hash(test_spec)
+    build = Wrapture::Wrapper::CToCpp.wrap_namespace_context(context)
     header = build['ChildPointer.hpp']
     equivalent_signature = 'struct wrapped_struct \*equivalent;'
 
@@ -224,53 +327,47 @@ class CToCppTest < Minitest::Test
   end
 
   def test_pointer_class_with_explicit_pointer_constructor
-    test_spec = fixture_hash('pointer_class_with_explicit_pointer_constructor')
-    spec = Wrapture::ClassSpec.new(test_spec)
-    build = Wrapture::Wrapper::CToCpp.wrap_class(spec)
+    hash = fixture_hash('pointer_class_with_explicit_pointer_move_constructor')
+    context = Wrapture::Context.from_class_hash(hash)
+    build = Wrapture::Wrapper::CToCpp.wrap_class_context(context)
 
-    validate_cpp_build(spec, build)
-
-    source = build["#{spec.name}.hpp"]
-    constructor_sig = /#{spec.name}\(struct wrapped_struct \*\w+\)/
+    class_name = Wrapture::Wrapper::CToCpp.class_name(context.root)
+    source = build["#{class_name}.hpp"]
+    constructor_sig = /#{class_name}\(struct wrapped_struct \*\w+\)/
     num_constructors = count_source_file_matches(source, constructor_sig)
 
     assert_equal(1, num_constructors)
   end
 
   def test_reference_to_pointer
-    test_spec = fixture_hash('scope_with_reference_param')
-    scope = Wrapture::Scope.new(test_spec)
-    build = Wrapture::Wrapper::CToCpp.wrap_scope(scope)
-
-    validate_cpp_build(scope, build)
+    test_spec = fixture_hash('namespace_with_reference_param')
+    c = Wrapture::Context.from_namespace_hash(test_spec)
+    build = Wrapture::Wrapper::CToCpp.wrap_namespace_context(c)
 
     assert(source_file_contains_match?(build['Rifle.cpp'],
                                        /bullet\.equivalent/),
            'equivalent struct member was not referenced')
   end
 
-  def test_scope_header_with_class_and_enum
-    test_spec = fixture_hash('scope_with_enum')
-    scope = Wrapture::Scope.new(test_spec)
-    build = Wrapture::Wrapper::CToCpp.wrap_scope(scope)
+  def test_return_val_in_constructor
+    spec_hash = fixture_hash('class_with_return_val_in_constructor')
+    context = Wrapture::Context.from_class_hash(spec_hash)
+    build = Wrapture::Wrapper::CToCpp.wrap_class_context(context)
+    source_name = Wrapture::Wrapper::CToCpp.definition_filename(context.root)
 
-    validate_cpp_build(scope, build)
+    assert_includes(build, source_name)
+    source_file = build[source_name]
 
-    assert_includes(build, 'wrapture_test.hpp', 'rollup header missing')
-
-    header = build['wrapture_test.hpp']
-
-    assert_kind_of(Wrapture::CppSource::CppSourceFile, header)
-    assert(source_file_contains_match?(header, 'BasicClass.hpp'))
-    assert(source_file_contains_match?(header, 'BasicEnum.hpp'))
+    assert(source_file_contains_match?(source_file, 'this->equivalent == NULL'),
+           'no error check against the equivalent struct was found')
+    refute(source_file_contains_match?(source_file, 'return_val'),
+           'a return value variable was still generated')
   end
 
   def test_self_reference_function
-    test_spec = fixture_hash('self_reference_class')
-    spec = Wrapture::ClassSpec.from_hash(test_spec)
-    build = Wrapture::Wrapper::CToCpp.wrap_class(spec)
-
-    validate_cpp_build(spec, build)
+    spec_hash = fixture_hash('self_reference_class')
+    context = Wrapture::Context.from_class_hash(spec_hash)
+    build = Wrapture::Wrapper::CToCpp.wrap_class_context(context)
 
     forbidden = Wrapture::SELF_REFERENCE_KEYWORD
 
@@ -279,31 +376,31 @@ class CToCppTest < Minitest::Test
              "#{src.path} contains wrapture keyword #{forbidden}")
     end
 
-    source = build["#{test_spec[:name]}.cpp"]
+    source_filename = Wrapture::Wrapper::CToCpp.definition_filename(context.root)
+    source = build[source_filename]
 
     assert(source_file_contains_match?(source, /return \*this;/))
     refute(source_file_contains_match?(source, 'return_val'))
   end
 
-  def test_sequential_scope_load
+  def test_sequential_namespace_load
     class_specs = [fixture_hash('basic_class'),
                    fixture_hash('child_class'),
                    fixture_hash('constant_class'),
                    fixture_hash('constructor_class')]
     enum_specs = [fixture_hash('basic_enum')]
-    scope = Wrapture::Scope.new
-    class_specs.each { |spec| scope.add_class_spec_hash(spec) }
-    enum_specs.each { |spec| scope.add_enum_spec_hash(spec) }
+    ns = Wrapture::Namespace.new(%w[wrapture test])
+    context = Wrapture::Context.new(ns)
+    class_specs.each { |it| context << Wrapture::ClassSpec.new(it) }
+    enum_specs.each { |it| context << Wrapture::EnumSpec.new(it) }
 
-    assert_equal(class_specs.count, scope.classes.count)
-    assert_equal(enum_specs.count, scope.enums.count)
+    assert_equal(class_specs.count, context.classes.count)
+    assert_equal(enum_specs.count, context.enums.count)
 
-    build = Wrapture::Wrapper::CToCpp.wrap_scope(scope)
-
-    validate_cpp_build(scope, build)
+    build = Wrapture::Wrapper::CToCpp.wrap_namespace_context(context)
 
     # 2 headers per class, one per enum, and the rollup and export headers
-    expected_count = (scope.classes.count * 2) + scope.enums.count + 2
+    expected_count = (context.classes.count * 2) + context.enums.count + 2
 
     assert_equal(expected_count, build.sources.count)
   end

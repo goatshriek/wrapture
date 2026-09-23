@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2025 Joel E. Anderson
+# Copyright 2025-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,10 +23,13 @@ module Wrapture
     # A generated Python project along with the information required to build
     # it.
     #
-    # Python projects are generated as single modules, defined by the scope
-    # containing all of the specs for it.
+    # Python projects are generated as single modules, defined by a Context
+    # instance with a Namespace root containing all of the specs for it.
     class PythonSourceSet
       include SourceSet
+
+      # A Set of contexts this source set implements.
+      attr_reader :contexts
 
       # The libraries this project's module links with.
       attr_reader :module_links
@@ -37,9 +40,6 @@ module Wrapture
       # The name of the project being build
       attr_reader :name
 
-      # The spec representing what this source set implements.
-      attr_reader :spec
-
       # Create an empty Python project.
       #
       # +name+ will be used as the name of the module the project builds.
@@ -47,7 +47,7 @@ module Wrapture
         @name = name
         @module_links = []
         @module_sources = []
-        @spec = nil
+        @contexts = Set.new
       end
 
       # Add a source file to the project's module's list.

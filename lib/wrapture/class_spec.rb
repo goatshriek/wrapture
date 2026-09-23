@@ -26,20 +26,14 @@ module Wrapture
   class ClassSpec
     include Named
 
-    # The list of constants in this class.
-    attr_reader :constants
-
     # The documentation comment for this class.
     attr_reader :doc
 
-    # The list of functions in this class.
-    attr_reader :functions
-
-    # The scope of this class.
-    attr_reader :scope
+    # The name words of the parent of this class, or nil if it has no parent.
+    attr_reader :parent
 
     # A map of language-specific wrapping details.
-    attr_accessor :source
+    attr_reader :source
 
     # Gives the effective type of the given class spec hash.
     # TODO: this should be refactored to use an object instead of a hash
@@ -109,7 +103,6 @@ module Wrapture
     # If the 'doc' key is present, it is validated using Comment::validate_doc.
     # If not, it is set to an empty string.
     def self.normalize_spec_hash!(spec)
-      raise MissingNamespace unless spec.key?(:namespace)
       raise MissingSpecKey, 'name key is required' unless spec.key?(:name)
 
       spec[:name] = Wrapture.normalize_name(spec, :name)
@@ -145,9 +138,6 @@ module Wrapture
 
     # Creates a class spec based on the provided hash spec.
     #
-    # The scope can be provided if available. Otherwise, a new Scope is created
-    # holding only this class.
-    #
     # The hash must have the following keys:
     # name:: the name of the class, in CamelCase
     # namespace:: the namespace to put the class into
@@ -162,48 +152,9 @@ module Wrapture
     # functions:: A list of function specs that are in this class.
     # includes:: A list of includes that are needed for this class.
     # libraries:: A list of libraries that must be linked to use this class.
-    def initialize(spec, scope: Scope.new)
+    def initialize(spec)
       @spec = ClassSpec.normalize_spec_hash(spec)
-
-      @functions = @spec[:constructors].map do |constructor_spec|
-        full_spec = constructor_spec.dup
-        full_spec[:name] = @spec[:name]
-        # TODO: there shouldn't be C-specific code here
-        if constructor_spec[:source].key?(:c)
-          full_spec[:params] = constructor_spec[:source][:c][:params]
-        end
-        full_spec[:constructor] = true
-
-        func_spec = FunctionSpec.from_hash(full_spec)
-        func_spec.owner = self
-
-        func_spec
-      end
-
-      if @spec.key?(:destructor)
-        destructor_spec = @spec[:destructor].dup
-        destructor_spec[:name] = @spec[:name]
-        destructor_spec[:destructor] = true
-
-        func_spec = FunctionSpec.from_hash(destructor_spec)
-        func_spec.owner = self
-        @functions << func_spec
-      end
-
-      @spec[:functions].each do |function_spec|
-        func_spec = FunctionSpec.from_hash(function_spec)
-        func_spec.owner = self
-        @functions << func_spec
-      end
-
-      @constants = @spec[:constants].map do |constant_spec|
-        ConstantSpec.new(constant_spec)
-      end
-
       @doc = Comment.new(@spec[:doc])
-
-      scope << self
-      @scope = scope
 
       @source = {}
       if @spec.key?(:source) && @spec[:source].key?(:c)
@@ -214,6 +165,15 @@ module Wrapture
           @source[:c] = CSource::CStruct.from_hash(spec[:source][:c])
         end
       end
+
+      @parent = if @spec.key?(:parent) && @spec[:parent].key?(:name)
+                  name = @spec[:parent][:name]
+                  if name.is_a?(String)
+                    Named.words_from_name(name)
+                  else
+                    Wrapture.normalize_name_words(name)
+                  end
+                end
     end
 
     # Get the wrapping details for the given language. This is equivalent to
@@ -230,22 +190,7 @@ module Wrapture
 
     # True if the class has a parent.
     def child?
-      @spec.key?(:parent)
-    end
-
-    # A list of constructor functions for the class.
-    def constructors
-      @functions.select(&:constructor?)
-    end
-
-    # True if this class can be defined.
-    def definable?
-      @functions.all?(&:definable?)
-    end
-
-    # The destructor function for the class, or nil if there isn't one.
-    def destructor
-      @functions.select(&:destructor?).first
+      !@parent.nil?
     end
 
     # True if this class is an exception.
@@ -253,56 +198,9 @@ module Wrapture
       @spec[:exception]
     end
 
-    # An array of libraries needed for everything in this class.
-    def libraries
-      @functions.flat_map(&:libraries).concat(@spec[:libraries])
-    end
-
-    # An array of methods of the class. This is a subset of the list of
-    # functions without the constructors and destructors.
-    #
-    # Named with a specs suffix to avoid conflicts with Ruby's "methods"
-    # instance method.
-    def method_specs
-      @functions.select { |spec| !spec.constructor? && !spec.destructor? }
-    end
-
     # The words that make up the function name.
     def name_words
       @spec[:name]
-    end
-
-    # The namespace of the class.
-    def namespace
-      @spec[:namespace]
-    end
-
-    # True if this class is a parent of others.
-    def parent?
-      @scope.classes.any? do |class_spec|
-        class_spec.parent_name == name
-      end
-    end
-
-    # The name of the parent of this class, or nil if there is no parent.
-    def parent_name
-      # TODO: this needs to use the actual class spec method instead of the hash
-      @spec[:parent][:name] if child?
-    end
-
-    # The class spec of the parent class, or nil if this cannot be resolved.
-    def parent_spec
-      type(TypeSpec.new(parent_name))
-    end
-
-    # Returns the ClassSpec for the given type in this class's scope.
-    def type(type)
-      @scope.type(type)
-    end
-
-    # Returns true if the given type exists in this class's scope.
-    def type?(type)
-      @scope.type?(type)
     end
   end
 end

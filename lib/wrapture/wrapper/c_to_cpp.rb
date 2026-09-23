@@ -37,6 +37,12 @@ module Wrapture
         end
       end
 
+      # The name of the C++ class generated for +class_spec+.
+      def self.class_name(class_spec)
+        # TODO: check :cpp entry in sources for override
+        class_spec.upper_camel_case_name
+      end
+
       # Returns a cast of the equivalent member of an instance of the given
       # class with the given name from one type to another.
       def self.cast_equivalent(class_spec, var_name, from, to)
@@ -77,6 +83,17 @@ module Wrapture
         end
       end
 
+      # A CppDeclaration of +const_spec+.
+      def self.constant_declaration(const_spec)
+        name = - const_spec.screaming_snake_case_name
+        value = const_spec.value
+        decl = CppSource::CppDeclaration.new(const_spec.type, name: name,
+                                                              value: value)
+        decl.attributes.push('static', 'const')
+
+        decl
+      end
+
       # Retrieves a conversion proc which converts one source component to
       # another.
       #
@@ -84,19 +101,28 @@ module Wrapture
       # each of the parameters as well as what a converter must do needs to be
       # well-defined, documented, and tested thoroughly.
       def self.converter(from, to, context)
-        context_class = context.owner # assume a FunctionSpec
+        # TODO: remove assumption of a FunctionSpec root with a Class Spec
+        # parent
+        context_class = context.parent.root
 
         if from == :this
-          from = CSource::CPointer.new(type_class_from_spec(context_class))
+          from = CSource::CPointer.new(type_class(context.parent))
         end
 
         if from.is_a?(TypeSpec)
-          from_class = context_class.type(from)
-          unless from_class.nil?
+          # TODO: should be able to directly use the type spec's name_words
+          name_words = Named.words_from_name(from.base)
+          class_name = Named.upper_camel_case_name(name_words)
+          from_context = context.resolve do |it|
+            it.root.upper_camel_case_name == class_name
+          end
+
+          unless from_context.nil?
+            from_type = type_class(from_context)
             from = if from.pointer?
-                     CSource::CPointer.new(type_class_from_spec(from_class))
+                     CSource::CPointer.new(from_type)
                    else
-                     type_class_from_spec(from_class)
+                     from_type
                    end
 
           end
@@ -134,9 +160,7 @@ module Wrapture
           end
         end
 
-        proc {
-          "TODO: conversion from #{from} to #{to} within context #{context}"
-        }
+        nil
       end
 
       # Gives the filename used for the declaration of a given spec.
@@ -144,34 +168,51 @@ module Wrapture
         "#{spec.upper_camel_case_name}.hpp"
       end
 
-      # The headers needed to declare a class. This does not necessarily
-      # match the C includes for a spec. The includes for things like calling
-      # wrapped functions and invoking error handling are not needed for the
-      # declaration. Additional C++ includes may also be present to bring in
-      # type declarations for parameters declared by Wrapture.
-      def self.declaration_includes(class_spec, scope)
-        includes = ["#{CSource::CExportHeader.export_header_name(scope)}pp"]
+      # The headers needed to declare the class rooted at +context+. This does
+      # not necessarily match the C includes for a spec. The includes for
+      # things like calling wrapped functions and invoking error handling are
+      # not needed for the declaration. Additional C++ includes may also be
+      # present to bring in type declarations for parameters declared by
+      # Wrapture.
+      def self.declaration_includes(context)
+        includes = []
 
+        if context.parent?
+          parent_root = context.parent.root
+          base_name = CSource::CExportHeader.export_header_name(parent_root)
+          includes << "#{base_name}pp"
+        end
+
+        class_spec = context.root
         includes.concat(class_spec[:c].includes) if class_spec.source.key?(:c)
 
-        class_spec.functions.each do |func|
+        context.functions.each do |it|
+          func = it.root
+          includes.concat(Wrapper::C.includes(func))
           func.params.each do |param|
             includes.concat(Wrapper::C.includes(param))
 
-            param_type = class_spec.type(param.type)
+            param_type = context.resolve do |it|
+              it.root.upper_camel_case_name == param.type.upper_camel_case_name
+            end
             includes << declaration_filename(param_type) unless param_type.nil?
           end
         end
 
-        class_spec.constants.each do |const|
-          includes.concat(Wrapper::C.includes(const))
+        context.constants.each do |it|
+          includes.concat(Wrapper::C.includes(it))
         end
 
         if class_spec.child?
-          includes.concat(Wrapper::C.includes(class_spec.parent_spec))
+          parent_name = Named.upper_camel_case_name(class_spec.parent)
+          parent_context = context.resolve do |it|
+            it.root.upper_camel_case_name == parent_name
+          end
 
-          parent_spec = class_spec.type(class_spec.parent_name)
-          includes << declaration_filename(parent_spec) unless parent_spec.nil?
+          unless parent_context.nil?
+            includes.concat(Wrapper::C.includes(parent_context.root))
+            includes << declaration_filename(parent_context.root)
+          end
         elsif class_spec.exception?
           includes << 'exception'
         end
@@ -179,57 +220,67 @@ module Wrapture
         includes.uniq
       end
 
-      # Generate a source file with the declaration of a class within a given
-      # context +scope+.
-      def self.declare_class(class_spec, scope)
-        src = CppSource::CppSourceFile.new(header_name(class_spec))
+      # Generate a source file with the declaration of the class at the root of
+      # +context+.
+      def self.declare_class(context)
+        class_spec = context.root
+        src = CppSource::CppSourceFile.new(Cpp.header_name(class_spec))
 
-        guard = header_guard(class_spec)
+        guard = Cpp.header_guard(class_spec)
         src.puts("#ifndef #{guard}")
         src.puts("#define #{guard}")
         src.puts
 
-        declaration_includes(class_spec, scope).sort.each do |inc|
+        declaration_includes(context).sort.each do |inc|
           src << CSource::CInclude.new(inc)
         end
 
-        namespace = scope_namespace(scope)
-        src.puts("namespace #{namespace} {")
+        unless context.parent.nil?
+          src.puts("namespace #{Cpp.context_namespace(context)} {")
+          src.puts
+        end
+
+        src.declare(defined_class(context))
         src.puts
 
-        src.declare(defined_class_from_spec(class_spec, scope))
+        unless context.parent.nil?
+          src.puts("} /* namespace #{Cpp.context_namespace(context)} */")
+          src.puts
+        end
 
-        src.puts
-        src.puts("} /* namespace #{namespace} */")
-        src.puts
         src.puts("#endif /* #{guard} */")
 
         src
       end
 
-      # Adds declarations to a block for the local parameters needed in a
-      # member function wrapper.
-      def self.declare_member_function_locals(blk, func_spec)
+      # Adds declarations to +blk+ for the local parameters needed in a
+      # member function wrapper for the function at the root of +context+.
+      def self.declare_member_function_locals(blk, context)
+        func_spec = context.root
+        class_spec = context.parent.root
+
         blk << 'va_list variadic_args;' if func_spec.variadic?
 
         if wrapper_captures_return?(func_spec)
           return_type = func_spec[:c].return_type
           if return_type.to_s == EQUIVALENT_STRUCT_KEYWORD
-            return_type = C.equivalent_struct(func_spec.owner)
+            return_type = C.equivalent_struct(class_spec)
           end
           if return_type.to_s == EQUIVALENT_POINTER_KEYWORD
-            return_type = C.equivalent_pointer(func_spec.owner)
+            return_type = C.equivalent_pointer(class_spec)
           end
-          blk << CSource::CDeclaration.new(return_type, 'return_val')
-          blk.puts(';')
+          blk.declare(return_type, name: 'return_val')
         end
       end
 
-      # Generate the definition of a constructor that is an alias of another.
+      # Generate the definition of a constructor that is an alias of another,
+      # based on the function at the root of +context+.
       #
       # In C++ an aliased constructor results in a delegating constructor.
-      def self.define_alias_constructor(class_spec, func_spec)
-        class_name = type_class_from_spec(class_spec).name
+      def self.define_alias_constructor(context)
+        func_spec = context.root
+        class_spec = context.parent.root
+        class_name = class_name(class_spec)
 
         func = Wrapture::CppSource::CppFunction.new(class_name)
         func_spec.params.each do |param_spec|
@@ -242,9 +293,7 @@ module Wrapture
             param_type = C.equivalent_pointer(class_spec)
           end
 
-          decl = CppSource::CppDeclaration.new(param_type,
-                                               name: param_name)
-
+          decl = CppSource::CppDeclaration.new(param_type, name: param_name)
           decl.value = param_spec.default_value if param_spec.default_value?
 
           func.params << decl
@@ -257,12 +306,15 @@ module Wrapture
       end
 
       # Generate the definition for a constructor function.
-      def self.define_constructor(class_spec, func_spec)
+      def self.define_constructor(context)
+        class_spec = context.parent.root
+        func_spec = context.root
+
         if func_spec.source.key?(:alias)
-          return define_alias_constructor(class_spec, func_spec)
+          return define_alias_constructor(context)
         end
 
-        class_name = type_class_from_spec(class_spec).name
+        class_name = class_name(class_spec)
 
         # TODO: check for return type equality to wrapped type
         # raise InvalidConstructor if this happens
@@ -300,42 +352,53 @@ module Wrapture
           func.params << decl
         end
 
-        func.puts("#{wrapped_function_call(func_spec)};")
+        func.puts("#{wrapped_function_call(context)};")
 
         wrapped_error_check(func_spec).each { |it| func << it }
 
         func
       end
 
-      # Generate a source file with the definition of a class.
-      def self.define_class(class_spec, scope)
-        unless class_spec.definable?
-          raise UndefinableSpec, "#{class_spec.name} is not definable"
+      # Generate a source file with the definition of the class at the root of
+      # +context+.
+      def self.define_class(context)
+        class_spec = context.root
+
+        definable = context.functions.all? do |it|
+          it.root.source.key?(:c) || it.root.source.key?(:alias)
+        end
+        unless definable
+          msg = "#{class_name(class_spec)} is not definable for C to C++"
+          raise UndefinableSpec, msg
         end
 
-        namespace = scope_namespace(scope)
-        src = CppSource::CppSourceFile.new("#{class_spec.name}.cpp")
+        src = CppSource::CppSourceFile.new(definition_filename(class_spec))
 
-        definition_includes(class_spec, scope).sort.each do |inc|
+        definition_includes(context).sort.each do |inc|
           src << CSource::CInclude.new(inc)
         end
 
-        src.puts("namespace #{namespace} {")
+        unless context.parent.nil?
+          src.puts("namespace #{Cpp.context_namespace(context)} {")
+          src.puts
+        end
+
+        src << defined_class(context)
         src.puts
 
-        src << defined_class_from_spec(class_spec, scope)
-
-        src.puts
-        src.puts("} /* namespace #{namespace} */")
+        unless context.parent.nil?
+          src.puts("} /* namespace #{Cpp.context_namespace(context)} */")
+        end
 
         src
       end
 
-      # Generate a source file with the definition of an enumeration.
-      def self.define_enum(enum_spec, scope)
+      # Generate a source file with the definition of +enum_spec+ within
+      # +context+.
+      def self.define_enum(enum_spec, context)
         src = CppSource::CppSourceFile.new(definition_filename(enum_spec))
 
-        guard = header_guard(enum_spec)
+        guard = Cpp.header_guard(enum_spec)
         src.puts("#ifndef #{guard}")
         src.puts("#define #{guard}")
         src.puts
@@ -344,73 +407,78 @@ module Wrapture
           src << CSource::CInclude.new(inc)
         end
 
-        namespace = scope_namespace(scope)
-
-        src.puts("namespace #{namespace} {")
-        src.puts
+        unless context.nil?
+          src.puts("namespace #{Cpp.context_namespace(context)} {")
+          src.puts
+        end
 
         src << enum_from_spec(enum_spec)
+        src.puts
 
-        src.puts
-        src.puts("} /* namespace #{namespace} */")
-        src.puts
+        unless context.nil?
+          src.puts("} /* namespace #{Cpp.context_namespace(context)} */")
+          src.puts
+        end
+
         src.puts("#endif /* #{guard} */")
 
         src
       end
 
       # Creates a CppClass instance from a ClassSpec, with all members and
-      # functions fully defined, in the given +scope+.
-      def self.defined_class_from_spec(spec, scope)
+      # functions fully defined, in the given +context+.
+      def self.defined_class(context)
+        spec = context.root
+
         # start with the type class, then build out the definitions
-        cls = type_class_from_spec(spec)
+        cls = type_class(context)
         cls.doc = spec.doc
 
         if spec.child?
-          cls.parent_name = spec.parent_name
+          cls.parent_name = Named.upper_camel_case_name(spec.parent)
         elsif spec.exception?
           cls.parent_name = 'std::exception'
         end
 
-        spec.constants.each do |it|
-          decl = CppSource::CppDeclaration.new(it.type, name: it.name,
-                                                        value: it.value)
-          decl.attributes << 'static'
-          decl.attributes << 'const'
-
-          cls.constants << decl
+        context.constants.each do |it|
+          cls.constants << constant_declaration(it.root)
         end
 
-        spec.constructors.each do |it|
-          cls.constructors << define_constructor(spec, it)
+        context.constructors.each do |it|
+          cls.constructors << define_constructor(it)
         end
 
         cls.constructors << member_constructor(spec) if C.wrapped_members?(spec)
 
-        if generate_pointer_copy_constructor?(spec)
-          cls.constructors << pointer_copy_constructor(spec)
+        if generate_pointer_copy_constructor?(context)
+          cls.constructors << pointer_copy_constructor(context)
         end
 
-        if generate_pointer_move_constructor?(spec)
-          cls.constructors << pointer_move_constructor(spec)
+        if generate_pointer_move_constructor?(context)
+          cls.constructors << pointer_move_constructor(context)
         end
 
-        unless spec.destructor.nil?
+        destructor = context.functions.find { |it| it.root.destructor? }
+        unless destructor.nil?
           func = CppSource::CppFunction.new("~#{cls.name}")
-          func << wrapped_function_call(spec.destructor)
-          func << ';'
+          func.statement(wrapped_function_call(destructor))
           cls.destructor = func
         end
 
-        spec.method_specs.each do |meth_spec|
-          cls.member_functions << member_function_from_spec(meth_spec, spec)
+        context.methods.each do |it|
+          cls.member_functions << member_function(it)
         end
 
-        if C.factory?(spec, spec.scope)
-          cls.member_functions << factory_member_function(spec)
+        if C.factory?(context)
+          cls.member_functions << factory_member_function(context)
         end
 
-        cls.attributes << "#{CSource::CExportHeader.base_name(scope)}_EXPORT"
+        export = if context.parent?
+                   context.parent
+                 else
+                   spec
+                 end
+        cls.attributes << CppSource::CppExportHeader.export_macro_name(export)
 
         cls
       end
@@ -422,31 +490,33 @@ module Wrapture
         if forward_declared?(spec)
           "#{spec.upper_camel_case_name}.cpp"
         else
-          header_name(spec)
+          Cpp.header_name(spec)
         end
       end
 
-      # The includes needed in the definition file for the given +class_spec+ in
-      # the given +scope+.
-      def self.definition_includes(class_spec, scope)
+      # The includes needed in the definition file for the spec at the root of
+      # +context+.
+      def self.definition_includes(context)
+        class_spec = context.root
         inc = [declaration_filename(class_spec)]
-        inc.concat(declaration_includes(class_spec, scope))
+        inc.concat(declaration_includes(context))
         inc.concat(C.includes(class_spec))
 
-        if C.factory?(class_spec, class_spec.scope)
-          class_spec.scope.classes.each do |it|
-            inc << declaration_filename(it) if C.overload?(class_spec, it)
-          end
+        C.overloads(context).each do |it|
+          inc << declaration_filename(it.root)
         end
 
-        class_spec.functions.each do |func_spec|
+        context.functions.map(&:root).each do |func_spec|
           next unless func_spec.source.key?(:c)
 
           action = func_spec[:c].error_action
           next if action.nil?
 
-          type = scope.type(action.type)
-          inc << header_name(type) unless type.nil?
+          # TODO: should be able to use raw name words
+          type = context.resolve do |it|
+            it.root.upper_camel_case_name == action.type.base
+          end
+          inc << Cpp.header_name(type.root) unless type.nil?
         end
 
         inc.uniq
@@ -472,9 +542,10 @@ module Wrapture
         enum
       end
 
-      # A static function that generates an instance of an overloaded struct's
-      # class according to the rules that the struct fulfills.
-      def self.factory_member_function(class_spec)
+      # A static function that generates an instance of the factory class at the
+      # root of +context+ according to the rules that the struct fulfills.
+      def self.factory_member_function(context)
+        class_spec = context.root
         factory_name = class_spec.upper_camel_case_name
         func_name = "New#{factory_name}"
         func = CppSource::CppFunction.new(func_name)
@@ -484,18 +555,14 @@ module Wrapture
         equivalent_type = C.equivalent_type(class_spec)
         func.params << CSource::CDeclaration.new(equivalent_type, 'equivalent')
 
-        overload_classes = class_spec.scope.select do |it|
-          C.overload?(class_spec, it)
-        end
-
-        blocks = overload_classes.map do |overload|
+        blocks = C.overloads(context).map do |overload|
           variable_access = if equivalent_type.is_a?(CSource::CPointer)
                               'equivalent->'
                             else
                               'equivalent.'
                             end
 
-          checks = C.equivalent_struct(overload).rules.map do |it|
+          checks = C.equivalent_struct(overload.root).rules.map do |it|
             new_vals = it.vals.dup
             new_vals[0] = "#{variable_access}#{it.vals[0]}"
 
@@ -532,61 +599,52 @@ module Wrapture
         !spec.is_a?(EnumSpec)
       end
 
-      # True if a pointer move constructor should be generated for the given
-      # class.
+      # True if a pointer move constructor should be generated for the class
+      # at the root of +context+.
       #
       # A pointer constructor is generated for a class where the wrapped struct
       # is already a pointer, and no constructor that takes a single pointer of
-      # this type is defined. The pointer constructor sets the wrapped struct
-      # to the parameter, instead of calling any of the constructor functions.
-      def self.generate_pointer_copy_constructor?(class_spec)
+      # this type is defined. The pointer copy constructor sets each member of
+      # the wrapped struct to those of the parameter, instead of calling any of
+      # the constructor functions.
+      def self.generate_pointer_copy_constructor?(context)
+        class_spec = context.root
         type = C.equivalent_type(class_spec)
         return false if type.nil? || !type.is_a?(CSource::CStruct)
 
         pointer_type = C.equivalent_pointer(class_spec)
-        class_spec.constructors.none? do |it|
+        context.constructors.none? do |it|
           # TODO: check for const
-          it.params.length == 1 &&
-            CppSource::CppType.from_spec(it.params.first.type) == pointer_type
+          params = it.root.params
+          params.length == 1 &&
+            CppSource::CppType.from_spec(params.first.type) == pointer_type
         end
       end
 
-      # True if a pointer move constructor should be generated for the given
-      # class.
+      # True if a pointer move constructor should be generated for the class
+      # at the root of +context+.
       #
       # A pointer constructor is generated for a class where the wrapped struct
       # is already a pointer, and no constructor that takes a single pointer of
-      # this type is defined. The pointer constructor sets the wrapped struct
-      # to the parameter, instead of calling any of the constructor functions.
-      def self.generate_pointer_move_constructor?(class_spec)
+      # this type is defined. The pointer move constructor sets the wrapped
+      # struct to the parameter, instead of calling any of the constructor
+      # functions.
+      def self.generate_pointer_move_constructor?(context)
+        class_spec = context.root
         type = C.equivalent_type(class_spec)
         return false if type.nil? || !type.is_a?(CSource::CPointer)
 
-        class_spec.constructors.none? do |it|
-          it.params.length == 1 &&
-            CppSource::CppType.from_spec(it.params.first.type) == type
-        end
-      end
-
-      # The symbol to use for header guard checks.
-      def self.header_guard(spec)
-        "#{spec.screaming_snake_case_name}_HPP"
-      end
-
-      # The name of the header file for a given item.
-      def self.header_name(spec)
-        case spec
-        when ClassSpec, EnumSpec
-          "#{spec.upper_camel_case_name}.hpp"
-        else
-          "#{spec.snake_case_name}.hpp"
+        context.constructors.none? do |it|
+          params = it.root.params
+          params.length == 1 &&
+            (params.first.type.equivalent_pointer? ||
+             CppSource::CppType.from_spec(params.first.type) == type)
         end
       end
 
       # The member constructor for a class spec.
       def self.member_constructor(class_spec)
-        class_name = class_spec.upper_camel_case_name
-        func = Wrapture::CppSource::CppFunction.new(class_name)
+        func = Wrapture::CppSource::CppFunction.new(class_name(class_spec))
 
         func.params.concat(class_spec[:c].members)
 
@@ -598,13 +656,16 @@ module Wrapture
         func
       end
 
-      # Define a member function based on a function spec.
-      def self.member_function_from_spec(spec, context)
+      # Define a member function based on the function at the root of +context+.
+      def self.member_function(context)
+        spec = context.root
+        class_spec = context.parent.root
         func_name = spec.upper_camel_case_name
         func = Wrapture::CppSource::CppFunction.new(func_name)
         return_spec = spec.return_type
         func.return_type = if spec.return_type.self_reference?
-                             CppSource::CppReference.new(type_class_from_spec(context))
+                             ref_type = type_class(context.parent)
+                             CppSource::CppReference.new(ref_type)
                            else
                              CppSource::CppType.from_spec(return_spec)
                            end
@@ -616,9 +677,9 @@ module Wrapture
           param_name = param_spec.name
 
           if param_type.name == EQUIVALENT_STRUCT_KEYWORD
-            param_type = C.equivalent_struct(context)
+            param_type = C.equivalent_struct(class_spec)
           elsif param_type.name == EQUIVALENT_POINTER_KEYWORD
-            param_type = C.equivalent_pointer(context)
+            param_type = C.equivalent_pointer(class_spec)
           end
 
           decl = Wrapture::CppSource::CppDeclaration.new(param_type,
@@ -626,13 +687,13 @@ module Wrapture
           func.params << decl
         end
 
-        declare_member_function_locals(func, spec)
+        declare_member_function_locals(func, context)
 
         if spec.variadic?
           func.puts("va_start( variadic_args, #{spec.params[-2].name} );")
         end
 
-        func.puts("#{wrapped_function_call(spec)};")
+        func.puts("#{wrapped_function_call(context)};")
 
         wrapped_error_check(spec).each { |it| func << it }
 
@@ -648,22 +709,41 @@ module Wrapture
         func
       end
 
-      # True if the provided wrapped param spec can be cast to when used in this
-      # function.
-      def self.param_uses_equivalent?(func_spec, wrapped_param)
-        param = func_spec.params.find { |p| p.name == wrapped_param.value }
+      # A header file for +context+ (with a Namespace root) that includes all
+      # of its contents headers.
+      def self.namespace_context_header(context)
+        namespace = context.root
+        header_name = Cpp.header_name(namespace)
+        header = Wrapture::CppSource::CppSourceFile.new(header_name)
 
-        !param.nil? &&
-          !wrapped_param.c_type.nil? &&
-          func_spec.owner.type?(param.type)
+        guard = Cpp.header_guard(namespace)
+        header.puts("#ifndef #{guard}")
+        header.puts("#define #{guard}")
+        header.puts
+
+        includes = context.contents.filter_map do |it|
+          if it.root.is_a?(ClassSpec) || it.root.is_a?(EnumSpec)
+            Cpp.header_name(it.root)
+          end
+        end
+
+        includes.sort.each do |it|
+          header << CSource::CInclude.new(it)
+        end
+
+        header.puts
+        header.puts("#endif /* #{guard} */")
+
+        header
       end
 
-      # The pointer copy constructor for a class spec, which copies all of the
-      # defined members into the new instance's struct.
+      # The pointer copy constructor for the class at the root of +context+,
+      # which copies all of the defined members into the new instance's struct.
       #
       # This is different from the pointer move constructor, which instead takes
       # ownership of a pointer to an equivalent struct.
-      def self.pointer_copy_constructor(class_spec)
+      def self.pointer_copy_constructor(context)
+        class_spec = context.root
         wrapped_type = C.equivalent_type(class_spec)
         if wrapped_type.nil? || !wrapped_type.is_a?(CSource::CStruct)
           msg = 'wrapped C type must be a struct for a copy constructor ' \
@@ -678,10 +758,10 @@ module Wrapture
         param_decl.attributes << 'const'
         func.params << param_decl
 
-        if C.equivalent_ancestor?(class_spec)
+        if C.equivalent_ancestor?(context)
           # TODO: when equivalent ancestor changes to do more than just the
           # direct parent, this will also need to change
-          parent_name = class_spec.parent_name
+          parent_name = Named.upper_camel_case_name(class_spec.parent)
           func.initializers << "#{parent_name}(equivalent)"
         else
           wrapped_type.members.each do |it|
@@ -692,12 +772,26 @@ module Wrapture
         func
       end
 
-      # The pointer move constructor for a class spec, which takes ownership of
-      # the pointer it is given.
+      # The pointer move constructor for the class spec at the root of
+      # +context+, which takes ownership of the pointer it is given.
       #
       # This is different from the pointer copy constructor, which copies all of
       # the defined members for the argument into a new struct.
-      def self.pointer_move_constructor(class_spec)
+      def self.pointer_move_constructor(context)
+        unless context.is_a?(Context)
+          raise InvalidContext,
+                'a pointer move constructor requires a Context instance'
+        end
+
+        class_spec = context.root
+
+        unless class_spec.is_a?(ClassSpec)
+          msg = 'the root of the Context for a pointer move constructor must ' \
+                'be a ClassSpec'
+          raise InvalidContext, msg
+
+        end
+
         wrapped_type = C.equivalent_type(class_spec)
         if wrapped_type.nil? || !wrapped_type.is_a?(CSource::CPointer)
           msg = 'wrapped C type must be a pointer for a move constructor ' \
@@ -710,10 +804,10 @@ module Wrapture
         pointer_type = C.equivalent_pointer(class_spec)
         func.params << CSource::CDeclaration.new(pointer_type, 'equivalent')
 
-        if C.equivalent_ancestor?(class_spec)
+        if C.equivalent_ancestor?(context)
           # TODO: when equivalent ancestor changes to do more than just the
           # direct parent, this will also need to change
-          parent_name = class_spec.parent_name
+          parent_name = Named.upper_camel_case_name(class_spec.parent)
           func.initializers << "#{parent_name}(equivalent)"
         else
           func << 'this->equivalent = equivalent;'
@@ -742,81 +836,49 @@ module Wrapture
         end
       end
 
-      # Gives an expression for using a given parameter.
+      # Gives an expression for using the C value +param+ in +context+.
       # Equivalent structs and pointers are resolved, as well as casts between
-      # types if they are known within the scope of this function.
-      def self.resolve_wrapped_param(func_spec, param)
+      # types if they are known within the given context.
+      def self.resolve_wrapped_param(param, context)
+        # TODO: handle the assumption that context is not rooted in a FuncSpec
+        func_spec = context.root
         val = param.value
         conversion = if val == EQUIVALENT_STRUCT_KEYWORD
                        val = 'this'
-                       converter(:this, :equivalent_struct, func_spec)
+                       converter(:this, :equivalent_struct, context)
                      elsif val == EQUIVALENT_POINTER_KEYWORD
                        val = 'this'
-                       converter(:this, :equivalent_pointer, func_spec)
+                       converter(:this, :equivalent_pointer, context)
                      elsif val == '...'
-                       converter(:variadic_args, :variadic_args, func_spec)
-                     # TODO: remove this predicate, and rely on the converter
-                     # to make this determination itself
-                     elsif param_uses_equivalent?(func_spec, param)
-                       used_param = func_spec.params.find do |p|
-                         p.name == param.value
+                       converter(:variadic_args, :variadic_args, context)
+                     elsif func_spec.params.any? { |it| it.name == param.value }
+                       used_param = func_spec.params.find do |it|
+                         it.name == param.value
                        end
-                       converter(used_param.type, param.c_type, func_spec)
-                     else
-                       # use the plain param value and hope for the best
-                       proc { |val| val }
+                       converter(used_param.type, param.c_type, context)
                      end
 
-        conversion.call(val)
-      end
-
-      # A header file for the given scope that includes all of its elements'
-      # headers.
-      def self.scope_header(scope)
-        header = Wrapture::CppSource::CppSourceFile.new(header_name(scope))
-
-        guard = header_guard(scope)
-        header.puts("#ifndef #{guard}")
-        header.puts("#define #{guard}")
-        header.puts
-
-        includes = (scope.classes + scope.enums).map do |it|
-          header_name(it)
+        if conversion.nil?
+          # use the plain param value and hope for the best
+          val
+        else
+          conversion.call(val)
         end
-
-        includes.sort.each do |it|
-          header << CSource::CInclude.new(it)
-        end
-
-        header.puts
-        header.puts("#endif /* #{guard} */")
-
-        header
       end
 
-      # The namespace words of a +scope+ that classes and enums within it are a
-      # part of.
-      def self.scope_namespace(scope)
-        words = if scope.decorate_wrapped_name?
-                  Cpp.decorate_name_words(scope.name_words)
-                else
-                  scope.name_words
-                end
-
-        Named.snake_case_name(words)
-      end
-
-      # Creates a CppClass instance from a ClassSpec, with enough information
-      # available to use the class for type conversions.
-      def self.type_class_from_spec(spec)
-        class_name = spec.upper_camel_case_name
+      # Creates a CppClass instance from the ClassSpec at the root of +context+,
+      # with enough information to use the class for type conversions.
+      def self.type_class(context)
+        # TODO: handle the assumption that root is a ClassSpec
+        spec = context.root
+        class_name = class_name(spec)
         cls = Wrapture::CppSource::CppClass.new(class_name)
 
-        if C.equivalent_member?(spec)
+        if C.equivalent_member?(context)
           eqv = Wrapture::CSource::CDeclaration.new(spec[:c], 'equivalent')
           cls.data_members << eqv
           cls.equivalent_member = eqv
-        elsif C.equivalent_ancestor?(spec)
+        elsif C.equivalent_ancestor?(context)
           eqv = Wrapture::CSource::CDeclaration.new(spec[:c], 'equivalent')
           cls.equivalent_member = eqv
         end
@@ -824,59 +886,64 @@ module Wrapture
         cls
       end
 
-      # Generates a build for a C++ library wrapping a class.
-      def self.wrap_class(class_spec, scope: Scope.new)
+      # Generates a CppSourceSet for a C++ library wrapping a +context+ with a
+      # ClassSpec root.
+      def self.wrap_class_context(context)
+        class_spec = context.root
         set = CppSource::CppSourceSet.new(class_spec.name)
 
-        set.add_lib_header(declare_class(class_spec, scope))
-        set.add_lib_source(define_class(class_spec, scope))
-
-        class_spec.libraries.each do |lib|
-          set.add_lib_link(lib)
-        end
+        set.add_lib_header(declare_class(context))
+        set.add_lib_source(define_class(context))
 
         set
       end
 
-      # Generates a build for a C++ library wrapping the provided EnumSpec.
-      def self.wrap_enum(enum_spec, scope: nil)
+      # Generates a build for a C++ library wrapping a +context+ with an enum
+      # root.
+      def self.wrap_enum_context(context)
+        enum_spec = context.root
+
         unless enum_spec.is_a?(EnumSpec)
           raise InvalidSpec, 'only EnumSpec instances can be wrapped as enums'
         end
 
         build = CppSource::CppSourceSet.new(enum_spec.name)
-
-        scope = enum_spec.scope if scope.nil?
-        build.add_lib_header(define_enum(enum_spec, scope))
+        build.add_lib_header(define_enum(enum_spec, context))
 
         build
       end
 
-      # Generates a build for a C++ library wrapping the provided scope.
-      #
-      # +scope+ describes all of the classes and other entities that will be
-      # wrapped. These will all be put into a namespace named after the scope.
-      # In addition to the headers for each class and enumeration in the scope,
-      # a header will be generated for this namespace, which includes all of
-      # the items in it.
-      def self.wrap_scope(scope)
-        name_words = if scope.decorate_wrapped_name?
-                       Cpp.decorate_name_words(scope.name_words)
-                     else
-                       scope.name_words
-                     end
-        name = name_words.map(&:downcase).join
-        source_set = CppSource::CppSourceSet.new(name)
+      # Generates a build for a C++ library wrapping +context+ with a root
+      # namespace.
+      def self.wrap_namespace_context(context)
+        namespace = context.root
+        source_set_name = Cpp.namespace_name(namespace)
+        source_set = CppSource::CppSourceSet.new(source_set_name)
 
-        scope.each do |scope_member|
-          source_set << wrap(scope_member, scope: scope)
+        source_set.add_lib_header(namespace_context_header(context))
+
+        export = CppSource::CppExportHeader.from_spec(namespace)
+        source_set.add_lib_header(export)
+
+        context.classes.each do |it|
+          source_set << wrap_class_context(it)
         end
 
-        source_set.add_lib_header(scope_header(scope))
+        context.constants.each do |it|
+          source_set << wrap_constant_context(it)
+        end
 
-        export_name = "#{CSource::CExportHeader.export_header_name(scope)}pp"
-        export = CSource::CExportHeader.from_spec(scope, path: export_name)
-        source_set.add_lib_header(export)
+        context.enums.each do |it|
+          source_set << wrap_enum_context(it)
+        end
+
+        context.functions.each do |it|
+          source_set << wrap_function_context(it)
+        end
+
+        context.namespaces.each do |it|
+          source_set << wrap_namespace_context(it)
+        end
 
         source_set
       end
@@ -905,11 +972,14 @@ module Wrapture
         [check_blk]
       end
 
-      # The expression containing the call to the underlying wrapped function.
-      def self.wrapped_function_call(func_spec)
+      # The expression containing the call to the C function wrapped by the
+      # function spec at the root of +context+.
+      def self.wrapped_function_call(context)
+        # TODO: handle the assumption that the root is a FuncSpec
+        func_spec = context.root
         wrapped = func_spec[:c]
         params = wrapped.params.map do |it|
-          resolve_wrapped_param(func_spec, it)
+          resolve_wrapped_param(it, context)
         end
         wrapped_call = "#{wrapped.name}(#{params.join(', ')})"
 

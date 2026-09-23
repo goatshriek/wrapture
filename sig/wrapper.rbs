@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-# Copyright 2025 Joel E. Anderson
+# Copyright 2025-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,9 +18,14 @@ module Wrapture
   module Wrapper
     def from_language: () -> Symbol
     def to_language: () -> Symbol
-    def wrap: ((Wrapture::ClassSpec | Wrapture::EnumSpec | Wrapture::Scope), ?Scope) -> Wrapture::Build
+    def wrap: ((ClassSpec | ConstantSpec | EnumSpec | FunctionSpec | Namespace | Context)) -> SourceSet
+    def wrap_class: (ClassSpec | Context) -> SourceSet
+    def wrap_constant: (ConstantSpec | Context) -> SourceSet
+    def wrap_enum: (EnumSpec | Context) -> SourceSet
+    def wrap_function: (FunctionSpec | Context) -> SourceSet
+    def wrap_namespace: (Namespace | Context) -> SourceSet
   end
 
   WRAPPERS: Array[Wrapture::Wrapper]
-  def self.paths: (?from: (Symbol | Array[Symbol]), ?to: (Symbol | Array[Symbol]), ?modules: Array[Wrapture::Wrapper]) -> Array[Wrapture::Wrapper]
+  def self.paths: (?from: (Symbol | Array[Symbol]), ?to: (Symbol | Array[Symbol]), ?modules: Array[Wrapper]) -> Array[Wrapper]
 end

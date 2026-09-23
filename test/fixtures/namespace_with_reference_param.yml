@@ -14,16 +14,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+name: [wrapture, test]
 classes:
   - name: "Bullet"
-    namespace: "wrapture_test"
     source:
       c:
         name: "bullet_struct"
         includes: "bullet_struct.h"
     type: "pointer"
   - name: "Rifle"
-    namespace: "wrapture_test"
     source:
       c:
         name: "rifle_struct"
@@ -34,7 +33,7 @@ classes:
           - name: "bullet"
             type: "Bullet&"
         return:
-          type: "self-reference"
+          type: "self_reference"
         source:
           c:
             name: "load_rifle_with_bullet"
