@@ -30,6 +30,7 @@ module Wrapture
     attr_accessor namespace: String?
     attr_reader source: Hash[Symbol, untyped] | nil
 
+    def self.element_from_hash: (spec_hash) -> spec_hash
     def self.from_hash: (spec_hash spec) -> EnumSpec
     def self.normalize_spec_hash: (spec_hash spec) -> spec_hash
     def self.normalize_spec_hash!: (spec_hash spec) -> spec_hash

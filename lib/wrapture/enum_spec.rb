@@ -40,9 +40,28 @@ module Wrapture
     # A map of language-specific wrapping details.
     attr_reader :source
 
+    # Creates an EnumSpec element from hash +spec+.
+    def self.element_from_hash(spec)
+      element = { name: Wrapture.normalize_name(spec, :name) }
+      element[:doc] = Comment.new(spec[:doc]) if spec.key?(:doc)
+
+      if spec.key?(:source) && spec[:source].key?(:c)
+        element[:source] = { c: {} }
+
+        if spec[:source][:c].key?(:value)
+          element[:source][:c][:value] = spec[:source][:c][:value]
+        end
+
+        inc = Wrapture.normalize_array(spec[:source][:c].fetch(:includes, nil))
+        element[:source][:c][:includes] = inc
+      end
+
+      element
+    end
+
     # Creates a new EnumSpec from hash +spec+.
     def self.from_hash(spec)
-      if spec&.key?(:version) && !Wrapture.supports_version?(spec[:version])
+      unless Wrapture.supports_version?(spec.fetch(:version, Wrapture::VERSION))
         raise UnsupportedSpecVersion
       end
 
@@ -72,20 +91,7 @@ module Wrapture
       end
 
       spec[:elements].each do |it|
-        element = { name: Wrapture.normalize_name(it, :name) }
-        element[:doc] = Comment.new(it[:doc]) if it.key?(:doc)
-        if it.key?(:source) && it[:source].key?(:c)
-          element[:source] = { c: {} }
-
-          if it[:source][:c].key?(:value)
-            element[:source][:c][:value] = it[:source][:c][:value]
-          end
-
-          inc = Wrapture.normalize_array(it[:source][:c].fetch(:includes, nil))
-          element[:source][:c][:includes] = inc
-        end
-
-        enum.elements << element
+        enum.elements << element_from_hash(it)
       end
 
       enum
