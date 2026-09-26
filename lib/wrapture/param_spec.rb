@@ -142,7 +142,7 @@ module Wrapture
 
     # True if this param has a default value.
     def default_value?
-      @default_value.nil?
+      !@default_value.nil?
     end
 
     # True if this parameter is variadic (the name is equal to '...').

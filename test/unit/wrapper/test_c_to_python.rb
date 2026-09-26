@@ -107,8 +107,28 @@ class CToPythonTest < Minitest::Test
     refute(Wrapture::Wrapper::CToPython.constructors_overloaded?(context))
   end
 
+  def test_parse_tuple_call
+    ns_hash = fixture_hash('namespace_with_class_and_enum')
+    context = Wrapture::Context.from_namespace_hash(ns_hash)
+    func = context.classes.first.functions.first
+    call = Wrapture::Wrapper::CToPython.parse_tuple_call(func)
+
+    refute_nil(call)
+    assert_includes(call, 'thing_to_do')
+  end
+
   def test_to_language
     assert_equal(:python, Wrapture::Wrapper::CToPython.to_language)
+  end
+
+  def test_wrapped_function_call
+    ns_hash = fixture_hash('namespace_with_class_and_enum')
+    context = Wrapture::Context.from_namespace_hash(ns_hash)
+    func = context.classes.first.functions.first
+    call = Wrapture::Wrapper::CToPython.wrapped_function_call(func)
+
+    refute_nil(call)
+    assert_includes(call, 'thing_to_do')
   end
 
   def test_wrapper_of_overloaded_constructors
@@ -123,5 +143,18 @@ class CToPythonTest < Minitest::Test
     refute_nil(func)
     refute_equal('overloaded_constructor_class_init', func.name,
                  'an overloaded constructor wrapper name was not unique')
+  end
+
+  def test_wrapper_param_locals
+    ns_hash = fixture_hash('cmake_c_library')
+    context = Wrapture::Context.from_namespace_hash(ns_hash)
+    func = context.classes.first.functions.first
+    locals = Wrapture::Wrapper::CToPython.wrapper_param_locals(func)
+
+    refute_nil(locals)
+    assert_kind_of(Array, locals)
+    refute_empty(locals)
+    assert(locals.any? { |it| it.name == 'n1' })
+    assert(locals.any? { |it| it.name == 'n2' })
   end
 end

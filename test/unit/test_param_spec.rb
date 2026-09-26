@@ -33,6 +33,7 @@ class ParamSpecTest < Minitest::Test
     param_spec = Wrapture::ParamSpec.from_hash(param_hash)
 
     refute_nil(param_spec)
+    assert_predicate(param_spec, :default_value?)
     assert_equal(default_value, param_spec.default_value)
   end
 

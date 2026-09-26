@@ -30,6 +30,9 @@ classes:
         includes: "basic_struct.h"
     functions:
       - name: "do_stuff"
+        params:
+          - name: ["thing", "to", "do"]
+            type: "int"
         return:
           type: "self_reference"
         source:
@@ -37,3 +40,4 @@ classes:
             name: "do_stuff_with_basic_struct"
             params:
               - value: "equivalent-struct-pointer"
+              - value: "thing_to_do"

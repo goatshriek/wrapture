@@ -1213,7 +1213,7 @@ module Wrapture
 
         func_spec = context.root
         types = if func_spec.params?
-                  func_spec.params.map { |p| p.type.base }.join('_')
+                  func_spec.params.map { |p| p.type_spec.base }.join('_')
                 else
                   'no_args'
                 end
@@ -1224,11 +1224,13 @@ module Wrapture
       # True if the provided +wrapped_param+ can be cast to when used in the
       # function at the root of +context+.
       def self.param_uses_equivalent?(context, wrapped_param)
-        param = context.root.params.find { |p| p.name == wrapped_param.value }
+        param = context.root.params.find do |p|
+          p.snake_case_name == wrapped_param.value
+        end
 
         !param.nil? &&
           !wrapped_param.c_type.nil? &&
-          !context.resolve_name(param.type.name_words).nil?
+          !context.resolve_name(param.type_spec.name_words).nil?
       end
 
       # The expression containing the call to PyArg_ParseTuple to parse the
@@ -1323,7 +1325,9 @@ module Wrapture
       # this function.
       def self.resolve_wrapped_param(context, param)
         func_spec = context.root
-        used_param = func_spec.params.find { |p| p.name == param.value }
+        used_param = func_spec.params.find do |p|
+          p.snake_case_name == param.value
+        end
 
         if param.value == EQUIVALENT_STRUCT_KEYWORD
           class_struct(context.parent)
@@ -1332,8 +1336,9 @@ module Wrapture
         elsif param.value == '...'
           'variadic_args'
         elsif param_uses_equivalent?(context, param)
-          param_class = context.resolve_name(used_param.type.name_words).root
-          cast_equivalent(param_class, used_param.name, param.c_type)
+          type_name = used_param.type_spec.name_words
+          param_class = context.resolve_name(type_name).root
+          cast_equivalent(param_class, used_param.snake_case_name, param.c_type)
         else
           param.value
         end
@@ -1525,7 +1530,7 @@ module Wrapture
                          end
                        end
 
-          CSource::CDeclaration.new(local_type, param_spec.name)
+          CSource::CDeclaration.new(local_type, param_spec.snake_case_name)
         end
       end
 

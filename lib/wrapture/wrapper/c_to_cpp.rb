@@ -337,7 +337,7 @@ module Wrapture
         func = Wrapture::CppSource::CppFunction.new(class_name)
         func_spec.params.each do |param_spec|
           param_type = param_spec.type_spec
-          param_name = param_spec.name
+          param_name = param_spec.snake_case_name
 
           if param_type.name == EQUIVALENT_STRUCT_KEYWORD
             param_type = C.equivalent_struct(class_spec)
@@ -852,9 +852,11 @@ module Wrapture
                        converter(:this, :equivalent_pointer, context)
                      elsif val == '...'
                        converter(:variadic_args, :variadic_args, context)
-                     elsif func_spec.params.any? { |it| it.name == param.value }
+                     elsif func_spec.params.any? do |it|
+                       it.snake_case_name == param.value
+                     end
                        used_param = func_spec.params.find do |it|
-                         it.name == param.value
+                         it.snake_case_name == param.value
                        end
                        converter(used_param.type_spec, param.c_type, context)
                      end
