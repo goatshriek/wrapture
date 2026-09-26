@@ -1,22 +1,38 @@
+# SPDX-License-Identifier: Apache-2.0
+
+# Copyright 2026 Joel E. Anderson
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 module Wrapture
   class ParamSpec
-    @spec: spec_hash
-    @type: Wrapture::TypeSpec
+    include Named
 
-    def self.new_list: (untyped spec_list) -> untyped
-    def self.normalize_param_list: (untyped spec_list) -> Array[bot]
-    def self.normalize_spec_hash: (untyped spec) -> untyped
-    def self.normalize_spec_hash!: (untyped spec) -> untyped
-    def self.signature: (untyped param_list, untyped owner) -> String
+    @default_value: String | nil
+    @doc: Comment
+    @name_words: Array[String]
+    @type_spec: TypeSpec
 
-    attr_reader type: Wrapture::TypeSpec
+    attr_accessor default_value: String | nil
+    attr_accessor doc: Comment
+    attr_reader name_words: Array[String]
+    attr_accessor type_spec: TypeSpec
 
-    def initialize: (untyped spec) -> untyped
-    def default_value: -> String
+    def self.from_hash: (spec_hash) -> ParamSpec
+    def self.from_hashes: (Enumerable[spec_hash]) -> Array[ParamSpec]
+
+    def initialize: (String | Array[String], TypeSpec) -> void
     def default_value?: -> bool
-    def doc: -> Wrapture::Comment
-    def includes: -> untyped
-    def name: -> String
     def variadic?: -> bool
   end
 end

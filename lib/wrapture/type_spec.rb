@@ -27,6 +27,11 @@ module Wrapture
   class TypeSpec
     include Named
 
+    # Creates a new ParamSpec from the hash +spec_hash+.
+    def self.from_hash(spec_hash)
+      new(spec_hash)
+    end
+
     # Returns a normalized copy of the hash specification of a type in +spec+.
     # See normalize_spec_hash! for details.
     def self.normalize_spec_hash(spec)

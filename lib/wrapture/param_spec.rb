@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2020-2025 Joel E. Anderson
+# Copyright 2020-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,12 +21,47 @@
 require 'wrapture/type_spec'
 
 module Wrapture
-  # A description of a parameter used in a generated function.
+  # A description of a parameter used in a function.
   class ParamSpec
-    # Returns a list of new ParamSpecs based on the provided array of parameter
-    # specification hashes.
-    def self.new_list(spec_list)
-      spec_list.map { |spec| new(spec) }
+    include Named
+
+    # The default value for the parameter, or nil if there is not one.
+    attr_accessor :default_value
+
+    # The documentation for the parameter.
+    attr_accessor :doc
+
+    # The name words that make up the parameter name.
+    attr_reader :name_words
+
+    # The type of the parameter.
+    attr_accessor :type_spec
+
+    # Creates a new ParamSpec from the hash +spec_hash+.
+    #
+    # The hash must have a +:name+ key with a String or Enumerable of strings as
+    # the value, which will be used as the name of the ParamSpec. It also must
+    # have a +:type+ key, the value of which will be passed to
+    # TypeSpec::from_hash to construct the type.
+    def self.from_hash(spec_hash)
+      unless spec_hash.key?(:name)
+        raise(MissingSpecKey, 'ParamSpec hashes must have a :name key')
+      end
+
+      unless spec_hash.key?(:type)
+        raise(MissingSpecKey, 'ParamSpec hashes must have a :type key')
+      end
+
+      spec = new(spec_hash[:name], TypeSpec.new(spec_hash[:type]))
+      spec.default_value = spec_hash.fetch(:default_value, nil)
+
+      spec
+    end
+
+    # Creages an Array of new ParamSpecs from the provided Enumerable of
+    # hashes.
+    def self.new_list(spec_hashes)
+      spec_hashes.map { |it| from_hash(it) }
     end
 
     # Returns a normalized copy of a list of parameter hash specifications in
@@ -89,47 +124,30 @@ module Wrapture
       end
     end
 
-    # The type of the parameter.
-    attr_reader :type
+    # A parameter must have a +name+ and +type_spec+, and starts with a nil
+    # default_value and an empty doc Comment. +type_spec+ will be used directly
+    # if it is a TypeSpec instance, otherwise it is passed to the TypeSpec
+    # constructor.
+    def initialize(name, type_spec)
+      @name_words = Named.words_from_name(name)
+      @type_spec = if type_spec.is_a?(TypeSpec)
+                     type_spec
+                   else
+                     TypeSpec.new(type_spec)
+                   end
 
-    # Creates a parameter specification based on the provided hash spec.
-    def initialize(spec)
-      @spec = ParamSpec.normalize_spec_hash(spec)
-      @type = TypeSpec.new(@spec[:type])
-    end
-
-    # The default value of the parameter.
-    def default_value
-      @spec[:default_value]
+      @default_value = nil
+      @doc = Comment.new
     end
 
     # True if this param has a default value.
     def default_value?
-      @spec.key?(:default_value)
-    end
-
-    # A Comment holding the parameter documentation.
-    def doc
-      if @spec.key?(:doc)
-        Comment.new("@param #{@spec[:name]} #{@spec[:doc]}")
-      else
-        Comment.new
-      end
-    end
-
-    # A list of includes needed for this parameter.
-    def includes
-      @spec[:includes].dup.concat(@type.includes)
-    end
-
-    # The name of the parameter.
-    def name
-      @spec[:name]
+      @default_value.nil?
     end
 
     # True if this parameter is variadic (the name is equal to '...').
     def variadic?
-      @type.variadic?
+      @type_spec.variadic?
     end
   end
 end

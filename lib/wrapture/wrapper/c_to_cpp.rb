@@ -192,8 +192,9 @@ module Wrapture
           func.params.each do |param|
             includes.concat(Wrapper::C.includes(param))
 
+            param_name = param.type_spec.upper_camel_case_name
             param_type = context.resolve do |it|
-              it.root.upper_camel_case_name == param.type.upper_camel_case_name
+              it.root.upper_camel_case_name == param_name
             end
             includes << declaration_filename(param_type) unless param_type.nil?
           end
@@ -335,7 +336,7 @@ module Wrapture
 
         func = Wrapture::CppSource::CppFunction.new(class_name)
         func_spec.params.each do |param_spec|
-          param_type = param_spec.type
+          param_type = param_spec.type_spec
           param_name = param_spec.name
 
           if param_type.name == EQUIVALENT_STRUCT_KEYWORD
@@ -617,7 +618,7 @@ module Wrapture
           # TODO: check for const
           params = it.root.params
           params.length == 1 &&
-            CppSource::CppType.from_spec(params.first.type) == pointer_type
+            CppSource::CppType.from_spec(params.first.type_spec) == pointer_type
         end
       end
 
@@ -637,8 +638,8 @@ module Wrapture
         context.constructors.none? do |it|
           params = it.root.params
           params.length == 1 &&
-            (params.first.type.equivalent_pointer? ||
-             CppSource::CppType.from_spec(params.first.type) == type)
+            (params.first.type_spec.equivalent_pointer? ||
+             CppSource::CppType.from_spec(params.first.type_spec) == type)
         end
       end
 
@@ -673,8 +674,8 @@ module Wrapture
         func.virtual = spec.virtual?
 
         spec.params.each do |param_spec|
-          param_type = param_spec.type
-          param_name = param_spec.name
+          param_type = param_spec.type_spec
+          param_name = param_spec.snake_case_name
 
           if param_type.name == EQUIVALENT_STRUCT_KEYWORD
             param_type = C.equivalent_struct(class_spec)
@@ -855,7 +856,7 @@ module Wrapture
                        used_param = func_spec.params.find do |it|
                          it.name == param.value
                        end
-                       converter(used_param.type, param.c_type, context)
+                       converter(used_param.type_spec, param.c_type, context)
                      end
 
         if conversion.nil?

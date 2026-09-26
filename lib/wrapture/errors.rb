@@ -40,6 +40,10 @@ module Wrapture
   class InvalidDoc < WraptureError
   end
 
+  # A name was invalid.
+  class InvalidName < WraptureError
+  end
+
   # A rule condition was provided that was not recognized.
   class InvalidRuleCondition < WraptureError
   end
@@ -51,6 +55,7 @@ module Wrapture
   end
 
   # The spec has a key that is not valid.
+  # TODO: rename to InvalidSpecHashKey
   class InvalidSpecKey < WraptureError
     # Creates an InvalidSpecKey with the given message. A list of valid values
     # may optionally be passed to +valid_keys+ which will be added to the end

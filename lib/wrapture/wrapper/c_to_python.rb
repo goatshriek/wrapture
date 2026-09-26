@@ -781,13 +781,11 @@ module Wrapture
       # The format string to use for the function at the root of +context+.
       def self.function_arg_parse_format(context)
         required_args = context.root.required_params.map do |it|
-          it.type.to_s
+          it.type_spec.to_s
         end
         optional_args = context.root.optional_params.map do |it|
-          it.type.to_s
+          it.type_spec.to_s
         end
-        # puts required_args
-        # puts optional_args
         arg_parse_format(required_args, optional_args)
       end
 
@@ -846,9 +844,9 @@ module Wrapture
       def self.initialize_optional_params(blk, func_spec)
         func_spec.optional_params.each do |param_spec|
           assignment = "#{param_spec.name} = "
-          assignment += if param_spec.type.name == 'const char *'
+          assignment += if param_spec.type_spec.name == 'const char *'
                           "\"#{param_spec.default_value}\""
-                        elsif param_spec.type.name.end_with?('char')
+                        elsif param_spec.type_spec.name.end_with?('char')
                           "'#{param_spec.default_value}'"
                         else
                           param_spec.default_value.to_s
@@ -1507,10 +1505,10 @@ module Wrapture
       def self.wrapper_param_locals(context)
         func_spec = context.root
         func_spec.params.map do |param_spec|
-          param_type = param_spec.type
+          param_type = param_spec.type_spec
           local_type = if param_type.equivalent_struct?
                          C.equivalent_struct(context.parent.root)
-                       elsif param_spec.type.equivalent_pointer?
+                       elsif param_spec.type_spec.equivalent_pointer?
                          C.equivalent_pointer(context.parent.root)
                        else
                          name_words = Named.words_from_name(param_type.base)
@@ -1520,7 +1518,7 @@ module Wrapture
                          end
 
                          if type_context.nil?
-                           CSource::CType.new(param_spec.type.name)
+                           CSource::CType.new(param_spec.type_spec.name)
                          else
                            struct_name = type_struct_name(type_context.root)
                            CSource::CPointer.new(struct_name)

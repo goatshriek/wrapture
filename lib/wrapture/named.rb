@@ -35,21 +35,43 @@ module Wrapture
       name_words.map(&:capitalize).join
     end
 
-    # Attempts to split a given name into its words.
+    # Checks +name+ to see if it can be used in Named.words_from_name. Raises
+    # InvalidName if not.
+    def self.validate(name)
+      if name.nil?
+        raise InvalidName, 'names may not be nil'
+      elsif name.is_a?(Enumerable)
+        unless name.all? { |it| it.respond_to?(:to_str) }
+          raise InvalidName,
+                'all elements in an Enumerable name must respond to to_str'
+        end
+        if name.all? { |it| it.to_str.empty? }
+          raise InvalidName, 'names may not be empty'
+        end
+      elsif !name.respond_to?(:to_str)
+        raise InvalidName, 'names must be Enumerable or respond to to_str'
+      elsif name.to_str.empty?
+        raise InvalidName, 'names may not be empty'
+      end
+    end
+
+    # Splits +name+ into an Array of words.
     def self.words_from_name(name)
+      validate(name)
+
       case name
-      when nil
-        []
+      when Enumerable
+        name.map(&:to_str).map(&:downcase)
       when /^[a-z0-9]+$/
-        [name]
+        [name.to_str]
       when /^[A-Z0-9]+$/
-        [name.downcase]
+        [name.to_str.downcase]
       when /[a-zA-Z0-9]+(_[a-zA-Z0-9]+)+/
-        name.split('_').map(&:downcase)
+        name.to_str.split('_').map(&:downcase)
       else
         # match all CamelCase strings, including preceding capital letters
         # if the start is a lowercase word, this will be the first part
-        name.scan(/[A-Z]*[^A-Z]*/).flat_map do |s|
+        name.to_str.scan(/[A-Z]*[^A-Z]*/).flat_map do |s|
           # next, split out the preceding capital letters, if any
           s.partition(/[A-Z][^A-Z]*$/)
         end.reject(&:empty?).map(&:downcase) # and finally, remove empty strings
@@ -57,11 +79,13 @@ module Wrapture
     end
 
     # The raw name, obtained by joining all parts.
+    # TODO: remove
     def raw_name
       name_words.join
     end
 
     # The default name is the raw one.
+    # TODO: removed
     alias name raw_name
 
     # The name in SCREAMING_SNAKE_CASE.

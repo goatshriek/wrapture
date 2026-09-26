@@ -165,7 +165,9 @@ module Wrapture
                 end
 
                 spec_includes
-              when ConstantSpec, ParamSpec, TypeSpec
+              when ParamSpec
+                includes(spec.type_spec)
+              when ConstantSpec, TypeSpec
                 # TODO: this should be refactored to use a wrapped :c key
                 spec.includes
               else

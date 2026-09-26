@@ -23,6 +23,44 @@ require 'minitest/autorun'
 require 'wrapture'
 
 class NamedTest < Minitest::Test
+  def test_validate_array_of_ints
+    assert_raises(Wrapture::InvalidName) do
+      Wrapture::Named.validate([1, 2, 3])
+    end
+  end
+
+  def test_validate_array_of_empty_strings
+    assert_raises(Wrapture::InvalidName) do
+      Wrapture::Named.validate(['', '', ''])
+    end
+  end
+
+  def test_validate_array_of_strings
+    Wrapture::Named.validate(%w[one two three])
+  end
+
+  def test_validate_empty_string
+    assert_raises(Wrapture::InvalidName) do
+      Wrapture::Named.validate('')
+    end
+  end
+
+  def test_validate_int
+    assert_raises(Wrapture::InvalidName) do
+      Wrapture::Named.validate(3)
+    end
+  end
+
+  def test_validate_nil
+    assert_raises(Wrapture::InvalidName) do
+      Wrapture::Named.validate(nil)
+    end
+  end
+
+  def test_validate_snake_case_string
+    Wrapture::Named.validate('this_name_is_fine')
+  end
+
   def test_words_from_lower_camel_case
     name = 'lowerCamelCaseName'
     words = Wrapture::Named.words_from_name(name)
@@ -30,8 +68,10 @@ class NamedTest < Minitest::Test
     assert_equal(%w[lower camel case name], words)
   end
 
-  def test_words_from_nil
-    assert_equal([], Wrapture::Named.words_from_name(nil))
+  def test_words_from_array
+    words = Wrapture::Named.words_from_name(%w[LOTS oF Words])
+
+    assert_equal(%w[lots of words], words)
   end
 
   def test_words_from_screaming_snake_case

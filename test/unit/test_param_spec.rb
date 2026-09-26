@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2020-2025 Joel E. Anderson
+# Copyright 2020-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,17 +23,36 @@ require 'minitest/autorun'
 require 'wrapture'
 
 class ParamSpecTest < Minitest::Test
-  def test_missing_type
-    test_spec = fixture_hash('invalid/param_missing_type')
+  def test_from_hash_default_value
+    default_value = 'default_value'
+    param_hash = {
+      name: %w[param with default value],
+      type: 'something',
+      default_value: default_value
+    }
+    param_spec = Wrapture::ParamSpec.from_hash(param_hash)
 
+    refute_nil(param_spec)
+    assert_equal(default_value, param_spec.default_value)
+  end
+
+  def test_from_hash_missing_name
     error = assert_raises(Wrapture::MissingSpecKey) do
-      Wrapture::ParamSpec.new(test_spec)
+      Wrapture::ParamSpec.from_hash({ type: 'void' })
     end
 
-    assert_includes(error.message, 'type')
+    assert_includes(error.message, ':name')
+  end
+
+  def test_from_hash_missing_type
+    error = assert_raises(Wrapture::MissingSpecKey) do
+      Wrapture::ParamSpec.from_hash({ name: %w[no type here] })
+    end
+
+    assert_includes(error.message, ':type')
   end
 
   def test_variadic_parameter
-    Wrapture::ParamSpec.new({ name: '...' })
+    Wrapture::ParamSpec.new(%w[variadic param], '...')
   end
 end

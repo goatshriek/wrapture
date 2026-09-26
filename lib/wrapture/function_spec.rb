@@ -64,7 +64,7 @@ module Wrapture
 
     # Creates a new FunctionSpec from hash +spec+.
     #
-    # The hash must have a 'name' key with the name of the function, either as
+    # The hash must have a +:name+ key with the name of the function, either as
     # a +String+ or an +Array+ of name words. The remaining keys are optional.
     #
     # The +:params+ key is an +Array+ of parameters for the function. Each entry

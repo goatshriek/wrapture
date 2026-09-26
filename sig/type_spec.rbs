@@ -20,6 +20,7 @@ module Wrapture
 
     @spec: spec_hash
 
+    def self.from_hash: (spec_hash) -> TypeSpec
     def self.normalize_spec_hash: (spec_hash | String spec) -> spec_hash
     def self.normalize_spec_hash!: (spec_hash | String spec) -> spec_hash
     def initialize: (?String spec) -> untyped

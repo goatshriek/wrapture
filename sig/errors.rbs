@@ -33,6 +33,9 @@ module Wrapture
   class InvalidDoc < WraptureError
   end
 
+  class InvalidName < WraptureError
+  end
+
   class InvalidTemplateUsage < WraptureError
   end
 
