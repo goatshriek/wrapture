@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2020-2025 Joel E. Anderson
+# Copyright 2020-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -27,27 +27,16 @@ module Wrapture
   class TypeSpec
     include Named
 
+    # The name words that make up the parameter name.
+    attr_reader :name_words
+
     # Creates a new ParamSpec from the hash +spec_hash+.
     def self.from_hash(spec_hash)
-      new(spec_hash)
-    end
+      unless spec_hash.key?(:name)
+        raise(MissingSpecKey, 'ParamSpec hashes must have a :name key')
+      end
 
-    # Returns a normalized copy of the hash specification of a type in +spec+.
-    # See normalize_spec_hash! for details.
-    def self.normalize_spec_hash(spec)
-      normalize_spec_hash!(Marshal.load(Marshal.dump(spec)))
-    end
-
-    # Normalizes the hash specification of a type in +spec+ in place. This will
-    # normalize the include list.
-    def self.normalize_spec_hash!(spec)
-      spec[:includes] = if spec.key?(:includes)
-                          Wrapture.normalize_array(spec[:includes])
-                        else
-                          []
-                        end
-      spec[:name] = Wrapture.normalize_name(spec, :name)
-      spec
+      new(spec_hash[:name])
     end
 
     # Creates a type specification based on the provided hash +spec+.
@@ -60,14 +49,8 @@ module Wrapture
     # instead use a 'function' key that contains a FunctionSpec specification.
     # This specification does not need to be definable, it only needs to have
     # a parameter list and return type for the signature to be clear.
-    def initialize(spec = 'void')
-      actual_spec = if spec.is_a?(String)
-                      { name: spec }
-                    else
-                      spec
-                    end
-
-      @spec = TypeSpec.normalize_spec_hash(actual_spec)
+    def initialize(name)
+      @name_words = Named.words_from_name(name)
     end
 
     # Compares this TypeSpec with +other+. Comparison happens by converting each
@@ -85,12 +68,12 @@ module Wrapture
 
     # True if this type is an equivalent struct pointer reference.
     def equivalent_pointer?
-      name == EQUIVALENT_POINTER_KEYWORD
+      snake_case_name == EQUIVALENT_POINTER_KEYWORD
     end
 
     # True if this type is an equivalent struct reference.
     def equivalent_struct?
-      name == EQUIVALENT_STRUCT_KEYWORD
+      snake_case_name == EQUIVALENT_STRUCT_KEYWORD
     end
 
     # True if this type is a function.

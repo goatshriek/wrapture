@@ -64,66 +64,6 @@ module Wrapture
       spec_hashes.map { |it| from_hash(it) }
     end
 
-    # Returns a normalized copy of a list of parameter hash specifications in
-    # place.
-    #
-    # Multiple variadic parameters (named '...') will be removed and only the
-    # first used. If the variadic parameter is not last, it will be moved to
-    # the end of the list.
-    def self.normalize_param_list(spec_list)
-      if spec_list.nil?
-        []
-      elsif spec_list.none? { |spec| spec[:name] == '...' }
-        spec_list.map { |spec| normalize_spec_hash(spec) }
-      else
-        error_msg = "'...' may not be the only parameter"
-        raise(InvalidSpecKey, error_msg) if spec_list.one?
-
-        i = spec_list.find_index { |spec| spec[:name] == '...' }
-        var = spec_list[i]
-
-        spec_list
-          .reject { |spec| spec[:name] == '...' }
-          .map { |spec| normalize_spec_hash(spec) }
-          .push(var)
-      end
-    end
-
-    # Returns a normalized copy of the hash specification of a parameter in
-    # +spec+. See normalize_spec_hash! for details.
-    def self.normalize_spec_hash(spec)
-      normalize_spec_hash!(Marshal.load(Marshal.dump(spec)))
-    end
-
-    # Normalizes the hash specification of a parameter in +spec+ in place.
-    # Normalization will remove duplicate entries from include lists and
-    # validate that required key values are set.
-    def self.normalize_spec_hash!(spec)
-      Comment.validate_doc(spec[:doc]) if spec.key?(:doc)
-      spec[:includes] = Wrapture.normalize_array(spec[:includes])
-
-      spec[:type] = '...' if spec[:name] == '...'
-
-      unless spec.key?(:type)
-        missing_type_msg = 'parameters must have a type key defined'
-        raise(MissingSpecKey, missing_type_msg)
-      end
-
-      spec
-    end
-
-    # A string with a comma-separated list of parameters (using resolved type)
-    # and names, fit for use in a function signature or declaration. param_list
-    # must be a list of ParamSpec instances, and owner must be the FunctionSpec
-    # that the parameters belong to.
-    def self.signature(param_list, owner)
-      if param_list.empty?
-        'void'
-      else
-        param_list.map { |param| param.signature(owner) }.join(', ')
-      end
-    end
-
     # A parameter must have a +name+ and +type_spec+, and starts with a nil
     # default_value and an empty doc Comment. +type_spec+ will be used directly
     # if it is a TypeSpec instance, otherwise it is passed to the TypeSpec
