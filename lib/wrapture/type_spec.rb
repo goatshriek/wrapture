@@ -27,10 +27,23 @@ module Wrapture
   class TypeSpec
     include Named
 
+    # The name used for the Any type, where any type is valid.
+    ANY_TYPE_NAME = %w[any].freeze
+
+    # The name used for the Self type, which references the class type of the
+    # context.
+    SELF_TYPE_NAME = %w[self].freeze
+
+    # The name used for the Void type, a type that cannot be instantiated.
+    VOID_TYPE_NAME = %w[void].freeze
+
     # The name words that make up the parameter name.
     attr_reader :name_words
 
     # Creates a new ParamSpec from the hash +spec_hash+.
+    #
+    # The hash must have a +:name+ key with a String or Enumerable of strings as
+    # the value, which will be used as the name of the TypeSpec.
     def self.from_hash(spec_hash)
       unless spec_hash.key?(:name)
         raise(MissingSpecKey, 'ParamSpec hashes must have a :name key')
@@ -58,7 +71,12 @@ module Wrapture
     #
     # Added in release 0.4.2.
     def ==(other)
-      to_s == other.to_s
+      @name_words == other.name_words
+    end
+
+    # True if this is the any type.
+    def any?
+      @name_words == ANY_TYPE_NAME
     end
 
     # The name of this type with all special characters and keywords removed.
@@ -94,31 +112,26 @@ module Wrapture
       includes.uniq
     end
 
-    # The words that make up the function name.
-    def name_words
-      @spec[:name]
-    end
-
     # True if this type is a pointer.
     def pointer?
       name.end_with?('*')
     end
 
-    # True if this type is a reference to a class instance.
-    def self_reference?
-      name == SELF_REFERENCE_KEYWORD
+    # True if this type is the self type.
+    def self?
+      @name_words == SELF_TYPE_NAME
     end
 
     # Gives a string representation of this type (its name).
     #
     # Added in release 0.4.2.
     def to_s
-      name
+      upper_camel_case_name
     end
 
-    # True if this type is a variadic parameter type (name is equal to +...+).
-    def variadic?
-      name == '...'
+    # True if this is the void type.
+    def void?
+      @name_words == VOID_TYPE_NAME
     end
   end
 end

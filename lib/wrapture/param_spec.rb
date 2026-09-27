@@ -48,8 +48,10 @@ module Wrapture
         raise(MissingSpecKey, 'ParamSpec hashes must have a :name key')
       end
 
-      unless spec_hash.key?(:type)
-        raise(MissingSpecKey, 'ParamSpec hashes must have a :type key')
+      unless spec_hash.key?(:type) || spec_hash[:name] == '...'
+        msg = 'ParamSpec hashes must either be variadic (named \'...\') or ' \
+              'have a :type key'
+        raise(MissingSpecKey, msg)
       end
 
       spec = new(spec_hash[:name], TypeSpec.new(spec_hash[:type]))
@@ -60,7 +62,7 @@ module Wrapture
 
     # Creages an Array of new ParamSpecs from the provided Enumerable of
     # hashes.
-    def self.new_list(spec_hashes)
+    def self.from_hashes(spec_hashes)
       spec_hashes.map { |it| from_hash(it) }
     end
 
@@ -87,7 +89,7 @@ module Wrapture
 
     # True if this parameter is variadic (the name is equal to '...').
     def variadic?
-      @type_spec.variadic?
+      @name_words == ['...']
     end
   end
 end

@@ -113,12 +113,13 @@ module Wrapture
         raise MissingSpecKey, msg
       end
 
-      Comment.validate_doc(spec[:doc]) if spec.key?(:doc)
+      doc = spec.fetch(:doc, '')
+      Comment.validate_doc(doc)
 
       name = Wrapture.normalize_name(spec, :name)
 
       func_spec = new(name)
-      func_spec.doc = Comment.new(spec[:doc]) if spec.key?(:doc)
+      func_spec.doc = Comment.new(doc)
       func_spec.constructor = Wrapture.normalize_boolean(spec, :constructor)
       func_spec.destructor = Wrapture.normalize_boolean(spec, :destructor)
       func_spec.static = Wrapture.normalize_boolean(spec, :static)
@@ -129,8 +130,12 @@ module Wrapture
       end
 
       if spec.key?(:params)
-        param_specs = ParamSpec.normalize_param_list(spec[:params])
-        func_spec.params.concat(ParamSpec.new_list(param_specs))
+        params = ParamSpec.from_hashes(spec[:params])
+        if params.length == 1 && params.last.type_spec.variadic?
+          raise InvalidSpecKey, 'the only parameter may not be variadic'
+        end
+
+        func_spec.params.concat(params)
       end
 
       if spec.key?(:return)

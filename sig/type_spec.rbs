@@ -20,22 +20,25 @@ module Wrapture
 
     @name_words: Array[String]
 
+    ANY_TYPE_NAME: Array[String]
+    VOID_TYPE_NAME: Array[String]
+
     attr_reader name_words: Array[String]
 
     def self.from_hash: (spec_hash) -> TypeSpec
 
     def initialize: (String | Array[String]) -> void
     def ==: (untyped other) -> untyped
+    def any: () -> bool
     def base: -> String
     def equivalent_pointer?: -> bool
     def equivalent_struct?: -> bool
     def function: -> (Wrapture::FunctionSpec | nil)
     def function?: -> bool
     def includes: -> untyped
-    def name_words: -> Array[String]
     def pointer?: -> bool
-    def self_reference?: -> bool
+    def self?: () -> bool
     def to_s: -> String
-    def variadic?: -> bool
+    def void?: () -> bool
   end
 end
