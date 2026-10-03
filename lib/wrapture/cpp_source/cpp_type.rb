@@ -22,12 +22,30 @@ module Wrapture
   module CppSource
     # A type used in C++ code.
     class CppType
+      # The name of the type.
+      attr_reader :name
+
       # Get a C++ type that corresponds to a given TypeSpec.
-      def self.from_spec(type_spec)
-        if type_spec.pointer?
-          CSource::CPointer.new(type_spec.base)
+      def self.from_type_spec(type_spec, context: nil)
+        return new('void') if type_spec.void?
+
+        if type_spec.self?
+          if context.nil?
+            msg = "cannot define a CppType of 'self' " \
+                  'without a context to resolve it'
+            raise UndefinableSpec, msg
+          end
+
+          class_spec = context.parent_class
+          if class_spec.nil?
+            msg = "cannot define a CppType of 'self' with no parent class to " \
+                  'resolve it'
+            raise UndefinableSpec, msg
+          end
+
+          new(class_spec.upper_camel_case_name)
         else
-          new(type_spec.name)
+          new(type_spec.upper_camel_case_name)
         end
       end
 
@@ -35,9 +53,6 @@ module Wrapture
       def initialize(name)
         @name = name
       end
-
-      # The name of the type.
-      attr_accessor :name
     end
   end
 end

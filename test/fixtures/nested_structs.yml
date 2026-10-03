@@ -26,7 +26,6 @@ classes:
           - name: "new_pool"
             type:
               name: "Pool"
-              includes: "Pool.hpp"
         source:
           c:
             name: "add_pool_to_gym"
@@ -42,7 +41,6 @@ classes:
           - name: "original_pool"
             type:
               name: "Pool"
-              includes: "Pool.hpp"
         source:
           c:
             name: "copy_pool_to_gym"
@@ -58,7 +56,6 @@ classes:
           - name: "new_track"
             type:
               name: "Track"
-              includes: "Track.hpp"
         source:
           c:
             name: "add_track_to_gym"
@@ -74,7 +71,6 @@ classes:
           - name: "original_track"
             type:
               name: "Track"
-              includes: "Track.hpp"
         source:
           c:
             name: "copy_track_to_gym"

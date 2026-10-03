@@ -41,8 +41,9 @@ module Wrapture
     #
     # The hash must have a +:name+ key with a String or Enumerable of strings as
     # the value, which will be used as the name of the ParamSpec. It also must
-    # have a +:type+ key, the value of which will be passed to
-    # TypeSpec::from_hash to construct the type.
+    # have a +:type+ key, the value of which will be passed to either
+    # TypeSpec::from_hash or TypeSpec::new to construct the type, depending on
+    # whether the value is a Hash or a String, respectively.
     def self.from_hash(spec_hash)
       unless spec_hash.key?(:name)
         raise(MissingSpecKey, 'ParamSpec hashes must have a :name key')
@@ -54,7 +55,13 @@ module Wrapture
         raise(MissingSpecKey, msg)
       end
 
-      spec = new(spec_hash[:name], TypeSpec.new(spec_hash[:type]))
+      type = if spec_hash[:type].is_a?(Hash)
+               TypeSpec.from_hash(spec_hash[:type])
+             else
+               TypeSpec.new(spec_hash[:type])
+             end
+
+      spec = new(spec_hash[:name], type)
       spec.default_value = spec_hash.fetch(:default_value, nil)
 
       spec

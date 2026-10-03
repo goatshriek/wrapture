@@ -239,6 +239,18 @@ module Wrapture
       !@parent.nil?
     end
 
+    # The first parent context that has a ClassSpec as a root, or nil if there
+    # is no such parent.
+    def parent_class
+      return nil unless parent?
+
+      if parent.root.is_a?(ClassSpec)
+        parent
+      else
+        parent.parent_class
+      end
+    end
+
     # Searches through the Context for an element where +block+ returns true and
     # returns the first match, or nil if there are none.
     #

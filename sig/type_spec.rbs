@@ -14,6 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+type type_hash = Hash[Symbol, name_type]
+
 module Wrapture
   class TypeSpec
     include Named
@@ -21,22 +23,16 @@ module Wrapture
     @name_words: Array[String]
 
     ANY_TYPE_NAME: Array[String]
+    SELF_TYPE_NAME: Array[String]
     VOID_TYPE_NAME: Array[String]
 
     attr_reader name_words: Array[String]
 
-    def self.from_hash: (spec_hash) -> TypeSpec
+    def self.from_hash: (type_hash) -> TypeSpec
 
-    def initialize: (String | Array[String]) -> void
-    def ==: (untyped other) -> untyped
-    def any: () -> bool
-    def base: -> String
-    def equivalent_pointer?: -> bool
-    def equivalent_struct?: -> bool
-    def function: -> (Wrapture::FunctionSpec | nil)
-    def function?: -> bool
-    def includes: -> untyped
-    def pointer?: -> bool
+    def initialize: (name_type) -> void
+    def ===: (ClassSpec | EnumSpec) -> bool
+    def any?: () -> bool
     def self?: () -> bool
     def to_s: -> String
     def void?: () -> bool

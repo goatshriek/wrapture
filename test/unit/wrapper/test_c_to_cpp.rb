@@ -48,6 +48,7 @@ class CToCppTest < Minitest::Test
     context = Wrapture::Context.from_namespace_hash(test_spec)
     build = Wrapture::Wrapper::CToCpp.wrap_namespace_context(context)
     rifle_file = build['Rifle.cpp']
+    puts rifle_file.contents.join
 
     refute_nil(rifle_file)
     assert(source_file_contains_match?(rifle_file,

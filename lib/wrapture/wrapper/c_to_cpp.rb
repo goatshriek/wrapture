@@ -110,22 +110,12 @@ module Wrapture
         end
 
         if from.is_a?(TypeSpec)
-          # TODO: should be able to directly use the type spec's name_words
-          name_words = Named.words_from_name(from.base)
-          class_name = Named.upper_camel_case_name(name_words)
+          class_name = from.upper_camel_case_name
           from_context = context.resolve do |it|
             it.root.upper_camel_case_name == class_name
           end
 
-          unless from_context.nil?
-            from_type = type_class(from_context)
-            from = if from.pointer?
-                     CSource::CPointer.new(from_type)
-                   else
-                     from_type
-                   end
-
-          end
+          from = type_class(from_context) unless from_context.nil?
         end
 
         if to == :equivalent_struct
@@ -515,7 +505,7 @@ module Wrapture
 
           # TODO: should be able to use raw name words
           type = context.resolve do |it|
-            it.root.upper_camel_case_name == action.type.base
+            it.root.upper_camel_case_name == action.type.upper_camel_case_name
           end
           inc << Cpp.header_name(type.root) unless type.nil?
         end
@@ -617,8 +607,12 @@ module Wrapture
         context.constructors.none? do |it|
           # TODO: check for const
           params = it.root.params
-          params.length == 1 &&
-            CppSource::CppType.from_spec(params.first.type_spec) == pointer_type
+          next false unless params.length == 1
+
+          # TODO: pick up here, resolving the param type to accurately detect
+          # the copy constructor signature
+          param_type = params.first.type_spec
+          CppSource::CppType.from_type_spec(param_type) == pointer_type
         end
       end
 
@@ -638,8 +632,8 @@ module Wrapture
         context.constructors.none? do |it|
           params = it.root.params
           params.length == 1 &&
-            (params.first.type_spec.equivalent_pointer? ||
-             CppSource::CppType.from_spec(params.first.type_spec) == type)
+            (params.first.type_spec.self? ||
+             CppSource::CppType.from_type_spec(params.first.type_spec) == type)
         end
       end
 
@@ -664,11 +658,11 @@ module Wrapture
         func_name = spec.upper_camel_case_name
         func = Wrapture::CppSource::CppFunction.new(func_name)
         return_spec = spec.return_type
-        func.return_type = if spec.return_type.self_reference?
+        func.return_type = if spec.return_type.self?
                              ref_type = type_class(context.parent)
                              CppSource::CppReference.new(ref_type)
                            else
-                             CppSource::CppType.from_spec(return_spec)
+                             CppSource::CppType.from_type_spec(return_spec)
                            end
         func.static = spec.static?
         func.virtual = spec.virtual?
@@ -703,7 +697,7 @@ module Wrapture
         if spec.return_overloaded?
           overload = "New#{spec.return_type.name.chomp('*').strip}"
           func.puts("return #{overload}( return_val );")
-        elsif return_spec.self_reference?
+        elsif return_spec.self?
           func.puts('return *this;')
         end
 
@@ -993,7 +987,7 @@ module Wrapture
           "this->equivalent = #{wrapped_call}"
         elsif wrapper_captures_return?(func_spec)
           "return_val = #{wrapped_call}"
-        elsif !func_spec.void_return? && !func_spec.return_type.self_reference?
+        elsif !func_spec.void_return? && !func_spec.return_type.self?
           "return #{wrapped_call}"
         else
           wrapped_call
@@ -1005,7 +999,7 @@ module Wrapture
       def self.wrapper_captures_return?(func_spec)
         # true if the return value of the wrapped function must be converted
         # into a C++ type before it is returned
-        convert_return = !func_spec.return_type.self_reference? &&
+        convert_return = !func_spec.return_type.self? &&
                          !func_spec.void_return? &&
                          func_spec.return_type != func_spec[:c].return_type
 

@@ -31,9 +31,9 @@ classes:
       - name: "load"
         params:
           - name: "bullet"
-            type: "Bullet&"
+            type: "Bullet"
         return:
-          type: "self_reference"
+          type: "self"
         source:
           c:
             name: "load_rifle_with_bullet"

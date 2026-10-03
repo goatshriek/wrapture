@@ -66,55 +66,16 @@ module Wrapture
       @name_words = Named.words_from_name(name)
     end
 
-    # Compares this TypeSpec with +other+. Comparison happens by converting each
-    # object to a string using to_s and comparing.
-    #
-    # Added in release 0.4.2.
-    def ==(other)
-      @name_words == other.name_words
+    # True if +spec+ is an instance of this type.
+    def ===(spec)
+      return true if any?
+
+      spec.name_words == name_words
     end
 
     # True if this is the any type.
     def any?
       @name_words == ANY_TYPE_NAME
-    end
-
-    # The name of this type with all special characters and keywords removed.
-    def base
-      name.delete('*&').delete_prefix('struct').strip
-    end
-
-    # True if this type is an equivalent struct pointer reference.
-    def equivalent_pointer?
-      snake_case_name == EQUIVALENT_POINTER_KEYWORD
-    end
-
-    # True if this type is an equivalent struct reference.
-    def equivalent_struct?
-      snake_case_name == EQUIVALENT_STRUCT_KEYWORD
-    end
-
-    # True if this type is a function.
-    def function?
-      @spec.key?(:function)
-    end
-
-    # A new FunctionSpec instance from this type, or nil if it is not a
-    # function.
-    def function
-      FunctionSpec.from_hash(@spec[:function]) if function?
-    end
-
-    # A list of includes needed for this type.
-    def includes
-      includes = @spec[:includes].dup
-      includes.concat(function.declaration_includes) if function?
-      includes.uniq
-    end
-
-    # True if this type is a pointer.
-    def pointer?
-      name.end_with?('*')
     end
 
     # True if this type is the self type.

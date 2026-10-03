@@ -131,7 +131,7 @@ module Wrapture
 
       if spec.key?(:params)
         params = ParamSpec.from_hashes(spec[:params])
-        if params.length == 1 && params.last.type_spec.variadic?
+        if params.length == 1 && params.last.variadic?
           raise InvalidSpecKey, 'the only parameter may not be variadic'
         end
 

@@ -22,7 +22,7 @@ source:
 constructors:
   - params:
       - name: "original_thing"
-        type: "equivalent_struct_pointer"
+        type: "self"
     source:
       c:
         name: "new_thing"

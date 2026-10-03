@@ -1348,7 +1348,7 @@ module Wrapture
       def self.return_statement(func_spec)
         if func_spec.constructor?
           'return 0;'
-        elsif func_spec.return_type.self_reference?
+        elsif func_spec.return_type.self?
           'return self;'
         elsif func_spec.void_return?
           'Py_RETURN_NONE;'
@@ -1511,13 +1511,10 @@ module Wrapture
         func_spec = context.root
         func_spec.params.map do |param_spec|
           param_type = param_spec.type_spec
-          local_type = if param_type.equivalent_struct?
-                         C.equivalent_struct(context.parent.root)
-                       elsif param_spec.type_spec.equivalent_pointer?
-                         C.equivalent_pointer(context.parent.root)
+          local_type = if param_type.self?
+                         C.equivalent_struct(context.parent_class.root)
                        else
-                         name_words = Named.words_from_name(param_type.base)
-                         class_name = Named.upper_camel_case_name(name_words)
+                         class_name = param_type.upper_camel_case_name
                          type_context = context.resolve do |it|
                            it.root.upper_camel_case_name == class_name
                          end

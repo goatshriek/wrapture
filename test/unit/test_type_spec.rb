@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2020-2025 Joel E. Anderson
+# Copyright 2020-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,13 +23,21 @@ require 'minitest/autorun'
 require 'wrapture'
 
 class TypeSpecTest < Minitest::Test
-  def test_equality_with_int
-    refute_equal(Wrapture::TypeSpec.new('const char *'), 3)
+  def test_any
+    type = Wrapture::TypeSpec.new(Wrapture::TypeSpec::ANY_TYPE_NAME)
+
+    assert_predicate(type, :any?)
   end
 
-  def test_equality_with_string
-    type_name = 'const char *'
+  def test_self
+    type = Wrapture::TypeSpec.new(Wrapture::TypeSpec::SELF_TYPE_NAME)
 
-    assert_equal(Wrapture::TypeSpec.new(type_name), type_name)
+    assert_predicate(type, :self?)
+  end
+
+  def test_void
+    type = Wrapture::TypeSpec.new(Wrapture::TypeSpec::VOID_TYPE_NAME)
+
+    assert_predicate(type, :void?)
   end
 end

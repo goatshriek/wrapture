@@ -84,8 +84,8 @@ module Wrapture
     # A MissingWrapped exception is created with the +spec+ that is missing the
     # wrapped component to ease troubleshooting.
     def initialize(spec)
-      msg = "a wrapped component was reference in #{spec.name}, " \
-            'but was not defined by the spec'
+      msg = 'a wrapped component was referenced in ' \
+            "#{spec.upper_camel_case_name}, but was not defined"
       super(msg)
     end
   end
