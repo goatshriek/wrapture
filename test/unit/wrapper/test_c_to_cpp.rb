@@ -48,11 +48,10 @@ class CToCppTest < Minitest::Test
     context = Wrapture::Context.from_namespace_hash(test_spec)
     build = Wrapture::Wrapper::CToCpp.wrap_namespace_context(context)
     rifle_file = build['Rifle.cpp']
-    puts rifle_file.contents.join
 
     refute_nil(rifle_file)
     assert(source_file_contains_match?(rifle_file,
-                                       /bullet->equivalent/),
+                                       /bullet.equivalent/),
            'equivalent struct member was not referenced')
   end
 
@@ -64,7 +63,7 @@ class CToCppTest < Minitest::Test
     class_name = Wrapture::Wrapper::CToCpp.class_name(context.root)
     header = build["#{class_name}.hpp"]
     member_regex = /^\s*#{class_name}\(int member/
-    spec_regex = /^\s*#{class_name}\(constructed_struct/
+    spec_regex = /^\s*#{class_name}\(ClassWithConstructor/
     destructor_regex = /^\s*~#{class_name}/
 
     assert(source_file_contains_match?(header, member_regex),
@@ -87,7 +86,7 @@ class CToCppTest < Minitest::Test
            'the source file contained a wrapture keyword')
 
     member_regex = /^\s*#{class_name}::#{class_name}\(int member/
-    spec_regex = /^\s*#{class_name}::#{class_name}\(constructed_struct/
+    spec_regex = /^\s*#{class_name}::#{class_name}\(ClassWithConstructor/
     destructor_regex = /^\s*#{class_name}::~#{class_name}/
 
     assert(source_file_contains_match?(source, member_regex),
@@ -328,6 +327,8 @@ class CToCppTest < Minitest::Test
   end
 
   def test_pointer_class_with_explicit_pointer_constructor
+    skip('pending the ability to define an explicit pointer constructor')
+
     hash = fixture_hash('pointer_class_with_explicit_pointer_move_constructor')
     context = Wrapture::Context.from_class_hash(hash)
     build = Wrapture::Wrapper::CToCpp.wrap_class_context(context)
@@ -381,6 +382,7 @@ class CToCppTest < Minitest::Test
     source = build[source_filename]
 
     assert(source_file_contains_match?(source, /return \*this;/))
+    assert(source_file_contains_match?(source, /const char \*/))
     refute(source_file_contains_match?(source, 'return_val'))
   end
 

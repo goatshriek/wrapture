@@ -134,6 +134,8 @@ module Wrapture
             return proc { |val| "#{val}.equivalent" }
           elsif to == CSource::CPointer.new(equivalent_c_type)
             return proc { |val| "&#{val}.equivalent" }
+          elsif CSource::CPointer.new(to) == equivalent_c_type
+            return proc { |val| "*(#{val}.equivalent)" }
           end
         end
 
@@ -141,6 +143,7 @@ module Wrapture
            from.c_type.is_a?(CppSource::CppClass) &&
            !from.c_type.equivalent_member.nil?
           equivalent_c_type = from.c_type.equivalent_member.c_type
+
           if to == equivalent_c_type
             return proc { |val| "#{val}->equivalent" }
           elsif to == CSource::CPointer.new(equivalent_c_type)
@@ -274,20 +277,8 @@ module Wrapture
         class_name = class_name(class_spec)
 
         func = Wrapture::CppSource::CppFunction.new(class_name)
-        func_spec.params.each do |param_spec|
-          param_type = param_spec.type
-          param_name = param_spec.name
-
-          if param_type.name == EQUIVALENT_STRUCT_KEYWORD
-            param_type = C.equivalent_struct(class_spec)
-          elsif param_type.name == EQUIVALENT_POINTER_KEYWORD
-            param_type = C.equivalent_pointer(class_spec)
-          end
-
-          decl = CppSource::CppDeclaration.new(param_type, name: param_name)
-          decl.value = param_spec.default_value if param_spec.default_value?
-
-          func.params << decl
+        func_spec.params.each do |it|
+          func.params << param_declaration(it, context)
         end
 
         init_args = func_spec[:alias][:args].join(', ')
@@ -298,7 +289,7 @@ module Wrapture
 
       # Generate the definition for a constructor function.
       def self.define_constructor(context)
-        class_spec = context.parent.root
+        class_spec = context.parent_class.root
         func_spec = context.root
 
         if func_spec.source.key?(:alias)
@@ -325,25 +316,11 @@ module Wrapture
         end
 
         func = Wrapture::CppSource::CppFunction.new(class_name)
-        func_spec.params.each do |param_spec|
-          param_type = param_spec.type_spec
-          param_name = param_spec.snake_case_name
-
-          if param_type.name == EQUIVALENT_STRUCT_KEYWORD
-            param_type = C.equivalent_struct(class_spec)
-          elsif param_type.name == EQUIVALENT_POINTER_KEYWORD
-            param_type = C.equivalent_pointer(class_spec)
-          end
-
-          decl = CppSource::CppDeclaration.new(param_type,
-                                               name: param_name)
-
-          decl.value = param_spec.default_value if param_spec.default_value?
-
-          func.params << decl
+        func_spec.params.each do |it|
+          func.params << param_declaration(it, context)
         end
 
-        func.puts("#{wrapped_function_call(context)};")
+        func.statement(wrapped_function_call(context))
 
         wrapped_error_check(func_spec).each { |it| func << it }
 
@@ -609,10 +586,9 @@ module Wrapture
           params = it.root.params
           next false unless params.length == 1
 
-          # TODO: pick up here, resolving the param type to accurately detect
-          # the copy constructor signature
           param_type = params.first.type_spec
-          CppSource::CppType.from_type_spec(param_type) == pointer_type
+          cpp_type = CppSource::CppType.from_type_spec(param_type, context: it)
+          cpp_type == pointer_type
         end
       end
 
@@ -654,7 +630,6 @@ module Wrapture
       # Define a member function based on the function at the root of +context+.
       def self.member_function(context)
         spec = context.root
-        class_spec = context.parent.root
         func_name = spec.upper_camel_case_name
         func = Wrapture::CppSource::CppFunction.new(func_name)
         return_spec = spec.return_type
@@ -664,22 +639,14 @@ module Wrapture
                            else
                              CppSource::CppType.from_type_spec(return_spec)
                            end
+        if spec.return_overloaded?
+          func.return_type = CSource::CPointer.new(func.return_type.name)
+        end
         func.static = spec.static?
         func.virtual = spec.virtual?
 
-        spec.params.each do |param_spec|
-          param_type = param_spec.type_spec
-          param_name = param_spec.snake_case_name
-
-          if param_type.name == EQUIVALENT_STRUCT_KEYWORD
-            param_type = C.equivalent_struct(class_spec)
-          elsif param_type.name == EQUIVALENT_POINTER_KEYWORD
-            param_type = C.equivalent_pointer(class_spec)
-          end
-
-          decl = Wrapture::CppSource::CppDeclaration.new(param_type,
-                                                         name: param_name)
-          func.params << decl
+        spec.params.each do |it|
+          func.params << param_declaration(it, context)
         end
 
         declare_member_function_locals(func, context)
@@ -695,7 +662,7 @@ module Wrapture
         func.puts('va_end( variadic_args );') if spec.variadic?
 
         if spec.return_overloaded?
-          overload = "New#{spec.return_type.name.chomp('*').strip}"
+          overload = "New#{func.return_type.c_type}"
           func.puts("return #{overload}( return_val );")
         elsif return_spec.self?
           func.puts('return *this;')
@@ -730,6 +697,18 @@ module Wrapture
         header.puts("#endif /* #{guard} */")
 
         header
+      end
+
+      # A CppDeclaration for +param_spec+ within the FunctionSpec at the root
+      # of +context+.
+      def self.param_declaration(param_spec, context)
+        name = param_spec.snake_case_name
+        type_spec = param_spec.type_spec
+        type = CppSource::CppType.from_type_spec(type_spec, context: context)
+        decl = Wrapture::CppSource::CppDeclaration.new(type, name: name)
+        decl.value = param_spec.default_value if param_spec.default_value?
+
+        decl
       end
 
       # The pointer copy constructor for the class at the root of +context+,

@@ -43,6 +43,7 @@ module Wrapture
       def self.member_constructor: (ClassSpec) -> CppSource::CppFunction
       def self.member_function_from_spec: (FunctionSpec) -> CppSource::CppFunction
       def self.namespace_context_header: (Context) -> CppSource::CppSourceFile
+      def self.param_declaration: (ParamSpec, Context) -> CppSource::CppDeclaration
       def self.pointer_copy_constructor: (Context) -> CppSource::CppFunction
       def self.pointer_move_constructor: (Context) -> CppSource::CppFunction
       def self.resolve_action_value: (FunctionSpec, String) -> String

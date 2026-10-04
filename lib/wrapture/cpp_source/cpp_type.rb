@@ -43,10 +43,13 @@ module Wrapture
             raise UndefinableSpec, msg
           end
 
-          new(class_spec.upper_camel_case_name)
-        else
-          new(type_spec.upper_camel_case_name)
+          return new(class_spec.upper_camel_case_name)
         end
+
+        return new('int') if type_spec.int?
+        return new('const char *') if type_spec.string?
+
+        new(type_spec.upper_camel_case_name)
       end
 
       # A C++ type is defined as a name.

@@ -30,9 +30,15 @@ module Wrapture
     # The name used for the Any type, where any type is valid.
     ANY_TYPE_NAME = %w[any].freeze
 
+    # The name used for the integer type.
+    INT_TYPE_NAME = %w[int].freeze
+
     # The name used for the Self type, which references the class type of the
     # context.
     SELF_TYPE_NAME = %w[self].freeze
+
+    # The name used for the string type.
+    STRING_TYPE_NAME = %w[string].freeze
 
     # The name used for the Void type, a type that cannot be instantiated.
     VOID_TYPE_NAME = %w[void].freeze
@@ -78,9 +84,19 @@ module Wrapture
       @name_words == ANY_TYPE_NAME
     end
 
+    # True if this is an integer type.
+    def int?
+      @name_words == INT_TYPE_NAME
+    end
+
     # True if this type is the self type.
     def self?
       @name_words == SELF_TYPE_NAME
+    end
+
+    # True if this type is the string type.
+    def string?
+      @name_words == STRING_TYPE_NAME
     end
 
     # Gives a string representation of this type (its name).
