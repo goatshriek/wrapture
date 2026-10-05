@@ -23,6 +23,7 @@ module Wrapture
     @name_words: Array[String]
 
     ANY_TYPE_NAME: Array[String]
+    BOOL_TYPE_NAME: Array[String]
     INT_TYPE_NAME: Array[String]
     SELF_TYPE_NAME: Array[String]
     STRING_TYPE_NAME: Array[String]
@@ -35,6 +36,7 @@ module Wrapture
     def initialize: (name_type) -> void
     def ===: (ClassSpec | EnumSpec) -> bool
     def any?: () -> bool
+    def bool?: () -> bool
     def int?: () -> bool
     def self?: () -> bool
     def string?: () -> bool

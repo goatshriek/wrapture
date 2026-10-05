@@ -141,9 +141,13 @@ module Wrapture
       if spec.key?(:return)
         func_spec.return_overloaded = Wrapture.normalize_boolean(spec[:return],
                                                                  :overloaded)
-        if spec[:return].key?(:type)
-          func_spec.return_type = TypeSpec.new(spec[:return][:type])
-        end
+
+        type_val = spec[:return].fetch(:type, '')
+        func_spec.return_type = if type_val.is_a?(Hash)
+                                  TypeSpec.from_hash(type_val)
+                                else
+                                  TypeSpec.new(type_val)
+                                end
 
         if spec[:return].key?(:doc)
           Comment.validate_doc(spec[:return][:doc])
@@ -262,7 +266,7 @@ module Wrapture
 
     # True if the function has a void return type.
     def void_return?
-      @return_type.name == 'void'
+      @return_type.void?
     end
   end
 end

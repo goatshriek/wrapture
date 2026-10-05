@@ -46,6 +46,7 @@ module Wrapture
           return new(class_spec.upper_camel_case_name)
         end
 
+        return new('bool') if type_spec.bool?
         return new('int') if type_spec.int?
         return new('const char *') if type_spec.string?
 

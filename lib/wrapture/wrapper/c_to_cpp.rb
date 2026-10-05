@@ -978,9 +978,10 @@ module Wrapture
       def self.wrapper_captures_return?(func_spec)
         # true if the return value of the wrapped function must be converted
         # into a C++ type before it is returned
+        return_type = CppSource::CppType.from_type_spec(func_spec.return_type)
         convert_return = !func_spec.return_type.self? &&
                          !func_spec.void_return? &&
-                         func_spec.return_type != func_spec[:c].return_type
+                         return_type.name != func_spec[:c].return_type.to_s
 
         error_return = func_spec[:c].error_rules.any? do |it|
           it.vals.include?(RETURN_VALUE_KEYWORD)

@@ -30,6 +30,9 @@ module Wrapture
     # The name used for the Any type, where any type is valid.
     ANY_TYPE_NAME = %w[any].freeze
 
+    # The name used for the boolean type.
+    BOOL_TYPE_NAME = %w[bool].freeze
+
     # The name used for the integer type.
     INT_TYPE_NAME = %w[int].freeze
 
@@ -82,6 +85,11 @@ module Wrapture
     # True if this is the any type.
     def any?
       @name_words == ANY_TYPE_NAME
+    end
+
+    # True if this is the boolean type.
+    def bool?
+      @name_words == BOOL_TYPE_NAME
     end
 
     # True if this is an integer type.
