@@ -120,10 +120,11 @@ module Wrapture
         end
 
         if spec.key?(:return) && spec[:return].key?(:type)
-          func.return_type = if spec[:return][:type].is_a?(String)
-                               CType.new(spec[:return][:type])
+          return_type = spec[:return][:type]
+          func.return_type = if return_type.is_a?(String)
+                               CType.from_hash({ name: return_type })
                              else
-                               CType.from_hash(spec[:return][:type])
+                               CType.from_hash(return_type)
                              end
         end
 

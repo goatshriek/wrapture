@@ -48,6 +48,7 @@ module Wrapture
 
         return new('bool') if type_spec.bool?
         return new('int') if type_spec.int?
+        # TODO: this needs to be a C++ string type
         return new('const char *') if type_spec.string?
 
         new(type_spec.upper_camel_case_name)

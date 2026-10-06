@@ -34,7 +34,7 @@ classes:
         - name: "code"
           type: "int"
         - name: "data"
-          type: "void *"
+          type: "string"
         source:
           c:
             name: "new_event"
@@ -42,7 +42,7 @@ classes:
               - value: "code"
                 type: "int"
               - value: "data"
-                type: "void *"
+                type: "const char *"
             return:
               type: "equivalent_struct_pointer"
     destructor:
@@ -67,7 +67,7 @@ classes:
       - name: "NextEvent"
         static: true
         return:
-          type: "SecurityEvent *"
+          type: "SecurityEvent"
           overloaded: true
         source:
           c:
@@ -99,7 +99,7 @@ classes:
     constructors:
       - params:
         - name: "description"
-          type: "const char *"
+          type: "string"
         source:
           c:
             name: "new_camera_event"
@@ -182,7 +182,7 @@ classes:
     constructors:
       - params:
         - name: "description"
-          type: "const char *"
+          type: "string"
         source:
           c:
             name: "new_motion_event"

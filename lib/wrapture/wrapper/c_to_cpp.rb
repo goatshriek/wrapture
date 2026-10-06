@@ -255,7 +255,7 @@ module Wrapture
 
         blk << 'va_list variadic_args;' if func_spec.variadic?
 
-        if wrapper_captures_return?(func_spec)
+        if wrapper_captures_return?(context)
           return_type = func_spec[:c].return_type
           if return_type.to_s == EQUIVALENT_STRUCT_KEYWORD
             return_type = C.equivalent_struct(class_spec)
@@ -661,8 +661,9 @@ module Wrapture
 
         func.puts('va_end( variadic_args );') if spec.variadic?
 
+        # TODO: this needs to be a more robust calculation of the function name
         if spec.return_overloaded?
-          overload = "New#{func.return_type.c_type}"
+          overload = "New#{func.return_type.c_type.to_s.chomp(' *')}"
           func.puts("return #{overload}( return_val );")
         elsif return_spec.self?
           func.puts('return *this;')
@@ -964,7 +965,7 @@ module Wrapture
           # including support passing address of struct as arg and ownership
           # annotations
           "this->equivalent = #{wrapped_call}"
-        elsif wrapper_captures_return?(func_spec)
+        elsif wrapper_captures_return?(context)
           "return_val = #{wrapped_call}"
         elsif !func_spec.void_return? && !func_spec.return_type.self?
           "return #{wrapped_call}"
@@ -973,15 +974,18 @@ module Wrapture
         end
       end
 
-      # True if the wrapper for the given function needs to save the return
-      # value from the wrapped function.
-      def self.wrapper_captures_return?(func_spec)
+      # True if the wrapper for the function at the root of +context+ needs to
+      # save the return value of the wrapped function.
+      def self.wrapper_captures_return?(context)
+        func_spec = context.root
         # true if the return value of the wrapped function must be converted
         # into a C++ type before it is returned
-        return_type = CppSource::CppType.from_type_spec(func_spec.return_type)
+        return_type = CppSource::CppType.from_type_spec(func_spec.return_type,
+                                                        context: context)
+        return_c_type = CSource::CType.from_hash({ name: return_type.name })
         convert_return = !func_spec.return_type.self? &&
                          !func_spec.void_return? &&
-                         return_type.name != func_spec[:c].return_type.to_s
+                         return_c_type != func_spec[:c].return_type
 
         error_return = func_spec[:c].error_rules.any? do |it|
           it.vals.include?(RETURN_VALUE_KEYWORD)

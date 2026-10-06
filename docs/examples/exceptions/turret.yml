@@ -116,7 +116,7 @@ classes:
       - name: "message"
         virtual: true
         return:
-          type: "const char *"
+          type: "string"
         source:
           c:
             name: "get_error_message"
@@ -142,7 +142,7 @@ classes:
     functions:
       - name: "message"
         return:
-          type: "const char *"
+          type: "string"
         source:
           c:
             name: "get_error_message"
@@ -168,7 +168,7 @@ classes:
     functions:
       - name: "message"
         return:
-          type: "const char *"
+          type: "string"
         source:
           c:
             name: "get_error_message"
@@ -194,7 +194,7 @@ classes:
     functions:
       - name: "message"
         return:
-          type: "const char *"
+          type: "string"
         source:
           c:
             name: "get_error_message"

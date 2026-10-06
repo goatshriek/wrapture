@@ -56,7 +56,7 @@ module Wrapture
       def self.wrap_namespace_context: (Context) -> CppSource::CppSourceSet
       def self.wrapped_error_check: (FunctionSpec) -> Array[untyped]
       def self.wrapped_function_call: (Context) -> String
-      def self.wrapper_captures_return?: (FunctionSpec) -> bool
+      def self.wrapper_captures_return?: (Context) -> bool
     end
   end
 end

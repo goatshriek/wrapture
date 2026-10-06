@@ -142,7 +142,7 @@ module Wrapture
         func_spec.return_overloaded = Wrapture.normalize_boolean(spec[:return],
                                                                  :overloaded)
 
-        type_val = spec[:return].fetch(:type, '')
+        type_val = spec[:return].fetch(:type, 'void')
         func_spec.return_type = if type_val.is_a?(Hash)
                                   TypeSpec.from_hash(type_val)
                                 else
