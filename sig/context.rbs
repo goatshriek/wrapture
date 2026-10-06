@@ -44,7 +44,7 @@ module Wrapture
     def name_words: () -> Array[String]
     def namespace: -> Array[Context]
     def parent?: () -> bool
-    def parent_class: () -> Context | nil
+    def parent_class: () -> (Context | nil)
     def resolve: () {(Context) -> bool} -> (Context | nil)
     def resolve_name: (Array[String]) -> (Context | nil)
     def top: () -> Context
