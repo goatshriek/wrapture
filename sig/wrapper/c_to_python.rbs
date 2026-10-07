@@ -23,7 +23,7 @@ module Wrapture
       def self.add_enum_object: (SourceFile, EnumSpec) -> SourceFile
       def self.add_module_objects: (SourceFile, Context) -> SourceFile
       def self.allocator_params: () -> Enumerable[CSource::CDeclaration]
-      def self.arg_parse_format: (Enumerable[String], ?Enumerable[String]) -> String
+      def self.arg_parse_format: (Enumerable[TypeSpec], ?Enumerable[TypeSpec]) -> String
       def self.base_type_object: (Context) -> String?
       def self.cast_equivalent: (ClassSpec, String, String) -> String
       def self.class_members_declaration: (Context) -> CSource::CDeclaration
@@ -49,6 +49,7 @@ module Wrapture
       def self.equivalent_member_declaration: (ClassSpec) -> CSource::CDeclaration
       def self.factory_constructor: (ClassSpec) -> CSource::CFunction
       def self.finalize_module_types: (CSource::CBlock, Context) -> SourceFile
+      def self.format_unit: (TypeSpec) -> String
       def self.function_arg_parse_format: (Context) -> String
       def self.function_overloaded?: (Context) -> bool
       def self.function_wrapper: (Context) -> CSource::CFunction

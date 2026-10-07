@@ -45,27 +45,6 @@ module Wrapture
         'string' => 'Py_T_STRING'
       }.freeze
 
-      # Mapping of types to their PyArg_ParseTuple format string.
-      TYPE_FORMAT_UNIT_MAP = {
-        'byte' => 'b',
-        'char' => 'b',
-        'short' => 'h',
-        'int' => 'i',
-        'long' => 'l',
-        'long long' => 'k',
-        'unsigned char' => 'B',
-        'unsigned short' => 'H',
-        'unsigned int' => 'I',
-        'unsigned long' => 'L',
-        'unsigned long long' => 'K',
-        'size_t' => 'n',
-        'float' => 'f',
-        'double' => 'd',
-        'bool' => 'p',
-        'const char *' => 's',
-        'string' => 's'
-      }.freeze
-
       # Adds the type object for a class within a module's init function.
       def self.add_class_object(src, class_spec, fail_label)
         object_name = type_object_name(class_spec)
@@ -121,15 +100,15 @@ module Wrapture
          CSource::CDeclaration.new(pyobject_ptr, 'kwds')]
       end
 
-      # The format string to use for argument parsing functions, such as
+      # The format string to use for argument parsing functions like
       # +PyArg_ParseTuple+.
       def self.arg_parse_format(required_args, optional_args = [])
-        required_formats = required_args.map do |key|
-          TYPE_FORMAT_UNIT_MAP.fetch(key, 'O')
+        required_formats = required_args.map do |it|
+          format_unit(it)
         end
 
-        optional_formats = optional_args.map do |key|
-          TYPE_FORMAT_UNIT_MAP.fetch(key, 'O')
+        optional_formats = optional_args.map do |it|
+          format_unit(it)
         end
 
         if optional_formats.empty?
@@ -778,14 +757,19 @@ module Wrapture
         end
       end
 
+      # The format unit for +type_spec+.
+      def self.format_unit(type_spec)
+        if type_spec.int?
+          'i'
+        else
+          'O'
+        end
+      end
+
       # The format string to use for the function at the root of +context+.
       def self.function_arg_parse_format(context)
-        required_args = context.root.required_params.map do |it|
-          it.type_spec.to_s
-        end
-        optional_args = context.root.optional_params.map do |it|
-          it.type_spec.to_s
-        end
+        required_args = context.root.required_params.map(&:type_spec)
+        optional_args = context.root.optional_params.map(&:type_spec)
         arg_parse_format(required_args, optional_args)
       end
 
