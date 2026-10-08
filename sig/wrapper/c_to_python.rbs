@@ -19,6 +19,9 @@ module Wrapture
     module CToPython
       extend Wrapper
 
+      C_TYPE_FORMAT_UNIT_MAP: Hash[String, String]
+      MEMBER_TYPE_MAP: Hash[String, String]
+
       def self.add_class_object: (SourceFile, ClassSpec) -> SourceFile
       def self.add_enum_object: (SourceFile, EnumSpec) -> SourceFile
       def self.add_module_objects: (SourceFile, Context) -> SourceFile
