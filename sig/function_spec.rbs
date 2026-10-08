@@ -14,33 +14,35 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+type function_hash = Hash[Symbol, (Enumerable[param_hash] | bool | String | Hash[Symbol, (type_hash | String)])]
+
 module Wrapture
   class FunctionSpec
     include Named
 
     @constructor: bool
     @destructor: bool
+    @initializers: Array[Hash[Symbol, String]]
     @params: Array[Wrapture::ParamSpec]
-    @spec: spec_hash
-    @source: Hash[Symbol, CSource::CFunction] | nil
+    @source: Hash[Symbol, CSource::CFunction]
 
+    attr_reader initializers: Array[Hash[Symbol, String]]
     attr_reader params: Array[Wrapture::ParamSpec]
     attr_reader return_type: Wrapture::TypeSpec
     attr_accessor source: Hash[Symbol, CSource::CFunction] | nil
     attr_writer static: bool
     attr_writer virtual: bool
 
-    def self.from_hash: (spec_hash spec) -> Wrapture::FunctionSpec
+    def self.from_hash: (function_hash) -> Wrapture::FunctionSpec
 
     private def self.set_source_from_hash: (FunctionSpec, Hash[Symbol, untyped]) -> void
 
-    def initialize: (spec_hash spec) -> void
+    def initialize: (name_type) -> void
     def []: (Symbol) -> CSource::CFunction
     def []=: (Symbol, CSource::CFunction) -> CSource::CFunction
     def constructor?: -> bool
     def destructor?: -> bool
     def doc: -> Comment
-    def initializers: -> spec_hash
     def name_words: -> Array[String]
     def optional_params: -> Array[Wrapture::ParamSpec]
     def params?: -> bool

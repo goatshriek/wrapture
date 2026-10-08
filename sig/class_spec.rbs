@@ -14,30 +14,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+type class_hash = Hash[Symbol, (bool | Enumerable[function_hash] | name_type)]
+
 module Wrapture
   class ClassSpec
     include Named
 
-    @doc: Wrapture::Comment
-    @parent: Enumerable[String] | nil
-    @source: Hash[Symbol, CSource::CStruct] | nil
-    @spec: spec_hash
+    @doc: Comment
+    @exception: bool
+    @name_words: Array[String]
+    @parent: Array[String] | nil
+    @source: Hash[Symbol, CSource::CStruct]
 
-    attr_reader doc: Wrapture::Comment
-    attr_reader parent: Enumerable[String] | nil
-    attr_reader source: Hash[Symbol, CSource::CStruct] | nil
+    attr_reader doc: Comment
+    attr_writer exception: bool
+    attr_reader name_words: Array[String]
+    attr_reader parent: Array[String] | nil
+    attr_reader source: Hash[Symbol, CSource::CStruct]
 
-    def self.effective_type: (spec_hash spec) -> String
-    def self.from_hash: (spec_hash spec) -> Wrapture::ClassSpec
-    def self.normalize_spec_hash: (spec_hash spec) -> spec_hash
-    def self.normalize_spec_hash!: (spec_hash spec) -> spec_hash
+    def self.from_hash: (class_hash) -> Wrapture::ClassSpec
 
-    def initialize: (spec_hash spec) -> void
+    def initialize: (name_type) -> void
     def []: (Symbol) -> CSource::CStruct
     def []=: (Symbol, CSource::CStruct) -> CSource::CStruct
     def child?: -> bool
-    def equivalent_member?: -> bool
     def exception?: -> bool
-    def name_words: -> Array[String]
   end
 end

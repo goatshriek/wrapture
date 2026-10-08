@@ -153,6 +153,7 @@ module Wrapture
     # includes:: A list of includes that are needed for this class.
     # libraries:: A list of libraries that must be linked to use this class.
     def initialize(spec)
+      # TODO: pick up here, removing spec
       @spec = ClassSpec.normalize_spec_hash(spec)
       @doc = Comment.new(@spec[:doc])
 

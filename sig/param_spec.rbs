@@ -14,6 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+type param_hash = Hash[Symbol, (name_type | type_hash)]
+
 module Wrapture
   class ParamSpec
     include Named
@@ -28,8 +30,8 @@ module Wrapture
     attr_reader name_words: Array[String]
     attr_accessor type_spec: TypeSpec
 
-    def self.from_hash: (spec_hash) -> ParamSpec
-    def self.from_hashes: (Enumerable[spec_hash]) -> Array[ParamSpec]
+    def self.from_hash: (param_hash) -> ParamSpec
+    def self.from_hashes: (Enumerable[param_hash]) -> Array[ParamSpec]
 
     def initialize: (String | Array[String], TypeSpec) -> void
     def default_value?: -> bool
