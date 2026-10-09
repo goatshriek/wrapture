@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-type class_hash = Hash[Symbol, (bool | Enumerable[function_hash] | name_type)]
+type class_hash = Hash[Symbol, (bool | Enumerable[function_hash] | Hash[Symbol, name_type] | name_type)]
 
 module Wrapture
   class ClassSpec
@@ -26,13 +26,15 @@ module Wrapture
     @parent: Array[String] | nil
     @source: Hash[Symbol, CSource::CStruct]
 
-    attr_reader doc: Comment
+    attr_accessor doc: Comment
     attr_writer exception: bool
     attr_reader name_words: Array[String]
-    attr_reader parent: Array[String] | nil
+    attr_accessor parent: Array[String] | nil
     attr_reader source: Hash[Symbol, CSource::CStruct]
 
     def self.from_hash: (class_hash) -> Wrapture::ClassSpec
+
+    private def self.set_source_from_hash: (FunctionSpec, Hash[Symbol, untyped]) -> void
 
     def initialize: (name_type) -> void
     def []: (Symbol) -> CSource::CStruct

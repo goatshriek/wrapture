@@ -35,7 +35,7 @@ module Wrapture
 
     def self.from_hash: (function_hash) -> Wrapture::FunctionSpec
 
-    private def self.set_source_from_hash: (FunctionSpec, Hash[Symbol, untyped]) -> void
+    private def self.set_source_from_hash: (FunctionSpec, Hash[Symbol, Hash[Symbol, untyped]]) -> void
 
     def initialize: (name_type) -> void
     def []: (Symbol) -> CSource::CFunction

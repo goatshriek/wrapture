@@ -42,13 +42,13 @@ module Wrapture
     # The root of this context.
     attr_reader :root
 
-    # Creates a Context with a root ClassSpec constructed from +hash+,
-    # functions derived from the +:functions+, +:constructors+, and
-    # +:destructor+ keys, and constants derived from the +:constants+ key. If
-    # +parent+ is provided, it is the parent of the new Context, but it is not
-    # added to the contents of the parent.
+    # Creates a Context with a root ClassSpec constructed from +hash+ with
+    # ClassSpec::from_hash, functions derived from the +:functions+,
+    # +:constructors+, and +:destructor+ keys, and constants derived from the
+    # +:constants+ key. If +parent+ is provided, it is the parent of the new
+    # Context, but it is not added to the contents of the parent.
     def self.from_class_hash(hash, parent: nil)
-      class_spec = ClassSpec.new(hash)
+      class_spec = ClassSpec.from_hash(hash)
       context = new(class_spec, parent: parent)
 
       if hash.key?(:constants)

@@ -867,7 +867,7 @@ module Wrapture
       # ClassSpec root.
       def self.wrap_class_context(context)
         class_spec = context.root
-        set = CppSource::CppSourceSet.new(class_spec.name)
+        set = CppSource::CppSourceSet.new(class_name(class_spec))
 
         set.add_lib_header(declare_class(context))
         set.add_lib_source(define_class(context))

@@ -165,9 +165,9 @@ def validate_cpp_build(spec, build)
 
   source_filenames = build.sources.map(&:path).map(&:to_s)
 
-  assert_includes(source_filenames, "#{spec.name}.cpp",
+  assert_includes(source_filenames, "#{spec.upper_camel_case_name}.cpp",
                   "no source file named after class #{spec.name}")
-  assert_includes(source_filenames, "#{spec.name}.hpp",
+  assert_includes(source_filenames, "#{spec.upper_camel_case_name}.hpp",
                   "no header file named after class #{spec.name}")
 
   # validate_declaration_file(spec)

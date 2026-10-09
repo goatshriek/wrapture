@@ -155,7 +155,7 @@ module Wrapture
         end
       end
 
-      set_source_from_hash(func_spec, spec[:source]) if spec.key?(:source)
+      set_source_from_hash(func_spec, spec.fetch(:source, {}))
 
       func_spec
     end

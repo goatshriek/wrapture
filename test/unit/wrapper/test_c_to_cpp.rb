@@ -116,7 +116,7 @@ class CToCppTest < Minitest::Test
 
   def test_declaration_includes_in_namespace_with_no_c_details
     # we need a class spec where there isn't a :c key
-    class_spec = Wrapture::ClassSpec.new(fixture_hash('versioned_class'))
+    class_spec = Wrapture::ClassSpec.from_hash(fixture_hash('versioned_class'))
     context = Wrapture::Context.new(Wrapture::Namespace.new(%w[test ns]))
     context << class_spec
     class_context = context.classes.first
@@ -131,7 +131,9 @@ class CToCppTest < Minitest::Test
   def test_definition_includes_with_exception_error_action
     ns_hash = fixture_hash('namespace_with_exceptions')
     context = Wrapture::Context.from_namespace_hash(ns_hash)
-    cls = context.classes.find { |it| it.root.name == 'ExceptionThrower' }
+    cls = context.classes.find do |it|
+      it.root.name_words == %w[exception thrower]
+    end
 
     refute_nil(cls)
 
@@ -167,7 +169,7 @@ class CToCppTest < Minitest::Test
 
   def test_explicit_class
     test_spec = fixture_hash('explicit_pointer_class')
-    spec = Wrapture::ClassSpec.new(test_spec)
+    spec = Wrapture::ClassSpec.from_hash(test_spec)
     build = Wrapture::Wrapper::CToCpp.wrap_class(spec)
 
     validate_cpp_build(spec, build)
@@ -254,7 +256,7 @@ class CToCppTest < Minitest::Test
 
   def test_overriding_constructor
     test_spec = fixture_hash('constructor_class')
-    spec = Wrapture::ClassSpec.new(test_spec)
+    spec = Wrapture::ClassSpec.from_hash(test_spec)
     build = Wrapture::Wrapper::CToCpp.wrap_class(spec)
 
     validate_cpp_build(spec, build)
@@ -267,7 +269,7 @@ class CToCppTest < Minitest::Test
 
   def test_pointer_class
     test_spec = fixture_hash('pointer_class')
-    spec = Wrapture::ClassSpec.new(test_spec)
+    spec = Wrapture::ClassSpec.from_hash(test_spec)
     build = Wrapture::Wrapper::CToCpp.wrap_class(spec)
 
     validate_cpp_build(spec, build)
@@ -314,13 +316,14 @@ class CToCppTest < Minitest::Test
   def test_pointer_class_with_equivalent_pointer_constructor
     spec_name = 'pointer_class_with_equivalent_pointer_constructor'
     test_spec = fixture_hash(spec_name)
-    spec = Wrapture::ClassSpec.new(test_spec)
+    spec = Wrapture::ClassSpec.from_hash(test_spec)
     build = Wrapture::Wrapper::CToCpp.wrap_class(spec)
 
     validate_cpp_build(spec, build)
 
-    source = build["#{spec.name}.hpp"]
-    constructor_sig = /#{spec.name}\(struct wrapped_struct \*\w+\)/
+    class_name = Wrapture::Wrapper::CToCpp.class_name(spec)
+    source = build["#{class_name}.hpp"]
+    constructor_sig = /#{class_name}\(struct wrapped_struct \*\w+\)/
     num_constructors = count_source_file_matches(source, constructor_sig)
 
     assert_equal(1, num_constructors)
@@ -394,7 +397,7 @@ class CToCppTest < Minitest::Test
     enum_specs = [fixture_hash('basic_enum')]
     ns = Wrapture::Namespace.new(%w[wrapture test])
     context = Wrapture::Context.new(ns)
-    class_specs.each { |it| context << Wrapture::ClassSpec.new(it) }
+    class_specs.each { |it| context << Wrapture::ClassSpec.from_hash(it) }
     enum_specs.each { |it| context << Wrapture::EnumSpec.new(it) }
 
     assert_equal(class_specs.count, context.classes.count)

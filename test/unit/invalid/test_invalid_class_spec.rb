@@ -22,12 +22,12 @@ require 'fixture'
 require 'minitest/autorun'
 require 'wrapture'
 
-class InvalidClassTest < Minitest::Test
+class InvalidClassSpecTest < Minitest::Test
   def test_initializer_missing_name
     test_spec = fixture_hash('invalid/initializer_missing_name')
 
     assert_raises(Wrapture::MissingSpecKey) do
-      Wrapture::Context.from_class_hash(test_spec)
+      Wrapture::ClassSpec.from_hash(test_spec)
     end
   end
 end
