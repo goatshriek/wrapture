@@ -19,11 +19,13 @@
 #++
 
 require 'wrapture/named'
+require 'wrapture/sourced'
 
 module Wrapture
   # A description of an enumeration.
   class EnumSpec
     include Named
+    include Sourced
 
     # The documentation of the enumeration.
     attr_accessor :doc
@@ -31,122 +33,13 @@ module Wrapture
     # An array of elements in this enumeration.
     attr_reader :elements
 
-    # The name of the constant.
+    # The name of the enumeration type.
     attr_reader :name_words
-
-    # The namespace of the enumeration.
-    attr_accessor :namespace
 
     # A map of language-specific wrapping details.
     attr_reader :source
 
-    # Creates an EnumSpec element from hash +spec+.
-    def self.element_from_hash(spec)
-      element = { name: Wrapture.normalize_name(spec, :name) }
-      element[:doc] = Comment.new(spec[:doc]) if spec.key?(:doc)
-
-      if spec.key?(:source) && spec[:source].key?(:c)
-        element[:source] = { c: {} }
-
-        if spec[:source][:c].key?(:value)
-          element[:source][:c][:value] = spec[:source][:c][:value]
-        end
-
-        inc = Wrapture.normalize_array(spec[:source][:c].fetch(:includes, nil))
-        element[:source][:c][:includes] = inc
-      end
-
-      element
-    end
-
-    # Creates a new EnumSpec from hash +spec+.
-    def self.from_hash(spec)
-      unless Wrapture.supports_version?(spec.fetch(:version, Wrapture::VERSION))
-        raise UnsupportedSpecVersion
-      end
-
-      unless spec.key?(:name)
-        raise MissingSpecKey, 'a name is required for enumerations'
-      end
-
-      if spec.key?(:elements)
-        unless spec[:elements].is_a?(Array)
-          raise InvalidSpecKey, 'the elements key must be an array'
-        end
-      else
-        raise MissingSpecKey, 'elements are required for enumerations'
-      end
-
-      Comment.validate_doc(spec[:doc]) if spec.key?(:doc)
-
-      name = Wrapture.normalize_name(spec, :name)
-      enum = EnumSpec.new(name)
-      enum.doc = Comment.new(spec.fetch(:doc, ''))
-      enum.namespace = spec[:namespace] if spec.key?(:namespace)
-
-      if spec.key?(:source) && spec[:source].key?(:c)
-        c_spec = spec[:source][:c]
-        inc = Wrapture.normalize_array(c_spec.fetch(:includes, nil))
-        enum[:c] = { includes: inc }
-      end
-
-      spec[:elements].each do |it|
-        enum.elements << element_from_hash(it)
-      end
-
-      enum
-    end
-
-    # Returns a normalized copy of a hash specification of an enumeration.
-    # See normalize_spec_hash! for details.
-    def self.normalize_spec_hash(spec)
-      normalize_spec_hash!(Marshal.load(Marshal.dump(spec)))
-    end
-
-    # Normalizes a hash specification of an enumeration in place. Normalization
-    # will remove duplicate entries in include lists and check for a name key.
-    #
-    # If the 'doc' key is present, it is validated using Comment::validate_doc.
-    # If not, it is set to an empty string.
-    def self.normalize_spec_hash!(spec)
-      unless spec.key?(:name)
-        raise MissingSpecKey, 'a name is required for enumerations'
-      end
-
-      spec[:name] = Wrapture.normalize_name(spec, :name)
-
-      if spec.key?(:elements)
-        unless spec[:elements].is_a?(Array)
-          raise InvalidSpecKey, 'the elements key must be an array'
-        end
-      else
-        raise MissingSpecKey, 'elements are required for enumerations'
-      end
-
-      if spec.key?(:doc)
-        Comment.validate_doc(spec[:doc])
-      else
-        spec[:doc] = ''
-      end
-
-      spec[:includes] = Wrapture.normalize_array(spec[:includes])
-      spec[:elements].each do |element|
-        element[:includes] = Wrapture.normalize_array(element[:includes])
-      end
-
-      spec[:libraries] = Wrapture.normalize_array(spec[:libraries])
-
-      spec
-    end
-
-    # Creates an enumeration specification based on the provided hash spec.
-    #
-    # The hash must have the following keys:
-    # name:: The name of the enumeration.
-    # elements:: A list of elements contained in the enumeration.
-    #
-    # The following keys are optional:
-    # doc:: a string containing the documentation for this class
+    # Creates an EnumSpec element from +hash+.
     #
     # Element hashes have the following set of keys:
     # name:: The name used for the element, required.
@@ -157,9 +50,75 @@ module Wrapture
     # to the wrapping language if possible, and chosen by wrapture if not. This
     # means that the same element may have different values in different
     # languages if it is not specified.
-    def initialize(name_words)
-      @name_words = Wrapture.normalize_name_words(name_words)
-      @namespace = nil
+    def self.element_from_hash(hash)
+      element = { name: Named.words_from_name(hash[:name]) }
+      element[:doc] = Comment.new(hash.fetch(:doc, ''))
+
+      if hash.key?(:source) && hash[:source].key?(:c)
+        element[:source] = { c: {} }
+
+        if hash[:source][:c].key?(:value)
+          element[:source][:c][:value] = hash[:source][:c][:value]
+        end
+
+        inc = hash[:source][:c].fetch(:includes, [])
+        element[:source][:c][:includes] = Array(inc)
+      end
+
+      element
+    end
+
+    # Creates a new EnumSpec from +hash+.
+    #
+    # The hash must have the following keys:
+    # name:: The name of the enumeration.
+    # elements:: An Enumerable of element hashes contained in the enumeration.
+    #            These are provided to element_from_hash to create the elements.
+    #
+    # The following keys are optional:
+    # doc:: a string containing the documentation for this class
+    def self.from_hash(hash)
+      validate_hash(hash)
+
+      enum = EnumSpec.new(hash[:name])
+      enum.doc = Comment.new(hash.fetch(:doc, ''))
+
+      if hash.key?(:source) && hash[:source].key?(:c)
+        c_spec = hash[:source][:c]
+        inc = Array(c_spec.fetch(:includes, []))
+        enum[:c] = { includes: inc }
+      end
+
+      hash[:elements].each do |it|
+        enum.elements << element_from_hash(it)
+      end
+
+      enum
+    end
+
+    # Checks +hash+ to see if it is a valid enum hash. Raises an exception if
+    # it is not.
+    def self.validate_hash(hash)
+      unless Wrapture.supports_version?(hash.fetch(:version, Wrapture::VERSION))
+        raise UnsupportedSpecVersion
+      end
+
+      unless hash.key?(:name)
+        raise MissingSpecKey, 'a name is required for enumerations'
+      end
+
+      if hash.key?(:elements)
+        unless hash[:elements].is_a?(Array)
+          raise InvalidSpecKey, 'the elements key must be an array'
+        end
+      else
+        raise MissingSpecKey, 'elements are required for enumerations'
+      end
+    end
+
+    # An enumeration starts with a name and an empty array of elements.
+    def initialize(name)
+      @name_words = Named.words_from_name(name)
 
       # TODO: this should be an array of custom objects instead of hashes
       @elements = []
@@ -177,17 +136,6 @@ module Wrapture
     # +source[lang]=+.
     def []=(lang, source_details)
       @source[lang] = source_details
-    end
-
-    # An array of libraries needed for everything in this enum.
-    # TODO: can we remove this?
-    def libraries
-      []
-    end
-
-    # True if the enumeration has a namespace, false if not.
-    def namespace?
-      @namespace.nil?
     end
   end
 end

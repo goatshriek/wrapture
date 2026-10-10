@@ -30,7 +30,7 @@ class CToCppTest < Minitest::Test
 
     validate_cpp_build(spec, build)
 
-    assert_equal(test_spec[:name], spec.name)
+    assert_equal(test_spec[:name], spec.upper_camel_case_name)
     assert_equal(1, build.sources.count,
                  'only one file should have been generated')
 
@@ -160,7 +160,7 @@ class CToCppTest < Minitest::Test
     context = Wrapture::Context.new(spec)
     build = Wrapture::Wrapper::CToCpp.wrap_enum_context(context)
 
-    assert_equal(test_spec[:name], spec.name)
+    assert_equal(test_spec[:name], spec.upper_camel_case_name)
     assert_equal(1, build.sources.count,
                  'only one file should have been generated')
 
@@ -398,7 +398,7 @@ class CToCppTest < Minitest::Test
     ns = Wrapture::Namespace.new(%w[wrapture test])
     context = Wrapture::Context.new(ns)
     class_specs.each { |it| context << Wrapture::ClassSpec.from_hash(it) }
-    enum_specs.each { |it| context << Wrapture::EnumSpec.new(it) }
+    enum_specs.each { |it| context << Wrapture::EnumSpec.from_hash(it) }
 
     assert_equal(class_specs.count, context.classes.count)
     assert_equal(enum_specs.count, context.enums.count)

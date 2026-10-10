@@ -14,31 +14,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+type enum_element_hash = Hash[Symbol, (name_type | String)]
+type enum_hash = Hash[Symbol, (Array[enum_element_hash] | name_type | source_hash)]
+
 module Wrapture
   class EnumSpec
     include Named
+    include Sourced
 
     @doc: Comment
-    @elements: Array[Hash[Symbol, untyped]]
+    @elements: Array[enum_element_hash]
     @name_words: Array[String]
-    @namespace: String?
-    @source: Hash[Symbol, untyped] | nil
+    @source: source_hash
 
     attr_accessor doc: Comment
-    attr_reader elements: Array[Hash[Symbol, untyped]]
+    attr_reader elements: Array[enum_element_hash]
     attr_reader name_words: Array[String]
-    attr_accessor namespace: String?
-    attr_reader source: Hash[Symbol, untyped] | nil
+    attr_reader source: source_hash
 
-    def self.element_from_hash: (spec_hash) -> spec_hash
-    def self.from_hash: (spec_hash spec) -> EnumSpec
-    def self.normalize_spec_hash: (spec_hash spec) -> spec_hash
-    def self.normalize_spec_hash!: (spec_hash spec) -> spec_hash
+    def self.element_from_hash: (enum_element_hash) -> spec_hash
+    def self.from_hash: (enum_hash) -> EnumSpec
+    def self.validate_hash: (enum_hash) -> void
 
-    def initialize: (spec_hash spec) -> void
+    def initialize: (name_type) -> void
     def []: (Symbol) -> untyped
     def []=: (Symbol, untyped) -> untyped
-    def libraries: -> Array[String]
-    def namespace?: -> bool
   end
 end
