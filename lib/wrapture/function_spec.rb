@@ -103,7 +103,7 @@ module Wrapture
     def self.from_hash(hash)
       validate_hash(hash)
 
-      func_spec = new(hash[:name])
+      func_spec = new(hash.fetch(:name, ''))
       func_spec.doc = Comment.new(hash.fetch(:doc, ''))
       func_spec.constructor = Wrapture.normalize_boolean(hash, :constructor)
       func_spec.destructor = Wrapture.normalize_boolean(hash, :destructor)
@@ -114,7 +114,7 @@ module Wrapture
         func_spec.initializers.concat(hash[:initializers])
       end
 
-      func_spec.params.concat(params) if hash.key?(:params)
+      func_spec.params.concat(ParamSpec.from_hashes(hash.fetch(:params, [])))
 
       if hash.key?(:return)
         func_spec.return_overloaded = Wrapture.normalize_boolean(hash[:return],
@@ -153,15 +153,14 @@ module Wrapture
         raise MissingSpecKey, msg
       end
 
-      if func_spec.constructor? && hash.dig(:source, :c, :return, :type).nil?
+      if hash.fetch(:constructor, false) &&
+         hash.dig(:source, :c, :return, :type).nil?
         raise InvalidConstructor, 'a constructor did not have a return type'
       end
 
-      if hash.key?(:params)
-        params = ParamSpec.from_hashes(hash[:params])
-        if params.length == 1 && params.last.variadic?
-          raise InvalidSpecKey, 'the only parameter may not be variadic'
-        end
+      params = ParamSpec.from_hashes(hash.fetch(:params, []))
+      if params.length == 1 && params.last.variadic?
+        raise InvalidSpecKey, 'the only parameter may not be variadic'
       end
     end
 
@@ -179,7 +178,11 @@ module Wrapture
     # +Enumerable+ of objects that are converted to words via their +to_s+
     # method.
     def initialize(name)
-      @name_words = Wrapture.normalize_name_words(name)
+      begin
+        @name_words = Named.words_from_name(name)
+      rescue InvalidName
+        @name_words = []
+      end
       @doc = nil
       @source = {}
       @params = []

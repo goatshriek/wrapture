@@ -23,10 +23,12 @@ module Wrapture
     @constructor: bool
     @destructor: bool
     @initializers: Array[Hash[Symbol, String]]
+    @name_words: Array[String]
     @params: Array[ParamSpec]
     @source: Hash[Symbol, CSource::CFunction]
 
     attr_reader initializers: Array[Hash[Symbol, String]]
+    attr_reader name_words: Array[String]
     attr_reader params: Array[ParamSpec]
     attr_reader return_type: TypeSpec
     attr_accessor source: Hash[Symbol, CSource::CFunction] | nil
