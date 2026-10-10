@@ -46,7 +46,6 @@ module Wrapture
     def constructor?: -> bool
     def destructor?: -> bool
     def doc: -> Comment
-    def name_words: -> Array[String]
     def optional_params: -> Array[ParamSpec]
     def params?: -> bool
     def qualified_name: -> String
