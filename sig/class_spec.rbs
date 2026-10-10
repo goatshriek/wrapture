@@ -33,6 +33,7 @@ module Wrapture
     attr_reader source: Hash[Symbol, CSource::CStruct]
 
     def self.from_hash: (class_hash) -> Wrapture::ClassSpec
+    def self.validate_hash: (class_hash) -> void
 
     private def self.set_source_from_hash: (FunctionSpec, Hash[Symbol, untyped]) -> void
 

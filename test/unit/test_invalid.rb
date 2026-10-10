@@ -27,7 +27,7 @@ class InvalidTest < Minitest::Test
     test_spec = fixture_hash('invalid/class_with_invalid_doc')
 
     assert_raises(Wrapture::InvalidDoc) do
-      Wrapture::ClassSpec.new(test_spec)
+      Wrapture::ClassSpec.from_hash(test_spec)
     end
   end
 

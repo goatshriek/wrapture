@@ -81,7 +81,7 @@ module Wrapture
 
       name = Wrapture.normalize_name(spec, :name)
       enum = EnumSpec.new(name)
-      enum.doc = Comment.new(spec[:doc])
+      enum.doc = Comment.new(spec.fetch(:doc, ''))
       enum.namespace = spec[:namespace] if spec.key?(:namespace)
 
       if spec.key?(:source) && spec[:source].key?(:c)

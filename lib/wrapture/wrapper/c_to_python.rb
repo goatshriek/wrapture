@@ -70,7 +70,8 @@ module Wrapture
       def self.add_class_object(src, class_spec, fail_label)
         object_name = type_object_name(class_spec)
         src.puts("Py_INCREF( &#{object_name} );")
-        add_params = "m, \"#{class_spec.name}\", ( PyObject * ) &#{object_name}"
+        class_name = Python.class_name(class_spec)
+        add_params = "m, \"#{class_name}\", ( PyObject * ) &#{object_name}"
         src.if("PyModule_AddObject( #{add_params} ) < 0") do |blk|
           blk.puts("goto #{fail_label};")
         end
@@ -438,7 +439,8 @@ module Wrapture
         if C.equivalent_ancestor?(context.parent) && runtime_class?(class_spec)
           # TODO: we may not need super if this function doesn't use the
           # equivalent struct anywhere
-          type_name = type_struct_name(context.parent.parent.root)
+          ancestor_class = context.resolve_name(context.parent.root.parent)
+          type_name = type_struct_name(ancestor_class)
           blk.declare(CSource::CPointer.new(type_name), 'super')
         end
 
@@ -739,7 +741,7 @@ module Wrapture
           blk.puts("#{struct_name} = #{alloc_call};")
 
           if C.equivalent_ancestor?(it) && runtime_class?(overload)
-            parent = it.parent.parent
+            parent = it.resolve_name(overload.parent)
             super_type = CSource::CPointer.new(type_struct_name(parent.root))
             super_value = runtime_type_cast(parent, struct_name)
             blk.declare(super_type, 'super', value: super_value)
@@ -1072,7 +1074,7 @@ module Wrapture
         if C.equivalent_ancestor?(context.parent) && runtime_class
           # TODO: this should also be omitted if the equivalent struct isn't
           # actually used in the function
-          parent = context.parent.parent.root
+          parent = context.resolve_name(context.parent.root.parent)
           f.puts("super = #{runtime_type_cast(parent, 'self_obj')};")
         end
 
@@ -1472,9 +1474,7 @@ module Wrapture
         return [] unless func_spec[:c].error_check?
 
         action = func_spec[:c].error_action
-        exception_class = context.resolve do |it|
-          it.root.upper_camel_case_name == action.type.upper_camel_case_name
-        end
+        exception_class = context.resolve_name(action.type.name_words)
         type_object = "(PyObject *) &#{type_object_name(exception_class)}"
 
         checks = func_spec[:c].error_rules.map do |rule|
@@ -1495,7 +1495,8 @@ module Wrapture
           blk.puts("PyObject *exception_obj = #{call_type};")
 
           equiv_class = if C.equivalent_ancestor?(exception_class)
-                          exception_class.parent
+                          ancestor_name = exception_class.root.parent
+                          exception_class.resolve_name(ancestor_name)
                         else
                           exception_class
                         end

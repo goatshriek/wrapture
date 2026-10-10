@@ -17,6 +17,7 @@
 module Wrapture
   module Wrapper
     module Python
+      def self.class_name: (ClassSpec) -> String
       def self.decorate_name: (Named) -> Array[String]
       def self.decorate_name_words: (Array[String]) -> Array[String]
       def self.module_name: (Namespace) -> String

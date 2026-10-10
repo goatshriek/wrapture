@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2025-2026 Joel E. Anderson
+# Copyright 2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,24 +22,21 @@ require 'fixture'
 require 'minitest/autorun'
 require 'wrapture'
 
-class InvalidCToCppTest < Minitest::Test
-  # If the return type of a constructor doesn't match the type used in the
-  # class, then an exception is raised.
-  def test_constructor_return_type_mismatch
-    hash = fixture_hash('invalid/class_with_c_constructor_return_type_mismatch')
-    context = Wrapture::Context.from_class_hash(hash)
+class InvalidFunctionSpecTest < Minitest::Test
+  def test_initializer_missing_name
+    test_spec = fixture_hash('invalid/initializer_missing_name')
 
-    assert_raises(Wrapture::InvalidConstructor) do
-      Wrapture::Wrapper::CToCpp.wrap_class_context(context)
+    assert_raises(Wrapture::MissingSpecKey) do
+      Wrapture::FunctionSpec.from_hash(test_spec)
     end
   end
 
   # If the return type doesn't exist for a constructor, an exception is raised.
   def test_no_constructor_return_type
-    hash = fixture_hash('invalid/class_with_no_return_type_in_c_constructor')
+    hash = fixture_hash('invalid/constructor_with_no_return_type')
 
     assert_raises(Wrapture::InvalidConstructor) do
-      Wrapture::ClassSpec.from_hash(hash)
+      Wrapture::FunctionSpec.from_hash(hash)
     end
   end
 end

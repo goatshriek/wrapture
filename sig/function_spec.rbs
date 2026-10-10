@@ -23,17 +23,18 @@ module Wrapture
     @constructor: bool
     @destructor: bool
     @initializers: Array[Hash[Symbol, String]]
-    @params: Array[Wrapture::ParamSpec]
+    @params: Array[ParamSpec]
     @source: Hash[Symbol, CSource::CFunction]
 
     attr_reader initializers: Array[Hash[Symbol, String]]
-    attr_reader params: Array[Wrapture::ParamSpec]
-    attr_reader return_type: Wrapture::TypeSpec
+    attr_reader params: Array[ParamSpec]
+    attr_reader return_type: TypeSpec
     attr_accessor source: Hash[Symbol, CSource::CFunction] | nil
     attr_writer static: bool
     attr_writer virtual: bool
 
-    def self.from_hash: (function_hash) -> Wrapture::FunctionSpec
+    def self.from_hash: (function_hash) -> FunctionSpec
+    def self.validate_hash: (function_hash) -> void
 
     private def self.set_source_from_hash: (FunctionSpec, Hash[Symbol, Hash[Symbol, untyped]]) -> void
 
@@ -44,10 +45,10 @@ module Wrapture
     def destructor?: -> bool
     def doc: -> Comment
     def name_words: -> Array[String]
-    def optional_params: -> Array[Wrapture::ParamSpec]
+    def optional_params: -> Array[ParamSpec]
     def params?: -> bool
     def qualified_name: -> String
-    def required_params: -> Array[Wrapture::ParamSpec]
+    def required_params: -> Array[ParamSpec]
     def return_overloaded?: -> bool
     def static?: -> bool
     def to_s: () -> String

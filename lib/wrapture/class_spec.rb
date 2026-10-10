@@ -43,7 +43,7 @@ module Wrapture
     # A map of language-specific wrapping details.
     attr_reader :source
 
-    # Creates a new ClassSpec from hash +spec+.
+    # Creates a new ClassSpec from +hash+.
     #
     # The hash must have a +:name+ key with a String or Enumerable of strings as
     # the value, which will be used as the name of the ClassSpec.
@@ -54,42 +54,34 @@ module Wrapture
     # parent:: Either a Hash with a +:name+ key, or a name value
     #          directly. The name must be a String or Enumerable of strings with
     #          the name of the parent of this class.
-    def self.from_hash(spec)
-      unless Wrapture.supports_version?(spec.fetch(:version, Wrapture::VERSION))
+    def self.from_hash(hash)
+      validate_hash(hash)
+
+      class_spec = new(hash[:name])
+      class_spec.doc = Comment.new(hash.fetch(:doc, ''))
+      class_spec.exception = true if hash.fetch(:exception, false)
+      if hash.key?(:parent)
+        class_spec.parent = if hash[:parent].is_a?(Hash)
+                              Named.words_from_name(hash[:parent][:name])
+                            else
+                              Named.words_from_name(hash[:parent])
+                            end
+      end
+      set_source_from_hash(class_spec, hash.fetch(:source, {}))
+
+      class_spec
+    end
+
+    # Checks +hash+ to see if it is a valid class hash. Raises an exception if
+    # it is not.
+    def self.validate_hash(hash)
+      unless Wrapture.supports_version?(hash.fetch(:version, Wrapture::VERSION))
         raise UnsupportedSpecVersion
       end
 
-      unless spec.key?(:name)
+      unless hash.key?(:name)
         raise(MissingSpecKey, 'ClassSpec hashes must have a :name key')
       end
-
-      if spec.key?(:constructors)
-        c_constructors = spec[:constructors].reject do |it|
-          it.dig(:source, :c).nil?
-        end
-        if c_constructors.any? do |it|
-          it.dig(:source, :c, :return, :type).nil?
-        end
-          raise InvalidConstructor, 'a constructor did not have a return type'
-        end
-      end
-
-      # TODO: pick up here, validating intializers entries, and moving hash
-      # validations to their own validate function
-
-      class_spec = new(spec[:name])
-      class_spec.doc = Comment.new(spec.fetch(:doc, ''))
-      class_spec.exception = true if spec.fetch(:exception, false)
-      if spec.key?(:parent)
-        class_spec.parent = if spec[:parent].is_a?(Hash)
-                              Named.words_from_name(spec[:parent][:name])
-                            else
-                              Named.words_from_name(spec[:parent])
-                            end
-      end
-      set_source_from_hash(class_spec, spec.fetch(:source, {}))
-
-      class_spec
     end
 
     # Sets the members of the +source+ property of the +FunctionSpec+ +spec+

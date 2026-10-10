@@ -126,7 +126,6 @@ classes:
             return:
               type: "const char *"
   - name: "JammedException"
-    type: "pointer"
     parent:
       name: "TurretException"
     exception: true
@@ -152,7 +151,6 @@ classes:
             params:
               - value: "equivalent_struct_pointer"
   - name: "OutOfAmmoException"
-    type: "pointer"
     parent:
       name: "TurretException"
     exception: true
@@ -178,7 +176,6 @@ classes:
             params:
               - value: "equivalent_struct_pointer"
   - name: "TargetingException"
-    type: "pointer"
     parent:
       name: "TurretException"
     exception: true

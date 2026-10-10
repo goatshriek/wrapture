@@ -35,7 +35,7 @@ module Wrapture
         class_spec = context.root
         return false unless class_spec.child?
 
-        parent_context = context.resolve_name(context.root.parent)
+        parent_context = context.resolve_name(class_spec.parent)
         until parent_context.nil?
           parent_source = parent_context.root.source
           if parent_source.key?(:c) && parent_source[:c] == class_spec[:c]
@@ -193,15 +193,12 @@ module Wrapture
 
         factory_struct = equivalent_struct(factory)
         overload_struct = equivalent_struct(overload)
-        # TODO: this should compare name words, not specific name forms
-        factory_name = factory.upper_camel_case_name
-        parent_name = Named.upper_camel_case_name(overload.parent)
 
         !factory_struct.nil? &&
           !overload_struct.nil? &&
           factory_struct.rules.empty? &&
           factory_struct.name == overload_struct.name &&
-          factory_name == parent_name &&
+          factory.name_words == overload.parent &&
           !overload_struct.rules.empty?
       end
 
