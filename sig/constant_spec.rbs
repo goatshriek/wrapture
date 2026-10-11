@@ -14,25 +14,28 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+type constant_hash = Hash[Symbol, (Enumerable[String] | name_type | String)]
+
 module Wrapture
   class ConstantSpec
     include Named
+    include Sourced
 
-    @spec: spec_hash
-    @doc: Wrapture::Comment
-    @type: Wrapture::TypeSpec
+    @doc: Comment
+    @name_words: Array[String]
+    @source: Hash[Symbol, untyped]
+    @type_spec: TypeSpec
+    @value: String
 
-    attr_reader doc: Wrapture::Comment
-    attr_reader type: Wrapture::TypeSpec
+    attr_accessor doc: Comment
+    attr_reader name_words: Array[String]
+    attr_reader source: Hash[Symbol, untyped]
+    attr_reader type_spec: TypeSpec
+    attr_reader value: String
 
-    def self.from_hash: (spec_hash) -> ConstantSpec
-    def self.normalize_spec_hash: (spec_hash spec) -> spec_hash
+    def self.from_hash: (constant_hash) -> ConstantSpec
+    def self.validate_hash: (constant_hash) -> void
 
-    def initialize: (spec_hash spec) -> void
-    def declaration_includes: -> Array[String]
-    def definition_includes: -> Array[String]
-    def includes: -> Array[String]
-    def name_words: -> Array[String]
-    def value: -> String
+    def initialize: (name_type, (name_type | TypeSpec), String) -> void
   end
 end

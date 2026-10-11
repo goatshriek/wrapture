@@ -96,7 +96,7 @@ module Wrapture
 
       if hash.key?(:constants)
         hash[:constants].each do |it|
-          context << ConstantSpec.new(it)
+          context << ConstantSpec.from_hash(it)
         end
       end
 

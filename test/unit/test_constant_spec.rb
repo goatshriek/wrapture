@@ -1,4 +1,22 @@
+# SPDX-License-Identifier: Apache-2.0
+
 # frozen_string_literal: true
+
+#--
+# Copyright 2026 Joel E. Anderson
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#++
 
 require 'helper'
 
@@ -10,20 +28,20 @@ class ConstantSpecTest < Minitest::Test
   def test_basic_new
     test_spec = fixture_hash('basic_constant')
 
-    Wrapture::ConstantSpec.new(test_spec)
+    Wrapture::ConstantSpec.from_hash(test_spec)
   end
 
   def test_future_spec_version
     test_spec = fixture_hash('future_version_constant')
 
     assert_raises(Wrapture::UnsupportedSpecVersion) do
-      Wrapture::ConstantSpec.new(test_spec)
+      Wrapture::ConstantSpec.from_hash(test_spec)
     end
   end
 
   def test_versioned_constant
     test_spec = fixture_hash('versioned_constant')
 
-    Wrapture::ConstantSpec.new(test_spec)
+    Wrapture::ConstantSpec.from_hash(test_spec)
   end
 end

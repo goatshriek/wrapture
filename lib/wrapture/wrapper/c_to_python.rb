@@ -181,7 +181,7 @@ module Wrapture
           offset_struct = type_struct_name(class_spec)
           offset_field = constant_spec.snake_case_name
           init = [".name = \"#{constant_spec.screaming_snake_case_name}\"",
-                  ".type = #{member_type(constant_spec.type)}",
+                  ".type = #{member_type(constant_spec.type_spec)}",
                   ".offset = offsetof( #{offset_struct}, #{offset_field} )",
                   '.flags = Py_READONLY']
 
@@ -339,7 +339,7 @@ module Wrapture
           constant_spec = it.root
           # TODO: this needs to get a Python type, and then resolve it to the
           # equivalent C type
-          type = constant_spec.type.snake_case_name
+          type = constant_spec.type_spec.snake_case_name
           members << "#{type} #{constant_spec.snake_case_name};"
         end
 

@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2019-2025 Joel E. Anderson
+# Copyright 2019-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,19 +19,30 @@
 #++
 
 require 'wrapture/named'
+require 'wrapture/sourced'
 
 module Wrapture
   # A description of a constant.
   class ConstantSpec
     include Named
+    include Sourced
 
     # The documentation comment for this constant.
-    attr_reader :doc
+    attr_accessor :doc
+
+    # The words that make up the class name.
+    attr_reader :name_words
+
+    # A map of language-specific wrapping details.
+    attr_reader :source
 
     # The type of this constant.
-    attr_reader :type
+    attr_reader :type_spec
 
-    # Creates a new ConstantSpec from hash +spec+.
+    # The value of this constant.
+    attr_reader :value
+
+    # Creates a new ConstantSpec from +hash+.
     #
     # The hash must have the following keys (symbols with this name):
     # name:: the name of the constant
@@ -43,73 +54,44 @@ module Wrapture
     # The following keys are optional:
     # doc:: a string containing the documentation for this constant
     def self.from_hash(hash)
-      new(hash)
-    end
+      validate_hash(hash)
 
-    # Returns a normalized copy of a hash specification of an enumeration.
-    # See normalize_spec_hash! for details.
-    def self.normalize_spec_hash(spec)
-      normalize_spec_hash!(Marshal.load(Marshal.dump(spec)))
-    end
+      spec = new(hash[:name], hash[:type], hash[:value])
+      spec.doc = Comment.new(hash.fetch(:doc, ''))
 
-    # Normalizes a hash specification of a constant.
-    #
-    # The version will be set to the current version of Wrapture if it is
-    # missing.
-    #
-    # The include list will be an empty array if missing, and an array with
-    # a single string if it is a string.
-    def self.normalize_spec_hash!(spec)
-      spec[:doc] = '' unless spec.key?(:doc)
-      Comment.validate_doc(spec[:doc])
-
-      spec[:name] = Wrapture.normalize_name(spec, :name)
-      spec[:version] = Wrapture.spec_version(spec)
-      spec[:includes] = Wrapture.normalize_array(spec[:includes])
+      unless hash.dig(:source, :c, :includes).nil?
+        spec.source[:c] = { includes: Array(hash[:source][:c][:includes]) }
+      end
 
       spec
     end
 
-    # Creates a constant spec based on the provided hash spec
-    #
-    # The hash must have the following keys:
-    # name:: the name of the constant
-    # type:: the type of the constant
-    # value:: the value to assign to the constant
-    # includes::  a list of includes that need to be added in order for this
-    # constant to be valid (for example, includes for the type and value).
-    #
-    # The following keys are optional:
-    # doc:: a string containing the documentation for this constant
-    def initialize(spec)
-      @spec = ConstantSpec.normalize_spec_hash(spec)
-      @doc = Comment.new(@spec[:doc])
-      @type = TypeSpec.new(@spec[:type])
+    # Checks +hash+ to see if it is a valid class hash. Raises an exception if
+    # it is not.
+    def self.validate_hash(hash)
+      unless Wrapture.supports_version?(hash.fetch(:version, Wrapture::VERSION))
+        raise UnsupportedSpecVersion
+      end
+
+      %i[name type value].each do |it|
+        unless hash.key?(it)
+          raise(MissingSpecKey, "ConstantSpec hashes must have a :#{it} key")
+        end
+      end
     end
 
-    # A list of includes needed for the declaration of this constant.
-    def declaration_includes
-      @spec[:includes].dup
-    end
+    # A constant must have +name+, +type_spec+, and +value+.
+    def initialize(name, type_spec, value)
+      @name_words = Named.words_from_name(name)
+      @type_spec = if type_spec.is_a?(TypeSpec)
+                     type_spec
+                   else
+                     TypeSpec.new(type_spec)
+                   end
 
-    # A list of includes needed for the definition of this constant.
-    def definition_includes
-      @spec[:includes].dup
-    end
-
-    # A list of includes needed for this constant.
-    def includes
-      @spec[:includes]
-    end
-
-    # The name of the constant.
-    def name_words
-      @spec[:name]
-    end
-
-    # The value of the constant.
-    def value
-      @spec[:value]
+      @doc = Comment.new
+      @source = {}
+      @value = value
     end
   end
 end

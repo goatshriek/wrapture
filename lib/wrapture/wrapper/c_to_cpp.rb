@@ -86,9 +86,10 @@ module Wrapture
       # A CppDeclaration of +const_spec+.
       def self.constant_declaration(const_spec)
         name = - const_spec.screaming_snake_case_name
+        decl_type = CppSource::CppType.from_type_spec(const_spec.type_spec)
         value = const_spec.value
-        decl = CppSource::CppDeclaration.new(const_spec.type, name: name,
-                                                              value: value)
+        decl = CppSource::CppDeclaration.new(decl_type, name: name,
+                                                        value: value)
         decl.attributes.push('static', 'const')
 
         decl

@@ -28,7 +28,7 @@ def basic_namespace_context
 
   c = Wrapture::Context.new(ns)
   c << Wrapture::ClassSpec.from_hash(class_hash)
-  c << Wrapture::ConstantSpec.new(constant_hash)
+  c << Wrapture::ConstantSpec.from_hash(constant_hash)
   c << Wrapture::EnumSpec.from_hash(enum_hash)
   c << Wrapture::FunctionSpec.from_hash(func_hash)
   c << Wrapture::Namespace.new(%w[nested namespace])
