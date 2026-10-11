@@ -105,10 +105,10 @@ module Wrapture
 
       func_spec = new(hash.fetch(:name, ''))
       func_spec.doc = Comment.new(hash.fetch(:doc, ''))
-      func_spec.constructor = Wrapture.normalize_boolean(hash, :constructor)
-      func_spec.destructor = Wrapture.normalize_boolean(hash, :destructor)
-      func_spec.static = Wrapture.normalize_boolean(hash, :static)
-      func_spec.virtual = Wrapture.normalize_boolean(hash, :virtual)
+      func_spec.constructor = hash.fetch(:constructor, false)
+      func_spec.destructor = hash.fetch(:destructor, false)
+      func_spec.static = hash.fetch(:static, false)
+      func_spec.virtual = hash.fetch(:virtual, false)
 
       if hash.key?(:initializers)
         func_spec.initializers.concat(hash[:initializers])
@@ -117,9 +117,7 @@ module Wrapture
       func_spec.params.concat(ParamSpec.from_hashes(hash.fetch(:params, [])))
 
       if hash.key?(:return)
-        func_spec.return_overloaded = Wrapture.normalize_boolean(hash[:return],
-                                                                 :overloaded)
-
+        func_spec.return_overloaded = hash[:return].fetch(:overloaded, false)
         type_val = hash[:return].fetch(:type, 'void')
         func_spec.return_type = if type_val.is_a?(Hash)
                                   TypeSpec.from_hash(type_val)
@@ -161,6 +159,12 @@ module Wrapture
       params = ParamSpec.from_hashes(hash.fetch(:params, []))
       if params.length == 1 && params.last.variadic?
         raise InvalidSpecKey, 'the only parameter may not be variadic'
+      end
+
+      %i[constructor destructor static virtual].each do |it|
+        if hash.key?(it) && ![true, false].include?(hash[it])
+          raise InvalidSpecKey, "key :#{it} must be a boolean value"
+        end
       end
     end
 
