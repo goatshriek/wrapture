@@ -138,8 +138,9 @@ module Wrapture
             func.error_rules << CExpression.from_hash(rule_spec)
           end
 
+          # TODO: this needs to be moved to a C-specific action type
           unless func.error_rules.empty?
-            func.error_action = ActionSpec.new(check[:error_action])
+            func.error_action = ActionSpec.from_hash(check[:error_action])
           end
         end
 

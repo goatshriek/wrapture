@@ -18,9 +18,62 @@
 # limitations under the License.
 #++
 
+require 'wrapture/sourced'
+
 module Wrapture
   # An action to take within a generated program.
+  #
+  # This is currently synonomous with raising an exception, but will likely be
+  # expanded to other things in the future.
   class ActionSpec
+    include Sourced
+
+    # A hash with language-specific wrapping details.
+    attr_reader :source
+
+    # The type of the exception that will be thrown.
+    attr_reader :type_spec
+
+    # An expression with the value used to create the exception, or nil if no
+    # value is needed.
+    attr_accessor :value
+
+    # Creates a new ActionSpec from +hash+.
+    #
+    # The hash must have the following keys:
+    # name:: the type of action to take (currently only throw_exception is
+    #        supported)
+    # type:: the type of the exception thrown
+    #
+    # A +:value+ key may also be provided, which will be used to create the
+    # the exception instance.
+    def self.from_hash(hash)
+      required_keys = %i[name type]
+      optional_keys = %i[value source]
+
+      extra_keys = hash.keys - required_keys - optional_keys
+      unless extra_keys.empty?
+        extra_msg = "these keys are unrecognized: #{extra_keys.join(', ')}"
+        raise(InvalidSpecKey, extra_msg)
+      end
+
+      missing_keys = required_keys - hash.keys
+      unless missing_keys.empty?
+        missing_msg = "required keys are missing: #{missing_keys.join(', ')}"
+        raise(MissingSpecKey, missing_msg)
+      end
+
+      spec = new(hash[:type])
+
+      unless hash.dig(:source, :c).nil?
+        spec.source[:c] = CSource::CFunction.from_hash(hash[:source][:c])
+      end
+
+      spec.value = hash[:value] if hash.key?(:value)
+
+      spec
+    end
+
     # Normalizes a hash specification of a rule. Normalization checks for
     # invalid keys and unrecognized conditions.
     def self.normalize_spec_hash(spec)
@@ -41,53 +94,24 @@ module Wrapture
         raise(MissingSpecKey, missing_msg)
       end
 
-      if spec.include?(:wrapped_function) && spec.include?(:value)
-        extra_msg = 'wrapped_function and value cannot both be present'
-        raise(KeyConflict, extra_msg)
-      end
-
       normalized
     end
 
-    # Creates an action spec based on the provided spec hash.
-    #
-    # The hash must have the following keys:
-    # name:: the type of action to take (currently only throw_exception is
-    # supported)
-    # type:: the type of the exception thrown
-    #
-    # One of these two keys may be present, but not both:
-    # value:: the value to use to create the exception
-    # wrapped-function:: a function to use to create the exception, described
-    # as a wrapped function call. If the name of the constructor is left out,
-    # then the wrapped function is assumed to be a constructor for the provided
-    # type.
-    def initialize(spec)
-      @spec = ActionSpec.normalize_spec_hash(spec)
-    end
-
-    # A list of includes needed for the action.
-    def includes
-      if @spec.key?(:source) && @spec[:source].key?(:c)
-        @spec[:source][:c][:includes].dup
-      else
-        []
-      end
-    end
-
-    # The type of exception.
-    def type
-      TypeSpec.new(@spec[:type])
-    end
-
-    # The value of the action, if one is set.
-    def value
-      @spec.fetch(:value, nil)
+    # An action must have a +type_spec+ which describes the exception class that
+    # is raised.
+    def initialize(type_spec)
+      @type_spec = if type_spec.is_a?(TypeSpec)
+                     type_spec
+                   else
+                     TypeSpec.new(type_spec)
+                   end
+      @source = {}
+      @value = nil
     end
 
     # True if this spec has a value defined.
     def value?
-      @spec.include?(:value)
+      !@value.nil?
     end
   end
 end

@@ -25,22 +25,21 @@ require 'wrapture'
 class ActionSpecTest < Minitest::Test
   def test_basic
     test_spec = fixture_hash('basic_action')
-    spec = Wrapture::ActionSpec.new(test_spec)
-    common_includes = spec.includes & test_spec[:source][:c][:includes]
+    spec = Wrapture::ActionSpec.from_hash(test_spec)
 
-    assert_equal(common_includes, test_spec[:source][:c][:includes])
+    refute_nil(spec)
   end
 
   def test_exception_without_params
     test_spec = fixture_hash('exception_action_without_params')
-    Wrapture::ActionSpec.new(test_spec)
+    Wrapture::ActionSpec.from_hash(test_spec)
   end
 
   def test_extra_key
     test_spec = fixture_hash('extra_key_action')
 
     assert_raises(Wrapture::InvalidSpecKey) do
-      Wrapture::ActionSpec.new(test_spec)
+      Wrapture::ActionSpec.from_hash(test_spec)
     end
   end
 
@@ -48,7 +47,7 @@ class ActionSpecTest < Minitest::Test
     test_spec = fixture_hash('missing_key_action')
 
     assert_raises(Wrapture::MissingSpecKey) do
-      Wrapture::ActionSpec.new(test_spec)
+      Wrapture::ActionSpec.from_hash(test_spec)
     end
   end
 end

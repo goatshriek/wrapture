@@ -1474,7 +1474,7 @@ module Wrapture
         return [] unless func_spec[:c].error_check?
 
         action = func_spec[:c].error_action
-        exception_class = context.resolve_name(action.type.name_words)
+        exception_class = context.resolve_name(action.type_spec.name_words)
         type_object = "(PyObject *) &#{type_object_name(exception_class)}"
 
         checks = func_spec[:c].error_rules.map do |rule|

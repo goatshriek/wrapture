@@ -481,10 +481,7 @@ module Wrapture
           action = func_spec[:c].error_action
           next if action.nil?
 
-          # TODO: should be able to use raw name words
-          type = context.resolve do |it|
-            it.root.upper_camel_case_name == action.type.upper_camel_case_name
-          end
+          type = context.resolve_name(action.type_spec.name_words)
           inc << Cpp.header_name(type.root) unless type.nil?
         end
 
@@ -943,8 +940,8 @@ module Wrapture
           action = func_spec[:c].error_action
           value_variable = resolve_action_value(func_spec, action.value)
           # TODO: need to resolve this type
-          # right now we just assume the type name is qualified enough
-          blk.puts("throw #{action.type}( #{value_variable} );")
+          exception_class = class_name(action.type_spec)
+          blk.puts("throw #{exception_class}( #{value_variable} );")
         end
 
         [check_blk]

@@ -23,5 +23,5 @@ source:
       - "inc1.h"
       - "inc2.h"
     params:
-      - "return-value"
+      - value: "return-value"
       - value: 3
