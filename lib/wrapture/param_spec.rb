@@ -67,7 +67,7 @@ module Wrapture
       spec
     end
 
-    # Creages an Array of new ParamSpecs from the provided Enumerable of
+    # Creates an Array of new ParamSpecs from the provided Enumerable of
     # hashes.
     def self.from_hashes(spec_hashes)
       spec_hashes.map { |it| from_hash(it) }
