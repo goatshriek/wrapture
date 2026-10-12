@@ -37,8 +37,8 @@ constructors:
           type: "equivalent_struct"
         includes: "constructed.h"
   - params:
-      - name: "original_struct"
-        type: "equivalent_struct"
+      - name: "original"
+        type: "self"
     source:
       c:
         name: "copy_struct"
@@ -49,17 +49,6 @@ constructors:
           type: "equivalent_struct"
         includes:
           - "constructed.h"
-  - params:
-      - name: "original_struct_pointer"
-        type: "equivalent_struct_pointer"
-    source:
-      c:
-        name: "copy_struct_pointer"
-        params:
-          - name: "original_struct_pointer"
-            type: "equivalent_struct_pointer"
-        return:
-          type: "equivalent_struct"
 destructor:
   source:
     c:
@@ -72,7 +61,7 @@ functions:
   - name: "CompareToStruct"
     params:
       - name: "compare_to"
-        type: "equivalent_struct"
+        type: "self"
     return:
       type: "int"
     source:

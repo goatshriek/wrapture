@@ -29,7 +29,7 @@ extern "C" {
 
 struct event {
   int code;
-  void *data;
+  const char *data;
 };
 
 void
@@ -57,7 +57,7 @@ struct event *
 new_default_event( void );
 
 struct event *
-new_event( int code, void *data );
+new_event( int code, const char *data );
 
 struct event *
 new_glass_break_event( int level );

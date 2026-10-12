@@ -33,10 +33,9 @@ classes:
       - name: "load"
         params:
           - name: "bullet"
-            type: "Bullet *"
-            includes: "Bullet.hpp"
+            type: "Bullet"
         return:
-          type: "self_reference"
+          type: "self"
         source:
           c:
             name: "load_rifle_with_bullet"
@@ -47,10 +46,9 @@ classes:
       - name: "fire"
         params:
           - name: "bullet"
-            type: "Bullet *"
-            includes: "Bullet.hpp"
+            type: "Bullet"
         return:
-          type: "self_reference"
+          type: "self"
         source:
           c:
             name: "fire_bullet_from_rifle"

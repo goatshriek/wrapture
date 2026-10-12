@@ -27,7 +27,7 @@ classes:
     functions:
       - name: "OverloadedType"
         return:
-          type: "Parent *"
+          type: "Parent"
           overloaded: true
         source:
           c:

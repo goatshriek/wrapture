@@ -116,7 +116,7 @@ classes:
       - name: "message"
         virtual: true
         return:
-          type: "const char *"
+          type: "string"
         source:
           c:
             name: "get_error_message"
@@ -126,7 +126,6 @@ classes:
             return:
               type: "const char *"
   - name: "JammedException"
-    type: "pointer"
     parent:
       name: "TurretException"
     exception: true
@@ -142,7 +141,7 @@ classes:
     functions:
       - name: "message"
         return:
-          type: "const char *"
+          type: "string"
         source:
           c:
             name: "get_error_message"
@@ -152,7 +151,6 @@ classes:
             params:
               - value: "equivalent_struct_pointer"
   - name: "OutOfAmmoException"
-    type: "pointer"
     parent:
       name: "TurretException"
     exception: true
@@ -168,7 +166,7 @@ classes:
     functions:
       - name: "message"
         return:
-          type: "const char *"
+          type: "string"
         source:
           c:
             name: "get_error_message"
@@ -178,7 +176,6 @@ classes:
             params:
               - value: "equivalent_struct_pointer"
   - name: "TargetingException"
-    type: "pointer"
     parent:
       name: "TurretException"
     exception: true
@@ -194,7 +191,7 @@ classes:
     functions:
       - name: "message"
         return:
-          type: "const char *"
+          type: "string"
         source:
           c:
             name: "get_error_message"

@@ -14,26 +14,33 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+type type_hash = Hash[Symbol, name_type]
+
 module Wrapture
   class TypeSpec
     include Named
 
-    @spec: spec_hash
+    @name_words: Array[String]
 
-    def self.normalize_spec_hash: (spec_hash | String spec) -> spec_hash
-    def self.normalize_spec_hash!: (spec_hash | String spec) -> spec_hash
-    def initialize: (?String spec) -> untyped
-    def ==: (untyped other) -> untyped
-    def base: -> String
-    def equivalent_pointer?: -> bool
-    def equivalent_struct?: -> bool
-    def function: -> (Wrapture::FunctionSpec | nil)
-    def function?: -> bool
-    def includes: -> untyped
-    def name_words: -> Array[String]
-    def pointer?: -> bool
-    def self_reference?: -> bool
+    ANY_TYPE_NAME: Array[String]
+    BOOL_TYPE_NAME: Array[String]
+    INT_TYPE_NAME: Array[String]
+    SELF_TYPE_NAME: Array[String]
+    STRING_TYPE_NAME: Array[String]
+    VOID_TYPE_NAME: Array[String]
+
+    attr_reader name_words: Array[String]
+
+    def self.from_hash: (type_hash) -> TypeSpec
+
+    def initialize: (name_type) -> void
+    def ===: (ClassSpec | EnumSpec) -> bool
+    def any?: () -> bool
+    def bool?: () -> bool
+    def int?: () -> bool
+    def self?: () -> bool
+    def string?: () -> bool
     def to_s: -> String
-    def variadic?: -> bool
+    def void?: () -> bool
   end
 end

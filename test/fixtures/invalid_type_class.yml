@@ -1,5 +1,0 @@
-name: "ExplicitPointerWrapper"
-namespace: "wrapture_test"
-type: "tall"
-equivalent-struct:
-  name: "basic_struct"

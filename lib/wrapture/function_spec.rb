@@ -62,9 +62,9 @@ module Wrapture
     # Set whether this function is virtual.
     attr_writer :virtual
 
-    # Creates a new FunctionSpec from hash +spec+.
+    # Creates a new FunctionSpec from +hash+.
     #
-    # The hash must have a 'name' key with the name of the function, either as
+    # The hash must have a +:name+ key with the name of the function, either as
     # a +String+ or an +Array+ of name words. The remaining keys are optional.
     #
     # The +:params+ key is an +Array+ of parameters for the function. Each entry
@@ -100,12 +100,50 @@ module Wrapture
     # doc:: a string containing the documentation for this function
     # static:: true if this is a static function
     # virtual:: true if this is a virtual function
-    def self.from_hash(spec)
-      unless Wrapture.supports_version?(spec.fetch(:version, Wrapture::VERSION))
+    def self.from_hash(hash)
+      validate_hash(hash)
+
+      func_spec = new(hash.fetch(:name, ''))
+      func_spec.doc = Comment.new(hash.fetch(:doc, ''))
+      func_spec.constructor = hash.fetch(:constructor, false)
+      func_spec.destructor = hash.fetch(:destructor, false)
+      func_spec.static = hash.fetch(:static, false)
+      func_spec.virtual = hash.fetch(:virtual, false)
+
+      if hash.key?(:initializers)
+        func_spec.initializers.concat(hash[:initializers])
+      end
+
+      func_spec.params.concat(ParamSpec.from_hashes(hash.fetch(:params, [])))
+
+      if hash.key?(:return)
+        func_spec.return_overloaded = hash[:return].fetch(:overloaded, false)
+        type_val = hash[:return].fetch(:type, 'void')
+        func_spec.return_type = if type_val.is_a?(Hash)
+                                  TypeSpec.from_hash(type_val)
+                                else
+                                  TypeSpec.new(type_val)
+                                end
+
+        if hash[:return].key?(:doc)
+          Comment.validate_doc(hash[:return][:doc])
+          func_spec.return_doc = Comment.new(hash[:return][:doc])
+        end
+      end
+
+      set_source_from_hash(func_spec, hash.fetch(:source, {}))
+
+      func_spec
+    end
+
+    # Checks +hash+ to see if it is a valid class hash. Raises an exception if
+    # it is not.
+    def self.validate_hash(hash)
+      unless Wrapture.supports_version?(hash.fetch(:version, Wrapture::VERSION))
         raise UnsupportedSpecVersion
       end
 
-      if spec.key?(:initializers) && spec[:initializers].any? do |it|
+      if hash.key?(:initializers) && hash[:initializers].any? do |it|
         !it.key?(:name) && !it[:delegate]
       end
         msg = 'initializers must either have a name or be delegating ' \
@@ -113,42 +151,21 @@ module Wrapture
         raise MissingSpecKey, msg
       end
 
-      Comment.validate_doc(spec[:doc]) if spec.key?(:doc)
-
-      name = Wrapture.normalize_name(spec, :name)
-
-      func_spec = new(name)
-      func_spec.doc = Comment.new(spec[:doc]) if spec.key?(:doc)
-      func_spec.constructor = Wrapture.normalize_boolean(spec, :constructor)
-      func_spec.destructor = Wrapture.normalize_boolean(spec, :destructor)
-      func_spec.static = Wrapture.normalize_boolean(spec, :static)
-      func_spec.virtual = Wrapture.normalize_boolean(spec, :virtual)
-
-      if spec.key?(:initializers)
-        func_spec.initializers.concat(spec[:initializers])
+      if hash.fetch(:constructor, false) &&
+         hash.dig(:source, :c, :return, :type).nil?
+        raise InvalidConstructor, 'a constructor did not have a return type'
       end
 
-      if spec.key?(:params)
-        param_specs = ParamSpec.normalize_param_list(spec[:params])
-        func_spec.params.concat(ParamSpec.new_list(param_specs))
+      params = ParamSpec.from_hashes(hash.fetch(:params, []))
+      if params.length == 1 && params.last.variadic?
+        raise InvalidSpecKey, 'the only parameter may not be variadic'
       end
 
-      if spec.key?(:return)
-        func_spec.return_overloaded = Wrapture.normalize_boolean(spec[:return],
-                                                                 :overloaded)
-        if spec[:return].key?(:type)
-          func_spec.return_type = TypeSpec.new(spec[:return][:type])
-        end
-
-        if spec[:return].key?(:doc)
-          Comment.validate_doc(spec[:return][:doc])
-          func_spec.return_doc = Comment.new(spec[:return][:doc])
+      %i[constructor destructor static virtual].each do |it|
+        if hash.key?(it) && ![true, false].include?(hash[it])
+          raise InvalidSpecKey, "key :#{it} must be a boolean value"
         end
       end
-
-      set_source_from_hash(func_spec, spec[:source]) if spec.key?(:source)
-
-      func_spec
     end
 
     # Sets the members of the +source+ property of the +FunctionSpec+ +spec+
@@ -165,7 +182,11 @@ module Wrapture
     # +Enumerable+ of objects that are converted to words via their +to_s+
     # method.
     def initialize(name)
-      @name_words = Wrapture.normalize_name_words(name)
+      begin
+        @name_words = Named.words_from_name(name)
+      rescue InvalidName
+        @name_words = []
+      end
       @doc = nil
       @source = {}
       @params = []
@@ -257,7 +278,7 @@ module Wrapture
 
     # True if the function has a void return type.
     def void_return?
-      @return_type.name == 'void'
+      @return_type.void?
     end
   end
 end

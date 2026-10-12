@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-# Copyright 2025 Joel E. Anderson
+# Copyright 2025-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,6 +13,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+type c_struct_hash = Hash[Symbol, untyped]
 
 module Wrapture
   module CSource
@@ -29,7 +31,7 @@ module Wrapture
       attr_reader rules: Array[CExpression]
       attr_reader typedef: String
 
-      def self.from_hash: (spec_hash spec) -> Wrapture::CSource::CStruct
+      def self.from_hash: (c_struct_hash) -> CSource::CStruct
       def initialize: (?name: String, ?members: Array[CType], ?typedef: String) -> void
       def ==: (CStruct) -> bool
       alias eql? ==

@@ -25,7 +25,7 @@ require 'wrapture'
 class CWrapperTest < Minitest::Test
   def test_class_includes_with_no_c_details
     # we need a class spec where there isn't a :c key in source
-    class_spec = Wrapture::ClassSpec.new(fixture_hash('versioned_class'))
+    class_spec = Wrapture::ClassSpec.from_hash(fixture_hash('versioned_class'))
 
     assert_empty(Wrapture::Wrapper::C.includes(class_spec),
                  'includes not empty for a class spec with no ' \
@@ -34,10 +34,10 @@ class CWrapperTest < Minitest::Test
 
   def test_class_with_no_struct_overloads
     no_struct_spec = fixture_hash('no_struct_class')
-    no_struct_class = Wrapture::ClassSpec.new(no_struct_spec)
+    no_struct_class = Wrapture::ClassSpec.from_hash(no_struct_spec)
 
     overload_specs = fixture_hash('overloaded_struct')
-    parent_spec = Wrapture::ClassSpec.new(overload_specs[:classes].first)
+    parent_spec = Wrapture::ClassSpec.from_hash(overload_specs[:classes].first)
 
     refute_nil(no_struct_class)
     refute_nil(parent_spec)

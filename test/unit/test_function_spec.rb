@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2019-2025 Joel E. Anderson
+# Copyright 2019-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ class FunctionSpecTest < Minitest::Test
     func_spec = Wrapture::FunctionSpec.from_hash(spec_hash)
 
     assert_kind_of(Wrapture::TypeSpec, func_spec.return_type)
-    assert_equal('void', func_spec.return_type.base)
+    assert_predicate(func_spec.return_type, :void?)
   end
 
   def test_from_hash_with_initializers

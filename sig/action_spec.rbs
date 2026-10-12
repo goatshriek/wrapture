@@ -14,15 +14,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+type action_hash = Hash[Symbol, (source_hash | String | type_hash)]
+
 module Wrapture
   class ActionSpec
-    def self.normalize_spec_hash: (spec_hash spec) -> spec_hash
+    include Sourced
 
-    def initialize: (spec_hash spec) -> void
+    @source: Hash[Symbol, Hash[Symbol, Array[String]]]
+    @type_spec: TypeSpec
+    @value: String | nil
 
-    def includes: () -> Array[String]
-    def type: () -> Wrapture::TypeSpec
-    def value: () -> String
+    attr_reader source: Hash[Symbol, Hash[Symbol, CSource::CFunction]]
+    attr_reader type_spec: TypeSpec
+    attr_accessor value: String
+
+    def self.from_hash: (action_hash) -> ActionSpec
+
+    def initialize: (String | Array[String], TypeSpec) -> void
     def value?: () -> bool
   end
 end

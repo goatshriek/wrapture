@@ -111,19 +111,15 @@ module Wrapture
           end
         end
 
-        if spec.key?(:includes)
-          func.includes.concat(Wrapture.normalize_array(spec[:includes]))
-        end
-
-        if spec.key?(:libraries)
-          func.libraries.concat(Wrapture.normalize_array(spec[:libraries]))
-        end
+        func.includes.concat(Array(spec.fetch(:includes, [])))
+        func.libraries.concat(Array(spec.fetch(:libraries, [])))
 
         if spec.key?(:return) && spec[:return].key?(:type)
-          func.return_type = if spec[:return][:type].is_a?(String)
-                               CType.new(spec[:return][:type])
+          return_type = spec[:return][:type]
+          func.return_type = if return_type.is_a?(String)
+                               CType.from_hash({ name: return_type })
                              else
-                               CType.from_hash(spec[:return][:type])
+                               CType.from_hash(return_type)
                              end
         end
 
@@ -137,8 +133,9 @@ module Wrapture
             func.error_rules << CExpression.from_hash(rule_spec)
           end
 
+          # TODO: this needs to be moved to a C-specific action type
           unless func.error_rules.empty?
-            func.error_action = ActionSpec.new(check[:error_action])
+            func.error_action = ActionSpec.from_hash(check[:error_action])
           end
         end
 

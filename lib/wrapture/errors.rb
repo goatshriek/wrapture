@@ -40,6 +40,10 @@ module Wrapture
   class InvalidDoc < WraptureError
   end
 
+  # A name was invalid.
+  class InvalidName < WraptureError
+  end
+
   # A rule condition was provided that was not recognized.
   class InvalidRuleCondition < WraptureError
   end
@@ -51,6 +55,7 @@ module Wrapture
   end
 
   # The spec has a key that is not valid.
+  # TODO: rename to InvalidSpecHashKey
   class InvalidSpecKey < WraptureError
     # Creates an InvalidSpecKey with the given message. A list of valid values
     # may optionally be passed to +valid_keys+ which will be added to the end
@@ -79,8 +84,8 @@ module Wrapture
     # A MissingWrapped exception is created with the +spec+ that is missing the
     # wrapped component to ease troubleshooting.
     def initialize(spec)
-      msg = "a wrapped component was reference in #{spec.name}, " \
-            'but was not defined by the spec'
+      msg = 'a wrapped component was referenced in ' \
+            "#{spec.upper_camel_case_name}, but was not defined"
       super(msg)
     end
   end

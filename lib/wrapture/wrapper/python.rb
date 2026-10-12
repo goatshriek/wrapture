@@ -22,6 +22,11 @@ module Wrapture
   module Wrapper
     # Utilities for wrappers that use Python as either a from or to language.
     module Python
+      # The name of the Python class for +class_spec+.
+      def self.class_name(class_spec)
+        class_spec.upper_camel_case_name
+      end
+
       # The decorated name words for Named instance +named+.
       def self.decorate_name(named)
         decorate_name_words(named.name_words)

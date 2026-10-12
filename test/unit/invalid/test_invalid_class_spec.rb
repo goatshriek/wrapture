@@ -1,6 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
-# Copyright 2025 Joel E. Anderson
+# frozen_string_literal: true
+
+# Copyright 2021-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,7 +16,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: "notVariadic"
-includes:
-  - "include_1.h"
-  - "include_2.h"
+require 'helper'
+
+require 'fixture'
+require 'minitest/autorun'
+require 'wrapture'
+
+class InvalidClassSpecTest < Minitest::Test
+  def test_invalid_name
+    assert_raises(Wrapture::InvalidName) do
+      Wrapture::ClassSpec.new(3)
+    end
+  end
+end

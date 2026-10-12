@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2021-2026 Joel E. Anderson
+# Copyright 2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,12 +22,21 @@ require 'fixture'
 require 'minitest/autorun'
 require 'wrapture'
 
-class InvalidClassTest < Minitest::Test
+class InvalidFunctionSpecTest < Minitest::Test
   def test_initializer_missing_name
     test_spec = fixture_hash('invalid/initializer_missing_name')
 
     assert_raises(Wrapture::MissingSpecKey) do
-      Wrapture::Context.from_class_hash(test_spec)
+      Wrapture::FunctionSpec.from_hash(test_spec)
+    end
+  end
+
+  # If the return type doesn't exist for a constructor, an exception is raised.
+  def test_no_constructor_return_type
+    hash = fixture_hash('invalid/constructor_with_no_return_type')
+
+    assert_raises(Wrapture::InvalidConstructor) do
+      Wrapture::FunctionSpec.from_hash(hash)
     end
   end
 end

@@ -42,13 +42,13 @@ module Wrapture
     # The root of this context.
     attr_reader :root
 
-    # Creates a Context with a root ClassSpec constructed from +hash+,
-    # functions derived from the +:functions+, +:constructors+, and
-    # +:destructor+ keys, and constants derived from the +:constants+ key. If
-    # +parent+ is provided, it is the parent of the new Context, but it is not
-    # added to the contents of the parent.
+    # Creates a Context with a root ClassSpec constructed from +hash+ with
+    # ClassSpec::from_hash, functions derived from the +:functions+,
+    # +:constructors+, and +:destructor+ keys, and constants derived from the
+    # +:constants+ key. If +parent+ is provided, it is the parent of the new
+    # Context, but it is not added to the contents of the parent.
     def self.from_class_hash(hash, parent: nil)
-      class_spec = ClassSpec.new(hash)
+      class_spec = ClassSpec.from_hash(hash)
       context = new(class_spec, parent: parent)
 
       if hash.key?(:constants)
@@ -96,7 +96,7 @@ module Wrapture
 
       if hash.key?(:constants)
         hash[:constants].each do |it|
-          context << ConstantSpec.new(it)
+          context << ConstantSpec.from_hash(it)
         end
       end
 
@@ -237,6 +237,18 @@ module Wrapture
     # True if this context has a parent.
     def parent?
       !@parent.nil?
+    end
+
+    # The first parent context that has a ClassSpec as a root, or nil if there
+    # is no such parent.
+    def parent_class
+      return nil unless parent?
+
+      if parent.root.is_a?(ClassSpec)
+        parent
+      else
+        parent.parent_class
+      end
     end
 
     # Searches through the Context for an element where +block+ returns true and

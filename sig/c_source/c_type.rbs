@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-# Copyright 2025 Joel E. Anderson
+# Copyright 2025-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,10 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+type c_type_hash = Hash[Symbol, untyped]
+
 module Wrapture
   module CSource
     class CType
-      def self.from_hash: (spec_hash) -> CType
+      def self.from_hash: (c_type_hash) -> CType
       def initialize: (String) -> void
       def ==: (CType) -> bool
       alias eql? ==

@@ -35,7 +35,7 @@ module Wrapture
         class_spec = context.root
         return false unless class_spec.child?
 
-        parent_context = context.resolve_name(context.root.parent)
+        parent_context = context.resolve_name(class_spec.parent)
         until parent_context.nil?
           parent_source = parent_context.root.source
           if parent_source.key?(:c) && parent_source[:c] == class_spec[:c]
@@ -155,19 +155,19 @@ module Wrapture
                 end
                 spec_includes + param_includes
               when EnumSpec
-                spec_includes = []
-
-                spec_includes += spec[:c][:includes] if spec.source.key?(:c)
-
+                spec_includes = Array(spec.source.dig(:c, :includes))
                 spec.elements.each do |it|
-                  it_inc = it.dig(:source, :c, :includes)
-                  spec_includes += it_inc unless it_inc.nil?
+                  spec_includes.concat(Array(it.dig(:source, :c, :includes)))
                 end
 
                 spec_includes
-              when ConstantSpec, ParamSpec, TypeSpec
-                # TODO: this should be refactored to use a wrapped :c key
-                spec.includes
+              when ParamSpec
+                includes(spec.type_spec)
+              when ConstantSpec
+                spec_includes = includes(spec.type_spec)
+                spec_includes.concat(Array(spec.source.dig(:c, :includes)))
+
+                spec_includes
               else
                 []
               end
@@ -191,15 +191,12 @@ module Wrapture
 
         factory_struct = equivalent_struct(factory)
         overload_struct = equivalent_struct(overload)
-        # TODO: this should compare name words, not specific name forms
-        factory_name = factory.upper_camel_case_name
-        parent_name = Named.upper_camel_case_name(overload.parent)
 
         !factory_struct.nil? &&
           !overload_struct.nil? &&
           factory_struct.rules.empty? &&
           factory_struct.name == overload_struct.name &&
-          factory_name == parent_name &&
+          factory.name_words == overload.parent &&
           !overload_struct.rules.empty?
       end
 

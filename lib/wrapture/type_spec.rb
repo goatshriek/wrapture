@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2020-2025 Joel E. Anderson
+# Copyright 2020-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -27,22 +27,38 @@ module Wrapture
   class TypeSpec
     include Named
 
-    # Returns a normalized copy of the hash specification of a type in +spec+.
-    # See normalize_spec_hash! for details.
-    def self.normalize_spec_hash(spec)
-      normalize_spec_hash!(Marshal.load(Marshal.dump(spec)))
-    end
+    # The name used for the Any type, where any type is valid.
+    ANY_TYPE_NAME = %w[any].freeze
 
-    # Normalizes the hash specification of a type in +spec+ in place. This will
-    # normalize the include list.
-    def self.normalize_spec_hash!(spec)
-      spec[:includes] = if spec.key?(:includes)
-                          Wrapture.normalize_array(spec[:includes])
-                        else
-                          []
-                        end
-      spec[:name] = Wrapture.normalize_name(spec, :name)
-      spec
+    # The name used for the boolean type.
+    BOOL_TYPE_NAME = %w[bool].freeze
+
+    # The name used for the integer type.
+    INT_TYPE_NAME = %w[int].freeze
+
+    # The name used for the Self type, which references the class type of the
+    # context.
+    SELF_TYPE_NAME = %w[self].freeze
+
+    # The name used for the string type.
+    STRING_TYPE_NAME = %w[string].freeze
+
+    # The name used for the Void type, a type that cannot be instantiated.
+    VOID_TYPE_NAME = %w[void].freeze
+
+    # The name words that make up the parameter name.
+    attr_reader :name_words
+
+    # Creates a new ParamSpec from the hash +spec_hash+.
+    #
+    # The hash must have a +:name+ key with a String or Enumerable of strings as
+    # the value, which will be used as the name of the TypeSpec.
+    def self.from_hash(spec_hash)
+      unless spec_hash.key?(:name)
+        raise(MissingSpecKey, 'ParamSpec hashes must have a :name key')
+      end
+
+      new(spec_hash[:name])
     end
 
     # Creates a type specification based on the provided hash +spec+.
@@ -55,82 +71,52 @@ module Wrapture
     # instead use a 'function' key that contains a FunctionSpec specification.
     # This specification does not need to be definable, it only needs to have
     # a parameter list and return type for the signature to be clear.
-    def initialize(spec = 'void')
-      actual_spec = if spec.is_a?(String)
-                      { name: spec }
-                    else
-                      spec
-                    end
-
-      @spec = TypeSpec.normalize_spec_hash(actual_spec)
+    def initialize(name)
+      @name_words = Named.words_from_name(name)
     end
 
-    # Compares this TypeSpec with +other+. Comparison happens by converting each
-    # object to a string using to_s and comparing.
-    #
-    # Added in release 0.4.2.
-    def ==(other)
-      to_s == other.to_s
+    # True if +spec+ is an instance of this type.
+    def ===(spec)
+      return true if any?
+
+      spec.name_words == name_words
     end
 
-    # The name of this type with all special characters and keywords removed.
-    def base
-      name.delete('*&').delete_prefix('struct').strip
+    # True if this is the any type.
+    def any?
+      @name_words == ANY_TYPE_NAME
     end
 
-    # True if this type is an equivalent struct pointer reference.
-    def equivalent_pointer?
-      name == EQUIVALENT_POINTER_KEYWORD
+    # True if this is the boolean type.
+    def bool?
+      @name_words == BOOL_TYPE_NAME
     end
 
-    # True if this type is an equivalent struct reference.
-    def equivalent_struct?
-      name == EQUIVALENT_STRUCT_KEYWORD
+    # True if this is an integer type.
+    def int?
+      @name_words == INT_TYPE_NAME
     end
 
-    # True if this type is a function.
-    def function?
-      @spec.key?(:function)
+    # True if this type is the self type.
+    def self?
+      @name_words == SELF_TYPE_NAME
     end
 
-    # A new FunctionSpec instance from this type, or nil if it is not a
-    # function.
-    def function
-      FunctionSpec.from_hash(@spec[:function]) if function?
-    end
-
-    # A list of includes needed for this type.
-    def includes
-      includes = @spec[:includes].dup
-      includes.concat(function.declaration_includes) if function?
-      includes.uniq
-    end
-
-    # The words that make up the function name.
-    def name_words
-      @spec[:name]
-    end
-
-    # True if this type is a pointer.
-    def pointer?
-      name.end_with?('*')
-    end
-
-    # True if this type is a reference to a class instance.
-    def self_reference?
-      name == SELF_REFERENCE_KEYWORD
+    # True if this type is the string type.
+    def string?
+      @name_words == STRING_TYPE_NAME
     end
 
     # Gives a string representation of this type (its name).
     #
     # Added in release 0.4.2.
     def to_s
-      name
+      upper_camel_case_name
     end
 
-    # True if this type is a variadic parameter type (name is equal to +...+).
-    def variadic?
-      name == '...'
+    # True if this is the void type.
+    def void?
+      @name_words == VOID_TYPE_NAME
     end
   end
 end

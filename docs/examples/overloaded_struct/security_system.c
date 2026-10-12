@@ -76,7 +76,7 @@ new_default_event( void ) {
 }
 
 struct event *
-new_event( int code, void *data ) {
+new_event( int code, const char *data ) {
   struct event *ev;
 
   ev = (struct event *) malloc( sizeof( *ev ) );
@@ -107,7 +107,7 @@ print_event( const struct event *ev ) {
 
 void
 print_camera_event( const struct event *ev ) {
-  printf( "camera event: %s\n", (char *) ev->data );
+  printf( "camera event: %s\n", ev->data );
 }
 
 void
@@ -117,5 +117,5 @@ print_glass_break_event( const struct event *ev ) {
 
 void
 print_motion_event( const struct event *ev ) {
-  printf( "motion event: %s\n", (char *) ev->data );
+  printf( "motion event: %s\n", ev->data );
 }

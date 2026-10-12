@@ -24,9 +24,9 @@ functions:
   - name: "SelfReferenceFunction"
     params:
       - name: "app_name"
-        type: "const char *"
+        type: "string"
     return:
-      type: "self_reference"
+      type: "self"
     source:
       c:
         name: "underlying_basic_function"

@@ -17,6 +17,7 @@
 name: "InvalidVariadicFunction"
 params:
   - name: "..."
+    type: "int"
 source:
   c:
     name: "underlying_function"

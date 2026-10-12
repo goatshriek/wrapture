@@ -24,6 +24,27 @@ module Wrapture
     module CToPython
       extend Wrapper
 
+      # Mapping of C types to their PyArg_ParseTuple format string.
+      C_TYPE_FORMAT_UNIT_MAP = {
+        'byte' => 'b',
+        'char' => 'b',
+        'short' => 'h',
+        'int' => 'i',
+        'long' => 'l',
+        'long long' => 'k',
+        'unsigned char' => 'B',
+        'unsigned short' => 'H',
+        'unsigned int' => 'I',
+        'unsigned long' => 'L',
+        'unsigned long long' => 'K',
+        'size_t' => 'n',
+        'float' => 'f',
+        'double' => 'd',
+        'bool' => 'p',
+        'const char *' => 's',
+        'string' => 's'
+      }.freeze
+
       # Mapping of basic types to their Py_T counterparts.
       MEMBER_TYPE_MAP = {
         'byte' => 'Py_T_BYTE',
@@ -45,32 +66,12 @@ module Wrapture
         'string' => 'Py_T_STRING'
       }.freeze
 
-      # Mapping of types to their PyArg_ParseTuple format string.
-      TYPE_FORMAT_UNIT_MAP = {
-        'byte' => 'b',
-        'char' => 'b',
-        'short' => 'h',
-        'int' => 'i',
-        'long' => 'l',
-        'long long' => 'k',
-        'unsigned char' => 'B',
-        'unsigned short' => 'H',
-        'unsigned int' => 'I',
-        'unsigned long' => 'L',
-        'unsigned long long' => 'K',
-        'size_t' => 'n',
-        'float' => 'f',
-        'double' => 'd',
-        'bool' => 'p',
-        'const char *' => 's',
-        'string' => 's'
-      }.freeze
-
       # Adds the type object for a class within a module's init function.
       def self.add_class_object(src, class_spec, fail_label)
         object_name = type_object_name(class_spec)
         src.puts("Py_INCREF( &#{object_name} );")
-        add_params = "m, \"#{class_spec.name}\", ( PyObject * ) &#{object_name}"
+        class_name = Python.class_name(class_spec)
+        add_params = "m, \"#{class_name}\", ( PyObject * ) &#{object_name}"
         src.if("PyModule_AddObject( #{add_params} ) < 0") do |blk|
           blk.puts("goto #{fail_label};")
         end
@@ -121,15 +122,16 @@ module Wrapture
          CSource::CDeclaration.new(pyobject_ptr, 'kwds')]
       end
 
-      # The format string to use for argument parsing functions, such as
-      # +PyArg_ParseTuple+.
+      # The format string for argument parsing functions like
+      # +PyArg_ParseTuple+ based on the TypeSpec instances in +required_args+
+      # and +optional_args+.
       def self.arg_parse_format(required_args, optional_args = [])
-        required_formats = required_args.map do |key|
-          TYPE_FORMAT_UNIT_MAP.fetch(key, 'O')
+        required_formats = required_args.map do |it|
+          format_unit(it)
         end
 
-        optional_formats = optional_args.map do |key|
-          TYPE_FORMAT_UNIT_MAP.fetch(key, 'O')
+        optional_formats = optional_args.map do |it|
+          format_unit(it)
         end
 
         if optional_formats.empty?
@@ -179,7 +181,7 @@ module Wrapture
           offset_struct = type_struct_name(class_spec)
           offset_field = constant_spec.snake_case_name
           init = [".name = \"#{constant_spec.screaming_snake_case_name}\"",
-                  ".type = #{member_type(constant_spec.type)}",
+                  ".type = #{member_type(constant_spec.type_spec)}",
                   ".offset = offsetof( #{offset_struct}, #{offset_field} )",
                   '.flags = Py_READONLY']
 
@@ -335,7 +337,10 @@ module Wrapture
 
         context.constants.each do |it|
           constant_spec = it.root
-          members << "#{constant_spec.type} #{constant_spec.snake_case_name};"
+          # TODO: this needs to get a Python type, and then resolve it to the
+          # equivalent C type
+          type = constant_spec.type_spec.snake_case_name
+          members << "#{type} #{constant_spec.snake_case_name};"
         end
 
         if C.equivalent_member?(context)
@@ -368,16 +373,15 @@ module Wrapture
 
       # Creates a Python object using a variable with the given name and type.
       def self.create_python_object(type, name)
-        case type.name
-        when 'int'
+        if type.int?
           "PyLong_FromLong(#{name})"
-        when 'bool'
+        elsif type.bool?
           "PyBool_FromLong(#{name})"
-        when 'const char *'
+        elsif type.string?
           "PyUnicode_FromString(#{name})"
         else
           # TODO: default case
-          "// TODO default case for #{type.name}, #{name}"
+          "// TODO default case for #{type.upper_camel_case_name}, #{name}"
         end
       end
 
@@ -433,7 +437,8 @@ module Wrapture
         if C.equivalent_ancestor?(context.parent) && runtime_class?(class_spec)
           # TODO: we may not need super if this function doesn't use the
           # equivalent struct anywhere
-          type_name = type_struct_name(context.parent.parent.root)
+          ancestor_class = context.resolve_name(context.parent.root.parent)
+          type_name = type_struct_name(ancestor_class)
           blk.declare(CSource::CPointer.new(type_name), 'super')
         end
 
@@ -734,7 +739,7 @@ module Wrapture
           blk.puts("#{struct_name} = #{alloc_call};")
 
           if C.equivalent_ancestor?(it) && runtime_class?(overload)
-            parent = it.parent.parent
+            parent = it.resolve_name(overload.parent)
             super_type = CSource::CPointer.new(type_struct_name(parent.root))
             super_value = runtime_type_cast(parent, struct_name)
             blk.declare(super_type, 'super', value: super_value)
@@ -778,16 +783,19 @@ module Wrapture
         end
       end
 
+      # The format unit for +type_spec+.
+      def self.format_unit(type_spec)
+        if type_spec.int?
+          'i'
+        else
+          'O'
+        end
+      end
+
       # The format string to use for the function at the root of +context+.
       def self.function_arg_parse_format(context)
-        required_args = context.root.required_params.map do |it|
-          it.type.to_s
-        end
-        optional_args = context.root.optional_params.map do |it|
-          it.type.to_s
-        end
-        # puts required_args
-        # puts optional_args
+        required_args = context.root.required_params.map(&:type_spec)
+        optional_args = context.root.optional_params.map(&:type_spec)
         arg_parse_format(required_args, optional_args)
       end
 
@@ -846,9 +854,9 @@ module Wrapture
       def self.initialize_optional_params(blk, func_spec)
         func_spec.optional_params.each do |param_spec|
           assignment = "#{param_spec.name} = "
-          assignment += if param_spec.type.name == 'const char *'
+          assignment += if param_spec.type_spec.name == 'const char *'
                           "\"#{param_spec.default_value}\""
-                        elsif param_spec.type.name.end_with?('char')
+                        elsif param_spec.type_spec.name.end_with?('char')
                           "'#{param_spec.default_value}'"
                         else
                           param_spec.default_value.to_s
@@ -881,13 +889,17 @@ module Wrapture
 
         class_spec[:c].members.each do |member|
           if member.value.nil?
-            required_args << member.c_type.to_s
+            required_args << C_TYPE_FORMAT_UNIT_MAP[member.c_type.to_s]
           else
-            optional_args << member.c_type.to_s
+            optional_args << C_TYPE_FORMAT_UNIT_MAP[member.c_type.to_s]
           end
         end
 
-        arg_parse_format(required_args, optional_args)
+        if optional_args.empty?
+          required_args.join
+        else
+          "#{required_args.join}|#{optional_args.join}"
+        end
       end
 
       # The name of the member constructor for +class_spec+.
@@ -980,7 +992,7 @@ module Wrapture
       # The Python member type symbol to use for this type, suitable for use
       # with the PyMemberDef.type struct field.
       def self.member_type(type_spec)
-        MEMBER_TYPE_MAP.fetch(type_spec.name, 'Py_T_OBJECT_EX')
+        MEMBER_TYPE_MAP.fetch(type_spec.snake_case_name, 'Py_T_OBJECT_EX')
       end
 
       # Gives the flags used to define the python method for the given function.
@@ -1060,7 +1072,7 @@ module Wrapture
         if C.equivalent_ancestor?(context.parent) && runtime_class
           # TODO: this should also be omitted if the equivalent struct isn't
           # actually used in the function
-          parent = context.parent.parent.root
+          parent = context.resolve_name(context.parent.root.parent)
           f.puts("super = #{runtime_type_cast(parent, 'self_obj')};")
         end
 
@@ -1215,7 +1227,9 @@ module Wrapture
 
         func_spec = context.root
         types = if func_spec.params?
-                  func_spec.params.map { |p| p.type.base }.join('_')
+                  func_spec.params.map do |it|
+                    it.type_spec.snake_case_name
+                  end.join('_')
                 else
                   'no_args'
                 end
@@ -1226,11 +1240,18 @@ module Wrapture
       # True if the provided +wrapped_param+ can be cast to when used in the
       # function at the root of +context+.
       def self.param_uses_equivalent?(context, wrapped_param)
-        param = context.root.params.find { |p| p.name == wrapped_param.value }
+        param = context.root.params.find do |p|
+          p.snake_case_name == wrapped_param.value
+        end
 
-        !param.nil? &&
-          !wrapped_param.c_type.nil? &&
-          !context.resolve_name(param.type.name_words).nil?
+        return false if param.nil?
+
+        param_name = param.type_spec.upper_camel_case_name
+        resolved_name = context.resolve do |it|
+          it.root.upper_camel_case_name == param_name
+        end
+
+        !wrapped_param.c_type.nil? && !resolved_name.nil?
       end
 
       # The expression containing the call to PyArg_ParseTuple to parse the
@@ -1325,7 +1346,9 @@ module Wrapture
       # this function.
       def self.resolve_wrapped_param(context, param)
         func_spec = context.root
-        used_param = func_spec.params.find { |p| p.name == param.value }
+        used_param = func_spec.params.find do |p|
+          p.snake_case_name == param.value
+        end
 
         if param.value == EQUIVALENT_STRUCT_KEYWORD
           class_struct(context.parent)
@@ -1334,8 +1357,12 @@ module Wrapture
         elsif param.value == '...'
           'variadic_args'
         elsif param_uses_equivalent?(context, param)
-          param_class = context.resolve_name(used_param.type.name_words).root
-          cast_equivalent(param_class, used_param.name, param.c_type)
+          # TODO: change to resolve name words after class name fix
+          type_name = used_param.type_spec.upper_camel_case_name
+          param_class = context.resolve do |it|
+            it.root.upper_camel_case_name == type_name
+          end.root
+          cast_equivalent(param_class, used_param.snake_case_name, param.c_type)
         else
           param.value
         end
@@ -1345,12 +1372,13 @@ module Wrapture
       def self.return_statement(func_spec)
         if func_spec.constructor?
           'return 0;'
-        elsif func_spec.return_type.self_reference?
+        elsif func_spec.return_type.self?
           'return self;'
         elsif func_spec.void_return?
           'Py_RETURN_NONE;'
         elsif func_spec.return_overloaded?
-          overload = "new_#{func_spec.return_type.name.chomp('*').strip}"
+          # TODO: this needs to be a more robust calculation of the name
+          overload = "new_#{func_spec.return_type.upper_camel_case_name}"
           "return #{overload}( return_val );"
         else
           return_value = create_python_object(func_spec.return_type,
@@ -1444,7 +1472,7 @@ module Wrapture
         return [] unless func_spec[:c].error_check?
 
         action = func_spec[:c].error_action
-        exception_class = context.resolve_name(action.type.name_words)
+        exception_class = context.resolve_name(action.type_spec.name_words)
         type_object = "(PyObject *) &#{type_object_name(exception_class)}"
 
         checks = func_spec[:c].error_rules.map do |rule|
@@ -1465,7 +1493,8 @@ module Wrapture
           blk.puts("PyObject *exception_obj = #{call_type};")
 
           equiv_class = if C.equivalent_ancestor?(exception_class)
-                          exception_class.parent
+                          ancestor_name = exception_class.root.parent
+                          exception_class.resolve_name(ancestor_name)
                         else
                           exception_class
                         end
@@ -1507,27 +1536,31 @@ module Wrapture
       def self.wrapper_param_locals(context)
         func_spec = context.root
         func_spec.params.map do |param_spec|
-          param_type = param_spec.type
-          local_type = if param_type.equivalent_struct?
-                         C.equivalent_struct(context.parent.root)
-                       elsif param_spec.type.equivalent_pointer?
-                         C.equivalent_pointer(context.parent.root)
+          param_type = param_spec.type_spec
+          local_type = if param_type.self?
+                         C.equivalent_struct(context.parent_class.root)
                        else
-                         name_words = Named.words_from_name(param_type.base)
-                         class_name = Named.upper_camel_case_name(name_words)
+                         class_name = param_type.upper_camel_case_name
                          type_context = context.resolve do |it|
                            it.root.upper_camel_case_name == class_name
                          end
 
                          if type_context.nil?
-                           CSource::CType.new(param_spec.type.name)
+                           # TODO: this needs to be first resolved to a Python
+                           # type, and then to the matching C type
+                           type = param_spec.type_spec
+                           if type.string?
+                             CSource::CType.new('const char *')
+                           else
+                             CSource::CType.new(type.snake_case_name)
+                           end
                          else
                            struct_name = type_struct_name(type_context.root)
                            CSource::CPointer.new(struct_name)
                          end
                        end
 
-          CSource::CDeclaration.new(local_type, param_spec.name)
+          CSource::CDeclaration.new(local_type, param_spec.snake_case_name)
         end
       end
 

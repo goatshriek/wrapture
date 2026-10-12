@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
+# frozen_string_literal: true
+
 # Copyright 2025-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,12 +16,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: CConstructorReturnTypeMismatch
-namespace: invalid
-source:
-  c:
-    name: my_struct
-constructors:
-  - source:
-      c:
-        name: pointer_constructor
+require 'helper'
+
+require 'fixture'
+require 'minitest/autorun'
+require 'wrapture'
+
+class InvalidCToCppTest < Minitest::Test
+  # If the return type of a constructor doesn't match the type used in the
+  # class, then an exception is raised.
+  def test_constructor_return_type_mismatch
+    hash = fixture_hash('invalid/class_with_c_constructor_return_type_mismatch')
+    context = Wrapture::Context.from_class_hash(hash)
+
+    assert_raises(Wrapture::InvalidConstructor) do
+      Wrapture::Wrapper::CToCpp.wrap_class_context(context)
+    end
+  end
+end
