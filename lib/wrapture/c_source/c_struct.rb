@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2025 Joel E. Anderson
+# Copyright 2025-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -49,9 +49,7 @@ module Wrapture
         name = spec[:name].delete_prefix('struct ')
         c_struct = new(name: name)
 
-        if spec.key?(:includes)
-          c_struct.includes.concat(Wrapture.normalize_array(spec[:includes]))
-        end
+        c_struct.includes.concat(Array(spec.fetch(:includes, [])))
 
         if spec.key?(:members)
           spec[:members].each do |member|

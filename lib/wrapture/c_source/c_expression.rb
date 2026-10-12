@@ -45,7 +45,7 @@ module Wrapture
           raise InvalidSpecKey.new(msg, valid_keys: OPERATORS.map(&:to_s))
         end
 
-        vals = Wrapture.normalize_array(expr_hash[:values])
+        vals = Array(expr_hash.fetch(:values, []))
 
         CExpression.new(vals, op)
       end

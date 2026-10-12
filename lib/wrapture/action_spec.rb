@@ -74,29 +74,6 @@ module Wrapture
       spec
     end
 
-    # Normalizes a hash specification of a rule. Normalization checks for
-    # invalid keys and unrecognized conditions.
-    def self.normalize_spec_hash(spec)
-      normalized = spec.dup
-
-      required_keys = %i[name type]
-      optional_keys = %i[value source]
-
-      extra_keys = spec.keys - required_keys - optional_keys
-      unless extra_keys.empty?
-        extra_msg = "these keys are unrecognized: #{extra_keys.join(', ')}"
-        raise(InvalidSpecKey, extra_msg)
-      end
-
-      missing_keys = required_keys - spec.keys
-      unless missing_keys.empty?
-        missing_msg = "required keys are missing: #{missing_keys.join(', ')}"
-        raise(MissingSpecKey, missing_msg)
-      end
-
-      normalized
-    end
-
     # An action must have a +type_spec+ which describes the exception class that
     # is raised.
     def initialize(type_spec)

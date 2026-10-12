@@ -111,13 +111,8 @@ module Wrapture
           end
         end
 
-        if spec.key?(:includes)
-          func.includes.concat(Wrapture.normalize_array(spec[:includes]))
-        end
-
-        if spec.key?(:libraries)
-          func.libraries.concat(Wrapture.normalize_array(spec[:libraries]))
-        end
+        func.includes.concat(Array(spec.fetch(:includes, [])))
+        func.libraries.concat(Array(spec.fetch(:libraries, [])))
 
         if spec.key?(:return) && spec[:return].key?(:type)
           return_type = spec[:return][:type]
