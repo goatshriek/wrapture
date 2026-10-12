@@ -32,7 +32,7 @@ module Wrapture
     attr_reader name_words: Array[String]
     attr_reader source: source_hash
 
-    def self.element_from_hash: (enum_element_hash) -> spec_hash
+    def self.element_from_hash: (enum_element_hash) -> enum_element_hash
     def self.from_hash: (enum_hash) -> EnumSpec
     def self.validate_hash: (enum_hash) -> void
 

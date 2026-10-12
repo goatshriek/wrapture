@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-# Copyright 2025 Joel E. Anderson
+# Copyright 2025-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,9 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+type build_hash = Hash[Symbol, untyped]
+
 module Wrapture
   module Build
-    def self.from_hash: (spec_hash) -> (Wrapture::Build::CmakeBuild | Wrapture::Build::PyprojectBuild)
+    def self.from_hash: (build_hash) -> (Build::CmakeBuild | Build::PyprojectBuild)
     def save_build_sources: (?(String | Pathname)) -> Enumerable[Pathname]
   end
 end
