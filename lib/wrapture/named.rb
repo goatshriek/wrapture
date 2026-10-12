@@ -78,16 +78,6 @@ module Wrapture
       end
     end
 
-    # The raw name, obtained by joining all parts.
-    # TODO: remove
-    def raw_name
-      name_words.join
-    end
-
-    # The default name is the raw one.
-    # TODO: removed
-    alias name raw_name
-
     # The name in SCREAMING_SNAKE_CASE.
     def screaming_snake_case_name
       name_words.map(&:upcase).join('_')

@@ -373,17 +373,15 @@ module Wrapture
 
       # Creates a Python object using a variable with the given name and type.
       def self.create_python_object(type, name)
-        # TODO: use new TypeSpec predicates
-        case type.name
-        when 'int'
+        if type.int?
           "PyLong_FromLong(#{name})"
-        when 'bool'
+        elsif type.bool?
           "PyBool_FromLong(#{name})"
-        when 'string'
+        elsif type.string?
           "PyUnicode_FromString(#{name})"
         else
           # TODO: default case
-          "// TODO default case for #{type.name}, #{name}"
+          "// TODO default case for #{type.upper_camel_case_name}, #{name}"
         end
       end
 
@@ -994,7 +992,7 @@ module Wrapture
       # The Python member type symbol to use for this type, suitable for use
       # with the PyMemberDef.type struct field.
       def self.member_type(type_spec)
-        MEMBER_TYPE_MAP.fetch(type_spec.name, 'Py_T_OBJECT_EX')
+        MEMBER_TYPE_MAP.fetch(type_spec.snake_case_name, 'Py_T_OBJECT_EX')
       end
 
       # Gives the flags used to define the python method for the given function.

@@ -64,12 +64,11 @@ module Wrapture
       end
 
       spec = new(hash[:type])
+      spec.value = hash.fetch(:value, nil)
 
       unless hash.dig(:source, :c).nil?
         spec.source[:c] = CSource::CFunction.from_hash(hash[:source][:c])
       end
-
-      spec.value = hash[:value] if hash.key?(:value)
 
       spec
     end

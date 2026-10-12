@@ -882,7 +882,7 @@ module Wrapture
           raise InvalidSpec, 'only EnumSpec instances can be wrapped as enums'
         end
 
-        build = CppSource::CppSourceSet.new(enum_spec.name)
+        build = CppSource::CppSourceSet.new(enum_spec.upper_camel_case_name)
         build.add_lib_header(define_enum(enum_spec, context))
 
         build
