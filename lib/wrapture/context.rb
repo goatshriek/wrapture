@@ -35,6 +35,9 @@ module Wrapture
     # A Set of Context instances which this context directly contains.
     attr_reader :contents
 
+    # An array of type conversion functions for this context.
+    attr_reader :converters
+
     # A Context that contains this one. If this is nil, then this Context is at
     # the top of the tree.
     attr_reader :parent
@@ -150,6 +153,7 @@ module Wrapture
       end
 
       @contents = Set.new
+      @converters = []
       @parent = parent
       @root = root
     end

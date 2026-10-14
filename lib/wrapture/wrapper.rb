@@ -42,7 +42,22 @@ module Wrapture
   # +self.wrap_namespace_context+
   # Each of these must take a single Context instance as their argument, with
   # the root being of the named type, and return a SourceSet.
+  #
+  # +self.converters+ must return an Enumerable of converter procs. During type
+  # conversion via converter these are called successively until one returns a
+  # non-nil value, which is a Proc that is called to convert from one type to
+  # another. This is similar to the Context#converters attribute, which is
+  # checked in the same way, falling back to the Wrapper module's converters if
+  # none of the context's converters return non-nil.
   module Wrapper
+    # Searches for a converter between +from_type+ and +to_type+ within
+    # +context+. +context+ is searched for a converter first, and if one is not
+    # found then the wrapper's converters are called in order, and the first
+    # non-nil result is returned, or nil if there is not one.
+    def converter(from_type, to_type, context)
+      # TODO: pick up here, implementing
+    end
+
     # The symbol of the programming language this module's wrappers use as
     # input.
     def from_language
