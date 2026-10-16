@@ -16,6 +16,7 @@
 
 module Wrapture
   module Wrapper
+    def converter: (untyped, untyped, Context) -> (Proc | nil)
     def from_language: () -> Symbol
     def to_language: () -> Symbol
     def wrap: ((ClassSpec | ConstantSpec | EnumSpec | FunctionSpec | Namespace | Context)) -> SourceSet

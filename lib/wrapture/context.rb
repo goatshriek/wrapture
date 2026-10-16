@@ -202,6 +202,23 @@ module Wrapture
       end
     end
 
+    # Searches for a converter between +from_type+ and +to_type+ within
+    # this context. This context is searched for a converter first, and if one
+    # is not found then the parent is searched for a converters, or nil is
+    # returned if there is no parent.
+    def converter(from_type, to_type)
+      converters.each do |it|
+        converter = it.call(from_type, to_type)
+        return converter unless converter.nil?
+      end
+
+      if @parent.nil?
+        nil
+      else
+        @parent.converter(from_type, to_type)
+      end
+    end
+
     # All contents with an EnumSpec root.
     def enums
       @contents.select { |it| it.root.is_a?(EnumSpec) }

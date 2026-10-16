@@ -39,6 +39,7 @@ module Wrapture
     def constants: -> Array[Context]
     def constructors: -> Array[Context]
     def constructors?: -> bool
+    def converter: (untyped, untyped) -> (Proc | nil)
     def enums: -> Array[Context]
     def flatten: -> Array[Context]
     def functions: -> Array[Context]

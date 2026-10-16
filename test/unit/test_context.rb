@@ -62,6 +62,13 @@ class ContextTest < Minitest::Test
     end
   end
 
+  def test_converter_not_found
+    context = Wrapture::Context.new(Wrapture::Namespace.new(%w[no converters]))
+
+    assert_empty(context.converters)
+    assert_nil(context.converter(3, 3))
+  end
+
   def test_enums
     enums = basic_namespace_context.enums
 
@@ -237,6 +244,22 @@ class ContextTest < Minitest::Test
     assert_equal(func_name, result.root.name_words)
   end
 
+  def test_parent_converter
+    parent = Wrapture::Context.new(Wrapture::Namespace.new(%w[one converter]))
+    child = Wrapture::Context.new(Wrapture::Namespace.new(%w[no converter]),
+                                  parent: parent)
+    parent.converters << proc do |from_type, to_type|
+      if from_type.is_a?(String) && to_type.is_a?(String)
+        return proc { |expr| "converted #{expr}" }
+      end
+    end
+
+    assert_empty(child.converters)
+    refute_empty(parent.converters)
+    assert_nil(child.converter(3, 3))
+    refute_nil(child.converter('3', '3'))
+  end
+
   def test_parent_name_resolution
     context_ns = Wrapture::Namespace.new(%w[test namespace])
     parent_ns_name = %w[parent namespace]
@@ -254,6 +277,19 @@ class ContextTest < Minitest::Test
     context = Wrapture::Context.new(Wrapture::Namespace.new(%w[test ns]))
 
     assert_nil(context.resolve_name(nil))
+  end
+
+  def test_single_converter_found
+    context = Wrapture::Context.new(Wrapture::Namespace.new(%w[one converter]))
+    context.converters << proc do |from_type, to_type|
+      if from_type.is_a?(String) && to_type.is_a?(String)
+        return proc { |expr| "converted #{expr}" }
+      end
+    end
+
+    refute_empty(context.converters)
+    assert_nil(context.converter(3, 3))
+    refute_nil(context.converter('3', '3'))
   end
 
   def test_single_function_in_namespace_name_resolution
