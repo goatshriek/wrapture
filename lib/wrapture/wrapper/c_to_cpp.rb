@@ -24,6 +24,7 @@ module Wrapture
     module CToCpp
       extend Wrapper
 
+      # An array of conversion generation functions.
       CONVERTERS = [].freeze
 
       # Gives a list of ancestor classes of class spec, including a colon

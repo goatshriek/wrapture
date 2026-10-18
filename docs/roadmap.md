@@ -4,18 +4,8 @@ See below for details about upcoming releases of Wrapture. If you have feedback
 or want to make a suggestion, please submit an issue on the project's
 [Github page](https://github.com/goatshriek/wrapture).
 
-## 1.0.0 (next major release)
- * [DEPRECATE] **Use of `name` key instead of `value` in wrapped function
-   parameter specs**
-   The name key is equivalent to the value, and is not used for anything else
-   currently. However, if it is needed for some other functionality in the
-   future then this behavior will conflict, and is therefore being preemptively
-   removed.
- * [DEPRECATE] **Use of `generate_wrappers` functions**
-   These methods should be replaced with the singular `generate_wrapper` method,
-   which functions identically.
 
-## 1.1.0
+## Unallocated to a release
  * [ADD] **Generation of function that runs the wrapped code on everything in a
    collection**
    It is not uncommon that the same operation needs to be run on a list of
@@ -30,15 +20,6 @@ or want to make a suggestion, please submit an issue on the project's
    allow such an alias to be created for generated types. This would make the
    resulting code more usable in some cases, such as when using function
    pointers in C++.
-
-## 2.0.0
- * [REMOVE] **Use of `name` key instead of `value` in wrapped function parameter
-   specs**
-   Removing previously deprecated feature.
- * [REMOVE] **`generate_wrappers` functions**
-   Removing previously deprecated feature.
-
-## Unallocated to a release
  * [ADD] **Creation of command-line interface namespace in library**
  * [ADD] **Support for JSON specifications**
  * [ADD] **Support for XML specifications**
