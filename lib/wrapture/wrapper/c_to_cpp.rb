@@ -824,6 +824,8 @@ module Wrapture
         # TODO: handle the assumption that context is not rooted in a FuncSpec
         func_spec = context.root
         val = param.value
+        # TODO: pick up here, replace EQUIVALENT_ keywords with value of "self" and
+        # using the type to do the conversion
         conversion = if val == EQUIVALENT_STRUCT_KEYWORD
                        val = 'this'
                        converter_legacy(:this, :equivalent_struct, context)
@@ -961,11 +963,11 @@ module Wrapture
       def self.wrapped_function_call(context)
         # TODO: handle the assumption that the root is a FuncSpec
         func_spec = context.root
-        wrapped = func_spec[:c]
-        params = wrapped.params.map do |it|
+        c_func = func_spec[:c]
+        params = c_func.params.map do |it|
           resolve_wrapped_param(it, context)
         end
-        wrapped_call = "#{wrapped.name}(#{params.join(', ')})"
+        wrapped_call = "#{c_func.name}(#{params.join(', ')})"
 
         if func_spec.constructor?
           # TODO: constructor pointer handling needs to be more deliberate,

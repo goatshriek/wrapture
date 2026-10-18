@@ -89,6 +89,8 @@ module Wrapture
         func = CFunction.new(spec[:name])
 
         # TODO: factor this out into a CParam class
+        # can then make the self reference more explicit and no longer
+        # dependent on simple string matching
         if spec.key?(:params)
           spec[:params].each do |param|
             raise InvalidSpec, 'params must be a Hash' unless param.is_a?(Hash)
