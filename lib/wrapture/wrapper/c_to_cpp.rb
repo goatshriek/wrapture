@@ -24,6 +24,8 @@ module Wrapture
     module CToCpp
       extend Wrapper
 
+      CONVERTERS = [].freeze
+
       # Gives a list of ancestor classes of class spec, including a colon
       # prefix, if the class has ancestors. If not, an empty string is
       # returned instead.
@@ -101,7 +103,7 @@ module Wrapture
       # TODO: for this to be a usable interface point, the semantics around
       # each of the parameters as well as what a converter must do needs to be
       # well-defined, documented, and tested thoroughly.
-      def self.converter(from, to, context)
+      def self.converter_legacy(from, to, context)
         # TODO: remove assumption of a FunctionSpec root with a Class Spec
         # parent
         context_class = context.parent.root
@@ -155,6 +157,11 @@ module Wrapture
         end
 
         nil
+      end
+
+      # An Array of converters this wrapper defaults to.
+      def self.converters
+        CONVERTERS
       end
 
       # Gives the filename used for the declaration of a given spec.
@@ -793,11 +800,11 @@ module Wrapture
       def self.resolve_action_value(func_spec, val)
         case val
         when EQUIVALENT_STRUCT_KEYWORD
-          converter(:this, :equivalent_struct,
-                    func_spec).call('this')
+          converter_legacy(:this, :equivalent_struct,
+                           func_spec).call('this')
         when EQUIVALENT_POINTER_KEYWORD
-          converter(:this, :equivalent_pointer,
-                    func_spec).call('this')
+          converter_legacy(:this, :equivalent_pointer,
+                           func_spec).call('this')
         when RETURN_VALUE_KEYWORD
           if func_spec.constructor?
             'this->equivalent'
@@ -818,19 +825,20 @@ module Wrapture
         val = param.value
         conversion = if val == EQUIVALENT_STRUCT_KEYWORD
                        val = 'this'
-                       converter(:this, :equivalent_struct, context)
+                       converter_legacy(:this, :equivalent_struct, context)
                      elsif val == EQUIVALENT_POINTER_KEYWORD
                        val = 'this'
-                       converter(:this, :equivalent_pointer, context)
+                       converter_legacy(:this, :equivalent_pointer, context)
                      elsif val == '...'
-                       converter(:variadic_args, :variadic_args, context)
+                       converter_legacy(:variadic_args, :variadic_args, context)
                      elsif func_spec.params.any? do |it|
                        it.snake_case_name == param.value
                      end
                        used_param = func_spec.params.find do |it|
                          it.snake_case_name == param.value
                        end
-                       converter(used_param.type_spec, param.c_type, context)
+                       converter_legacy(used_param.type_spec, param.c_type,
+                                        context)
                      end
 
         if conversion.nil?
