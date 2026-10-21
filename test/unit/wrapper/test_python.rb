@@ -23,7 +23,6 @@ require 'minitest/autorun'
 require 'wrapture'
 
 class PythonWrapperTest < Minitest::Test
-  # TODO: pick up here, converting to module tests
   def test_decorated_module_name
     ns = Wrapture::Namespace.new(%w[test namespace])
     ns.source[:python] = { decorate_name: true }
