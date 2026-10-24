@@ -18,6 +18,7 @@
 
 require 'helper'
 
+require 'fixture'
 require 'minitest/autorun'
 require 'wrapture'
 
@@ -46,6 +47,19 @@ end
 MOCK_WRAPPERS = [WToX, WToY, XToZ, YToZ, ZToW].freeze
 
 class WrapperTest < Minitest::Test
+  def test_context_converter
+    c = basic_namespace_context
+    c.converters << proc do |from, to, c|
+      if from.is_a?(Integer) && to.is_a?(Integer)
+        return proc { |expr| expr * 2 }
+      end
+    end
+    converter = Class.new.extend(Wrapture::Wrapper).converter(3, 6, c)
+
+    refute_nil(converter)
+    assert_equal(6, converter(2, 3))
+  end
+
   def test_default_paths
     default_paths = Wrapture.paths
 

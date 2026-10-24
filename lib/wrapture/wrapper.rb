@@ -55,6 +55,7 @@ module Wrapture
     # found then the wrapper's converters are called in order, and the first
     # non-nil result is returned, or nil if there is not one.
     def converter(from_type, to_type, context)
+      context.converter(from_type, to_type)
       # TODO: pick up here, implementing
     end
 
