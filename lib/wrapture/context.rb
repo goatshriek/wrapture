@@ -208,7 +208,7 @@ module Wrapture
     # returned if there is no parent.
     def converter(from_type, to_type)
       converters.each do |it|
-        converter = it.call(from_type, to_type)
+        converter = it.call(from_type, to_type, self)
         return converter unless converter.nil?
       end
 

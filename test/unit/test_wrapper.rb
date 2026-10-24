@@ -49,7 +49,7 @@ MOCK_WRAPPERS = [WToX, WToY, XToZ, YToZ, ZToW].freeze
 class WrapperTest < Minitest::Test
   def test_context_converter
     c = basic_namespace_context
-    c.converters << proc do |from, to, c|
+    c.converters << proc do |from, to, _|
       if from.is_a?(Integer) && to.is_a?(Integer)
         return proc { |expr| expr * 2 }
       end

@@ -824,8 +824,8 @@ module Wrapture
         # TODO: handle the assumption that context is not rooted in a FuncSpec
         func_spec = context.root
         val = param.value
-        # TODO: pick up here, replace EQUIVALENT_ keywords with value of "self" and
-        # using the type to do the conversion
+        # TODO: pick up here, replace EQUIVALENT_ keywords with value of "self"
+        # and using the type to do the conversion
         conversion = if val == EQUIVALENT_STRUCT_KEYWORD
                        val = 'this'
                        converter_legacy(:this, :equivalent_struct, context)
