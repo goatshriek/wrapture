@@ -354,6 +354,18 @@ class CToCppTest < Minitest::Test
            'equivalent struct member was not referenced')
   end
 
+  def test_resolve_self_to_equivalent
+    class_hash = fixture_hash('basic_class')
+    context = Wrapture::Context.from_class_hash(class_hash)
+    func = context.functions.first
+    param = Wrapture::CSource::CDeclaration.new(context.root[:c], 'self',
+                                                value: 'self')
+    resolved = Wrapture::Wrapper::CToCpp.resolve_wrapped_param(param, func)
+
+    refute_nil(resolved)
+    assert_includes(resolved, 'equivalent')
+  end
+
   def test_return_val_in_constructor
     spec_hash = fixture_hash('class_with_return_val_in_constructor')
     context = Wrapture::Context.from_class_hash(spec_hash)

@@ -23,6 +23,7 @@ module Wrapture
 
       def self.ancestor_suffix: (ClassSpec) -> String
       def self.class_name: (ClassSpec) -> String
+      def self.class_to_struct_converter: (untyped, untyped, Context) -> (Proc | nil)
       def self.constant_declaration: (ConstantSpec) -> CppSource::CppDeclaration
       def self.converter: (untyped, untyped, Context) -> Proc
       def self.converters: () -> Array[Proc]

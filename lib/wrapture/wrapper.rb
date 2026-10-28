@@ -55,8 +55,13 @@ module Wrapture
     # found then the wrapper's converters are called in order, and the first
     # non-nil result is returned, or nil if there is not one.
     def converter(from_type, to_type, context)
-      context.converter(from_type, to_type)
-      # TODO: pick up here, implementing
+      c = context.converter(from_type, to_type)
+      return c unless c.nil?
+
+      converters.each do |it|
+        c = it.call(from_type, to_type, self)
+        return c unless c.nil?
+      end
     end
 
     # The symbol of the programming language this module's wrappers use as

@@ -24,9 +24,6 @@ module Wrapture
     module CToCpp
       extend Wrapper
 
-      # An array of conversion generation functions.
-      CONVERTERS = [].freeze
-
       # Gives a list of ancestor classes of class spec, including a colon
       # prefix, if the class has ancestors. If not, an empty string is
       # returned instead.
@@ -44,6 +41,21 @@ module Wrapture
       def self.class_name(class_spec)
         # TODO: check :cpp entry in sources for override
         class_spec.upper_camel_case_name
+      end
+
+      # A converter from a class to a struct.
+      def self.class_to_struct_converter(from, to, _)
+        return nil unless from.is_a?(CppSource::CppClass) &&
+                          !from.equivalent_member.nil?
+
+        c_type = from.equivalent_member.c_type
+        if to == c_type
+          proc { |val| "#{val}.equivalent" }
+        elsif to == CSource::CPointer.new(c_type)
+          proc { |val| "&#{val}.equivalent" }
+        elsif CSource::CPointer.new(to) == c_type
+          proc { |val| "*(#{val}.equivalent)" }
+        end
       end
 
       # Returns a cast of the equivalent member of an instance of the given
@@ -817,7 +829,7 @@ module Wrapture
         end
       end
 
-      # Gives an expression for using the C value +param+ in +context+.
+      # An expression for using the C value +param+ in +context+.
       # Equivalent structs and pointers are resolved, as well as casts between
       # types if they are known within the given context.
       def self.resolve_wrapped_param(param, context)
@@ -826,7 +838,10 @@ module Wrapture
         val = param.value
         # TODO: pick up here, replace EQUIVALENT_ keywords with value of "self"
         # and using the type to do the conversion
-        conversion = if val == EQUIVALENT_STRUCT_KEYWORD
+        conversion = if val == 'self'
+                       from_type = type_class(context.parent_class)
+                       converter(from_type, param.c_type, context)
+                     elsif val == EQUIVALENT_STRUCT_KEYWORD
                        val = 'this'
                        converter_legacy(:this, :equivalent_struct, context)
                      elsif val == EQUIVALENT_POINTER_KEYWORD
@@ -1002,6 +1017,9 @@ module Wrapture
 
         error_return || convert_return
       end
+
+      # An array of conversion generation functions.
+      CONVERTERS = [method(:class_to_struct_converter)].freeze
     end
   end
 end
