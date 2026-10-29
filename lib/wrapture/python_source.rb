@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 #--
-# Copyright 2025 Joel E. Anderson
+# Copyright 2025-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
 # limitations under the License.
 #++
 
+require 'wrapture/python_source/python_class'
 require 'wrapture/python_source/python_source_set'
 
 module Wrapture
