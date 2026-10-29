@@ -63,7 +63,6 @@ module Wrapture
         return c unless c.nil?
       end
 
-      # TODO: pick up here, add test for this case
       nil
     end
 

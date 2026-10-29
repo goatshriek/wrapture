@@ -14,9 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+type conversion_proc = ^(untyped) -> untyped
+type converter_proc = ^(untyped, untyped, Wrapture::Context) -> (conversion_proc | nil)
+
 module Wrapture
   module Wrapper
-    def converter: (untyped, untyped, Context) -> (Proc | nil)
+    def converter: (untyped, untyped, Context) -> (conversion_proc | nil)
     def from_language: () -> Symbol
     def to_language: () -> Symbol
     def wrap: ((ClassSpec | ConstantSpec | EnumSpec | FunctionSpec | Namespace | Context)) -> SourceSet

@@ -29,4 +29,5 @@ functions:
       c:
         name: "underlying_basic_function"
         params:
-          - name: "equivalent_struct"
+          - value: "self"
+            type: "struct basic_struct"

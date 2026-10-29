@@ -26,4 +26,5 @@ functions:
       c:
         name: "vanilla_flavor"
         params:
-          - value: "equivalent_struct_pointer"
+          - value: "self"
+            type: "struct overloaded_struct *"

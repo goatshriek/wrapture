@@ -114,6 +114,13 @@ class CToCppTest < Minitest::Test
            'static keyword not found')
   end
 
+  def test_converter_not_found
+    c = basic_namespace_context
+    converter = Wrapture::Wrapper::CToCpp.converter(3, 3, c)
+
+    assert_nil(converter)
+  end
+
   def test_declaration_includes_in_namespace_with_no_c_details
     # we need a class spec where there isn't a :c key
     class_spec = Wrapture::ClassSpec.from_hash(fixture_hash('versioned_class'))

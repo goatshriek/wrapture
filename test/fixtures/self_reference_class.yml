@@ -31,6 +31,7 @@ functions:
       c:
         name: "underlying_basic_function"
         params:
-          - name: "equivalent_struct_pointer"
-          - name: "app_name"
+          - value: "self"
+            type: "struct basic_struct *"
+          - value: "app_name"
             type: "const char *"

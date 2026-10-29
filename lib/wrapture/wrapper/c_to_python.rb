@@ -371,6 +371,11 @@ module Wrapture
         constructor_count > 1
       end
 
+      # An Array of converters this wrapper defaults to.
+      def self.converters
+        CONVERTERS
+      end
+
       # Creates a Python object using a variable with the given name and type.
       def self.create_python_object(type, name)
         if type.int?
@@ -1345,6 +1350,12 @@ module Wrapture
       # as well as casts between types if they are known within the context of
       # this function.
       def self.resolve_wrapped_param(context, param)
+        if param.value == 'self'
+          # TODO: pick up here
+          conversion = converter(:placeholder, param.c_type, context)
+          return conversion.call('self')
+        end
+
         func_spec = context.root
         used_param = func_spec.params.find do |p|
           p.snake_case_name == param.value
@@ -1572,6 +1583,9 @@ module Wrapture
           CSource::CPointer.new('PyObject')
         end
       end
+
+      # An array of converter functions.
+      CONVERTERS = [].freeze
     end
   end
 end

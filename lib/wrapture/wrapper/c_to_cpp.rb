@@ -43,10 +43,27 @@ module Wrapture
         class_spec.upper_camel_case_name
       end
 
+      # A converter from a class pointer to a struct.
+      def self.class_pointer_to_struct_converter(from, to, _)
+        return nil if !from.is_a?(CSource::CPointer) ||
+                      !from.c_type.is_a?(CppSource::CppClass) ||
+                      from.c_type.equivalent_member.nil?
+
+        c_type = from.c_type.equivalent_member.c_type
+
+        if to == c_type
+          proc { |val| "#{val}->equivalent" }
+        elsif to == CSource::CPointer.new(c_type)
+          proc { |val| "&#{val}->equivalent" }
+        elsif CSource::CPointer.new(to) == c_type
+          proc { |val| "*(#{val}->equivalent)" }
+        end
+      end
+
       # A converter from a class to a struct.
       def self.class_to_struct_converter(from, to, _)
-        return nil unless from.is_a?(CppSource::CppClass) &&
-                          !from.equivalent_member.nil?
+        return nil if !from.is_a?(CppSource::CppClass) ||
+                      from.equivalent_member.nil?
 
         c_type = from.equivalent_member.c_type
         if to == c_type
@@ -840,8 +857,7 @@ module Wrapture
         # and using the type to do the conversion
         conversion = if val == 'self'
                        val = 'this'
-                       from_type = type_class(context.parent_class)
-                       converter(from_type, param.c_type, context)
+                       converter(this_type(context), param.c_type, context)
                      elsif val == EQUIVALENT_STRUCT_KEYWORD
                        #  val = 'this'
                        #  converter_legacy(:this, :equivalent_struct, context)
@@ -868,6 +884,11 @@ module Wrapture
         else
           conversion.call(val)
         end
+      end
+
+      # The type of the 'this' pointer in a given context.
+      def self.this_type(context)
+        CSource::CPointer.new(type_class(context.parent_class))
       end
 
       # Creates a CppClass instance from the ClassSpec at the root of +context+,
@@ -1021,8 +1042,9 @@ module Wrapture
         error_return || convert_return
       end
 
-      # An array of conversion generation functions.
-      CONVERTERS = [method(:class_to_struct_converter)].freeze
+      # An array of converter functions.
+      CONVERTERS = [method(:class_pointer_to_struct_converter),
+                    method(:class_to_struct_converter)].freeze
     end
   end
 end

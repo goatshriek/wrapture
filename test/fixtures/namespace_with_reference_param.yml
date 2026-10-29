@@ -38,6 +38,7 @@ classes:
           c:
             name: "load_rifle_with_bullet"
             params:
-              - value: "equivalent_struct_pointer"
-              - type: "struct bullet_struct *"
-                value: "bullet"
+              - value: "self"
+                type: "struct bullet_struct *"
+              - value: "bullet"
+                type: "struct bullet_struct *"

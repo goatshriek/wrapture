@@ -19,14 +19,14 @@ module Wrapture
     module CToCpp
       extend Wrapper
 
-      CONVERTERS: Array[Proc]
+      CONVERTERS: Array[converter_proc]
 
       def self.ancestor_suffix: (ClassSpec) -> String
       def self.class_name: (ClassSpec) -> String
-      def self.class_to_struct_converter: (untyped, untyped, Context) -> (Proc | nil)
+      def self.class_pointer_to_struct_converter: (untyped, untyped, Context) -> (conversion_proc | nil)
+      def self.class_to_struct_converter: (untyped, untyped, Context) -> (conversion_proc | nil)
       def self.constant_declaration: (ConstantSpec) -> CppSource::CppDeclaration
-      def self.converter: (untyped, untyped, Context) -> Proc
-      def self.converters: () -> Array[Proc]
+      def self.converters: () -> Array[converter_proc]
       def self.declaration_filename: (untyped) -> String
       def self.declaration_includes: (Context) -> Array[String]
       def self.declare_class: (Context) -> SourceFile
@@ -52,6 +52,7 @@ module Wrapture
       def self.pointer_move_constructor: (Context) -> CppSource::CppFunction
       def self.resolve_action_value: (FunctionSpec, String) -> String
       def self.resolve_wrapped_param: (CSource::CDeclaration, Context) -> String
+      def self.this_type: (Context) -> CSource::CPointer
       def self.type_class: (Context) -> CppSource::CppClass
       def self.wrap_class_context: (Context) -> CppSource::CppSourceSet
       def self.wrap_constant_context: (Context) -> CppSource::CppSourceSet

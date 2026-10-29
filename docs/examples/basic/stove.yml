@@ -43,7 +43,8 @@ classes:
         c:
           name: "destroy_stove"
           params:
-            - name: "equivalent_struct_pointer"
+            - value: "self"
+              type: "struct stove *"
     functions:
       - name: "GetBurnerCount"
         doc: "Returns the number of burners on this stove."
@@ -53,7 +54,8 @@ classes:
           c:
             name: "get_burner_count"
             params:
-              - name: "equivalent_struct_pointer"
+              - value: "self"
+                type: "struct stove *"
             return:
               type: "int"
       - name: "GetOvenTemp"
@@ -63,7 +65,8 @@ classes:
           c:
             name: "get_oven_temp"
             params:
-              - name: "equivalent_struct_pointer"
+              - name: "self"
+                type: "struct stove *"
             return:
               type: "int"
       - name: "SetOvenTemp"
@@ -74,8 +77,10 @@ classes:
           c:
             name: "set_oven_temp"
             params:
-              - name: "equivalent_struct_pointer"
-              - name: "new_temp"
+              - value: "self"
+                type: "struct stove *"
+              - value: "new_temp"
+                type: "int"
       - name: "GetBurnerLevel"
         params:
           - name: "burner_index"
@@ -86,8 +91,10 @@ classes:
           c:
             name: "get_burner_level"
             params:
-              - name: "equivalent_struct_pointer"
-              - name: "burner_index"
+              - value: "self"
+                type: "struct stove *"
+              - value: "burner_index"
+                type: "int"
             return:
               type: "int"
       - name: "SetBurnerLevel"
@@ -100,9 +107,12 @@ classes:
           c:
             name: "set_burner_level"
             params:
-              - name: "equivalent_struct_pointer"
-              - name: "burner_index"
-              - name: "new_level"
+              - value: "self"
+                type: "struct stove *"
+              - value: "burner_index"
+                type: "int"
+              - value: "new_level"
+                type: "int"
       - name: "IsModelSupported"
         static: true
         return:

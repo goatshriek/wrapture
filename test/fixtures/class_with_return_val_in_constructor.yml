@@ -42,4 +42,5 @@ destructor:
     c:
       name: "wrapped_destructor"
       params:
-        - value: "equivalent_struct_pointer"
+        - value: "self"
+          type: "struct irrelevant *"

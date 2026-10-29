@@ -20,6 +20,7 @@ module Wrapture
       extend Wrapper
 
       C_TYPE_FORMAT_UNIT_MAP: Hash[String, String]
+      CONVERTERS: Array[converter_proc]
       MEMBER_TYPE_MAP: Hash[String, String]
 
       def self.add_class_object: (SourceFile, ClassSpec) -> SourceFile
@@ -37,6 +38,7 @@ module Wrapture
       def self.class_type_struct: (Context) -> CSource::CStruct
       def self.constructor_params: () -> Enumerable[CSource::CDeclaration]
       def self.constructors_overloaded?: (Context) -> bool
+      def self.converters: () -> Array[converter_proc]
       def self.create_python_object: (TypeSpec, String) -> String
       def self.create_self: (CSource::CBlock, Context) -> CSource::CBlock
       def self.declare_module_struct: (SourceFile, String) -> SourceFile
