@@ -839,14 +839,17 @@ module Wrapture
         # TODO: pick up here, replace EQUIVALENT_ keywords with value of "self"
         # and using the type to do the conversion
         conversion = if val == 'self'
+                       val = 'this'
                        from_type = type_class(context.parent_class)
                        converter(from_type, param.c_type, context)
                      elsif val == EQUIVALENT_STRUCT_KEYWORD
-                       val = 'this'
-                       converter_legacy(:this, :equivalent_struct, context)
+                       #  val = 'this'
+                       #  converter_legacy(:this, :equivalent_struct, context)
+                       raise WraptureError, 'equivalent struct used'
                      elsif val == EQUIVALENT_POINTER_KEYWORD
-                       val = 'this'
-                       converter_legacy(:this, :equivalent_pointer, context)
+                       #  val = 'this'
+                       #  converter_legacy(:this, :equivalent_pointer, context)
+                       raise WraptureError, 'equivalent pointer used'
                      elsif val == '...'
                        converter_legacy(:variadic_args, :variadic_args, context)
                      elsif func_spec.params.any? do |it|

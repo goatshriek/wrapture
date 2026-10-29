@@ -34,7 +34,7 @@ constructors:
           - name: "new_name"
             type: "const char *"
         return:
-          type: "equivalent_struct"
+          type: "constructed_struct"
         includes: "constructed.h"
   - params:
       - name: "original"
@@ -44,9 +44,9 @@ constructors:
         name: "copy_struct"
         params:
           - name: "original_struct"
-            type: "equivalent_struct"
+            type: "constructed_struct"
         return:
-          type: "equivalent_struct"
+          type: "constructed_struct"
         includes:
           - "constructed.h"
 destructor:
@@ -54,21 +54,23 @@ destructor:
     c:
       name: "destroy_a_struct"
       params:
-        - name: "equivalent_struct_pointer"
+        - value: "self"
       includes:
         - "constructed.h"
 functions:
   - name: "CompareToStruct"
     params:
       - name: "compare_to"
-        type: "self"
+        type: "ClassWithConstructor"
     return:
       type: "int"
     source:
       c:
         name: "compare_structs"
         params:
-          - name: "equivalent_struct"
-          - name: "compare_to"
+          - value: "self"
+            type: "constructed_struct *"
+          - value: "compare_to"
+            type: "constructed_struct *"
         return:
           type: "int"

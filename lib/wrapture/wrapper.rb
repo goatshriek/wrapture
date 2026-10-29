@@ -62,6 +62,9 @@ module Wrapture
         c = it.call(from_type, to_type, self)
         return c unless c.nil?
       end
+
+      # TODO: pick up here, add test for this case
+      nil
     end
 
     # The symbol of the programming language this module's wrappers use as
