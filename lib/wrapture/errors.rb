@@ -24,6 +24,10 @@ module Wrapture
   class WraptureError < StandardError
   end
 
+  # A conversion between two types could not be performed.
+  class ConversionError < WraptureError
+  end
+
   # A source tree could not be formatted into code.
   class FormatError < WraptureError
   end

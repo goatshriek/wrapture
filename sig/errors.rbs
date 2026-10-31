@@ -18,6 +18,9 @@ module Wrapture
   class WraptureError < StandardError
   end
 
+  class ConversionError < WraptureError
+  end
+
   class FormatError < WraptureError
   end
 

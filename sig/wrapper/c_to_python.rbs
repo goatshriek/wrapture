@@ -34,6 +34,7 @@ module Wrapture
       def self.class_methods_declaration: (Context) -> CSource::CDeclaration
       def self.class_struct: (Context, ?var_name: String) -> String
       def self.class_struct_pointer: (Context, ?var_name: String) -> String
+      def self.class_to_struct_converter: (untyped, untyped, Context) -> (conversion_proc | nil)
       def self.class_type_object_declaration: (Context) -> CSource::CDeclaration
       def self.class_type_struct: (Context) -> CSource::CStruct
       def self.constructor_params: () -> Enumerable[CSource::CDeclaration]
@@ -87,6 +88,7 @@ module Wrapture
       def self.runtime_base_size: (Context) -> String
       def self.runtime_class?: (ClassSpec) -> bool
       def self.runtime_type_cast: (Context, String) -> String
+      def self.self_class: (Context) -> PythonSource::PythonClass
       def self.self_declaration: (ClassSpec) -> CSource::CDeclaration
       def self.source_return_type: (Context) -> untyped
       def self.type_object_name: (Named) -> String

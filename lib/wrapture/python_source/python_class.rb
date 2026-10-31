@@ -18,7 +18,6 @@
 # limitations under the License.
 #++
 
-
 module Wrapture
   module PythonSource
     # A class used in Python code.
@@ -29,6 +28,11 @@ module Wrapture
       # A Python class must have a name, at a minimum.
       def initialize(name)
         @name = name
+
+        # TODO: pick up here, adding ability to track the equivalent member
+        # is the member in the struct?
+        # or in a parent class struct?
+        # is it a runtime class?
       end
     end
   end

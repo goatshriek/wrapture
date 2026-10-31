@@ -267,6 +267,11 @@ module Wrapture
         end
       end
 
+      # A converter from a python class to a struct.
+      def self.class_to_struct_converter(from, to, _)
+        return nil unless from.is_a?(PythonSource::PythonClass)
+      end
+
       # Defines a PyTypeObject struct for the class at the root of +context+.
       def self.class_type_object_declaration(context)
         class_spec = context.root
@@ -1351,9 +1356,15 @@ module Wrapture
       # this function.
       def self.resolve_wrapped_param(context, param)
         if param.value == 'self'
-          # TODO: pick up here
-          conversion = converter(:placeholder, param.c_type, context)
-          return conversion.call('self')
+          from = self_class(context)
+          conversion = converter(from, param.c_type, context)
+
+          if conversion.nil?
+            msg = "could not convert from class #{from.name} to #{param.c_type}"
+            raise ConversionError, msg
+          else
+            return conversion.call('self')
+          end
         end
 
         func_spec = context.root
@@ -1424,6 +1435,12 @@ module Wrapture
         type_object = base_type_object(context)
         real_self = "((intptr_t) #{var_name}) + #{type_object}->tp_basicsize"
         "( #{type_struct_name} * )( #{real_self} )"
+      end
+
+      # The class of the self instance in +context+.
+      def self.self_class(context)
+        class_spec = context.parent_class.root
+        PythonSource::PythonClass.new(Python.class_name(class_spec))
       end
 
       # A declaration of a pointer to an instance of +class_spec+ named self.

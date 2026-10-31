@@ -42,6 +42,13 @@ class CToPythonTest < Minitest::Test
     assert_equal(expected_typedef, type_struct.typedef)
   end
 
+  def test_converter_not_found
+    c = basic_namespace_context
+    converter = Wrapture::Wrapper::CToPython.converter(3, 3, c)
+
+    assert_nil(converter)
+  end
+
   def test_from_language
     assert_equal(:c, Wrapture::Wrapper::CToPython.from_language)
   end
@@ -115,6 +122,18 @@ class CToPythonTest < Minitest::Test
 
     refute_nil(call)
     assert_includes(call, 'thing_to_do')
+  end
+
+  def test_resolve_self_to_equivalent
+    class_hash = fixture_hash('basic_class')
+    context = Wrapture::Context.from_class_hash(class_hash)
+    func = context.functions.first
+    param = Wrapture::CSource::CDeclaration.new(context.root[:c], 'self',
+                                                value: 'self')
+    resolved = Wrapture::Wrapper::CToPython.resolve_wrapped_param(func, param)
+
+    refute_nil(resolved)
+    assert_includes(resolved, 'equivalent')
   end
 
   def test_to_language
