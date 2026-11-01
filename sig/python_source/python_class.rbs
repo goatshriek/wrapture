@@ -18,10 +18,14 @@ module Wrapture
   module PythonSource
     class PythonClass
       @name: String
+      @runtime: bool
 
       attr_reader name: String
+      attr_writer runtime: bool
+      attr_accessor type_struct: (CSource::CStruct | nil)
 
       def initialize: (String) -> void
+      def runtime?: () -> bool
     end
   end
 end

@@ -25,14 +25,26 @@ module Wrapture
       # The name of the class.
       attr_reader :name
 
+      # True if the type information of this class is only available at runtime.
+      # An example of this case is if it inherits from a class that is purely
+      # Python or is not exposed in Python's C API, such as the Exception class.
+      attr_writer :runtime
+
+      # The PyTypeObject C struct used to describe this class type.
+      attr_accessor :type_struct
+
       # A Python class must have a name, at a minimum.
       def initialize(name)
         @name = name
+        @runtime = false
+        @type_struct = nil
 
-        # TODO: pick up here, adding ability to track the equivalent member
-        # is the member in the struct?
-        # or in a parent class struct?
-        # is it a runtime class?
+        # TODO: pick up here, using PythonClass in the wrapper
+      end
+
+      # True if the type information of this class is only available at runtime.
+      def runtime?
+        @runtime
       end
     end
   end
