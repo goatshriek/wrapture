@@ -22,22 +22,32 @@ module Wrapture
   module PythonSource
     # A class used in Python code.
     class PythonClass
+      # The PythonClass which has the equivalent struct for this class in its
+      # type struct, or nil if there is not one.
+      attr_accessor :equivalent_class
+
+      # The CStruct that this class wraps, or nil if it does not wrap a struct.
+      attr_accessor :equivalent_struct
+
       # The name of the class.
       attr_reader :name
+
+      # An Array of parent classes.
+      attr_reader :parents
 
       # True if the type information of this class is only available at runtime.
       # An example of this case is if it inherits from a class that is purely
       # Python or is not exposed in Python's C API, such as the Exception class.
       attr_writer :runtime
 
-      # The PyTypeObject C struct used to describe this class type.
-      attr_accessor :type_struct
-
       # A Python class must have a name, at a minimum.
       def initialize(name)
         @name = name
+
+        @equivalent_class = nil
+        @equivalent_struct = nil
+        @parents = []
         @runtime = false
-        @type_struct = nil
 
         # TODO: pick up here, using PythonClass in the wrapper
       end
@@ -45,6 +55,11 @@ module Wrapture
       # True if the type information of this class is only available at runtime.
       def runtime?
         @runtime
+      end
+
+      # The PyTypeObject C struct used to describe this class type.
+      def type_struct
+        nil
       end
     end
   end

@@ -17,15 +17,21 @@
 module Wrapture
   module PythonSource
     class PythonClass
+      @equivalent_class: (PythonClass | nil)
+      @equivalent_struct: (CSource::CStruct | nil)
       @name: String
+      @parents: Array[PythonClass]
       @runtime: bool
 
+      attr_accessor equivalent_class: (PythonClass | nil)
+      attr_accessor equivalent_struct: (CSource::CStruct | nil)
       attr_reader name: String
+      attr_reader parents: Array[PythonClass]
       attr_writer runtime: bool
-      attr_accessor type_struct: (CSource::CStruct | nil)
 
       def initialize: (String) -> void
       def runtime?: () -> bool
+      def type_struct: () -> (CSource::CStruct | nil)
     end
   end
 end
