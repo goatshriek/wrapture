@@ -90,6 +90,7 @@ module Wrapture
       def self.runtime_type_cast: (Context, String) -> String
       def self.self_class: (Context) -> PythonSource::PythonClass
       def self.self_declaration: (ClassSpec) -> CSource::CDeclaration
+      def self.stub_class: (Context) -> PythonSource::PythonClass
       def self.source_return_type: (Context) -> untyped
       def self.type_object_name: (Named) -> String
       def self.type_object_pointer: (ClassSpec) -> (String | nil)

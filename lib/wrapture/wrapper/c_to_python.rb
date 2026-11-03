@@ -1449,6 +1449,13 @@ module Wrapture
         CSource::CDeclaration.new(pointer_type, 'self')
       end
 
+      # A PythonClass instance for the ClassSpec at the root of +context+, with
+      # the name and wrapping fields set appropriately.
+      def self.stub_class(context)
+        # TODO: pick up here
+        PythonSource::PythonClass.new('Stub')
+      end
+
       # The type of the C function wrapped by the function at the root of
       # +context+.
       def self.source_return_type(context)
