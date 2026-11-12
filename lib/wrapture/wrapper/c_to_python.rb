@@ -267,9 +267,25 @@ module Wrapture
         end
       end
 
-      # A converter from a python class to a struct.
+      # A converter from a python class to a struct. +from+ must be a
+      # +PythonClass+ instance, and +to+ must be either a +CStruct+ or a
+      # +CPointer+ to a +CStruct+, where the struct is the same as the
+      # equivalent C type of the python class.
+      #
+      # The conversion proc returned assumes that the provided expression is
+      # an instance of the class struct for +from+.
       def self.class_to_struct_converter(from, to, _)
         return nil unless from.is_a?(PythonSource::PythonClass)
+        return nil if from.equivalent_c_type.nil?
+
+        c_type = from.equivalent_c_type
+        if to == c_type
+          proc { |val| "#{val}->equivalent" }
+        elsif to == CSource::CPointer.new(c_type)
+          proc { |val| "&#{val}->equivalent" }
+        elsif CSource::CPointer.new(to) == c_type
+          proc { |val| "*(#{val}->equivalent)" }
+        end
       end
 
       # Defines a PyTypeObject struct for the class at the root of +context+.
@@ -1356,11 +1372,12 @@ module Wrapture
       # this function.
       def self.resolve_wrapped_param(context, param)
         if param.value == 'self'
-          from = self_class(context)
+          from = stub_class(context.parent_class)
           conversion = converter(from, param.c_type, context)
 
           if conversion.nil?
-            msg = "could not convert from class #{from.name} to #{param.c_type}"
+            msg = "could not convert from Python class #{from.name} to " \
+                  "C type #{param.c_type}"
             raise ConversionError, msg
           else
             return conversion.call('self')
@@ -1452,8 +1469,35 @@ module Wrapture
       # A PythonClass instance for the ClassSpec at the root of +context+, with
       # the name and wrapping fields set appropriately.
       def self.stub_class(context)
-        # TODO: pick up here
-        PythonSource::PythonClass.new('Stub')
+        unless context.root.is_a?(ClassSpec)
+          msg = 'a stub class can only be created from a context with a ' \
+                "ClassSpec root, but this root is a #{context.root.class}"
+          raise InvalidContext, msg
+        end
+
+        class_spec = context.root
+
+        cls = PythonSource::PythonClass.new(Python.class_name(class_spec))
+        cls.equivalent_c_type = class_spec[:c]
+        cls.equivalent_class = cls
+
+        if class_spec.child?
+          parent_name = class_spec.parent_name
+          parent_context = context.resolve_name(parent_name)
+
+          parent_class = if parent_context.nil?
+                           name = Named.upper_camel_case_name(parent_name)
+                           PythonSource::PythonClass.new(name)
+                         else
+                           stub_class(parent_context)
+                         end
+
+          cls.equivalent_class = parent_class if C.equivalent_ancestor?(context)
+
+          cls.parents << parent_class
+        end
+
+        cls
       end
 
       # The type of the C function wrapped by the function at the root of
@@ -1609,7 +1653,7 @@ module Wrapture
       end
 
       # An array of converter functions.
-      CONVERTERS = [].freeze
+      CONVERTERS = [method(:class_to_struct_converter)].freeze
     end
   end
 end

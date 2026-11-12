@@ -42,6 +42,19 @@ class CToPythonTest < Minitest::Test
     assert_equal(expected_typedef, type_struct.typedef)
   end
 
+  def test_convert_python_class_struct_to_struct_pointer
+    struct = Wrapture::CSource::CStruct.new(name: 'test_struct')
+    pointer = Wrapture::CSource::CPointer.new(struct)
+    py_class = Wrapture::PythonSource::PythonClass.new('TestClass')
+    py_class.equivalent_c_type = struct
+    converter = Wrapture::Wrapper::CToPython.converter(py_class,
+                                                       pointer,
+                                                       basic_namespace_context)
+
+    refute_nil(converter)
+    assert_equal('&self->equivalent', converter.call('self'))
+  end
+
   def test_converter_not_found
     c = basic_namespace_context
     converter = Wrapture::Wrapper::CToPython.converter(3, 3, c)

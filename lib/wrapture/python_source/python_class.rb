@@ -26,8 +26,9 @@ module Wrapture
       # type struct, or nil if there is not one.
       attr_accessor :equivalent_class
 
-      # The CStruct that this class wraps, or nil if it does not wrap a struct.
-      attr_accessor :equivalent_struct
+      # The C type that this class wraps, or nil if it is not part of a C
+      # extension.
+      attr_accessor :equivalent_c_type
 
       # The name of the class.
       attr_reader :name
@@ -45,7 +46,7 @@ module Wrapture
         @name = name
 
         @equivalent_class = nil
-        @equivalent_struct = nil
+        @equivalent_c_type = nil
         @parents = []
         @runtime = false
 

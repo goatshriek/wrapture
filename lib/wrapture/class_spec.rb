@@ -39,6 +39,7 @@ module Wrapture
 
     # The name words of the parent of this class, or nil if it has no parent.
     attr_accessor :parent
+    # TODO: need to support multi-inheritance in some way
 
     # A map of language-specific wrapping details.
     attr_reader :source

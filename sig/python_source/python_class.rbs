@@ -18,13 +18,13 @@ module Wrapture
   module PythonSource
     class PythonClass
       @equivalent_class: (PythonClass | nil)
-      @equivalent_struct: (CSource::CStruct | nil)
+      @equivalent_c_type: (CSource::CStruct | nil)
       @name: String
       @parents: Array[PythonClass]
       @runtime: bool
 
       attr_accessor equivalent_class: (PythonClass | nil)
-      attr_accessor equivalent_struct: (CSource::CStruct | nil)
+      attr_accessor equivalent_c_type: (CSource::CStruct | nil)
       attr_reader name: String
       attr_reader parents: Array[PythonClass]
       attr_writer runtime: bool
