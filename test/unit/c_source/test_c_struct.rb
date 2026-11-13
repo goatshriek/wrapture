@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-# Copyright 2025 Joel E. Anderson
+# Copyright 2025-2026 Joel E. Anderson
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,6 +23,16 @@ require 'minitest/autorun'
 require 'wrapture'
 
 class CStructTest < Minitest::Test
+  def test_equals_with_different_members
+    name = 'test_struct'
+    s1 = Wrapture::CSource::CStruct.new(name: name)
+    s1.members << Wrapture::CSource::CType.new('int')
+    s2 = Wrapture::CSource::CStruct.new(name: name)
+
+    assert_equal(s1, s2)
+    assert_equal(s2, s1)
+  end
+
   def test_includes_from_hash_string_entry
     struct_hash = { name: 'my_struct', includes: 'my_inc.h' }
     struct_instance = Wrapture::CSource::CStruct.from_hash(struct_hash)

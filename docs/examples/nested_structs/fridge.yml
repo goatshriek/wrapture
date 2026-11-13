@@ -38,7 +38,7 @@ classes:
               - value: "can_crush_ice"
                 type: "int"
             return:
-              type: "equivalent_struct_pointer"
+              type: "struct ice_maker *"
   - name: "WaterFilter"
     source:
       c:
@@ -57,7 +57,7 @@ classes:
               - value: "purity_level"
                 type: "int"
             return:
-              type: "equivalent_struct_pointer"
+              type: "struct water_filter *"
   - name: "Freezer"
     source:
       c:
@@ -80,7 +80,7 @@ classes:
               - value: "set_temp"
                 type: "int"
             return:
-              type: "equivalent_struct_pointer"
+              type: "struct freezer *"
   - name: "Fridge"
     source:
       c:
@@ -99,7 +99,7 @@ classes:
               - value: "temperature"
                 type: "int"
             return:
-              type: "equivalent_struct_pointer"
+              type: "struct fridge *"
     functions:
       - name: "AddIceMaker"
         params:
@@ -109,7 +109,8 @@ classes:
           c:
             name: "add_ice_maker_to_fridge"
             params:
-              - name: "equivalent_struct_pointer"
+              - value: "self"
+                type: "struct fridge *"
               - name: "new_ice_maker"
                 type: "struct ice_maker *"
       - name: "AddWaterFilter"
@@ -120,7 +121,8 @@ classes:
           c:
             name: "add_water_filter_to_fridge"
             params:
-              - name: "equivalent_struct_pointer"
+              - value: "self"
+                type: "struct fridge *"
               - name: "new_filter"
                 type: "struct water_filter *"
       - name: "AddFreezer"
@@ -131,7 +133,8 @@ classes:
           c:
             name: "add_freezer_to_fridge"
             params:
-              - name: "equivalent_struct_pointer"
+              - value: "self"
+                type: "struct fridge *"
               - name: "new_freezer"
                 type: "struct freezer *"
       - name: "GetFreezerMinimumTemp"
@@ -141,7 +144,8 @@ classes:
           c:
             name: "get_freezer_minimum_temp"
             params:
-              - name: "equivalent_struct_pointer"
+              - value: "self"
+                type: "struct fridge *"
             return:
               type: "int"
       - name: "Print"
@@ -149,4 +153,5 @@ classes:
           c:
             name: "print_fridge"
             params:
-              - name: "equivalent_struct_pointer"
+              - value: "self"
+                type: "struct fridge *"

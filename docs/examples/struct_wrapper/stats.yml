@@ -43,7 +43,8 @@ classes:
             name: "get_goals_scored"
             libraries: "stats"
             params:
-              - name: "equivalent_struct_pointer"
+              - value: "self"
+                type: "struct player_stats *"
             return:
               type: "int"
       - name: "GetRedCards"
@@ -54,7 +55,8 @@ classes:
             name: "get_red_cards"
             libraries: "stats"
             params:
-              - name: "equivalent_struct_pointer"
+              - value: "self"
+                type: "struct player_stats *"
             return:
               type: "int"
       - name: "GetYellowCards"
@@ -65,7 +67,8 @@ classes:
             name: "get_yellow_cards"
             libraries: "stats"
             params:
-              - name: "equivalent_struct_pointer"
+              - value: "self"
+                type: "struct player_stats *"
             return:
               type: "int"
       - name: "Print"
@@ -74,5 +77,6 @@ classes:
             name: "print_player_stats"
             libraries: "stats"
             params:
-              - name: "equivalent_struct_pointer"
+              - value: "self"
+                type: "struct player_stats *"
             includes: "stats.h"

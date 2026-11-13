@@ -30,13 +30,14 @@ classes:
           c:
             name: "new_turret"
             return:
-              type: "equivalent_struct_pointer"
+              type: "struct turret *"
     destructor:
       source:
         c:
           name: "destroy_turret"
           params:
-            - value: "equivalent_struct_pointer"
+            - value: "self"
+              type: "struct turret *"
     functions:
       - name: "Aim"
         params:
@@ -51,10 +52,14 @@ classes:
             name: "aim"
             libraries: "turret"
             params:
-              - value: "equivalent_struct_pointer"
+              - value: "self"
+                type: "struct turret *"
               - value: "x"
+                type: "int"
               - value: "y"
+                type: "int"
               - value: "z"
+                type: "int"
             return:
               type: "struct turret_error *"
             error_check:
@@ -73,7 +78,8 @@ classes:
           c:
             name: "ammo_count"
             params:
-              - value: "equivalent_struct_pointer"
+              - value: "self"
+                type: "struct turret *"
             return:
               type: "int"
       - name: "Fire"
@@ -81,7 +87,8 @@ classes:
           c:
             name: "fire"
             params:
-              - value: "equivalent_struct_pointer"
+              - value: "self"
+                type: "struct turret *"
             return:
               type: "struct turret_error *"
             error_check:
@@ -98,7 +105,8 @@ classes:
           c:
             name: "reload"
             params:
-              - value: "equivalent_struct_pointer"
+              - value: "self"
+                type: "struct turret *"
   - name: "TurretException"
     exception: true
     source:
@@ -111,7 +119,7 @@ classes:
           c:
             name: "null_error"
             return:
-              type: "equivalent_struct_pointer"
+              type: "struct turret_error *"
     functions:
       - name: "message"
         virtual: true
@@ -122,7 +130,8 @@ classes:
             name: "get_error_message"
             includes: "turret_error.h"
             params:
-              - value: "equivalent_struct_pointer"
+              - value: "self"
+                type: "struct turret_error *"
             return:
               type: "const char *"
   - name: "JammedException"
@@ -149,7 +158,8 @@ classes:
             return:
               type: "const char *"
             params:
-              - value: "equivalent_struct_pointer"
+              - value: "self"
+                type: "struct turret_error *"
   - name: "OutOfAmmoException"
     parent:
       name: "TurretException"
@@ -174,7 +184,8 @@ classes:
             return:
               type: "const char *"
             params:
-              - value: "equivalent_struct_pointer"
+              - value: "self"
+                type: "struct turret_error *"
   - name: "TargetingException"
     parent:
       name: "TurretException"
@@ -197,6 +208,7 @@ classes:
             name: "get_error_message"
             includes: "turret_error.h"
             params:
-              - value: "equivalent_struct_pointer"
+              - value: "self"
+                type: "struct turret_error *"
             return:
               type: "const char *"

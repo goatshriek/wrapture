@@ -58,7 +58,8 @@ classes:
             name: "send_command"
             libraries: "vcr"
             params:
-              - name: "equivalent_struct_pointer"
+              - value: "self"
+                type: "struct vcr *"
               - name: "command"
             return:
               type: "int"

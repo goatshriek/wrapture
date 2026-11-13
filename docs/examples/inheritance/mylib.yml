@@ -40,7 +40,8 @@ classes:
             name: "check_out_item"
             libraries: "mylib"
             params:
-              - name: "equivalent_struct_pointer"
+              - value: "self"
+                type: "struct mylib_item *"
             includes: "mylib.h"
   - name: "Book"
     parent:
@@ -70,7 +71,8 @@ classes:
             name: "get_page_count"
             libraries: "mylib"
             params:
-              - name: "equivalent_struct_pointer"
+              - value: "self"
+                type: "struct mylib_item *"
             includes: "mylib.h"
             return:
               type: "int"

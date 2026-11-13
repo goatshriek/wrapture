@@ -29,7 +29,7 @@ classes:
             name: "new_default_event"
             libraries: "security_system"
             return:
-              type: "equivalent_struct_pointer"
+              type: "struct event *"
       - params:
         - name: "code"
           type: "int"
@@ -44,13 +44,14 @@ classes:
               - value: "data"
                 type: "const char *"
             return:
-              type: "equivalent_struct_pointer"
+              type: "struct event *"
     destructor:
       source:
         c:
           name: "destroy_event"
           params:
-            - value: "equivalent_struct_pointer"
+            - value: "self"
+              type: "struct event *"
     functions:
       - name: "GetCode"
         virtual: true
@@ -61,7 +62,8 @@ classes:
             name: "get_event_code"
             includes: "security_system.h"
             params:
-              - value: "equivalent_struct_pointer"
+              - value: "self"
+                type: "struct event *"
             return:
               type: "int"
       - name: "NextEvent"
@@ -74,7 +76,7 @@ classes:
             name: "get_next_event"
             includes: "security_system.h"
             return:
-              type: "equivalent_struct_pointer"
+              type: "struct event *"
       - name: "Print"
         virtual: true
         source:
@@ -82,7 +84,8 @@ classes:
             name: "print_event"
             includes: "security_system.h"
             params:
-              - value: "equivalent_struct_pointer"
+              - value: "self"
+                type: "struct event *"
   - name: "CameraEvent"
     parent:
       name: "SecurityEvent"
@@ -107,7 +110,7 @@ classes:
               - value: "description"
                 type: "const char *"
             return:
-              type: "equivalent_struct_pointer"
+              type: "struct event *"
     functions:
       - name: "GetCode"
         return:
@@ -124,7 +127,8 @@ classes:
             name: "print_camera_event"
             includes: "security_system.h"
             params:
-              - value: "equivalent_struct_pointer"
+              - value: "self"
+                type: "struct event *"
   - name: "GlassBreakEvent"
     parent:
       name: "SecurityEvent"
@@ -149,7 +153,7 @@ classes:
               - value: "level"
                 type: "int"
             return:
-              type: "equivalent_struct_pointer"
+              type: "struct event *"
     functions:
       - name: "GetCode"
         return:
@@ -166,7 +170,8 @@ classes:
             name: "print_glass_break_event"
             includes: "security_system.h"
             params:
-              - value: "equivalent_struct_pointer"
+              - value: "self"
+                type: "struct event *"
   - name: "MotionEvent"
     parent:
       name: "SecurityEvent"
@@ -191,7 +196,7 @@ classes:
               - value: "description"
                 type: "const char *"
             return:
-              type: "equivalent_struct_pointer"
+              type: "struct event *"
     functions:
       - name: "GetCode"
         return:
@@ -208,4 +213,5 @@ classes:
             name: "print_motion_event"
             includes: "security_system.h"
             params:
-              - value: "equivalent_struct_pointer"
+              - value: "self"
+                type: "struct event *"

@@ -95,8 +95,9 @@ module Wrapture
         @typedef = typedef
       end
 
-      # Compares with another struct. If the other is a CType, then only the
-      # type as a string is compared to the struct's name.
+      # Compares with another struct to see if they are the same type. If the
+      # other is a CType, then the type as a string is compared to the struct's
+      # name. Otherwise, struct names are compared.
       #
       # TODO: this special handling of CType needs to be revisited.
       def ==(other)
@@ -105,9 +106,7 @@ module Wrapture
           @name == other.to_s
         when CStruct
           !other.nil? &&
-            @name == other.name &&
-            @members == other.members &&
-            @typedef == other.typedef
+            @name == other.name
         else
           false
         end
